@@ -245,4 +245,63 @@ typedef struct __cilkrts_pedigree
 
 #endif // __CILKRTS_ABI_VERSION >= 1
 
+// RRN: Turning IVars on unconditionally for now:
+//
+// To turn on IVars define CILK_IVARS to be one of the following constants.  Leave
+// CILK_IVARS undefined to disable the feature.
+//
+// During the experimental phase there will be three variants.
+// The first is a simple reference implementation.  IVar blocking merely spins.  It works
+// only for serially executable (write before read) Cilk/IVar programs.
+#define CILK_IVARS_BUSYWAIT_VARIANT 1 
+// The second variant uses a separate stack for each blocked computation.  It works for
+// non-serializable Cilk/IVar programs.
+#define CILK_IVARS_NORMAL_VARIANT   2
+// For development/benchmarking purposes let us go ahead and implement the same
+// API for Concurrent Cilk using full blown system threads.
+#define CILK_IVARS_PTHREAD_VARIANT  3
+// Finally, this [UNFINISHED] variant will extend the second with a cheaper, pedigree-restricted form of
+// stealing that reuses the current stack.  It works only for programs supporting serial
+// elision ("serializable IVar programs").
+#define CILK_IVARS_PEDIGREE_VARIANT 4
+
+// what queue we want to use:
+#define LOCKFREE_QUEUE_VERSION 1
+//#define CACHE_AWARE_QUEUE 1
+
+#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
+  pthread_t id = pthread_self(); char buf[512];             \
+  sprintf(buf, __VA_ARGS__);                                \
+  volatile struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
+  fprintf(stderr, "[tid/W %3d %2d/%p] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, tw, buf); }
+
+
+// Set the default:
+#ifndef CILK_IVARS
+#define CILK_IVAR_FOLLOW_FORWARDING 1
+#define CILK_IVARS CILK_IVARS_NORMAL_VARIANT
+//#define CILK_IVARS CILK_IVARS_BUSYWAIT_VARIANT
+//#define CILK_IVARS CILK_IVARS_PTHREAD_VARIANT
+#endif
+
+// turn on stack and worker caching
+// if a global cache isn't defined, this will use a per worker cache
+#ifndef CILK_IVARS_CACHING 
+#define CILK_IVARS_CACHING  1
+#endif
+
+// use a global stack and worker cache
+//#ifndef CILK_IVARS_GLOBAL_CACHE
+//#define CILK_IVARS_GLOBAL_CACHE  1
+//#endif
+
+
+// Set IVAR_DBG to [0-5] to control debug verbosity.
+#ifndef IVAR_DBG
+#define IVAR_DBG (cilkg_get_global_state())->dbg_level
+#endif
+// The type of the contents of an ivar, currently a machine word:
+typedef void* ivar_payload_t;
+//typedef uintptr_t ivar_payload_t;
+
 #endif /* INCLUDED_CILK_COMMON */

@@ -46,11 +46,13 @@
 
 #ifdef CILK_IVARS
 #include "cilk/cilk_api.h"
+#include "concurrent_cilk.h"
 #endif
 
 #include <string.h> /* memcpy */
 #include <stdio.h>  // sprintf
 #include <stdlib.h> // malloc, free, abort
+
 
 #ifdef _WIN32
 #   pragma warning(disable:1786)   // disable warning: sprintf is deprecated
@@ -81,9 +83,6 @@
 #   include <unistd.h>
 #endif
 
-#ifdef CILK_IVARS_PTHREAD_VARIANT
-extern global_state_t *cilkg_get_user_settable_values(void);
-#endif
 
 //#define DEBUG_LOCKS 1
 #ifdef DEBUG_LOCKS
@@ -119,6 +118,21 @@ static inline void verify_current_wkr(__cilkrts_worker *w)
 #endif
 }                                                            
 
+#ifdef CILK_IVARS
+
+#ifdef CILK_IVARS_PTHREAD_VARIANT
+extern global_state_t *cilkg_get_user_settable_values(void);
+#endif
+
+//   Header includes, macros, and other bits that should be filed away properly once
+//   Concurrent Cilk is fully integrated with the build system.
+
+// Helper used for debugging:
+void __cilkrts_show_threadid() {
+  pthread_t id = pthread_self();
+  fprintf(stderr, "TID %lu ", (unsigned long)id);
+}
+
 #define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
   pthread_t id = pthread_self(); char buf[512];             \
   sprintf(buf, __VA_ARGS__);                                \
@@ -126,7 +140,7 @@ static inline void verify_current_wkr(__cilkrts_worker *w)
   fprintf(stderr, "[tid/W %3d %2d/%p] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, tw, buf); }
 
 // RRN: TEMP: Using a simple concurrent queue implementation.  It would be better to use TBB queues.
-#define QUEUE_ELEMTY struct __cilkrts_paused_stack
+#define QUEUE_ELEMTY __cilkrts_paused_stack
 #include "concurrent_queue.h"
 #undef QUEUE_ELEMTY
 
@@ -727,7 +741,7 @@ static void detach_for_steal(__cilkrts_worker *w,
 
 #ifdef CILK_IVARS
   // RRNTEMP
-  IVAR_DBG_PRINT_(1,"DETACHING... worker %d/%p frame %p victim %d/%p stack %p \n",w->self,w, w->l->frame, victim->self,victim,sd);
+  IVAR_DBG_PRINT_(1,"DETACHING... worker %d/%p frame %p victim %d/%p stack %p \n",w->self,w, w->l->full_frame, victim->self,victim,sd);
 #endif
 
   CILK_ASSERT(w->l->frame_ff == 0 || w == victim);

@@ -37,6 +37,9 @@
 #define INCLUDED_GLOBAL_STATE_DOT_H
 
 #include <cilk/common.h>
+#ifdef CILK_IVARS
+#include "scheduler.h"
+#endif
 
 #include "frame_malloc.h"
 #include "stats.h"
@@ -114,6 +117,9 @@ typedef /* COMMON_PORTABLE */ struct global_state_t {
      * stealing_disabled, sysdep, and workers.  If these offsets change, the
      * debugger integration library will need to be changed to match!!!
      *************************************************************************/
+#ifdef CILK_IVARS
+    unsigned int dbg_level;
+#endif
 
     int addr_size; /**< Number of bytes for an address, used by debugger (fixed)*/
 
@@ -227,6 +233,43 @@ typedef /* COMMON_PORTABLE */ struct global_state_t {
 
     int P;         /**< USER SETTING: number of system workers + 1 (fixed) */
     int Q;         /**< Number of user threads currently bound to workers */
+
+#if defined(CILK_IVARS) && CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
+    int P_real;    /* this is the number of real system workers, the rest are "extras" */
+    volatile int P_current;  /* P_current tracks the number of workers currently awake.
+                                It is atomically incremented/decremented. */
+    pthread_cond_t  restcond;
+    pthread_mutex_t restmut;
+#endif
+
+#ifdef CILK_IVARS    
+    /* Support for Concurrent Cilk.  This is essentially a ready queue of lightweight
+       threads.  For simplicity, this is initially global.  Eventually, each thread/worker
+       should have its own threadpool.  */
+    // __cilkrts_stack_queue* paused_but_ready_stacks;   // Initially NULL.
+  #ifdef TBB_QUEUE_VERSION
+    // tbb::concurrent_queue<QUEUE_ELEMTY*>* paused_but_ready_stacks;  // Initially NULL.
+    #error "TBB queues not available in the Cilk RTS yet due to build constraints."
+  #else
+    struct __cilkrts_stack_queue_struct * paused_but_ready_stacks;  // Initially NULL.
+    struct __cilkrts_stack_queue_struct * cached_workers;  // Initially NULL.
+    volatile int num_paused_stacks;
+
+#ifdef CILK_IVARS_GLOBAL_CACHE
+    /* Maintain a cache of replacement workers */
+#define QUEUE_ELEMTY __cilkrts_worker
+    struct __cilkrts_stack_queue_struct *worker_cache;
+
+    /* Maintain a cache of paused stacks */
+#define QUEUE_ELEMTY struct __cilkrts_paused_stack
+    struct  __cilkrts_stack_queue_struct *paused_stack_cache;
+#undef QUEUE_ELEMTY
+
+
+#endif //CILK_IVARS_GLOBAL_CACHE
+#endif //TBB_QUEUE_VERSION
+#endif //CILK_IVARS
+
 } global_state_t;
 
 /**
