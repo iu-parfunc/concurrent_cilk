@@ -50,11 +50,15 @@
 //  (Waking frees the heap object containing the paused stack.)
 
 
+#if defined(CILK_IVARS) && CILK_IVARS != CILK_IVARS_PTHREAD_VARIANT
+
 // For my_resume only (SP): 
 #include "concurrent_cilk.h"
 #include "jmpbuf.h"
 #include <pthread.h>
 #include <stdio.h>
+#include "local_state.h"
+#include "scheduler.h"
 
 
 // ================================================================================
@@ -77,7 +81,7 @@ void __cilkrts_concurrent_yield(struct __cilkrts_worker *w)
  * NONE
  *
  returns 1 on successful lock, and 0 on failure */
-int paused_stack_lock(struct __cilkrts_worker *w, struct __cilkrts_paused_stack* stk) {
+int paused_stack_lock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk) {
 
   IVAR_DBG_PRINT_(1,"[concurrent-cilk, paused_stack_lock] locking stack %p with worker owner: %d/%p\n", stk, w->self,w);
     // two threads race for lock inform, and one comes out on top. 
@@ -91,7 +95,7 @@ int paused_stack_lock(struct __cilkrts_worker *w, struct __cilkrts_paused_stack*
  * NONE
  *
  returns 1 on successfull unlock, and 0 on failure */
-int paused_stack_unlock(struct __cilkrts_worker *w, volatile __cilkrts_paused_stack* stk) {
+int paused_stack_unlock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk) {
 
   IVAR_DBG_PRINT_(1,"[concurrent-cilk, paused_stack_unlock] unlocking stack %p with worker owner: %d/%p\n", stk, w->self,w);
     // two threads race for lock inform, and one comes out on top. 
@@ -112,7 +116,7 @@ int paused_stack_unlock(struct __cilkrts_worker *w, volatile __cilkrts_paused_st
  *  __cilkrts_set_tls_worker
  Create a new worker. */  
 NOINLINE
-struct __cilkrts_worker* replace_worker (struct __cilkrts_worker* old_w, volatile struct __cilkrts_worker* fresh_worker, struct __cilkrts_paused_stack* stk) 
+struct __cilkrts_worker* replace_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker, volatile __cilkrts_paused_stack* stk) 
 {   
   CILK_ASSERT(old_w);
   CILK_ASSERT(fresh_worker);
@@ -124,8 +128,8 @@ struct __cilkrts_worker* replace_worker (struct __cilkrts_worker* old_w, volatil
   // Here we create a COMPLETELY NEW WORKER. 
   //   (TODO: We may want to cache these extra workers.)
   __cilkrts_cilkscreen_ignore_block(fresh_worker, fresh_worker+1);
-  fresh_worker = make_worker(old_w->g, -1, fresh_worker); // Using self = -1 for now.
-  usleep(1);
+  fresh_worker = (__cilkrts_worker *) make_worker(old_w->g, -1, fresh_worker); // Using self = -1 for now.
+  //usleep(1);
 
   // Initialize the new worker:
   //---------------------------------   
@@ -144,7 +148,7 @@ struct __cilkrts_worker* replace_worker (struct __cilkrts_worker* old_w, volatil
 #endif
 
   fresh_worker->l->scheduler_stack = sysdep_make_tiny_stack(fresh_worker);
-  usleep(1);
+  //usleep(1);
   IVAR_DBG_PRINT_(1," [concurrent-cilk, replace_worker] Created scheduler stack for replacement: %p\n", fresh_worker->l->scheduler_stack);
   __cilkrts_fence(); //probably redundant
 
@@ -217,12 +221,12 @@ right now we are not reaping our workers. We might in the future wish to do so.
 However, if we do decide to do this, we will probably run into problems patching up replacements
 
 Takes a pointer to the no-longer-needed replacement worker and the paused worker to resume.*/
-void restore_worker2(struct __cilkrts_worker* old_w, volatile struct __cilkrts_paused_stack* stk) {
+void restore_worker2(__cilkrts_worker* old_w, volatile __cilkrts_paused_stack* stk) {
 
   //current worker
-  volatile struct __cilkrts_worker* tlsw = __cilkrts_get_tls_worker_fast();
+   __cilkrts_worker* tlsw = __cilkrts_get_tls_worker_fast();
   //the worker to restore
-  struct __cilkrts_worker* w = stk->orig_worker;
+   __cilkrts_worker* w = (__cilkrts_worker *) stk->orig_worker;
 
   // no replacement or no orig_worker means something is seriously wrong 
   CILK_ASSERT(w);
@@ -242,7 +246,7 @@ void restore_worker2(struct __cilkrts_worker* old_w, volatile struct __cilkrts_p
     __cilkrts_short_pause();
 
 #ifdef CILK_IVARS_CACHING
-  enqueue_paused_stack(w->paused_stack_cache, stk);
+  enqueue_paused_stack(w->paused_stack_cache, (void *) stk);
 #else
   __cilkrts_free(stk);
 #endif
@@ -265,7 +269,7 @@ void restore_worker2(struct __cilkrts_worker* old_w, volatile struct __cilkrts_p
 #endif
 
 
-  my_resume(w, w->l->frame, w->current_stack_frame);
+  my_resume(w, w->l->frame_ff, w->current_stack_frame);
 
   // Dont come back
   CILK_ASSERT(0);
@@ -281,17 +285,17 @@ struct __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w) {
   __cilkrts_paused_stack* sustk; 
 
 #ifdef CILK_IVARS_CACHING
-  if((sustk = dequeue_paused_stack(w->paused_stack_cache)) == NULL)
-    sustk = (struct __cilkrts_paused_stack*)__cilkrts_malloc(sizeof(__cilkrts_paused_stack));
+  if((sustk = (__cilkrts_paused_stack *) dequeue_paused_stack(w->paused_stack_cache)) == NULL)
+    sustk = (__cilkrts_paused_stack *)__cilkrts_malloc(sizeof(__cilkrts_paused_stack));
   else
     IVAR_DBG_PRINT_(1,"[concurrent-cilk] got new CACHED stack %p \n", sustk);
 #else
-    sustk = (struct __cilkrts_paused_stack*)__cilkrts_malloc(sizeof(__cilkrts_paused_stack));
+    sustk = (__cilkrts_paused_stack *)__cilkrts_malloc(sizeof(__cilkrts_paused_stack));
 #endif
 
   //system workers might not have a frame!
-  if(w->l->frame)
-    sustk->stack = w->l->frame->stack_self; 
+  if(w->l->frame_ff)
+    sustk->stack = w->l->frame_ff->stack_self; 
   else
     sustk->stack = NULL;
 
@@ -305,7 +309,7 @@ struct __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w) {
 }
 
 // DUPLICATE CODE: from __cilkrts_sysdep_import_user_thread and worker_user_scheduler:
-NORETURN setup_and_invoke_scheduler(struct __cilkrts_worker *w) {
+NORETURN setup_and_invoke_scheduler(__cilkrts_worker *w) {
 
   __cilkrts_worker_lock(w);
   void *ctx[5]; // Jump buffer for __builtin_setjmp/longjmp.
@@ -327,9 +331,7 @@ NORETURN setup_and_invoke_scheduler(struct __cilkrts_worker *w) {
 }
 
 // Commit the pause.
-NORETURN __cilkrts_finalize_pause(struct __cilkrts_worker* w,
-    struct __cilkrts_paused_stack* stk)
-{
+NORETURN __cilkrts_finalize_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk) {
   IVAR_DBG_PRINT_(2," [concurrent-cilk,finalize pause]  finalize_pause: blocked worker %d/%p created a paused stack %p.\n", w->self, w, stk);
 
   CILK_ASSERT(stk);
@@ -343,7 +345,7 @@ NORETURN __cilkrts_finalize_pause(struct __cilkrts_worker* w,
   __cilkrts_worker* fresh_worker;
 
 #ifdef CILK_IVARS_CACHING
-  if((fresh_worker = dequeue_paused_stack(w->worker_cache)) == NULL){
+  if((fresh_worker = (__cilkrts_worker *) dequeue_paused_stack(w->worker_cache)) == NULL){
 
     fresh_worker = (struct __cilkrts_worker*)__cilkrts_malloc(sizeof(struct __cilkrts_worker)); 
     fresh_worker->reference_count = 0;
@@ -367,20 +369,20 @@ NORETURN __cilkrts_finalize_pause(struct __cilkrts_worker* w,
 #endif
 
   CILK_ASSERT(fresh_worker);
-  volatile struct __cilkrts_worker* new_w = replace_worker(w, fresh_worker, stk);
+   __cilkrts_worker* new_w = (__cilkrts_worker *) replace_worker(w, fresh_worker, stk);
 
   // mark the new worker as a replacement:
   new_w->is_replacement = 1;
 
   IVAR_DBG_PRINT_(1," [concurrent-cilk,finalize pause] Pause Finalized, new worker %d/%p (from %p), replaced blocked worker %d/%p.\n", 
-      new_w->self, new_w, new_w->l->frame, w->self,w);
+      new_w->self, new_w, new_w->l->frame_ff, w->self,w);
 
   // increment the number of paused stacks in existence
   __sync_fetch_and_add(&w->g->num_paused_stacks,1);
 
   //release the lock on the stack
   IVAR_DBG_PRINT_(1," [concurrent-cilk,finalize pause] Pause Finalized, new worker %d/%p (from %p), replaced blocked worker %d/%p.\n", 
-      new_w->self, new_w, new_w->l->frame, w->self,w);
+      new_w->self, new_w, new_w->l->frame_ff, w->self,w);
 
   while(!paused_stack_unlock(w,stk))
     __cilkrts_short_pause();
@@ -392,21 +394,21 @@ NORETURN __cilkrts_finalize_pause(struct __cilkrts_worker* w,
 
 // Back out of the pause before making any externally visible changes.
 // The client better not have stored the __cilkrts_paused_stack anywhere!
-void __cilkrts_undo_pause(__cilkrts_worker* w, __cilkrts_paused_stack* stk) {
+void __cilkrts_undo_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk) {
 
   CILK_ASSERT(stk);
   CILK_ASSERT(stk->orig_worker);
 
-  BEGIN_WITH_WORKER_LOCK(stk->orig_worker) {
+  BEGIN_WITH_WORKER_LOCK((__cilkrts_worker *) stk->orig_worker) {
     stk->orig_worker->forwarding_pointer = NULL;
-  } END_WITH_WORKER_LOCK(stk->orig_worker);
+  } END_WITH_WORKER_LOCK((__cilkrts_worker *) stk->orig_worker);
 
-  __cilkrts_free(stk);
+  __cilkrts_free((void *) stk);
   IVAR_DBG_PRINT_(2," [concurrent-cilk, undo_pause] Pause of stk %p undone.\n", stk);
 }
 
 // Mark a paused stack as ready and add it to the ready queue.
-void __cilkrts_wake_stack(struct __cilkrts_paused_stack* stk)
+void __cilkrts_wake_stack(volatile __cilkrts_paused_stack* stk)
 {
 
   CILK_ASSERT(stk);
@@ -416,14 +418,14 @@ void __cilkrts_wake_stack(struct __cilkrts_paused_stack* stk)
     // Multiple [concurrent] calls to __cilkrts_wake_stack are idempotent.
     // If we are the one that gets there first we are responsible for adding the stack
     // to the ready queue.
-    struct __cilkrts_worker* w = stk->orig_worker;
+    volatile __cilkrts_worker* w = stk->orig_worker;
     CILK_ASSERT(w);
 
     IVAR_DBG_PRINT_(3," [concurrent-cilk, wake_stack]   We got there first, put stk %p on ready queue of worker.\n", stk);
 #ifdef CACHE_AWARE_QUEUE
-    enqueue_paused_stack(w->paused_but_ready_stacks, stk);
+    enqueue_paused_stack(w->paused_but_ready_stacks, (void *) stk);
 #else
-    enqueue_paused_stack(w->g->paused_but_ready_stacks, stk);
+    enqueue_paused_stack(w->g->paused_but_ready_stacks, (void *) stk);
 #endif
 
 
@@ -435,4 +437,4 @@ void __cilkrts_wake_stack(struct __cilkrts_paused_stack* stk)
   }
 }
 
-
+#endif

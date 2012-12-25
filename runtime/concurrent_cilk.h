@@ -9,26 +9,38 @@
 
 
 __CILKRTS_BEGIN_EXTERN_C
+
+// This can be any constant that is not in the range of addresses returned by malloc:
+// it is used as the flag value to check if an ivar is full or empty
+#define CILK_IVAR_FULL 1
+
 /* struct tags */
 typedef struct __cilkrts_worker      __cilkrts_worker;
 typedef struct __cilkrts_worker*     __cilkrts_worker_ptr;
 typedef struct __cilkrts_stack_frame __cilkrts_stack_frame;
 typedef struct __cilkrts_paused_stack __cilkrts_paused_stack;
+typedef struct __cilkrts_stack_queue_struct __cilkrts_stack_queue;
+typedef struct __cilkrts_stack_pair __cilkrts_stack_pair;
 
 // Forwarded declarations
 typedef struct global_state_t        global_state_t;
 typedef struct local_state           local_state;
 typedef struct cilkred_map           cilkred_map;
-typedef struct __cilkrts_worker_sysdep_state
-                                     __cilkrts_worker_sysdep_state;
+typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
 
-#ifdef CILK_IVARS
-
+__cilkrts_worker* replace_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker, volatile __cilkrts_paused_stack* stk);
+int paused_stack_lock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk);
+int paused_stack_unlock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk);
 void __cilkrts_concurrent_yield(__cilkrts_worker *w);
+void my_resume (__cilkrts_worker *w, full_frame *f, __cilkrts_stack_frame *sf);
+void restore_worker2(__cilkrts_worker* old_w, volatile  __cilkrts_paused_stack* stk);
+void __cilkrts_wake_stack(volatile __cilkrts_paused_stack* stk);
+NORETURN setup_and_invoke_scheduler(__cilkrts_worker *w);
+NORETURN __cilkrts_finalize_pause(__cilkrts_worker* w,  volatile __cilkrts_paused_stack* stk);
+void __cilkrts_undo_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk);
 
 /*   Concurrent Cilk:  Types & API   */
-struct __cilkrts_paused_stack 
-{
+ struct __cilkrts_paused_stack {
     struct __cilkrts_stack* stack;
 
     // For this variant the new worker does not cache the *stalled* workers state, instead 
@@ -53,16 +65,11 @@ struct __cilkrts_paused_stack
 };
 
 /*   Cilk IVars:  Types & API   */
-struct __cilkrts_ivar_waitlist
-{
+struct __cilkrts_ivar_waitlist {
     struct __cilkrts_paused_stack* stalled;
     struct __cilkrts_ivar_waitlist* tail; // null to terminate.
 };
 
-// This can be any constant that is not in the range of addresses returned by malloc:
-#define CILK_IVAR_FULL 1
-
-#endif // CILK_IVARS
 
 __CILKRTS_END_EXTERN_C
 #endif

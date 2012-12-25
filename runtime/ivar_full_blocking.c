@@ -36,8 +36,14 @@
 
 // ====================================================================================================
 
+#if defined(CILK_IVARS) && CILK_IVARS != CILK_IVARS_BUSYWAIT_VARIANT
+
 //#include "stack_dbg.h"
 #include <stdlib.h>
+#include "concurrent_cilk.h"
+#include "cilk_malloc.h"
+#include <cilk/cilk_api.h>
+#include "bug.h"
 #define __cilkrts_pause(w)  (CILK_SETJMP((w->current_stack_frame->ctx))) ?  NULL : make_paused_stack((w)) 
 
 struct __cilkrts_ivar_waitlist* make_waitlist_cell() 
@@ -82,13 +88,13 @@ ivar_payload_t __cilkrts_ivar_read(__cilkrts_ivar* iv)
   // In the serial case we'll have already done a write.  In the parallel case a steal must have occurred.
   // In the future maybe external threads will be able to read ivars, but not presently [2011.07.29].
   struct __cilkrts_worker* w = __cilkrts_get_tls_worker_fast();
-  volatile struct __cilkrts_paused_stack* ptr = (struct __cilkrts_paused_stack *) __cilkrts_pause(w);
+  volatile __cilkrts_paused_stack* ptr = __cilkrts_pause(w);
 
   if (ptr)
   {
     IVAR_DBG_PRINT_(1," [ivar] Creating paused stack: %p\n", ptr);
 
-    newcell->stalled = ptr;
+    newcell->stalled = (__cilkrts_paused_stack *) ptr;
     IVAR_DBG_PRINT_(2," [ivar]  Observed IVar %p in empty state %p, captured continuation in %p.\n", 
         ivar, (void*)first_peek, newcell->stalled);
     // Register the continuation in the front of the waitlist.
@@ -142,7 +148,7 @@ void __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
   __sync_lock_test_and_set(&ivar->__value, val);
 
   // Atomically set the ivar to the full state and grab the waitlist:
-  ivar_payload_t list = __sync_lock_test_and_set( &ivar->__header, CILK_IVAR_FULL );
+  ivar_payload_t list = (ivar_payload_t) __sync_lock_test_and_set( &ivar->__header, CILK_IVAR_FULL );
 
   switch((uintptr_t)list) 
   {
@@ -158,3 +164,5 @@ void __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
       __cilkrts_ivar_wakeup(list);
   }
 }
+
+#endif

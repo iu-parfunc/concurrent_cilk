@@ -41,6 +41,7 @@
 
 #if defined(CILK_IVARS) && CILK_IVARS == CILK_IVARS_NORMAL_VARIANT
 #   include "scheduler.h"
+#   include "concurrent_queue.h"
 #endif
 #ifdef _WIN32
 #   include <wchar.h>
@@ -488,35 +489,28 @@ global_state_t* cilkg_init_global_state()
 
   __cilkrts_frame_malloc_global_init(g);
 
-#if defined(CILK_IVARS) && CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
+
+#ifdef CILK_IVARS
+
+#if CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
     g->P_real    = __cilkrts_hardware_cpu_count();
     g->P_current = g->P; //  Start with everyone awake... extras will then sleep.
     pthread_cond_init( &g->restcond, 0);
     pthread_mutex_init( &g->restmut, 0);
 #endif
-#ifdef CILK_IVARS
 
     g->paused_but_ready_stacks = make_stack_queue();
 
     //maintain a global cache which workers draw from
 #ifdef CILK_IVARS_GLOBAL_CACHE 
-#define QUEUE_ELEMTY struct __cilkrts_paused_stack
     g->paused_stack_cache  = make_stack_queue();
-#define QUEUE_ELEMTY __cilkrts_worker
-    g->worker_cache = make_stack_queue();
+    g->worker_cache        = make_stack_queue();
 #endif
+    g->cached_workers      = make_stack_queue();
 
-#define QUEUE_ELEMTY __cilkrts_worker
-    g->cached_workers = make_stack_queue();
-#define QUEUE_ELEMTY __cilkrts_paused_stack
     g->num_paused_stacks = 0;
 
-    // ivars are parallel. setting the cores to 1 will cause all kinds of issues
-    //if(g->P == 1) {
-      //std::cerr << "[INIT] WARNING: cilk ivars is implicitely parallel. setting cores to 1 will break that. setting cores to 2\n";
-    //    g->P = 2;
-    //}
-#endif
+#endif //END CILK_IVARS
 
   g->Q = 0;
   g->total_workers = cilkg_calc_total_workers();

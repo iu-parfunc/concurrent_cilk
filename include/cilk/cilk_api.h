@@ -222,9 +222,9 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read (__cilkrts_ivar*);
 CILK_API(void)           __cilkrts_ivar_clear(__cilkrts_ivar*);
 CILK_API(void)           __cilkrts_ivar_write(__cilkrts_ivar*, ivar_payload_t);
 
-typedef struct __cilkrts_paused_stack* PAUSED_FIBER;
-CILK_API(void) __cilkrts_finalize_pause(struct __cilkrts_worker* w, PAUSED_FIBER stk);
-CILK_API(void) __cilkrts_undo_pause    (struct __cilkrts_worker* w, PAUSED_FIBER stk);
+typedef volatile struct __cilkrts_paused_stack* PAUSED_FIBER;
+CILK_API(void) __cilkrts_finalize_pause(struct __cilkrts_worker* w,  PAUSED_FIBER stk);
+CILK_API(void) __cilkrts_undo_pause    (struct __cilkrts_worker* w,  PAUSED_FIBER stk);
 CILK_API(void) __cilkrts_wake_stack    (PAUSED_FIBER stk);
 CILK_API(void) __cilkrts_pause_a_bit   (struct __cilkrts_worker* w);
 

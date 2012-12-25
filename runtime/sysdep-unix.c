@@ -36,13 +36,6 @@
 #   define _GNU_SOURCE
 #endif
 
-#ifdef CILK_IVARS
-#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
-   pthread_t id = pthread_self(); char buf[512];             \
-   sprintf(buf, __VA_ARGS__);                                \
-   struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
-   fprintf(stderr, "[tid/W %3d %2d] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, buf); }
-#endif
 
 #include "sysdep.h"
 #include "os.h"
@@ -81,6 +74,16 @@
 #   include <sys/resource.h>
 // BSD does not define MAP_ANONYMOUS, but *does* define MAP_ANON. Aren't standards great!
 #   define MAP_ANONYMOUS MAP_ANON
+#endif
+
+#ifdef CILK_IVARS
+
+#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
+   pthread_t id = pthread_self(); char buf[512];             \
+   sprintf(buf, __VA_ARGS__);                                \
+   struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
+   fprintf(stderr, "[tid/W %3d %2d] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, buf); }
+
 #endif
 
 
@@ -1020,7 +1023,7 @@ void worker_user_scheduler()
 
     // Run the continuation function passed to longjmp_into_runtime
 #ifdef CILK_IVARS
-  if(w->l->post_suspend !=NULL && w->l->frame !=NULL)
+  if(w->l->post_suspend !=NULL && w->l->frame_ff !=NULL)
 #endif
     run_scheduling_stack_fcn(w);
     w->reducer_map = 0;

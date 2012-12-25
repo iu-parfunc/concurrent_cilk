@@ -32,29 +32,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
-  pthread_t id = pthread_self(); char buf[512];             \
-  sprintf(buf, __VA_ARGS__);                                \
-  volatile struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
-  fprintf(stderr, "[tid/W %3d %2d/%p] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, tw, buf); }
 
+#include "lockfree_queue.h"
 #include "../concurrent_cilk.h"
+#include "../cilk_malloc.h"
 
 //Michael & Scott Lockfree Queues
-
-// Consists of a pair type and a list/queue type.
-struct __cilkrts_stack_pair {
-  QUEUE_ELEMTY* data;
-  struct __cilkrts_stack_pair* next;
-};
-
-
-struct __cilkrts_stack_queue_struct {
-  struct __cilkrts_stack_pair* head;
-  struct __cilkrts_stack_pair* tail;        
-};
-
-typedef struct __cilkrts_stack_queue_struct __cilkrts_stack_queue;
 
 __cilkrts_stack_queue* make_stack_queue() {
 
@@ -62,8 +45,8 @@ __cilkrts_stack_queue* make_stack_queue() {
     (__cilkrts_stack_queue*)__cilkrts_malloc(sizeof(__cilkrts_stack_queue));
   // INVARIANT: There is always at least one pair object.  Head/tail always have something to point at.
   // Therefore, create an INVALID, CORRUPT initial element (data uninitialized):
-  struct __cilkrts_stack_pair* newp = 
-    (struct __cilkrts_stack_pair*)__cilkrts_malloc(sizeof(struct __cilkrts_stack_pair));
+   __cilkrts_stack_pair* newp = 
+    ( __cilkrts_stack_pair*)__cilkrts_malloc(sizeof(__cilkrts_stack_pair));
   newp->data = NULL;
   newp->next = NULL;
   q->head = newp;
@@ -72,11 +55,11 @@ __cilkrts_stack_queue* make_stack_queue() {
 }
 
 // Allocate space and add a new element.
-void enqueue_paused_stack(volatile __cilkrts_stack_queue* q, QUEUE_ELEMTY* stk) {
+void enqueue_paused_stack(__cilkrts_stack_queue* q, void* stk) {
 
-  struct __cilkrts_stack_pair *tail, *next, *newp;
+  __cilkrts_stack_pair *tail, *next, *newp;
   IVAR_DBG_PRINT_(3, " [concurrent-cilk,lockfree-Q] Begin enqueue of stack %p into queue %p\n", stk, q);
-  newp        = (struct __cilkrts_stack_pair*)__cilkrts_malloc(sizeof(struct __cilkrts_stack_pair)); 
+  newp        = (__cilkrts_stack_pair*)__cilkrts_malloc(sizeof(__cilkrts_stack_pair)); 
   newp->data  = stk;
   newp->next  = NULL;
   while(1) {
@@ -98,12 +81,12 @@ void enqueue_paused_stack(volatile __cilkrts_stack_queue* q, QUEUE_ELEMTY* stk) 
 }
 
 // Returns NULL if the queue appeared empty:
-QUEUE_ELEMTY* dequeue_paused_stack(volatile __cilkrts_stack_queue* q) {
+void* dequeue_paused_stack(__cilkrts_stack_queue* q) {
 
-  volatile struct __cilkrts_stack_pair *head; //this needs to be volatile, or it may have incorrect state
-  struct __cilkrts_stack_pair *tail, *next;
+  volatile __cilkrts_stack_pair *head; //this needs to be volatile, or it may have incorrect state
+  __cilkrts_stack_pair *tail, *next;
   IVAR_DBG_PRINT_(4, " [concurrent-cilk,lockfree-Q] Begin dequeue from queue %p\n", q);
-  QUEUE_ELEMTY* stk;
+  void* stk;
   while(1) {
     head = q->head;
     tail = q->tail;
@@ -121,7 +104,7 @@ QUEUE_ELEMTY* dequeue_paused_stack(volatile __cilkrts_stack_queue* q) {
           break;
       }
   }
-  __cilkrts_free(head);
+  __cilkrts_free((__cilkrts_stack_pair *) head);
   IVAR_DBG_PRINT_(3, " [concurrent-cilk,lockfree-Q] Successfully dequeued stalled stack %p from queue %p\n", stk, q);
   return stk;
 }

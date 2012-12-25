@@ -34,43 +34,24 @@
 
 // Concurrent Queues: a few different options.
 //
-// Option 1 -- TBB concurrent_queue
-// Option 2 -- lock based
-// Option 3 -- basic Michael & Scott lockfree queues
-//
-// This is only here because I was unsure whether it was safe to introduce a dependency on
-// libtbb for libcilkrts.so.
-//   -Ryan
-
-// ====================================================================================================
-// Version 1 : TBB queues
-//
-#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
-  pthread_t id = pthread_self(); char buf[512];             \
-  sprintf(buf, __VA_ARGS__);                                \
-  volatile struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
-  fprintf(stderr, "[tid/W %3d %2d/%p] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, tw, buf); }
-
-#ifdef  TBB_QUEUE_VERSION
-#include "concurrent_queue_tbb.h"
-#endif
-
-// ====================================================================================================
-// Versions 2 ,3 & 4: Basic custom queues:
+// Option 1 -- lock based
+// Option 2 -- basic Michael & Scott lockfree queue
 
 #ifndef LOCKFREE_QUEUE_VERSION
 #include <pthread.h>
 #endif
+
 #include "concurrent_cilk.h"
 
 #ifdef CACHE_AWARE_QUEUE
-#include "queues/cache_aware_queue.h"
+#include "queues/cache_aware_queue.c"
 #endif 
 
 #ifdef LOCKFREE_QUEUE_VERSION
-#include "queues/michael_scott_queue.h"
+#include "queues/lockfree_queue.h"
 #endif
 
 #ifdef LOCKING_QUEUE_VERSION
-#include "queues/locking_queue.h"
+//this should be .h TOFIX
+#include "queues/locking_queue.c"
 #endif

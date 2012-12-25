@@ -45,6 +45,8 @@
 //  path.  This retains implementation flexibility.
 
 // ================================================================================
+//
+#if defined(CILK_IVARS) && CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
 
 #include "cilk/cilk_api.h"
 #include "cilk/cilk_undocumented.h"
@@ -62,6 +64,7 @@
 #define max(a, b) ((a) < (b) ? (b) : (a))
 #endif
 
+#if defined(CILK_IVARS) && CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
 
 extern void __cilkrts_concurrent_yield(__cilkrts_worker *w);
 
@@ -277,3 +280,6 @@ int __cilkrts_calculate_P( global_state_t *g)
     IVAR_DBG_PRINT_(1," [concurrent-cilk-pthread] CALCULATE_P returning %d\n", P_inflated);
     return P_inflated;
 }
+#endif
+
+#endif //CILK_IVARS_PTHREAD_VARIANT

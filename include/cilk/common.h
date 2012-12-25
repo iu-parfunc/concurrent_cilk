@@ -269,13 +269,6 @@ typedef struct __cilkrts_pedigree
 #define LOCKFREE_QUEUE_VERSION 1
 //#define CACHE_AWARE_QUEUE 1
 
-#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
-  pthread_t id = pthread_self(); char buf[512];             \
-  sprintf(buf, __VA_ARGS__);                                \
-  volatile struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
-  fprintf(stderr, "[tid/W %3d %2d/%p] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, tw, buf); }
-
-
 // Set the default:
 #ifndef CILK_IVARS
 #define CILK_IVAR_FOLLOW_FORWARDING 1

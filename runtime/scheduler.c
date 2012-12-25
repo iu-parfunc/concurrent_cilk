@@ -47,7 +47,24 @@
 #ifdef CILK_IVARS
 #include "cilk/cilk_api.h"
 #include "concurrent_cilk.h"
+
+#ifndef LOCKFREE_QUEUE_VERSION
+#include <pthread.h>
 #endif
+
+#ifdef CACHE_AWARE_QUEUE
+#include "queues/cache_aware_queue.c"
+#endif 
+
+#ifdef LOCKFREE_QUEUE_VERSION
+#include "queues/lockfree_queue.c"
+#endif
+
+#ifdef LOCKING_QUEUE_VERSION
+#include "queues/locking_queue.c"
+#endif
+
+#endif //CILK_IVARS
 
 #include <string.h> /* memcpy */
 #include <stdio.h>  // sprintf
@@ -140,15 +157,14 @@ void __cilkrts_show_threadid() {
   fprintf(stderr, "[tid/W %3d %2d/%p] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, tw, buf); }
 
 // RRN: TEMP: Using a simple concurrent queue implementation.  It would be better to use TBB queues.
-#define QUEUE_ELEMTY __cilkrts_paused_stack
 #include "concurrent_queue.h"
-#undef QUEUE_ELEMTY
 
 #if CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
 #include "concurrent_cilk_pthread.c"
 #else
 #include "concurrent_cilk.c"
 #endif
+
 // This function is a `yield` for defining coroutines.  It stops the current computation but adds it
 // to a ready queue to be awoken after other tasks are given a chance to run.
 void __cilkrts_pause_a_bit(struct __cilkrts_worker* w)
@@ -156,8 +172,8 @@ void __cilkrts_pause_a_bit(struct __cilkrts_worker* w)
 
   // Here we do not need to save anything... the worker is left in place, but the thread abandons it.
   // Save the continuation in the top stack frame of the old (stalled) worker:
-  volatile struct __cilkrts_paused_stack* ptr = (struct __cilkrts_paused_stack *) __cilkrts_pause(w);
-  IVAR_DBG_PRINT_(1," [scheduler: pause_a_bit] Creating paused stack: %p capturing current stack %p\n", ptr, w->l->frame->stack_self);
+  volatile struct __cilkrts_paused_stack* ptr = __cilkrts_pause(w);
+  IVAR_DBG_PRINT_(1," [scheduler: pause_a_bit] Creating paused stack: %p capturing current stack %p\n", ptr, w->l->frame_ff->stack_self);
   if(ptr) {
     __cilkrts_wake_stack(ptr);
     __cilkrts_finalize_pause(w,ptr);
@@ -741,7 +757,7 @@ static void detach_for_steal(__cilkrts_worker *w,
 
 #ifdef CILK_IVARS
   // RRNTEMP
-  IVAR_DBG_PRINT_(1,"DETACHING... worker %d/%p frame %p victim %d/%p stack %p \n",w->self,w, w->l->full_frame, victim->self,victim,sd);
+  IVAR_DBG_PRINT_(1,"DETACHING... worker %d/%p frame %p victim %d/%p stack %p \n",w->self,w, w->l->frame_ff, victim->self,victim,sd);
 #endif
 
   CILK_ASSERT(w->l->frame_ff == 0 || w == victim);
@@ -855,10 +871,10 @@ static void random_steal(__cilkrts_worker *w)
 
   /* do not steal from self */
   CILK_ASSERT (victim != w);
+#ifdef CILK_IVARS
   IVAR_DBG_PRINT_(4,"[scheduler] stealing work! theif: %d/%p victim %d/%p\n", w->self, w, victim->self, victim);
 
   /* do not steal from self */
-#ifdef CILK_IVARS
   // if the parent and forwarding pointer aren't null, we won't actually steal from ourselves
   CILK_ASSERT (victim != w || w->blocked_parent == NULL || w->forwarding_pointer == NULL);
 #else
@@ -1346,11 +1362,11 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   // function directly.
 #ifdef CILK_IVARS
   //it's not *really* a 1 processor situation if this was a replacement worker
-  if (1 == w->g->P && w->l->next_frame != NULL) {
+  if (1 == w->g->P && w->l->next_frame_ff != NULL) {
 #else
     if (1 == w->g->P) {
 #endif
-      fcn(w, f, sf);
+      fcn(w, ff, sf);
 
       /* The call to function c() will have pushed ff as the next frame.  If
        * this were a normal (non-forced-reduce) execution, there would have
@@ -1506,7 +1522,7 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 
        The active frame and call_stack may have changed since _resume.  */
 #ifdef CILK_IVARS
-    if(w->l->post_suspend !=NULL && w->l->frame !=NULL)
+    if(w->l->post_suspend !=NULL && w->l->frame_ff !=NULL)
 #endif
       run_scheduling_stack_fcn(w);
 
@@ -1539,9 +1555,11 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 
       // TODO/TOFIX: Would probably need a START_INTERVAL here:
 #ifdef CACHE_AWARE_QUEUE
-      volatile struct __cilkrts_paused_stack* pstk = dequeue_paused_stack(w->paused_but_ready_stacks);
+      volatile  __cilkrts_paused_stack* pstk = (__cilkrts_paused_stack *)
+        dequeue_paused_stack(w->paused_but_ready_stacks);
 #else
-      volatile struct __cilkrts_paused_stack* pstk = dequeue_paused_stack(w->g->paused_but_ready_stacks);
+      volatile __cilkrts_paused_stack* pstk = (__cilkrts_paused_stack *)
+        dequeue_paused_stack(w->g->paused_but_ready_stacks);
 #endif
 
       if (pstk) {
@@ -1923,9 +1941,9 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 #ifdef CILK_IVARS
     //we could get ourselves in the situation where we don't have a frame
     //when a SYSTEM_WORKER comes through here
-    if(f != NULL) {
+    if(ff != NULL) {
 #endif
-      CILK_ASSERT(f);
+      CILK_ASSERT(ff);
       if (stolen_p)
         /* XXX This will be charged to THE for accounting purposes */
         __cilkrts_save_exception_state(w, ff);
@@ -1947,7 +1965,7 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
         // ASSERT our deque is empty.
         CILK_ASSERT(w->head == w->tail);
 #endif
-      }
+      //}
     } END_WITH_WORKER_LOCK(w);
 
     STOP_INTERVAL(w, INTERVAL_THE_EXCEPTION_CHECK);
@@ -2391,8 +2409,8 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   w->paused_stack_cache  = g->paused_stack_cache;
   w->worker_cache = g->worker_cache; 
 #else
-  w->paused_stack_cache  = make_stack_queue();
-  w->worker_cache = make_stack_queue();
+  w->paused_stack_cache = (__cilkrts_stack_queue *) make_stack_queue();
+  w->worker_cache = (__cilkrts_stack_queue *) make_stack_queue();
 #endif
   w->reference_count     = 0;
 #endif
@@ -2434,7 +2452,7 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   /*
    * Make a worker into a system worker.
    */
-  static void make_worker_system(__cilkrts_worker *w) {
+  void make_worker_system(__cilkrts_worker *w) {
     CILK_ASSERT(WORKER_FREE == w->l->type);
     w->l->type = WORKER_SYSTEM;
     w->l->signal_node = signal_node_create();

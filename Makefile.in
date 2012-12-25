@@ -353,7 +353,7 @@ libcilkrts_la_SOURCES = runtime/cilk-abi.c runtime/cilk_api.c           \
   runtime/cilk-abi-cilk-for.cpp runtime/except-gcc.cpp                  \
   runtime/global_state.cpp runtime/reducer_impl.cpp runtime/pedigrees.c \
 	runtime/concurrent_cilk.c runtime/concurrent_cilk_pthread.c           \
-	runtime/ivar_busywait.c runtime/ivar_full_blocking.c
+	runtime/ivar_busywait.c runtime/ivar_full_blocking.c                  
 
 CILK_REVISION = 2856
 

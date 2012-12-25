@@ -36,11 +36,23 @@
 
 // ====================================================================================================
 
+#if defined(CILK_IVARS) && CILK_IVARS == CILK_IVARS_BUSYWAIT_VARIANT
+
+#include "concurrent_cilk.h"
+#include <cilk/cilk_api.h>
+#include "cilk_malloc.h"
+#include <stdio.h>
+
+#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
+   pthread_t id = pthread_self(); char buf[512];             \
+   sprintf(buf, __VA_ARGS__);                                \
+   struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
+   fprintf(stderr, "[tid/W %3d %2d] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, buf); }
+
 ivar_payload_t __cilkrts_ivar_read(__cilkrts_ivar* ivar) 
 {
     IVAR_DBG_PRINT_(2," [ivar] Reading IVar %p\n", ivar);
 
-    //    void* volatile *loc = & ivar->__header; // Is there a better way to do this?
     volatile uintptr_t *loc = & ivar->__header; // Is there a better way to do this?
 
     // First we do a regular load to see if the value is already there.
@@ -82,3 +94,4 @@ void __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
     // Make the modified __header visible:
     __cilkrts_fence(); 
 }
+#endif
