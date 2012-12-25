@@ -1,0 +1,17 @@
+#!/bin/bash
+PREFIX=/opt
+GCC=$PREFIX/cilkplus
+LIB_PATH=$GCC/lib:$GCC/lib64:$GCC/libexec:$GCC/share
+BIN_PATH=$GCC/bin
+
+
+#use the cilk compiled gcc
+export PATH=$BIN_PATH:$PATH
+
+#export header path
+export C_INCLUDE_PATH=$GCC/include
+export CPLUS_INCLUDE_PATH=$GCC/include
+
+#export library path
+export LD_LIBRARY_PATH=$LIB_PATH:$LD_LIBRARY_PATH
+export LIBRARY_PATH=$LIB_PATH:$LIBRARY_PATH

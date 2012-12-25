@@ -1,0 +1,52 @@
+
+
+#Makefile.common is the master makefile for the ivar tests. you should include this
+#in all of your sub makefiles
+
+#global properties related to the runtime location 
+RTSDIR=/nobackup/parfunc/concurrent_cilk
+QTHREAD_PATH=/nobackup/parfunc/qthreads
+BUILD=gcc-4.7-cilkrts
+INCLUDEDIR=$(RTSDIR)/include
+QTHREAD_INCLUDEDIR=$(QTHREAD_PATH)/include
+EXT=so
+
+GCC=$(RTSDIR)/$(BUILD)/bin
+CC=$(GCC)/gcc -L$(RTSDIR)/$(BUILD)/lib -L$(RTSDIR)/$(BUILD)/lib64: -I$(INCLUDEDIR)
+CPLUS=$(GCC)/g++ -L$(RTSDIR)/$(BUILD)/lib -L$(RTSDIR)/$(BUILD)/lib64 -I$(INCLUDEDIR)
+
+#lib dependencies
+LIBDEPS= $(QTHREAD_PATH)/lib/libqthread.$(EXT)
+
+LIBS=-L$(RTSDIR)/$(BUILD)/lib/ -L$(RTSDIR)/$(BUILD)/lib64/ -L$(RTSDIR)/$(BUILD)/libexec/ -L$(QTHREAD_PATH)/lib
+INCLUDE=-I$(QTHREAD_PATH)/include -I$(QTHREAD_PATH)/include/qthread -I$(RTSDIR)/$(BUILD)/include/
+
+#FLAGS+= -lcilkrts -lpthread -ldl -O3 -I$(INCLUDE)-L$(LIBS) 
+FLAGS+= -lqthread -lpthread -ldl -g -ggdb -Wno-int-to-pointer-cast -O3 -std=c99 $(INCLUDE) $(LIBS) 
+CPLUSFLAGS+= -lqthread -lpthread -ldl -g -ggdb -Wno-int-to-pointer-cast -fpermissive -O2 $(INCLUDE) $(LIBS) 
+
+##================================================================================
+
+.PHONY: all
+all: $(addprefix $(OUT)/,$(BIN))
+
+.PHONY: test
+test: all
+	$(SCRIPTS)/run_tests.sh $(addprefix $(SCRIPT_PREFIX)/$(OUT)/,$(BIN))
+
+.PHONY: clean
+clean:
+	rm -f $(OUT)/*.exe
+	rmdir $(OUT)
+
+##================================================================================
+
+$(OUT)/%.exe:%.c
+	mkdir -p $(OUT)
+	$(CC) $< $(LIBDEPS) $(OPTS) $(FLAGS) -o $@ 
+
+$(OUT)/%.exe:%.cpp
+	mkdir -p $(OUT)
+	$(CPLUS) $< -o $@ $(OPTS) $(CPLUSFLAGS)
+
+##================================================================================

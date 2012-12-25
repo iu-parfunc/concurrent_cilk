@@ -1,0 +1,3 @@
+#!/bin/bash
+export CILK_NWORKERS=$1
+export IVAR_DBG=$2
