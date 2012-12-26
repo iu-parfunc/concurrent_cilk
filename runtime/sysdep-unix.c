@@ -53,12 +53,6 @@
 #include "cilk-ittnotify.h"
 
 #include <stddef.h>
-
-#ifdef __CYGWIN__
-// On Cygwin, string.h doesnt declare strcasecmp if __STRICT_ANSI__ is defined
-#   undef __STRICT_ANSI__
-#endif
-
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
@@ -85,7 +79,6 @@
    fprintf(stderr, "[tid/W %3d %2d] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, buf); }
 
 #endif
-
 
 static void internal_enforce_global_visibility();
 
@@ -844,14 +837,9 @@ void dummy_function() { }
  */
 static const char *get_runtime_path ()
 {
-#ifdef __CYGWIN__
-    // Cygwin doesn't support dladdr, which sucks
-    return "unknown";
-#else
     Dl_info info;
     if (0 == dladdr(dummy_function, &info)) return "unknown";
     return info.dli_fname;
-#endif
 }
 
 /* if the environment variable, CILK_VERSION, is defined, writes the version

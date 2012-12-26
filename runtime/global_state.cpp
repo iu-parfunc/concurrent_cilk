@@ -55,6 +55,9 @@
 // initialized.
 int cilkg_user_settable_values_initialized = false;
 
+// Pointer to the global state singleton.  
+extern "C" global_state_t *cilkg_singleton_ptr = NULL;  
+
 namespace {
 
   // Single copy of the global state.  Zero-filled until
@@ -66,17 +69,9 @@ namespace {
     sizeof(void *),    // addr_size
   };
 
-
-  // Variables that need to export C-style names
-  extern "C"
-  {
-    // Pointer to the global state singleton.  
-    global_state_t *cilkg_singleton_ptr = NULL;
-
-    // __cilkrts_global_state is exported and referenced by the debugger.
-    // The debugger expects it to be valid when the module loads.
-    global_state_t *__cilkrts_global_state = &global_state_singleton;
-  }
+// __cilkrts_global_state is exported and referenced by the debugger.
+// The debugger expects it to be valid when the module loads.
+extern "C" global_state_t *__cilkrts_global_state = &global_state_singleton;
 
   // Returns true if 'a' and 'b' are equal null-terminated strings
   inline bool strmatch(const char* a, const char* b)
@@ -241,11 +236,7 @@ namespace {
         if (cilkg_singleton_ptr)
           return __CILKRTS_SET_PARAM_LATE;
 
-        // Fetch the number of cores.  There must be at last 1, since we're
-        // executing on *something*, aren't we!?
         int hardware_cpu_count = __cilkrts_hardware_cpu_count();
-        CILK_ASSERT(hardware_cpu_count > 0);
-
         int max_cpu_count = 16 * hardware_cpu_count;
         if (__cilkrts_running_under_sequential_ptool())
         {
@@ -264,8 +255,6 @@ namespace {
         //
         // Sets the number of slots allocated for user worker threads
         int hardware_cpu_count = __cilkrts_hardware_cpu_count();
-        CILK_ASSERT (hardware_cpu_count > 0);
-
         return store_int(&g->max_user_workers, value, 1,
             16 * hardware_cpu_count);
       }
@@ -419,6 +408,22 @@ global_state_t* cilkg_get_user_settable_values()
       // Set the number of times a worker should fail to steal before
       // it looks to see whether it should suspend itself.
       store_int<unsigned>(&g->max_steal_failures, envstr, 1, INT_MAX);
+    
+        int hardware_cpu_count = __cilkrts_hardware_cpu_count();
+        bool under_ptool = __cilkrts_running_under_sequential_ptool();
+        if (under_ptool)
+            hardware_cpu_count = 1;
+
+        g->stealing_disabled        = stealing_disabled;
+        g->under_ptool              = under_ptool;
+        g->force_reduce             = 0;   // Default Off
+        g->P                        = hardware_cpu_count;   // Defaults to hardware CPU count
+        g->max_user_workers         = 0;   // 0 unless set by user
+        g->stack_cache_size         = 7;   // Arbitrary default
+        g->global_stack_cache_size  = 3;   // Arbitrary default
+        g->max_stacks               = 0;   // 0 == unlimited
+        g->max_steal_failures       = 128; // TBD: depend on max_workers?
+        g->stack_size               = 0;   // 0 unless set by the user
 
     // Compute the total number of workers to allocate.  Subtract one from
     // nworkers and user workers so that the first user worker isn't
