@@ -22,7 +22,8 @@
 # <http://www.gnu.org/licenses/>.
 
 AUTOMAKE_OPTIONS = foreign
-ACLOCAL_AMFLAGS = -I ..
+#ACLOCAL_AMFLAGS = -I ..
+ACLOCAL_AMFLAGS = -I m4
 
 # Compiler and linker flags.
 GENERAL_FLAGS = -I$(top_srcdir)/include -DIN_CILK_RUNTIME=1
@@ -44,7 +45,9 @@ libcilkrts_la_SOURCES = runtime/cilk-abi.c runtime/cilk_api.c           \
   runtime/stacks.c runtime/stats.c runtime/symbol_test.c                \
   runtime/sysdep-unix.c runtime/worker_mutex.c runtime/bug.cpp          \
   runtime/cilk-abi-cilk-for.cpp runtime/except-gcc.cpp                  \
-  runtime/global_state.cpp runtime/reducer_impl.cpp runtime/pedigrees.c
+  runtime/global_state.cpp runtime/reducer_impl.cpp runtime/pedigrees.c \
+	runtime/concurrent_cilk.c runtime/concurrent_cilk_pthread.c           \
+	runtime/ivar_busywait.c runtime/ivar_full_blocking.c                  
 
 # Load the $(REVISION) value.
 include include/internal/rev.mk
@@ -74,4 +77,5 @@ cilkinclude_HEADERS =              \
   include/cilk/reducer_opor.h      \
   include/cilk/reducer_opxor.h     \
   include/cilk/reducer_ostream.h   \
-  include/cilk/reducer_string.h
+  include/cilk/reducer_string.h    \
+	include/cilk/ivar.h
