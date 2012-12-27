@@ -7,8 +7,8 @@ long pfib(int n) {
 
  long x;
  long y;
- x = pfib(n-1);
- y = cilk_spawn pfib(n-2);
+ x = cilk_spawn pfib(n-1);
+ y = pfib(n-2);
  
  //this runs serially! compiler bug?
  //long x = pfib(n-1);
@@ -24,6 +24,11 @@ void main(int argc, char** argv) {
    n = atoi(argv[1]);
  else
    n = 42;
+#if defined(CILK_IVARS)
+ printf("CILK IVARS ON\n");
+#else
+ printf("CILK IVARS OFF\n");
+#endif
  printf("Running pfib of %d...\n", n);
  printf("Fib(%d) is %ld\n", n, pfib(n));
 }

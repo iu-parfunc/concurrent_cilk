@@ -9,8 +9,8 @@ BIN_PATH=$GCC/bin
 export PATH=$BIN_PATH:$PATH
 
 #export header path
-export C_INCLUDE_PATH=$GCC/include
-export CPLUS_INCLUDE_PATH=$GCC/include
+export C_INCLUDE_PATH=$GCC/include:$C_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=$GCC/include:$CPLUS_INCLUDE_PATH
 
 #export library path
 export LD_LIBRARY_PATH=$LIB_PATH:$LD_LIBRARY_PATH

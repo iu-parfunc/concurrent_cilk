@@ -4,7 +4,7 @@
 #in all of your sub makefiles
 
 #global properties related to the runtime location 
-RTSDIR=/opt
+RTSDIR=/nobackup/czakian
 BUILD=cilkplus
 INCLUDEDIR=$(RTSDIR)/$(BUILD)/include/cilk
 EXT=so
@@ -20,7 +20,7 @@ LIBS=$(RTSDIR)/$(BUILD)/lib/:$(RTSDIR)/$(BUILD)/lib64/:$(RTSDIR)/$(BUILD)/libexe
 INCLUDE=$(RTSDIR)/$(BUILD)/include/
 
 #FLAGS+= -lcilkrts -lpthread -ldl -O3 -I$(INCLUDE)-L$(LIBS) 
-FLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -g -ggdb -Wno-int-to-pointer-cast -O3 -I$(INCLUDE)-L$(LIBS) 
+FLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -g -ggdb -Wno-int-to-pointer-cast -O3 -I$(INCLUDE)-L$(LIBS)
 CPLUSFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -g -ggdb -Wno-int-to-pointer-cast -fpermissive -O2 -I$(INCLUDE)-L$(LIBS) 
 
 ##================================================================================
