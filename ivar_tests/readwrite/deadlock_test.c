@@ -14,7 +14,6 @@
 //#define DELAY_READER // Infinite loops, nondetermistically [2011.07.19] 
 //Both work [2012.4.27]
 
-// #define DELAY (750*1000)
 #define DELAY (750*1000)
 
 
@@ -22,7 +21,7 @@ void writer(__cilkrts_ivar* iv) {
     int val = 39;
     printf("     Inside spawned writer... (approx stack addr %p) sleeping for a bit\n", &val);
     usleep(750 * 1000); // microseconds   
-    __cilkrts_ivar_write(iv, (void*)val);
+    __cilkrts_ivar_write(iv, (ivar_payload_t)val);
     printf("     Inside spawned writer... WRITE OF %d DONE (ivar %p).\n", val, iv);
 
     // [2011.07.19] DEBUGGING:  If I force this worker to get to the sync LAST then I get a segfault:
@@ -38,10 +37,8 @@ unsigned long reader(__cilkrts_ivar* iv)
 
 void fun() {
      __cilkrts_ivar iv;
-     int x = 7;
-     iv.__value = 200;
-     iv.__header = -1;
     __cilkrts_ivar_clear(&iv);
+     int x = 7;
 
     printf("   Spawn to read ivar:\n");
 
@@ -53,7 +50,8 @@ void fun() {
     cilk_spawn writer(&iv);
 
     __cilkrts_worker* w_ = __cilkrts_get_tls_worker();
-    unsigned long val = (unsigned long) cilk_spawn reader(&iv);
+    unsigned long val;
+    val = (unsigned long) cilk_spawn reader(&iv);
     printf("   Ivar (%p) read successfully: %lu double check of ivarstruct %lu w=%d\n",  &iv, val, iv.__value, w_->self);
 
     struct __cilkrts_worker* w = __cilkrts_get_tls_worker();

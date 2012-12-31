@@ -17,11 +17,11 @@ CPLUS=$(GCC)/g++ -L$(RTSDIR)/$(BUILD)/lib:$(RTSDIR)/$(BUILD)/lib64 -I$(INCLUDEDI
 LIBDEPS= $(RTSDIR)/$(BUILD)/lib/libcilkrts.$(EXT)
 LIBS=$(RTSDIR)/$(BUILD)/lib/:$(RTSDIR)/$(BUILD)/lib64/:$(RTSDIR)/$(BUILD)/libexec/
 
-INCLUDE=$(RTSDIR)/$(BUILD)/include/
+INCLUDE=$(RTSDIR)/$(BUILD)/include
 
 #FLAGS+= -lcilkrts -lpthread -ldl -O3 -I$(INCLUDE)-L$(LIBS) 
-FLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -g -ggdb -Wno-int-to-pointer-cast -O3 -I$(INCLUDE)-L$(LIBS)
-CPLUSFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -g -ggdb -Wno-int-to-pointer-cast -fpermissive -O2 -I$(INCLUDE)-L$(LIBS) 
+CFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -g -ggdb -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -O1 -I$(INCLUDE) -L$(LIBS)
+CPLUSFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -g -ggdb -Wno-int-to-pointer-cast -fpermissive -O2 -I$(INCLUDE) -L$(LIBS) 
 
 ##================================================================================
 
@@ -41,7 +41,7 @@ clean:
 
 $(OUT)/%.exe:%.c
 	mkdir -p $(OUT)
-	$(CC) $< $(OBJS) -o $@ $(LIBDEPS) $(OPTS) $(FLAGS)
+	$(CC) $< $(OBJS) -o $@ $(LIBDEPS) $(OPTS) $(CFLAGS)
 
 $(OUT)/%.exe:%.cpp
 	mkdir -p $(OUT)

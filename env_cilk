@@ -1,5 +1,5 @@
 #!/bin/bash
-PREFIX=/opt
+PREFIX=/nobackup/czakian
 GCC=$PREFIX/cilkplus
 LIB_PATH=$GCC/lib:$GCC/lib64:$GCC/libexec:$GCC/share
 BIN_PATH=$GCC/bin
@@ -9,7 +9,8 @@ BIN_PATH=$GCC/bin
 export PATH=$BIN_PATH:$PATH
 
 #export header path
-export C_INCLUDE_PATH=$GCC/include:$C_INCLUDE_PATH
+export CPATH=$GCC/include:$GCC/include/cilk:$CPATH
+export C_INCLUDE_PATH=$GCC/include:$GCC/include/cilk:$C_INCLUDE_PATH
 export CPLUS_INCLUDE_PATH=$GCC/include:$CPLUS_INCLUDE_PATH
 
 #export library path

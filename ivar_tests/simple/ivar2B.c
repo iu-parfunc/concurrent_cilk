@@ -3,8 +3,7 @@
 // See ivar2.c for additional details.
 
 #include <cilk/cilk.h>
-#include <cilk/cilk_api.h>
-
+#include <cilk/concurrent_cilk.h>
 #include <cilk/abi.h>
 #include <unistd.h>
 #include <stdio.h>

@@ -1,7 +1,8 @@
 // iv1
 #include <stdio.h>
-#include "cilk/cilk.h"
-#include "cilk/cilk_api.h"
+#include <stdlib.h>
+#include <cilk/cilk.h>
+#include <cilk/cilk_api.h>
 
 // The simplest IVar usage -- write before read.
 
@@ -14,7 +15,7 @@ void fun() {
     printf("reading...:\n");
      int i = cilk_spawn __cilkrts_ivar_read(&iv);
     printf("Attempt to write ivar:\n");
-    cilk_spawn __cilkrts_ivar_write(&iv, (int)39);
+    cilk_spawn __cilkrts_ivar_write(&iv, (ivar_payload_t) 39);
  
     cilk_sync;
 

@@ -22,13 +22,13 @@ printf("spawning reader1\n");
 cilk_spawn __cilkrts_ivar_read(&iv1);
 
 printf("writing 2 to iv2\n");
-__cilkrts_ivar_write(&iv2, (int)2);
+__cilkrts_ivar_write(&iv2, (ivar_payload_t) 2);
 
 printf("spawning reader3\n");
 cilk_spawn __cilkrts_ivar_read(&iv3);
 
 printf("writing 4 to iv4\n");
-__cilkrts_ivar_write(&iv4, (int)4);
+__cilkrts_ivar_write(&iv4, (ivar_payload_t) 4);
 
 printf("spawning reader5\n");
 cilk_spawn __cilkrts_ivar_read(&iv5);
@@ -36,25 +36,25 @@ cilk_spawn __cilkrts_ivar_read(&iv5);
 //printf("done spawning readers. Now starting to write\n");
 
 printf("writing 1 to iv1\n");
-cilk_spawn __cilkrts_ivar_write(&iv1, (int)1);
+cilk_spawn __cilkrts_ivar_write(&iv1, (ivar_payload_t) 1);
 
 printf("spawning reader2\n");
 __cilkrts_ivar_read(&iv2);
 
 printf("writing 3 to iv3\n");
-cilk_spawn __cilkrts_ivar_write(&iv3, (int)3);
+cilk_spawn __cilkrts_ivar_write(&iv3, (ivar_payload_t) 3);
 
 printf("spawning reader4\n");
 __cilkrts_ivar_read(&iv4);
 
 printf("writing 5 to iv5\n");
-cilk_spawn __cilkrts_ivar_write(&iv5, (int)5);
+cilk_spawn __cilkrts_ivar_write(&iv5, (ivar_payload_t) 5);
 
 printf("going for a sync now!\n");
 
 cilk_sync;
 
-if (((int)iv1.__value + (int)iv2.__value + (int)iv3.__value + (int)iv4.__value + (int)iv5.__value) == 15)
+if (((int) iv1.__value + (int)iv2.__value + (int)iv3.__value + (int)iv4.__value + (int)iv5.__value) == 15)
   printf("sum of ivars is corect! (15)\n");
 else 
   printf("sum wrong!! \n");

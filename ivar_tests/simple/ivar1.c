@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-//#include <cilk/common.h>
-#include <cilk/cilk.h>
-#include <cilk/cilk_api.h>
+#include <cilk/common.h>
+#include <cilk/concurrent_cilk.h>
 
 // The simplest IVar usage -- write before read.
 void fun() {
@@ -13,7 +12,7 @@ void fun() {
     __cilkrts_ivar_write(&iv, (ivar_payload_t)39);
     printf("Wrote successfully, now read:\n");
 
-    int val = (int)__cilkrts_ivar_read(&iv);
+    int val = (int) __cilkrts_ivar_read(&iv);
     printf("Ivar read successfully: %d\n", val);
     if (val != 39) abort();
 }

@@ -1,4 +1,4 @@
-//#include "cilk/cilk.h"
+#include <cilk/cilk_api.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -24,11 +24,6 @@ void main(int argc, char** argv) {
    n = atoi(argv[1]);
  else
    n = 42;
-#if defined(CILK_IVARS)
- printf("CILK IVARS ON\n");
-#else
- printf("CILK IVARS OFF\n");
-#endif
  printf("Running pfib of %d...\n", n);
  printf("Fib(%d) is %ld\n", n, pfib(n));
 }
