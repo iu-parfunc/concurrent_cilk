@@ -39,7 +39,7 @@
 #include <cilk/common.h>
 #ifdef CILK_IVARS
 #include "scheduler.h"
-#include "concurrent_cilk.h"
+#include "concurrent_cilk_internal.h"
 typedef struct __cilkrts_stack_queue_struct __cilkrts_stack_queue;
 #endif
 

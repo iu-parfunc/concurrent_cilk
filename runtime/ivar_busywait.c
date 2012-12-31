@@ -36,7 +36,6 @@
 
 // ====================================================================================================
 
-#if defined(CILK_IVARS) && CILK_IVARS == CILK_IVARS_BUSYWAIT_VARIANT
 
 #include "concurrent_cilk.h"
 #include <cilk/cilk_api.h>
@@ -94,4 +93,3 @@ void __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
     // Make the modified __header visible:
     __cilkrts_fence(); 
 }
-#endif

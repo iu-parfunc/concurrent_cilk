@@ -110,10 +110,7 @@ DIST_COMMON = README $(am__configure_deps) $(cilkinclude_HEADERS) \
 	$(top_srcdir)/configure
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/../libtool.m4 \
-	$(top_srcdir)/../ltoptions.m4 $(top_srcdir)/../ltsugar.m4 \
-	$(top_srcdir)/../ltversion.m4 $(top_srcdir)/../lt~obsolete.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -156,9 +153,7 @@ am_libcilkrts_la_OBJECTS = cilk-abi.lo cilk_api.lo cilk_malloc.lo \
 	local_state.lo metacall_impl.lo os_mutex-unix.lo os-unix.lo \
 	scheduler.lo signal_node.lo stacks.lo stats.lo symbol_test.lo \
 	sysdep-unix.lo worker_mutex.lo bug.lo cilk-abi-cilk-for.lo \
-	except-gcc.lo global_state.lo reducer_impl.lo pedigrees.lo \
-	concurrent_cilk.lo concurrent_cilk_pthread.lo ivar_busywait.lo \
-	ivar_full_blocking.lo
+	except-gcc.lo global_state.lo reducer_impl.lo pedigrees.lo
 libcilkrts_la_OBJECTS = $(am_libcilkrts_la_OBJECTS)
 libcilkrts_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -333,8 +328,8 @@ AUTOMAKE_OPTIONS = foreign
 ACLOCAL_AMFLAGS = -I m4
 
 # Compiler and linker flags.
-GENERAL_FLAGS = -I$(top_srcdir)/include -DIN_CILK_RUNTIME=1 -fpic -O3 \
-	-fcilkplus -DBUILD_USER=\"$(USER)\" \
+GENERAL_FLAGS = -I$(top_srcdir)/include -DIN_CILK_RUNTIME=1 -fpic -O1 \
+	-fcilkplus -ggdb -g -DBUILD_USER=\"$(USER)\" \
 	-DBUILD_HOST=\"`hostname`\"
 AM_CFLAGS = $(GENERAL_FLAGS) -std=c99
 AM_CPPFLAGS = $(GENERAL_FLAGS)
@@ -350,9 +345,7 @@ libcilkrts_la_SOURCES = runtime/cilk-abi.c runtime/cilk_api.c           \
   runtime/stacks.c runtime/stats.c runtime/symbol_test.c                \
   runtime/sysdep-unix.c runtime/worker_mutex.c runtime/bug.cpp          \
   runtime/cilk-abi-cilk-for.cpp runtime/except-gcc.cpp                  \
-  runtime/global_state.cpp runtime/reducer_impl.cpp runtime/pedigrees.c \
-	runtime/concurrent_cilk.c runtime/concurrent_cilk_pthread.c           \
-	runtime/ivar_busywait.c runtime/ivar_full_blocking.c                  
+  runtime/global_state.cpp runtime/reducer_impl.cpp runtime/pedigrees.c 
 
 CILK_REVISION = 2546
 
@@ -382,7 +375,9 @@ cilkinclude_HEADERS = \
   include/cilk/reducer_opxor.h     \
   include/cilk/reducer_ostream.h   \
   include/cilk/reducer_string.h    \
-	include/cilk/ivar.h
+  include/internal/abi.h           \
+	include/cilk/ivar.h              \
+	include/cilk/concurrent_cilk.h
 
 all: all-am
 
@@ -470,14 +465,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cilk-abi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cilk_api.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cilk_malloc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/concurrent_cilk.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/concurrent_cilk_pthread.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/except-gcc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/frame_malloc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/full_frame.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/global_state.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ivar_busywait.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ivar_full_blocking.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jmpbuf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/local_state.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/metacall_impl.Plo@am__quote@
@@ -646,34 +637,6 @@ pedigrees.lo: runtime/pedigrees.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='runtime/pedigrees.c' object='pedigrees.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o pedigrees.lo `test -f 'runtime/pedigrees.c' || echo '$(srcdir)/'`runtime/pedigrees.c
-
-concurrent_cilk.lo: runtime/concurrent_cilk.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT concurrent_cilk.lo -MD -MP -MF $(DEPDIR)/concurrent_cilk.Tpo -c -o concurrent_cilk.lo `test -f 'runtime/concurrent_cilk.c' || echo '$(srcdir)/'`runtime/concurrent_cilk.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/concurrent_cilk.Tpo $(DEPDIR)/concurrent_cilk.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='runtime/concurrent_cilk.c' object='concurrent_cilk.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o concurrent_cilk.lo `test -f 'runtime/concurrent_cilk.c' || echo '$(srcdir)/'`runtime/concurrent_cilk.c
-
-concurrent_cilk_pthread.lo: runtime/concurrent_cilk_pthread.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT concurrent_cilk_pthread.lo -MD -MP -MF $(DEPDIR)/concurrent_cilk_pthread.Tpo -c -o concurrent_cilk_pthread.lo `test -f 'runtime/concurrent_cilk_pthread.c' || echo '$(srcdir)/'`runtime/concurrent_cilk_pthread.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/concurrent_cilk_pthread.Tpo $(DEPDIR)/concurrent_cilk_pthread.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='runtime/concurrent_cilk_pthread.c' object='concurrent_cilk_pthread.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o concurrent_cilk_pthread.lo `test -f 'runtime/concurrent_cilk_pthread.c' || echo '$(srcdir)/'`runtime/concurrent_cilk_pthread.c
-
-ivar_busywait.lo: runtime/ivar_busywait.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT ivar_busywait.lo -MD -MP -MF $(DEPDIR)/ivar_busywait.Tpo -c -o ivar_busywait.lo `test -f 'runtime/ivar_busywait.c' || echo '$(srcdir)/'`runtime/ivar_busywait.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/ivar_busywait.Tpo $(DEPDIR)/ivar_busywait.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='runtime/ivar_busywait.c' object='ivar_busywait.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o ivar_busywait.lo `test -f 'runtime/ivar_busywait.c' || echo '$(srcdir)/'`runtime/ivar_busywait.c
-
-ivar_full_blocking.lo: runtime/ivar_full_blocking.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT ivar_full_blocking.lo -MD -MP -MF $(DEPDIR)/ivar_full_blocking.Tpo -c -o ivar_full_blocking.lo `test -f 'runtime/ivar_full_blocking.c' || echo '$(srcdir)/'`runtime/ivar_full_blocking.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/ivar_full_blocking.Tpo $(DEPDIR)/ivar_full_blocking.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='runtime/ivar_full_blocking.c' object='ivar_full_blocking.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o ivar_full_blocking.lo `test -f 'runtime/ivar_full_blocking.c' || echo '$(srcdir)/'`runtime/ivar_full_blocking.c
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

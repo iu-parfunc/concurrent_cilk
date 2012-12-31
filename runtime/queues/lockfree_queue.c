@@ -34,7 +34,7 @@
  */
 
 #include "lockfree_queue.h"
-#include "../concurrent_cilk.h"
+#include "../concurrent_cilk_internal.h"
 #include "../cilk_malloc.h"
 
 //Michael & Scott Lockfree Queues

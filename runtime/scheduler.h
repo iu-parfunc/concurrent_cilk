@@ -37,6 +37,7 @@
 #define INCLUDED_SCHEDULER_DOT_H
 
 #include <cilk/common.h>
+#include <cilk/cilk_api.h>
 #include <internal/abi.h>
 
 #include "rts-common.h"

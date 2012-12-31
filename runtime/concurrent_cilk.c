@@ -50,10 +50,8 @@
 //  (Waking frees the heap object containing the paused stack.)
 
 
-#if defined(CILK_IVARS) && CILK_IVARS != CILK_IVARS_PTHREAD_VARIANT
-
 // For my_resume only (SP): 
-#include "concurrent_cilk.h"
+#include "concurrent_cilk_internal.h"
 #include "jmpbuf.h"
 #include <pthread.h>
 #include <stdio.h>
@@ -75,6 +73,11 @@ void __cilkrts_concurrent_yield(struct __cilkrts_worker *w)
 #else
   pthread_yield();
 #endif
+}
+
+
+CILK_API(void) __cilkrts_ivar_clear(__cilkrts_ivar* ivar) {
+  ivar->__header = 0; // Empty ivar.
 }
 
 /* CILK FUNCTIONS CALLED:
@@ -331,8 +334,12 @@ NORETURN setup_and_invoke_scheduler(__cilkrts_worker *w) {
 }
 
 // Commit the pause.
-NORETURN __cilkrts_finalize_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk) {
-  IVAR_DBG_PRINT_(2," [concurrent-cilk,finalize pause]  finalize_pause: blocked worker %d/%p created a paused stack %p.\n", w->self, w, stk);
+//NORETURN 
+CILK_API(void)
+__cilkrts_finalize_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk) {
+
+  IVAR_DBG_PRINT_(2," [concurrent-cilk,finalize pause]  finalize_pause: blocked worker %d/%p created a paused stack %p.\n", 
+      w->self, w, stk);
 
   CILK_ASSERT(stk);
   CILK_ASSERT(w);
@@ -394,7 +401,7 @@ NORETURN __cilkrts_finalize_pause(__cilkrts_worker* w, volatile __cilkrts_paused
 
 // Back out of the pause before making any externally visible changes.
 // The client better not have stored the __cilkrts_paused_stack anywhere!
-void __cilkrts_undo_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk) {
+CILK_API(void) __cilkrts_undo_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk) {
 
   CILK_ASSERT(stk);
   CILK_ASSERT(stk->orig_worker);
@@ -407,8 +414,23 @@ void __cilkrts_undo_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* 
   IVAR_DBG_PRINT_(2," [concurrent-cilk, undo_pause] Pause of stk %p undone.\n", stk);
 }
 
+// This function is a `yield` for defining coroutines.  It stops the current computation but adds it
+// to a ready queue to be awoken after other tasks are given a chance to run.
+CILK_API(void) __cilkrts_pause_a_bit(struct __cilkrts_worker* w)
+{
+
+  // Here we do not need to save anything... the worker is left in place, but the thread abandons it.
+  // Save the continuation in the top stack frame of the old (stalled) worker:
+  volatile struct __cilkrts_paused_stack* ptr = __cilkrts_pause(w);
+  IVAR_DBG_PRINT_(1," [scheduler: pause_a_bit] Creating paused stack: %p capturing current stack %p\n", ptr, w->l->frame_ff->stack_self);
+  if(ptr) {
+    __cilkrts_wake_stack(ptr);
+    __cilkrts_finalize_pause(w,ptr);
+  }
+}
+
 // Mark a paused stack as ready and add it to the ready queue.
-void __cilkrts_wake_stack(volatile __cilkrts_paused_stack* stk)
+CILK_API(void) __cilkrts_wake_stack(volatile __cilkrts_paused_stack* stk)
 {
 
   CILK_ASSERT(stk);
@@ -437,4 +459,3 @@ void __cilkrts_wake_stack(volatile __cilkrts_paused_stack* stk)
   }
 }
 
-#endif

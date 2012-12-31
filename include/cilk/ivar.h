@@ -24,6 +24,7 @@
 #define CILK_IVAR_H_INCLUDED
 
 #include <cilk/common.h>
+#include <cilk/concurrent_cilk.h>
 #include <cilk/cilk_api.h>
 
 

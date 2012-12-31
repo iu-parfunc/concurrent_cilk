@@ -41,7 +41,7 @@
 #include <pthread.h>
 #endif
 
-#include "concurrent_cilk.h"
+#include "concurrent_cilk_internal.h"
 
 #ifdef CACHE_AWARE_QUEUE
 #include "queues/cache_aware_queue.c"

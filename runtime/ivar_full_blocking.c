@@ -36,14 +36,16 @@
 
 // ====================================================================================================
 
-#if defined(CILK_IVARS) && CILK_IVARS != CILK_IVARS_BUSYWAIT_VARIANT
 
-//#include "stack_dbg.h"
 #include <stdlib.h>
-#include "concurrent_cilk.h"
+#include "concurrent_cilk_internal.h"
 #include "cilk_malloc.h"
 #include <cilk/cilk_api.h>
+#include "scheduler.h"
 #include "bug.h"
+
+// CSZ: it is necessary that pause be a macro because the longjump must return to a valid frame. 
+// you will experience erratic behavior if this is not the case
 #define __cilkrts_pause(w)  (CILK_SETJMP((w->current_stack_frame->ctx))) ?  NULL : make_paused_stack((w)) 
 
 struct __cilkrts_ivar_waitlist* make_waitlist_cell() 
@@ -65,7 +67,7 @@ struct __cilkrts_ivar_waitlist* make_waitlist_cell()
 
    
 
-ivar_payload_t __cilkrts_ivar_read(__cilkrts_ivar* iv)
+CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar* iv)
 {
 
   volatile __cilkrts_ivar* ivar = iv;
@@ -141,7 +143,7 @@ void __cilkrts_ivar_wakeup(struct __cilkrts_ivar_waitlist* list)
   }
 }
 
-void __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val) 
+CILK_API(void) __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val) 
 {
   IVAR_DBG_PRINT_(1,"[ivar] Writing IVar %p, value %lu\n", ivar, val);
 
@@ -165,4 +167,3 @@ void __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
   }
 }
 
-#endif

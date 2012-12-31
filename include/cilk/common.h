@@ -268,8 +268,8 @@ typedef struct __cilkrts_pedigree
 
 // Set the default:
 #ifndef CILK_IVARS
-#define CILK_IVAR_FOLLOW_FORWARDING 1
 #define CILK_IVARS CILK_IVARS_NORMAL_VARIANT
+#define CILK_IVAR_FOLLOW_FORWARDING 1
 //#define CILK_IVARS CILK_IVARS_BUSYWAIT_VARIANT
 //#define CILK_IVARS CILK_IVARS_PTHREAD_VARIANT
 #endif

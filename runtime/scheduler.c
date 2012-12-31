@@ -46,7 +46,6 @@
 
 #ifdef CILK_IVARS
 #include "cilk/cilk_api.h"
-#include "concurrent_cilk.h"
 
 #ifndef LOCKFREE_QUEUE_VERSION
 #include <pthread.h>
@@ -82,6 +81,7 @@
 #   pragma warning(disable: 1684)
 #endif
 
+#include "cilk/common.h"
 #include "cilk/cilk_api.h"
 #include "frame_malloc.h"
 #include "metacall_impl.h"
@@ -156,29 +156,15 @@ void __cilkrts_show_threadid() {
   volatile struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
   fprintf(stderr, "[tid/W %3d %2d/%p] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, tw, buf); }
 
-// RRN: TEMP: Using a simple concurrent queue implementation.  It would be better to use TBB queues.
+#include "concurrent_cilk_internal.h"
 #include "concurrent_queue.h"
+#include "ivar_full_blocking.c"
 
 #if CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
 #include "concurrent_cilk_pthread.c"
 #else
 #include "concurrent_cilk.c"
 #endif
-
-// This function is a `yield` for defining coroutines.  It stops the current computation but adds it
-// to a ready queue to be awoken after other tasks are given a chance to run.
-void __cilkrts_pause_a_bit(struct __cilkrts_worker* w)
-{
-
-  // Here we do not need to save anything... the worker is left in place, but the thread abandons it.
-  // Save the continuation in the top stack frame of the old (stalled) worker:
-  volatile struct __cilkrts_paused_stack* ptr = __cilkrts_pause(w);
-  IVAR_DBG_PRINT_(1," [scheduler: pause_a_bit] Creating paused stack: %p capturing current stack %p\n", ptr, w->l->frame_ff->stack_self);
-  if(ptr) {
-    __cilkrts_wake_stack(ptr);
-    __cilkrts_finalize_pause(w,ptr);
-  }
-}
 #endif
 
 static enum schedule_t worker_runnable(__cilkrts_worker *w);
@@ -890,8 +876,10 @@ static void random_steal(__cilkrts_worker *w)
   // made dynamic.  Thus, to make work on replacements available for stealing, this
   // forwarding pointer must be followed:
 
-  if (!can_steal_from(victim) || w == victim && w->is_replacement) {
+  if (!can_steal_from(victim) && w->l->do_not_steal == 0 || w == victim && w->is_replacement) {
     IVAR_DBG_PRINT_(3,"[scheduler] could not steal from first choice. trying a forwarding pointer\n");
+    IVAR_DBG_PRINT_(1,"[scheduler] worker: %d/%p victim %d/%p can steal from victim? %d. victim == w %d\n",
+        w->self, w, victim->self, victim, can_steal_from(victim), w == victim);
     BEGIN_WITH_WORKER_LOCK(w) {
       struct __cilkrts_worker* next = w->forwarding_pointer;
       //loop through the forwarding pointers to find a suitable victim
@@ -3412,10 +3400,10 @@ the spawn helper of g() is still the currently executing
 //   Finally, here we inline the appropriate IVar implementation.
 //   With a proper modification of the build system, this will go away.
 //   (Eseecally because ivars are simply a library built on pause/unpause.)
+/*
 #ifdef CILK_IVARS
 
-void __cilkrts_ivar_clear(__cilkrts_ivar* ivar)
-{
+void __cilkrts_ivar_clear(__cilkrts_ivar* ivar) {
   ivar->__header = 0; // Empty ivar.
 }
 
@@ -3437,6 +3425,7 @@ void __cilkrts_ivar_clear(__cilkrts_ivar* ivar)
 #endif // Dispatch on cilk ivars variant.
 
 #endif // CILK_IVARS
+*/
 
   /*
      Local Variables: **

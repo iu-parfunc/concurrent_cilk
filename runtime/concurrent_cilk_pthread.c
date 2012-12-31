@@ -46,7 +46,6 @@
 
 // ================================================================================
 //
-#if defined(CILK_IVARS) && CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
 
 #include "cilk/cilk_api.h"
 #include "cilk/cilk_undocumented.h"
@@ -282,4 +281,3 @@ int __cilkrts_calculate_P( global_state_t *g)
 }
 #endif
 
-#endif //CILK_IVARS_PTHREAD_VARIANT
