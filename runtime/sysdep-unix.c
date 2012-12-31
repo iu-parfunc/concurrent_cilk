@@ -36,7 +36,6 @@
 #   define _GNU_SOURCE
 #endif
 
-
 #include "sysdep.h"
 #include "os.h"
 #include "bug.h"
@@ -53,6 +52,12 @@
 #include "cilk-ittnotify.h"
 
 #include <stddef.h>
+
+#ifdef __CYGWIN__
+// On Cygwin, string.h doesnt declare strcasecmp if __STRICT_ANSI__ is defined
+#   undef __STRICT_ANSI__
+#endif
+
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
@@ -70,15 +75,6 @@
 #   define MAP_ANONYMOUS MAP_ANON
 #endif
 
-#ifdef CILK_IVARS
-
-#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
-   pthread_t id = pthread_self(); char buf[512];             \
-   sprintf(buf, __VA_ARGS__);                                \
-   struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
-   fprintf(stderr, "[tid/W %3d %2d] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, buf); }
-
-#endif
 
 static void internal_enforce_global_visibility();
 
@@ -733,10 +729,6 @@ void __cilkrts_free_stack(global_state_t *g,
 
 void __cilkrts_sysdep_reset_stack(__cilkrts_stack *sd)
 {
-#ifdef CILK_IVARS
-  if(sd->stack_op_routine != NULL || sd->stack_op_data != NULL)
-    IVAR_DBG_PRINT_(1, "[sysdep-unix] resetting stack. %p op routine: %p op data: %p\n", sd, sd->stack_op_routine, sd->stack_op_data)
-#endif
     CILK_ASSERT(sd->stack_op_routine == NULL);
     CILK_ASSERT(sd->stack_op_data == NULL);
     return;
@@ -837,9 +829,14 @@ void dummy_function() { }
  */
 static const char *get_runtime_path ()
 {
+#ifdef __CYGWIN__
+    // Cygwin doesn't support dladdr, which sucks
+    return "unknown";
+#else
     Dl_info info;
     if (0 == dladdr(dummy_function, &info)) return "unknown";
     return info.dli_fname;
+#endif
 }
 
 /* if the environment variable, CILK_VERSION, is defined, writes the version
@@ -1010,9 +1007,6 @@ void worker_user_scheduler()
     CILK_ASSERT(WORKER_USER == w->l->type);
 
     // Run the continuation function passed to longjmp_into_runtime
-#ifdef CILK_IVARS
-  if(w->l->post_suspend !=NULL && w->l->frame_ff !=NULL)
-#endif
     run_scheduling_stack_fcn(w);
     w->reducer_map = 0;
 

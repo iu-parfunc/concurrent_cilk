@@ -50,7 +50,15 @@
 #ifndef INCLUDED_CILK_API_H
 #define INCLUDED_CILK_API_H
 
-#ifndef CILK_STUB
+#ifndef CILK_STUB /* Real (non-stub) definitions below */
+
+#if ! defined(__cilk) && ! defined(USE_CILK_API)
+#   ifdef _WIN32
+#       pragma message("Warning: Cilk ABI is being used with non-Cilk compiler (or Cilk is disabled)")
+#   else
+#       warning Cilk ABI is being used with non-Cilk compiler (or Cilk is disabled)
+#   endif
+#endif
 
 #include <cilk/common.h>
 
@@ -194,44 +202,10 @@ typedef void (*__cilkrts_pfn_seh_callback)(const _EXCEPTION_RECORD *exception);
  * runtime aborts the application.
  */
 CILK_API(int) __cilkrts_set_seh_callback(__cilkrts_pfn_seh_callback pfn);
-#endif
+#endif /* _WIN32 */
 
 #if __CILKRTS_ABI_VERSION >= 1
-<<<<<<< HEAD
-
-#ifdef CILK_IVARS
-// Here is the structure of an IVar -- it is a simple pair:
-typedef struct
-{
-    volatile uintptr_t  __header; /* Exists in one of two states:
-                          - 0: indicates that the ivar is EMPTY (none waiting)
-                          - CILK_IVAR_FULL: indicates that the ivar is FULL
-                          - other: pointer to waitlist for empty ivar
-                         */
-    volatile ivar_payload_t __value; /* A pointer to the final contents, when available. */
-}  __cilkrts_ivar;
-
-CILK_API(ivar_payload_t) __cilkrts_ivar_read (__cilkrts_ivar*);
-CILK_API(void)           __cilkrts_ivar_clear(__cilkrts_ivar*);
-CILK_API(void)           __cilkrts_ivar_write(__cilkrts_ivar*, ivar_payload_t);
-
-typedef volatile struct __cilkrts_paused_stack* PAUSED_FIBER;
-CILK_API(void) __cilkrts_finalize_pause(struct __cilkrts_worker* w,  PAUSED_FIBER stk);
-CILK_API(void) __cilkrts_undo_pause    (struct __cilkrts_worker* w,  PAUSED_FIBER stk);
-CILK_API(void) __cilkrts_wake_stack    (PAUSED_FIBER stk);
-CILK_API(void) __cilkrts_pause_a_bit   (struct __cilkrts_worker* w);
-
-// CSZ: it is necessary that pause be a macro because the longjump must return to a valid frame. 
-// you will experience erratic behavior if this is not the case
-#define __cilkrts_pause(w)  (CILK_SETJMP((w->current_stack_frame->ctx))) ?  NULL : make_paused_stack((w)) 
-
-#endif // CILK_IVARS
-
-
 /* Pedigree API is available only for compilers that use ABI version >= 1. */
-=======
-// Pedigree API is available only for compilers that use ABI version >= 1.
->>>>>>> 0c9ec0be36b0948788df3b418c1d6f789ed21dad
 
 /**
  * Pedigree API
@@ -371,7 +345,7 @@ int __cilkrts_bump_loop_rank(void)
     return __cilkrts_bump_loop_rank_internal(__cilkrts_get_tls_worker()); 
 }
 
-#endif // __CILKRTS_ABI_VERSION >= 1
+#endif /* __CILKRTS_ABI_VERSION >= 1 */
 
 __CILKRTS_END_EXTERN_C
 
@@ -411,10 +385,10 @@ __cilkrts_pedigree __cilkrts_get_pedigree_stub(void)
     return ans;
 }
 
-// Renamed to an actual stub method.
+/* Renamed to an actual stub method. */
 #define __cilkrts_get_pedigree() __cilkrts_get_pedigree_stub()
 
-#endif // __CILKRTS_ABI_VERSION >= 1
+#endif /* __CILKRTS_ABI_VERSION >= 1 */
 
 #endif /* CILK_STUB */
 
