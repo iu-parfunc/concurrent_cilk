@@ -1,4 +1,3 @@
-//iv2B
 
 #include <cilk/cilk.h>
 #include <cilk/cilk_api.h>

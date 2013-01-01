@@ -1,4 +1,3 @@
-
 // A parallel write that may happen after (in realtime) the read.
 
 #include <cilk/cilk.h>

@@ -1,4 +1,3 @@
-//iv3
 // This uses the higher level C++ api.
 
 #include <unistd.h>

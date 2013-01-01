@@ -1,5 +1,3 @@
-//iv5
-
 // This variant runs a lot of other work on the side so that the replacement can issue steals.
 
 #include <cilk/cilk.h>

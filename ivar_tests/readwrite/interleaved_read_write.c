@@ -1,6 +1,7 @@
+
 #include <stdio.h>
-#include "cilk/cilk.h"
-#include "cilk/cilk_api.h"
+#include <cilk/cilk.h>
+#include <cilk/cilk_api.h>
 
 
 void fun() {

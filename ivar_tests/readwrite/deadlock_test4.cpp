@@ -1,8 +1,4 @@
-//iv4
-
 // This test exercises ALL template specializations of the ivar<> class.  
-
-#define CILK_IVARS
 
 #include <unistd.h>
 #include <stdio.h>
