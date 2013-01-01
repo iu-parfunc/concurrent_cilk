@@ -1,18 +1,28 @@
 #!/bin/bash
-PREFIX=/nobackup/czakian
-GCC=$PREFIX/cilkplus
-LIB_PATH=$GCC/lib:$GCC/lib64:$GCC/libexec:$GCC/share
-BIN_PATH=$GCC/bin
 
+CILK_ROOT=/nobackup/$USER/cilkplus
+CILK_SRC=/nobackup/$USER/gcc/libcilkrts
+
+LIB_PATH=$CILK_ROOT/lib:$CILK_ROOT/lib64:$CILK_ROOT/libexec:$CILK_ROOT/share
+BIN_PATH=$CILK_ROOT/bin
+
+#export the root for the cilk enabled gcc
+export CILK_ROOT
+
+#export the source directory for cilk
+export CILK_SRC
 
 #use the cilk compiled gcc
 export PATH=$BIN_PATH:$PATH
 
 #export header path
-export CPATH=$GCC/include:$GCC/include/cilk:$CPATH
-export C_INCLUDE_PATH=$GCC/include:$GCC/include/cilk:$C_INCLUDE_PATH
-export CPLUS_INCLUDE_PATH=$GCC/include:$CPLUS_INCLUDE_PATH
+export CPATH=$CILK_ROOT/include:$CILK_ROOT/include/cilk:$CPATH
+export C_INCLUDE_PATH=$CILK_ROOT/include:$CILK_ROOT/include/cilk:$C_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=$CILK_ROOT/include:$CPLUS_INCLUDE_PATH
 
 #export library path
 export LD_LIBRARY_PATH=$LIB_PATH:$LD_LIBRARY_PATH
 export LIBRARY_PATH=$LIB_PATH:$LIBRARY_PATH
+
+#cilk specific aliases
+alias m=$CILK_SRC/clean_and_rebuild.sh

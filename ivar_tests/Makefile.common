@@ -4,24 +4,22 @@
 #in all of your sub makefiles
 
 #global properties related to the runtime location 
-RTSDIR=/nobackup/czakian
-BUILD=cilkplus
-INCLUDEDIR=$(RTSDIR)/$(BUILD)/include/cilk
+RTSDIR:=$(shell echo $(CILK_ROOT))
+INCLUDEDIR=$(RTSDIR)/include/cilk
 EXT=so
 
-GCC=$(RTSDIR)/$(BUILD)/bin
-CC=$(GCC)/gcc -L$(RTSDIR)/$(BUILD)/lib:$(RTSDIR)/$(BUILD)/lib64 -I$(INCLUDEDIR)
-CPLUS=$(GCC)/g++ -L$(RTSDIR)/$(BUILD)/lib:$(RTSDIR)/$(BUILD)/lib64 -I$(INCLUDEDIR)
+GCC=$(RTSDIR)/bin
+CC=$(GCC)/gcc -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
+CPLUS=$(GCC)/g++ -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
 
 #lib dependencies
-LIBDEPS= $(RTSDIR)/$(BUILD)/lib/libcilkrts.$(EXT)
-LIBS=$(RTSDIR)/$(BUILD)/lib/:$(RTSDIR)/$(BUILD)/lib64/:$(RTSDIR)/$(BUILD)/libexec/
+LIBDEPS= $(RTSDIR)/lib/libcilkrts.$(EXT)
+LIBS=$(RTSDIR)/lib/:$(RTSDIR)/lib64/:$(RTSDIR)/libexec/
 
-INCLUDE=$(RTSDIR)/$(BUILD)/include
+INCLUDE=$(RTSDIR)/include
+CFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -std=c99 -g3 -ggdb -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -O3 -I$(INCLUDE) -L$(LIBS)
+CPLUSFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -g3 -ggdb -Wno-int-to-pointer-cast -fpermissive -O2 -I$(INCLUDE) -L$(LIBS) 
 
-#FLAGS+= -lcilkrts -lpthread -ldl -O3 -I$(INCLUDE)-L$(LIBS) 
-CFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -g -ggdb -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -O1 -I$(INCLUDE) -L$(LIBS)
-CPLUSFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -g -ggdb -Wno-int-to-pointer-cast -fpermissive -O2 -I$(INCLUDE) -L$(LIBS) 
 
 ##================================================================================
 

@@ -1,13 +1,13 @@
 
 // A parallel write that may happen after (in realtime) the read.
 
-#include <cilk/cilk.h>
-#include <cilk/cilk_api.h>
-// For access to Cilk RTS internals:
-#include <cilk/abi.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+// For access to Cilk RTS internals:
+#include <cilk/abi.h>
+#include <cilk/cilk.h>
+#include <cilk/cilk_api.h>
 
 // TOGGLES:
 //#define DELAY_WRITER // Working [2011.07.19]

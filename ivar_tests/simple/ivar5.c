@@ -20,8 +20,9 @@ long long parfib(int n)
     if (n <= 1) 
         return 1;
     else {
-        long long x = cilk_spawn parfib(n-1);
-        long long y = cilk_spawn parfib(n-2);
+        long long x,y;
+        x = cilk_spawn parfib(n-1);
+        y = cilk_spawn parfib(n-2);
         cilk_sync;
         return x+y;
     }
@@ -30,13 +31,16 @@ long long parfib(int n)
 void writer(__cilkrts_ivar* iv) 
 {
     int val = 39;
+    long long result;
+
     printf("     Inside spawned writer... spawn spurious work\n");
 
-    long long result = cilk_spawn parfib(FIBINP);
+    result = cilk_spawn parfib(FIBINP);
+
     printf("   spurious work finished or parent stolen (w=%d)\n", __cilkrts_get_tls_worker()->self); 
 
     //    usleep(delay); // microseconds   
-    __cilkrts_ivar_write(iv, (void*)val);
+    __cilkrts_ivar_write(iv, (ivar_payload_t)val);
     printf("     Inside spawned writer... WRITE OF %d DONE (w=%d).\n", val, __cilkrts_get_tls_worker()->self);
 
     cilk_sync;
@@ -73,3 +77,4 @@ int main(int argc, char **argv)
     printf("==== ivar5: Finished.\n");
     return 0;
 }
+
