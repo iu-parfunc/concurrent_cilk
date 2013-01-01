@@ -156,6 +156,52 @@ void call_cilk_for_loop_body(count_t low, count_t high,
     w->pedigree.parent = saved_next_pedigree_node;
 }
 
+/* capture_spawn_arg_stack_frame
+ *
+ * Efficiently get the address of the caller's __cilkrts_stack_frame.  The
+ * preconditons are that 'w' is the worker at the time of the call and
+ * 'w->current_stack_frame' points to the __cilkrts_stack_frame within the
+ * spawn helper.  This function should be called only within the argument list
+ * of a function that is being spawned because that is the only situation in
+ * which these preconditions hold.  This function returns the worker
+ * (unchanged) after storing the captured stack frame pointer is stored in the
+ * sf argument.
+ *
+ * The purpose of this function is to get the caller's stack frame in a
+ * context where the caller's worker is known but its stack frame is not
+ * necessarily initialized.  The "shrink wrap" optimization delays
+ * initializing the contents of a spawning function's '__cilkrts_stack_frame'
+ * as well as the 'current_stack_frame' pointer within the worker.  By calling
+ * this function within a spawning function's argument list, we can ensure
+ * that these initializations have occured but that a detach (which would
+ * invalidate the worker pointer in the caller) has not yet occured.  Once the
+ * '__cilkrts_stack_frame' has been retrieved in this way, it is stable for the
+ * remainder of the caller's execution, and becomes an efficient way to get
+ * the worker (much more efficient than calling '__cilkrts_get_tls_worker()'),
+ * even after a spawn or sync.
+ */
+inline __cilkrts_worker* 
+capture_spawn_arg_stack_frame(__cilkrts_stack_frame* &sf, __cilkrts_worker* w)
+{
+    // Get current stack frame
+    sf = w->current_stack_frame;
+#ifdef __INTEL_COMPILER
+#   if __INTEL_COMPILER <= 1300 && __INTEL_COMPILER_BUILD_DATE < 20130101
+    // In older compilers 'w->current_stack_frame' points to the
+    // spawn-helper's stack frame.  In newer compiler's however, it points
+    // directly to the pointer's stack frame.  (This change was made to avoid
+    // having the spawn helper in the frame list when evaluating function
+    // arguments, thus avoiding corruption when those arguments themselves
+    // contain cilk_spawns.)
+    
+    // w->current_stack_frame is the spawn helper's stack frame.
+    // w->current_stack_frame->call_parent is the caller's stack frame.
+    sf = sf->call_parent;
+#   endif
+#endif
+    return w;
+}
+
 /*
  * cilk_for_recursive
  *

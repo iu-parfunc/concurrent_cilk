@@ -44,26 +44,6 @@
 #include "cilk_malloc.h"
 #include "pedigrees.h"
 
-#ifdef CILK_IVARS
-#include "cilk/cilk_api.h"
-
-#ifndef LOCKFREE_QUEUE_VERSION
-#include <pthread.h>
-#endif
-
-#ifdef CACHE_AWARE_QUEUE
-#include "queues/cache_aware_queue.c"
-#endif 
-
-#ifdef LOCKFREE_QUEUE_VERSION
-#include "queues/lockfree_queue.c"
-#endif
-
-#ifdef LOCKING_QUEUE_VERSION
-#include "queues/locking_queue.c"
-#endif
-
-#endif //CILK_IVARS
 
 #include <string.h> /* memcpy */
 #include <stdio.h>  // sprintf
@@ -134,6 +114,28 @@ static inline void verify_current_wkr(__cilkrts_worker *w)
   CILK_ASSERT(w == tmp);
 #endif
 }                                                            
+
+
+#ifdef CILK_IVARS
+#include "cilk/cilk_api.h"
+
+#ifndef LOCKFREE_QUEUE_VERSION
+#include <pthread.h>
+#endif
+
+#ifdef CACHE_AWARE_QUEUE
+#include "queues/cache_aware_queue.c"
+#endif 
+
+#ifdef LOCKFREE_QUEUE_VERSION
+#include "queues/lockfree_queue.c"
+#endif
+
+#ifdef LOCKING_QUEUE_VERSION
+#include "queues/locking_queue.c"
+#endif
+
+#endif //CILK_IVARS
 
 #ifdef CILK_IVARS
 
