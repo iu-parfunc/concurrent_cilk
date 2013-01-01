@@ -1,12 +1,10 @@
 
 // This test exercises ALL template specializations of the ivar<> class.  
 
-#define CILK_IVARS
-
-#include <unistd.h>
-#include <stdio.h>
 #include <cilk/cilk.h>
 #include <cilk/ivar.h>
+#include <unistd.h>
+#include <stdio.h>
 
 struct tup {
     int x,y,z,w;

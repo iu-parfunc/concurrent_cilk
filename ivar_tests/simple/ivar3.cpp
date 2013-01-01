@@ -1,10 +1,10 @@
 
 // This uses the higher level C++ api.
 
-#include <unistd.h>
-#include <stdio.h>
 #include <cilk/cilk.h>
 #include <cilk/ivar.h>
+#include <unistd.h>
+#include <stdio.h>
 
 void writer(ivar<int>& iv) {
     printf("     Inside spawned writer... sleeping for a bit\n");

@@ -2,7 +2,7 @@
 // A parallel write that may happen after (in realtime) the read.
 
 #include <cilk/cilk.h>
-#include <cilk/concurrent_cilk.h>
+#include <cilk/cilk_api.h>
 // For access to Cilk RTS internals:
 #include <cilk/abi.h>
 #include <unistd.h>
