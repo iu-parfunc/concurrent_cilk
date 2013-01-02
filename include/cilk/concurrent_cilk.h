@@ -2,6 +2,9 @@
 #define __CONCURRENT_CILK_H
 
 #include <cilk/common.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <time.h>
 
 __CILKRTS_BEGIN_EXTERN_C
 
@@ -24,6 +27,16 @@ CILK_API(void) __cilkrts_finalize_pause(struct __cilkrts_worker* w,  PAUSED_FIBE
 CILK_API(void) __cilkrts_undo_pause    (struct __cilkrts_worker* w,  PAUSED_FIBER stk);
 CILK_API(void) __cilkrts_wake_stack    (PAUSED_FIBER stk);
 CILK_API(void) __cilkrts_pause_a_bit   (struct __cilkrts_worker* w);
+CILK_API(void) __cilkrts_msleep(unsigned long millis);
+CILK_API(void) __cilkrts_usleep(unsigned long micros);
+void __cilkrts_show_threadid();
+
+
+#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
+  pthread_t id = pthread_self(); char buf[512];             \
+  sprintf(buf, __VA_ARGS__);                                \
+  volatile struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
+  fprintf(stderr, "[tid/W %3d %2d/%p] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, tw, buf); }
 
 __CILKRTS_END_EXTERN_C
 #endif

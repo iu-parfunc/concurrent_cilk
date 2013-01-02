@@ -57,6 +57,7 @@
 #include <stdio.h>
 #include "local_state.h"
 #include "scheduler.h"
+#include <time.h>
 
 
 // ================================================================================
@@ -76,6 +77,22 @@ void __cilkrts_concurrent_yield(struct __cilkrts_worker *w)
 }
 
 
+CILK_API(void) __cilkrts_msleep(unsigned long millis)
+{
+  struct timespec time;
+  time.tv_sec = millis / 1000;
+  time.tv_nsec = (millis % 1000) * 1000000ul;
+  nanosleep(&time,NULL);
+}
+
+CILK_API(void) __cilkrts_usleep(unsigned long micros)
+{
+  struct timespec time;
+  time.tv_sec = micros/1000000ul;
+  time.tv_nsec = (micros % 1000) * 1000000ul;
+  nanosleep(&time,NULL);
+}
+
 CILK_API(void) __cilkrts_ivar_clear(__cilkrts_ivar* ivar) {
   ivar->__header = 0; // Empty ivar.
 }
@@ -87,27 +104,28 @@ CILK_API(void) __cilkrts_ivar_clear(__cilkrts_ivar* ivar) {
 int paused_stack_lock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk) {
 
   IVAR_DBG_PRINT_(1,"[concurrent-cilk, paused_stack_lock] locking stack %p with worker owner: %d/%p\n", stk, w->self,w);
-    // two threads race for lock inform, and one comes out on top. 
-    // this thread then grabs the lock_success value and holds the lock
-    if(__sync_bool_compare_and_swap(&stk->lock_inform, 0, 1))
-      if(__sync_bool_compare_and_swap(&stk->lock_success, 0, 1))
-        return 1;
-    return 0;
+  // two threads race for lock inform, and one comes out on top. 
+  // this thread then grabs the lock_success value and holds the lock
+  if(__sync_bool_compare_and_swap(&stk->lock_inform, 0, 1))
+    if(__sync_bool_compare_and_swap(&stk->lock_success, 0, 1))
+      return 1;
+  return 0;
 }
 /* CILK FUNCTIONS CALLED:
  * NONE
  *
  returns 1 on successfull unlock, and 0 on failure */
-int paused_stack_unlock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk) {
-
+int paused_stack_unlock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk)
+{
   IVAR_DBG_PRINT_(1,"[concurrent-cilk, paused_stack_unlock] unlocking stack %p with worker owner: %d/%p\n", stk, w->self,w);
-    // two threads race for lock inform, and one comes out on top. 
-    // this thread then grabs the lock_success value and holds the lock
-    if(__sync_bool_compare_and_swap(&stk->lock_success, 1, 0))
-      if(__sync_bool_compare_and_swap(&stk->lock_inform, 1, 0))
-        return 1;
-    return 0;
+  // two threads race for lock inform, and one comes out on top. 
+  // this thread then grabs the lock_success value and holds the lock
+  if(__sync_bool_compare_and_swap(&stk->lock_success, 1, 0))
+    if(__sync_bool_compare_and_swap(&stk->lock_inform, 1, 0))
+      return 1;
+  return 0;
 }
+
 /* CILK FUCTIONS CALLED
  *  CILK_ASSERT
  *  __cilkrts_cilkscreen_ignore_block
@@ -118,7 +136,7 @@ int paused_stack_unlock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* st
  *  __cilkrts_fence
  *  __cilkrts_set_tls_worker
  Create a new worker. */  
-NOINLINE
+  NOINLINE
 struct __cilkrts_worker* replace_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker, volatile __cilkrts_paused_stack* stk) 
 {   
   CILK_ASSERT(old_w);
@@ -129,10 +147,8 @@ struct __cilkrts_worker* replace_worker (__cilkrts_worker* old_w, __cilkrts_work
   // __cilkrts_cilkscreen_ignore_block(fresh_worker, fresh_worker + sizeof(struct __cilkrts_worker));
 
   // Here we create a COMPLETELY NEW WORKER. 
-  //   (TODO: We may want to cache these extra workers.)
   __cilkrts_cilkscreen_ignore_block(fresh_worker, fresh_worker+1);
   fresh_worker = (__cilkrts_worker *) make_worker(old_w->g, -1, fresh_worker); // Using self = -1 for now.
-  //usleep(1);
 
   // Initialize the new worker:
   //---------------------------------   
@@ -151,7 +167,6 @@ struct __cilkrts_worker* replace_worker (__cilkrts_worker* old_w, __cilkrts_work
 #endif
 
   fresh_worker->l->scheduler_stack = sysdep_make_tiny_stack(fresh_worker);
-  //usleep(1);
   IVAR_DBG_PRINT_(1," [concurrent-cilk, replace_worker] Created scheduler stack for replacement: %p\n", fresh_worker->l->scheduler_stack);
   __cilkrts_fence(); //probably redundant
 
@@ -192,17 +207,14 @@ struct __cilkrts_worker* replace_worker (__cilkrts_worker* old_w, __cilkrts_work
  * CILK_LONGJMP
  * CILK_ASSERT
  * SP
- 
+
  * concurrent
- 
+
  Resume work that was paused but is now ready to proceed. */
   NOINLINE
-void my_resume (struct __cilkrts_worker *w, struct full_frame *f,
-    struct __cilkrts_stack_frame *sf)
+void my_resume (__cilkrts_worker *w, full_frame *f, __cilkrts_stack_frame *sf)
 {
-
   IVAR_DBG_PRINT_(2,"[concurrent cilk, my_resume] in my_resume with worker %p and stack %p\n\n",w ,sf);
-  // NOTE: This could perhaps do more of what __cilkrts_resume does.
   void *sp = SP(sf);
   /* Debugging: make sure stack is accessible. */
   ((volatile char *)sp)[-1];
@@ -224,12 +236,12 @@ right now we are not reaping our workers. We might in the future wish to do so.
 However, if we do decide to do this, we will probably run into problems patching up replacements
 
 Takes a pointer to the no-longer-needed replacement worker and the paused worker to resume.*/
-void restore_worker2(__cilkrts_worker* old_w, volatile __cilkrts_paused_stack* stk) {
-
+void restore_worker2(__cilkrts_worker* old_w, volatile __cilkrts_paused_stack* stk)
+{
   //current worker
-   __cilkrts_worker* tlsw = __cilkrts_get_tls_worker_fast();
+  __cilkrts_worker* tlsw = __cilkrts_get_tls_worker_fast();
   //the worker to restore
-   __cilkrts_worker* w = (__cilkrts_worker *) stk->orig_worker;
+  __cilkrts_worker* w = (__cilkrts_worker *) stk->orig_worker;
 
   // no replacement or no orig_worker means something is seriously wrong 
   CILK_ASSERT(w);
@@ -271,7 +283,6 @@ void restore_worker2(__cilkrts_worker* old_w, volatile __cilkrts_paused_stack* s
   IVAR_DBG_PRINT_(1, "[concurrent-cilk] WARNING: leaking a replacement worker. the RTS does not give workers back to the OS!  please define CILK_IVARS_CACHING to reuse old replacement workers\n");
 #endif
 
-
   my_resume(w, w->l->frame_ff, w->current_stack_frame);
 
   // Dont come back
@@ -282,8 +293,8 @@ void restore_worker2(__cilkrts_worker* old_w, volatile __cilkrts_paused_stack* s
 
 // This initiializes the data structure that represents a paused stack, but save_worker
 // must be called subsequently to fully populate it.
-struct __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w) {
-
+__cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w)
+{
   CILK_ASSERT(w);
   __cilkrts_paused_stack* sustk; 
 
@@ -293,7 +304,7 @@ struct __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w) {
   else
     IVAR_DBG_PRINT_(1,"[concurrent-cilk] got new CACHED stack %p \n", sustk);
 #else
-    sustk = (__cilkrts_paused_stack *)__cilkrts_malloc(sizeof(__cilkrts_paused_stack));
+  sustk = (__cilkrts_paused_stack *)__cilkrts_malloc(sizeof(__cilkrts_paused_stack));
 #endif
 
   //system workers might not have a frame!
@@ -312,8 +323,8 @@ struct __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w) {
 }
 
 // DUPLICATE CODE: from __cilkrts_sysdep_import_user_thread and worker_user_scheduler:
-NORETURN setup_and_invoke_scheduler(__cilkrts_worker *w) {
-
+NORETURN setup_and_invoke_scheduler(__cilkrts_worker *w) 
+{
   __cilkrts_worker_lock(w);
   void *ctx[5]; // Jump buffer for __builtin_setjmp/longjmp.
 
@@ -335,9 +346,9 @@ NORETURN setup_and_invoke_scheduler(__cilkrts_worker *w) {
 
 // Commit the pause.
 //NORETURN 
-CILK_API(void)
-__cilkrts_finalize_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk) {
-
+  CILK_API(void)
+__cilkrts_finalize_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk) 
+{
   IVAR_DBG_PRINT_(2," [concurrent-cilk,finalize pause]  finalize_pause: blocked worker %d/%p created a paused stack %p.\n", 
       w->self, w, stk);
 
@@ -372,11 +383,11 @@ __cilkrts_finalize_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* s
 
   }
 #else
-    fresh_worker = (struct __cilkrts_worker*)__cilkrts_malloc(sizeof(struct __cilkrts_worker)); 
+  fresh_worker = (struct __cilkrts_worker*)__cilkrts_malloc(sizeof(struct __cilkrts_worker)); 
 #endif
 
   CILK_ASSERT(fresh_worker);
-   __cilkrts_worker* new_w = (__cilkrts_worker *) replace_worker(w, fresh_worker, stk);
+  __cilkrts_worker* new_w = (__cilkrts_worker *) replace_worker(w, fresh_worker, stk);
 
   // mark the new worker as a replacement:
   new_w->is_replacement = 1;
@@ -401,8 +412,8 @@ __cilkrts_finalize_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* s
 
 // Back out of the pause before making any externally visible changes.
 // The client better not have stored the __cilkrts_paused_stack anywhere!
-CILK_API(void) __cilkrts_undo_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk) {
-
+CILK_API(void) __cilkrts_undo_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk) 
+{
   CILK_ASSERT(stk);
   CILK_ASSERT(stk->orig_worker);
 
@@ -459,3 +470,9 @@ CILK_API(void) __cilkrts_wake_stack(volatile __cilkrts_paused_stack* stk)
   }
 }
 
+// Helper used for debugging:
+void __cilkrts_show_threadid()
+{
+  pthread_t id = pthread_self();
+  fprintf(stderr, "TID %lu ", (unsigned long)id);
+}

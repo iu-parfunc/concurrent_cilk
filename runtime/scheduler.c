@@ -143,20 +143,6 @@ static inline void verify_current_wkr(__cilkrts_worker *w)
 extern global_state_t *cilkg_get_user_settable_values(void);
 #endif
 
-//   Header includes, macros, and other bits that should be filed away properly once
-//   Concurrent Cilk is fully integrated with the build system.
-
-// Helper used for debugging:
-void __cilkrts_show_threadid() {
-  pthread_t id = pthread_self();
-  fprintf(stderr, "TID %lu ", (unsigned long)id);
-}
-
-#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
-  pthread_t id = pthread_self(); char buf[512];             \
-  sprintf(buf, __VA_ARGS__);                                \
-  volatile struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
-  fprintf(stderr, "[tid/W %3d %2d/%p] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, tw, buf); }
 
 #include "concurrent_cilk_internal.h"
 #include "concurrent_queue.h"

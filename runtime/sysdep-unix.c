@@ -70,16 +70,6 @@
 #   define MAP_ANONYMOUS MAP_ANON
 #endif
 
-#ifdef CILK_IVARS
-
-#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
-   pthread_t id = pthread_self(); char buf[512];             \
-   sprintf(buf, __VA_ARGS__);                                \
-   struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
-   fprintf(stderr, "[tid/W %3d %2d] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, buf); }
-
-#endif
-
 static void internal_enforce_global_visibility();
 
 struct global_sysdep_state
