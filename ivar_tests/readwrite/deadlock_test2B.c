@@ -17,13 +17,13 @@
 void writer(__cilkrts_ivar* iv) {
     int val = 39;
     printf("     Inside spawned writer... sleeping for a bit\n");
-    usleep(750 * 1000); // microseconds   
+    __cilkrts_usleep(750 * 1000); // microseconds   
     __cilkrts_ivar_write(iv, (void*)val);
     printf("     Inside spawned writer... WRITE OF %d DONE (ivar %p).\n", val, iv);
 
     // [2011.07.19] DEBUGGING:  If I force this worker to get to the sync LAST then I get a segfault:
 #ifdef DELAY_WRITER
-    usleep(DELAY); printf("  Writer done sleeping, now returning to sync point.\n");
+    __cilkrts_usleep(DELAY); printf("  Writer done sleeping, now returning to sync point.\n");
 #endif
 }
 
@@ -53,7 +53,7 @@ void fun() {
     printf("fun(): Going to attempt Sync.  Current Cilk worker = %d\n", w->self);
 
 #ifdef DELAY_READER
-    usleep(DELAY);   printf("fun(): Reader done sleeping, now sync\n");
+    __cilkrts_usleep(DELAY);   printf("fun(): Reader done sleeping, now sync\n");
 #endif
     cilk_sync;
     printf("   fun(): reached position AFTER cilk_sync\n");

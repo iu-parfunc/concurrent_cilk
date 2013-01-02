@@ -35,7 +35,7 @@ class bundle
 void writer(bundle& b) 
 {
     printf("     Inside spawned writer... sleeping for a bit\n");
-    usleep(250 * 1000); // microseconds
+    __cilkrts_usleep(250 * 1000); // microseconds
     b.put();
     printf("     Inside spawned writer... WRITE DONE.\n");
 }

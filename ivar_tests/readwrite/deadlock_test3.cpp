@@ -7,7 +7,7 @@
 
 void writer(ivar<int>& iv) {
     printf("     Inside spawned writer... sleeping for a bit\n");
-    usleep(250 * 1000); // microseconds
+    __cilkrts_usleep(250 * 1000); // microseconds
 
     iv.put(39);
 

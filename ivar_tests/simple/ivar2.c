@@ -21,20 +21,18 @@
 void writer(__cilkrts_ivar* iv) {
     int val = 39;
     printf("     Inside spawned writer... (approx stack addr %p) sleeping for a bit\n", &val);
-    usleep(750 * 1000); // microseconds   
+    __cilkrts_usleep(750 * 1000); // microseconds   
     __cilkrts_ivar_write(iv, (void*)val);
     printf("     Inside spawned writer... WRITE OF %d DONE (ivar %p).\n", val, iv);
 
     // [2011.07.19] DEBUGGING:  If I force this worker to get to the sync LAST then I get a segfault:
 #ifdef DELAY_WRITER
-    usleep(DELAY); printf("  Writer done sleeping, now returning to sync point.\n");
+    __cilkrts_usleep(DELAY); printf("  Writer done sleeping, now returning to sync point.\n");
 #endif
 }
 
 void fun() {
      __cilkrts_ivar iv;
-     iv.__value = 200;
-     iv.__header = -1;
     __cilkrts_ivar_clear(&iv);
 
     printf("   Spawn to write ivar:\n");
@@ -57,7 +55,7 @@ void fun() {
     // [2011.07.19] DEBUGGING:  If I force this worker to get to the join LAST then I see the infinite loop behavior:
     // USUALLY -- it will still infrequently segfault.
 #ifdef DELAY_READER
-    usleep(DELAY);   printf("fun(): Reader done sleeping, now sync\n");
+    __cilkrts_usleep(DELAY);   printf("fun(): Reader done sleeping, now sync\n");
 #endif
     cilk_sync;
     printf("   fun(): reached position AFTER cilk_sync\n");

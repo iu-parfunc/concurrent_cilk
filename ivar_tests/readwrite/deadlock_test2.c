@@ -13,12 +13,12 @@
 void writer(__cilkrts_ivar* iv) {
     int val = 39;
     printf("     Inside spawned writer... (approx stack addr %p) sleeping for a bit\n", &val);
-    usleep(750 * 1000); // microseconds   
+    __cilkrts_usleep(750 * 1000); // microseconds   
     __cilkrts_ivar_write(iv, (ivar_payload_t) val);
     printf("     Inside spawned writer... WRITE OF %d DONE (ivar %p).\n", val, iv);
 
 #ifdef DELAY_WRITER
-    usleep(DELAY); printf("  Writer done sleeping, now returning to sync point.\n");
+    __cilkrts_usleep(DELAY); printf("  Writer done sleeping, now returning to sync point.\n");
 #endif
 }
 
@@ -34,7 +34,7 @@ void fun() {
     val = (unsigned long) cilk_spawn __cilkrts_ivar_read(&iv);
 
 #ifdef DELAY_READER
-    usleep(DELAY);   printf("fun(): Reader done sleeping, now sync\n");
+    __cilkrts_usleep(DELAY);   printf("fun(): Reader done sleeping, now sync\n");
 #endif
     printf(" serial write of ivar\n");
     cilk_spawn writer(&iv);
