@@ -1,0 +1,13 @@
+*.exe
+*.lo
+*.o
+*.pyc
+*.lto
+*.Plo
+*.Tpo
+*.m4
+*.in
+libcilkrts/configure
+libcilkrts/config.status
+libcilkrts/autom4te.m4
+
