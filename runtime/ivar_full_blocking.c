@@ -48,59 +48,63 @@
 // you will experience erratic behavior if this is not the case
 #define __cilkrts_pause(w)  (CILK_SETJMP((w->current_stack_frame->ctx))) ?  NULL : make_paused_stack((w)) 
 
-struct __cilkrts_ivar_waitlist* make_waitlist_cell() 
+inline __cilkrts_ivar_waitlist* make_waitlist_cell() 
 {
-  struct __cilkrts_ivar_waitlist* newcell = 
-    (struct __cilkrts_ivar_waitlist*)
-    __cilkrts_malloc(sizeof(struct __cilkrts_ivar_waitlist));;
+  __cilkrts_ivar_waitlist* newcell = (__cilkrts_ivar_waitlist*)
+    __cilkrts_malloc(sizeof(__cilkrts_ivar_waitlist));;
+
+  // CSZ: I am dubious that we actually need this. 
+  // it isn't even possible for the machine to retrn an address
+  // that isn't a power of 2. we have CILK_IVAR_FULL set to 1...
+  // therefore this being true is a physical impossibility. 
+  /*
   // ----------------------------------------
   // <Safety>  We use the special value CILK_IVAR_FULL which should not be in the
   // range of addresses in the heap.  Nevertheless we check here just to be sure:
-  if(newcell == (struct __cilkrts_ivar_waitlist*)CILK_IVAR_FULL) {
-    newcell = (struct __cilkrts_ivar_waitlist*)__cilkrts_malloc(sizeof(struct __cilkrts_ivar_waitlist));
+  if_f (newcell == (__cilkrts_ivar_waitlist*)CILK_IVAR_FULL) {
+    newcell = (__cilkrts_ivar_waitlist*)__cilkrts_malloc(sizeof(__cilkrts_ivar_waitlist));
     __cilkrts_free((void*)CILK_IVAR_FULL);
   }
   // </Safety>
   // ----------------------------------------
+  */
   return newcell;
 }
 
-   
+
 
 CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar* iv)
 {
 
   volatile __cilkrts_ivar* ivar = iv;
-  volatile uintptr_t *loc = & ivar->__header; // Is there a better way to do this?
+  volatile uintptr_t *loc = & ivar->__header; 
 
   // First we do a regular load to see if the value is already there.
   // Because it transitions from empty->full only once (and never back) there is no race:
   volatile uintptr_t first_peek = *loc;
 
-  if (first_peek == CILK_IVAR_FULL)
-  {
+  if_f (first_peek == CILK_IVAR_FULL) {
     IVAR_DBG_PRINT_(3," [ivar]   Ivar was already available, returning %lu\n", ivar->__value);
     return ivar->__value;
   }
 
   // Otherwise we need to do an atomic operation to stick ourselves in the waitlist:
-  struct __cilkrts_ivar_waitlist* newcell = make_waitlist_cell();
+  __cilkrts_ivar_waitlist* newcell = make_waitlist_cell();
 
   // In a valid program by the time we do a read we should be able to use the fast path:
   // In the serial case we'll have already done a write.  In the parallel case a steal must have occurred.
   // In the future maybe external threads will be able to read ivars, but not presently [2011.07.29].
-  struct __cilkrts_worker* w = __cilkrts_get_tls_worker_fast();
+  __cilkrts_worker* w = __cilkrts_get_tls_worker_fast();
   volatile __cilkrts_paused_stack* ptr = __cilkrts_pause(w);
 
-  if (ptr)
-  {
+  if_t ((unsigned long) ptr) {
     IVAR_DBG_PRINT_(1," [ivar] Creating paused stack: %p\n", ptr);
 
     newcell->stalled = (__cilkrts_paused_stack *) ptr;
     IVAR_DBG_PRINT_(2," [ivar]  Observed IVar %p in empty state %p, captured continuation in %p.\n", 
         ivar, (void*)first_peek, newcell->stalled);
     // Register the continuation in the front of the waitlist.
-    newcell->tail = (struct __cilkrts_ivar_waitlist*)first_peek;    
+    newcell->tail = (__cilkrts_ivar_waitlist*)first_peek;    
 
     while(! __sync_bool_compare_and_swap(loc, first_peek, newcell) ) {             
 
@@ -108,14 +112,14 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar* iv)
       // Compare and swap failed; set up to try again:
       first_peek = *loc;
 
-      if (first_peek == CILK_IVAR_FULL) {
+      if_f (first_peek == CILK_IVAR_FULL) {
         // Well nevermind then... now it is full.
         IVAR_DBG_PRINT_(1," [ivar]  IVar %p became full while we were tring to read it (worker %p), undoing pause on %p.\n", ivar, w, ptr);
         __cilkrts_free(newcell);
         __cilkrts_undo_pause(w,ptr);
         return ivar->__value;
       }
-      newcell->tail = (struct __cilkrts_ivar_waitlist*)first_peek;
+      newcell->tail = (__cilkrts_ivar_waitlist*) first_peek;
     }
     IVAR_DBG_PRINT_(1," [ivar]  Added continuation %p to waitlist successfully.  Going to sleep.\n", newcell->stalled);
 
@@ -131,14 +135,14 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar* iv)
 
 // Wakeup a linked list of stalled compuations.
 // This need not be threadsafe because we are the only holder of the list.
-void __cilkrts_ivar_wakeup(struct __cilkrts_ivar_waitlist* list) 
+void __cilkrts_ivar_wakeup(__cilkrts_ivar_waitlist* list) 
 {
   IVAR_DBG_PRINT_(1, " [ivar] WAKING UP stalled computation in list entry %p\n", list);
 
   // The waitlist was atomically grabbed by __cilkrts_ivar_write below, at this point
   // there is no concurrent access to the waitlist.
   while ( list != NULL) {
-    __cilkrts_wake_stack( list->stalled );
+    __cilkrts_wake_stack(list->stalled);
     list = list->tail;
   }
 }

@@ -864,7 +864,7 @@ static void random_steal(__cilkrts_worker *w)
   // made dynamic.  Thus, to make work on replacements available for stealing, this
   // forwarding pointer must be followed:
 
-  if (!can_steal_from(victim) && w->l->do_not_steal == 0 || w == victim && w->is_replacement) {
+  if_f(!can_steal_from(victim) && w->l->do_not_steal == 0 || w == victim && w->is_replacement) {
     IVAR_DBG_PRINT_(3,"[scheduler] could not steal from first choice. trying a forwarding pointer\n");
     IVAR_DBG_PRINT_(1,"[scheduler] worker: %d/%p victim %d/%p can steal from victim? %d. victim == w %d\n",
         w->self, w, victim->self, victim, can_steal_from(victim), w == victim);
@@ -872,7 +872,7 @@ static void random_steal(__cilkrts_worker *w)
       struct __cilkrts_worker* next = w->forwarding_pointer;
       //loop through the forwarding pointers to find a suitable victim
       while (next != 0 ) {
-        if(can_steal_from(next) && (next != w)) {
+        if_t(can_steal_from(next) && (next != w)) {
           victim = next;
           break;
         }
@@ -1498,6 +1498,7 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 
        The active frame and call_stack may have changed since _resume.  */
 #ifdef CILK_IVARS
+    // replacement workers don't get to return from cilk or execute a sync.
     if(w->l->post_suspend !=NULL && w->l->frame_ff !=NULL)
 #endif
       run_scheduling_stack_fcn(w);
@@ -2389,6 +2390,7 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   w->worker_cache = (__cilkrts_stack_queue *) make_stack_queue();
 #endif
   w->reference_count     = 0;
+  w->cached              = 0;
 #endif
   w->forwarding_pointer  = NULL;  /* If I have no work to steal, you can follow this link. */
   w->blocked_parent      = NULL;

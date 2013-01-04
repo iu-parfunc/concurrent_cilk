@@ -10,6 +10,12 @@ __CILKRTS_BEGIN_EXTERN_C
 
 #define CILK_IVAR_FULL 1
 
+/* hedge our bets on an if statement 
+ * if we have a pretty good idea of what the result will be 
+ */
+#define if_t(test) if (__builtin_expect(test,1)) 
+#define if_f(test) if (__builtin_expect(test,0)) 
+
 /* struct tags */
 typedef struct __cilkrts_worker      __cilkrts_worker;
 typedef struct __cilkrts_worker*     __cilkrts_worker_ptr;
@@ -17,6 +23,7 @@ typedef struct __cilkrts_stack_frame __cilkrts_stack_frame;
 typedef struct __cilkrts_paused_stack __cilkrts_paused_stack;
 typedef struct __cilkrts_stack_queue_struct __cilkrts_stack_queue;
 typedef struct __cilkrts_stack_pair __cilkrts_stack_pair;
+typedef struct __cilkrts_ivar_waitlist __cilkrts_ivar_waitlist;
 
 // Forwarded declarations
 typedef struct global_state_t        global_state_t;

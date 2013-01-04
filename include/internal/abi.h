@@ -236,6 +236,9 @@ struct __cilkrts_worker {
      * but this could change in the future
      */
     unsigned int reference_count;
+
+    /*! Either 0 or 1 */
+    unsigned short cached;
 #endif
 
 #ifdef CACHE_AWARE_QUEUE
