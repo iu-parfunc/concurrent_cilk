@@ -159,7 +159,7 @@ CILK_API(void) __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
   switch((uintptr_t)list) 
   {
     case 0:
-      IVAR_DBG_PRINT_(3,"[ivar] looks like no one was waiting on our write...returning\n");
+      IVAR_DBG_PRINT_(1,"[ivar] looks like no one was waiting on our write...returning\n");
       // It was empty with no one waiting.  Nothing to do.
       break;        
     case CILK_IVAR_FULL:

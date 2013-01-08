@@ -3,35 +3,32 @@
 #define __LOCKFREE_QUEUE_H 
 
 #include <cilk/common.h>
-#include <stdio.h>
+#include "../concurrent_cilk_internal.h"
 
 __CILKRTS_BEGIN_EXTERN_C
 
-#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
-  pthread_t id = pthread_self(); char buf[512];             \
-  sprintf(buf, __VA_ARGS__);                                \
-  volatile struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
-  fprintf(stderr, "[tid/W %3d %2d/%p] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, tw, buf); }
-
+#define ELEMENT_TYPE uint64_t
+#define SUCCESS 0
+#define QUEUE_EMPTY -1
 
 // Consists of a pair type and a list/queue type.
 struct __cilkrts_stack_pair {
-  void* data;
+  ELEMENT_TYPE data;
   struct __cilkrts_stack_pair* next;
 };
 
 
-struct __cilkrts_stack_queue_struct {
+struct queue_t {
   struct __cilkrts_stack_pair* head;
   struct __cilkrts_stack_pair* tail;        
-};
+}; //maybe aligne this?
 
-typedef struct __cilkrts_stack_queue_struct __cilkrts_stack_queue;
+typedef struct queue_t queue_t;
 
-__cilkrts_stack_queue* make_stack_queue();
-void delete_stack_queue(__cilkrts_stack_queue* q);
-void  enqueue_paused_stack(__cilkrts_stack_queue* q, void* stk);
-void* dequeue_paused_stack(__cilkrts_stack_queue* q);
+queue_t* make_stack_queue();
+void delete_stack_queue(queue_t* q);
+int enqueue(queue_t* q, ELEMENT_TYPE value);
+int dequeue(queue_t* q, ELEMENT_TYPE *value);
 
 __CILKRTS_END_EXTERN_C
 #endif

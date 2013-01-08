@@ -21,7 +21,7 @@ typedef struct __cilkrts_worker      __cilkrts_worker;
 typedef struct __cilkrts_worker*     __cilkrts_worker_ptr;
 typedef struct __cilkrts_stack_frame __cilkrts_stack_frame;
 typedef struct __cilkrts_paused_stack __cilkrts_paused_stack;
-typedef struct __cilkrts_stack_queue_struct __cilkrts_stack_queue;
+typedef struct queue_t queue_t;
 typedef struct __cilkrts_stack_pair __cilkrts_stack_pair;
 typedef struct __cilkrts_ivar_waitlist __cilkrts_ivar_waitlist;
 

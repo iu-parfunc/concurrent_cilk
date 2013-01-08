@@ -276,9 +276,9 @@ typedef struct __cilkrts_pedigree
 
 // turn on stack and worker caching
 // if a global cache isn't defined, this will use a per worker cache
-#ifndef CILK_IVARS_CACHING 
-#define CILK_IVARS_CACHING  1
-#endif
+//#ifndef CILK_IVARS_CACHING 
+//#define CILK_IVARS_CACHING  1
+//#endif
 
 // use a global stack and worker cache
 //#ifndef CILK_IVARS_GLOBAL_CACHE

@@ -51,6 +51,10 @@
 #include "queues/lockfree_queue.h"
 #endif
 
+#ifdef B_QUEUE_VERSION
+#include "queues/bqueue/fifo.h"
+#endif
+
 #ifdef LOCKING_QUEUE_VERSION
 //this should be .h TOFIX
 #include "queues/locking_queue.c"

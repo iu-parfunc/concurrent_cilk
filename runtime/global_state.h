@@ -252,17 +252,17 @@ typedef /* COMMON_PORTABLE */ struct global_state_t {
        threads.  For simplicity, this is initially global.  Eventually, each thread/worker
        should have its own threadpool.  */
 
-    __cilkrts_stack_queue *paused_but_ready_stacks;  // Initially NULL.
-    __cilkrts_stack_queue *cached_workers;  // Initially NULL.
+    queue_t *paused_but_ready_stacks;  // Initially NULL.
+    queue_t *cached_workers;  // Initially NULL.
     volatile int num_paused_stacks;
 
 #ifdef CILK_IVARS_GLOBAL_CACHE
 
     /* Maintain a cache of replacement workers */
-    __cilkrts_stack_queue *worker_cache;
+    queue_t *worker_cache;
 
     /* Maintain a cache of paused stacks */
-   __cilkrts_stack_queue *paused_stack_cache;
+   queue_t *paused_stack_cache;
 
 #endif //CILK_IVARS_GLOBAL_CACHE
 #endif //CILK_IVARS

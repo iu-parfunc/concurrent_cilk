@@ -866,12 +866,12 @@ static void random_steal(__cilkrts_worker *w)
 
   if_f(!can_steal_from(victim) && w->l->do_not_steal == 0 || w == victim && w->is_replacement) {
     IVAR_DBG_PRINT_(3,"[scheduler] could not steal from first choice. trying a forwarding pointer\n");
-    IVAR_DBG_PRINT_(1,"[scheduler] worker: %d/%p victim %d/%p can steal from victim? %d. victim == w %d\n",
-        w->self, w, victim->self, victim, can_steal_from(victim), w == victim);
+    //IVAR_DBG_PRINT_(1,"[scheduler] worker: %d/%p victim %d/%p can steal from victim? %d. victim == w %d\n",
+     //   w->self, w, victim->self, victim, can_steal_from(victim), w == victim);
     BEGIN_WITH_WORKER_LOCK(w) {
       struct __cilkrts_worker* next = w->forwarding_pointer;
       //loop through the forwarding pointers to find a suitable victim
-      while (next != 0 ) {
+      while (next != NULL) {
         if_t(can_steal_from(next) && (next != w)) {
           victim = next;
           break;
@@ -879,11 +879,17 @@ static void random_steal(__cilkrts_worker *w)
         next = next->forwarding_pointer;
       }
 
-      //well maybe we couldn't find anything in the forwarding pointer,
-      //perhaps we can steal from the head of our blocked parent's frame
-      if (!can_steal_from(victim) && w->is_replacement) {
-        IVAR_DBG_PRINT_(3,"[scheduler] could not steal from second choice. trying our own parent's blocked computation\n");
-        victim = w->blocked_parent;
+      // well maybe we couldn't find anything in the forwarding pointer,
+      // perhaps we can steal from the head of our blocked parent's frame.
+      // we walk up our parent's frames until we find a candidate.
+      IVAR_DBG_PRINT_(3,"[scheduler] could not steal from second choice. trying our own parent's blocked computation\n");
+      next = w->blocked_parent;
+      while(next != NULL) {
+        if (can_steal_from(next)) {
+          victim = next;
+          break;
+        }
+        next = next->blocked_parent;
       }
 
       CILK_ASSERT (victim);
@@ -1531,12 +1537,11 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     if (w->l->type != WORKER_USER || w->is_replacement || w->g->P == 1) { 
 
       // TODO/TOFIX: Would probably need a START_INTERVAL here:
+      volatile  __cilkrts_paused_stack* pstk = NULL;
 #ifdef CACHE_AWARE_QUEUE
-      volatile  __cilkrts_paused_stack* pstk = (__cilkrts_paused_stack *)
-        dequeue_paused_stack(w->paused_but_ready_stacks);
+        dequeue(w->paused_but_ready_stacks, (ELEMENT_TYPE *) &pstk);
 #else
-      volatile __cilkrts_paused_stack* pstk = (__cilkrts_paused_stack *)
-        dequeue_paused_stack(w->g->paused_but_ready_stacks);
+        dequeue(w->g->paused_but_ready_stacks, (ELEMENT_TYPE *) &pstk);
 #endif
 
       if (pstk) {
@@ -2386,8 +2391,8 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   w->paused_stack_cache  = g->paused_stack_cache;
   w->worker_cache = g->worker_cache; 
 #else
-  w->paused_stack_cache = (__cilkrts_stack_queue *) make_stack_queue();
-  w->worker_cache = (__cilkrts_stack_queue *) make_stack_queue();
+  w->paused_stack_cache = (queue_t *) make_stack_queue();
+  w->worker_cache = (queue_t *) make_stack_queue();
 #endif
   w->reference_count     = 0;
   w->cached              = 0;

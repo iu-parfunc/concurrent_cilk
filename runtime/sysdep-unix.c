@@ -357,8 +357,16 @@ NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *ff,
         CILK_ASSERT(flags & CILK_FRAME_UNSYNCHED && ff->sync_sp == NULL);
     else if (flags & CILK_FRAME_UNSYNCHED)
         /* XXX By coincidence sync_sp could be null. */
-        CILK_ASSERT(ff->stack_self != NULL && ff->sync_sp != NULL);
+#ifdef CILK_IVARS
+      if(!w->is_replacement) {
+#endif
+        CILK_ASSERT(ff->stack_self != NULL);
+        CILK_ASSERT(ff->sync_sp != NULL);
+      }
     else
+#ifdef CILK_IVARS
+      if(!w->is_replacement)
+#endif
         /* XXX This frame could be resumed unsynched on the leftmost stack */
         CILK_ASSERT((ff->sync_master == 0 || ff->sync_master == w) &&
                     ff->sync_sp == 0);

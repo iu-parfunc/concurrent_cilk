@@ -225,10 +225,10 @@ struct __cilkrts_worker {
 
 #ifdef CILK_IVARS_CACHING
     /* Maintain a cache of replacement workers */
-    struct __cilkrts_stack_queue_struct *worker_cache;
+    struct queue_t *worker_cache;
 
     /* Maintain a cache of paused stacks */
-    struct  __cilkrts_stack_queue_struct *paused_stack_cache;
+    struct  queue_t *paused_stack_cache;
 
     /* Keeps a count of the outstanding references to this
      * worker. if a worker is referenced, it cannot be brought
@@ -242,7 +242,7 @@ struct __cilkrts_worker {
 #endif
 
 #ifdef CACHE_AWARE_QUEUE
-    volatile struct __cilkrts_stack_queue_struct *paused_but_ready_stacks;
+    volatile struct queue_t *paused_but_ready_stacks;
 #endif 
 
     /* Keeps a pointer to another worker that can be a source of work upon stealing if

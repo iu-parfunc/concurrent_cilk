@@ -39,15 +39,15 @@
 
 //Michael & Scott Lockfree Queues
 
-__cilkrts_stack_queue* make_stack_queue() {
+queue_t* make_stack_queue() {
 
-  __cilkrts_stack_queue* q = 
-    (__cilkrts_stack_queue*)__cilkrts_malloc(sizeof(__cilkrts_stack_queue));
+  queue_t* q = 
+    (queue_t*)__cilkrts_malloc(sizeof(queue_t));
   // INVARIANT: There is always at least one pair object.  Head/tail always have something to point at.
   // Therefore, create an INVALID, CORRUPT initial element (data uninitialized):
-   __cilkrts_stack_pair* newp = 
-    ( __cilkrts_stack_pair*)__cilkrts_malloc(sizeof(__cilkrts_stack_pair));
-  newp->data = NULL;
+  __cilkrts_stack_pair* newp = 
+    (__cilkrts_stack_pair*)__cilkrts_malloc(sizeof(__cilkrts_stack_pair));
+  newp->data = (ELEMENT_TYPE) NULL;
   newp->next = NULL;
   q->head = newp;
   q->tail = newp;
@@ -55,12 +55,14 @@ __cilkrts_stack_queue* make_stack_queue() {
 }
 
 // Allocate space and add a new element.
-void enqueue_paused_stack(__cilkrts_stack_queue* q, void* stk) {
-
+int enqueue(queue_t* q, ELEMENT_TYPE value) 
+{
   __cilkrts_stack_pair *tail, *next, *newp;
-  IVAR_DBG_PRINT_(3, " [concurrent-cilk,lockfree-Q] Begin enqueue of stack %p into queue %p\n", stk, q);
+#ifdef QUEUE_DEBUG
+  IVAR_DBG_PRINT_(3, " [concurrent-cilk,lockfree-Q] Begin enqueue of stack %p into queue %p\n", value, q);
+#endif
   newp        = (__cilkrts_stack_pair*)__cilkrts_malloc(sizeof(__cilkrts_stack_pair)); 
-  newp->data  = stk;
+  newp->data  = value;
   newp->next  = NULL;
   while(1) {
     tail = q->tail;
@@ -77,16 +79,20 @@ void enqueue_paused_stack(__cilkrts_stack_queue* q, void* stk) {
   }
   // If we fail to swing the tail that is ok.  Whoever came in after us deserves it.
   __sync_bool_compare_and_swap( &q->tail, tail, newp );
-  IVAR_DBG_PRINT_(3, " [concurrent-cilk,lockfree-Q] Successfully enqueued stalled stack %p in queue %p\n", stk, q);
+#ifdef QUEUE_DEBUG
+  IVAR_DBG_PRINT_(3, " [concurrent-cilk,lockfree-Q] Successfully enqueued stalled stack %p in queue %p\n", value, q);
+#endif
+  return SUCCESS;
 }
 
 // Returns NULL if the queue appeared empty:
-void* dequeue_paused_stack(__cilkrts_stack_queue* q) {
-
+int dequeue(queue_t* q, ELEMENT_TYPE * value)
+{
   volatile __cilkrts_stack_pair *head; //this needs to be volatile, or it may have incorrect state
   __cilkrts_stack_pair *tail, *next;
+#ifdef QUEUE_DEBUG
   IVAR_DBG_PRINT_(4, " [concurrent-cilk,lockfree-Q] Begin dequeue from queue %p\n", q);
-  void* stk;
+#endif
   while(1) {
     head = q->head;
     tail = q->tail;
@@ -94,28 +100,31 @@ void* dequeue_paused_stack(__cilkrts_stack_queue* q) {
     if ( head == q->head )
       if ( head == tail ) {
         if ( next == NULL ) 
-          return NULL;
+          return QUEUE_EMPTY;
         // Try to advance the tail, which is falling behind:
         __sync_bool_compare_and_swap( &q->tail, tail, next );
       } else {
-        stk = next->data; 
+        *value = next->data; 
         // Try to advance the head:
         if (__sync_bool_compare_and_swap(&q->head, head, next) )
           break;
       }
   }
-  __cilkrts_free((__cilkrts_stack_pair *) head);
-  IVAR_DBG_PRINT_(3, " [concurrent-cilk,lockfree-Q] Successfully dequeued stalled stack %p from queue %p\n", stk, q);
-  return stk;
+  __cilkrts_free((queue_t *) head);
+#ifdef QUEUE_DEBUG
+  IVAR_DBG_PRINT_(3, " [concurrent-cilk,lockfree-Q] Successfully dequeued stalled stack %p from queue %p\n", *value, q);
+#endif
+  return SUCCESS;
 }
 
 // This is shared across the three implementations below:
-void delete_stack_queue(__cilkrts_stack_queue* q) {
+void delete_stack_queue(queue_t* q) 
+{
   // Remove any entries within the queue:
-  while( dequeue_paused_stack(q) ) { }
+  ELEMENT_TYPE hukarz;
+  while(dequeue(q, &hukarz)); 
   // Finally, destroy the struct itself:
   __cilkrts_free(q);
 }
-
 
 
