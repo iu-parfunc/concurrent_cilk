@@ -15,11 +15,16 @@ __CILKRTS_BEGIN_EXTERN_C
  */
 #define if_t(test) if (__builtin_expect(test,1)) 
 #define if_f(test) if (__builtin_expect(test,0)) 
+#define CACHE_LINE 64
+
+//make the struct fit inside a single cache line
+#define ARRAY_SIZE (CACHE_LINE-sizeof(unsigned int)) / sizeof(uintptr_t)
 
 /* struct tags */
 typedef struct __cilkrts_worker      __cilkrts_worker;
 typedef struct __cilkrts_worker*     __cilkrts_worker_ptr;
 typedef struct __cilkrts_stack_frame __cilkrts_stack_frame;
+typedef struct __cilkrts_forwarding_array __cilkrts_forwarding_array;
 typedef struct __cilkrts_paused_stack __cilkrts_paused_stack;
 typedef struct queue_t queue_t;
 typedef struct __cilkrts_stack_pair __cilkrts_stack_pair;
@@ -55,13 +60,20 @@ typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
     pthread_cond_t cond;
     pthread_mutex_t mut;
 #endif
-};
+} __attribute__((aligned(CACHE_LINE)));
 
 /*   Cilk IVars:  Types & API   */
 struct __cilkrts_ivar_waitlist {
     struct __cilkrts_paused_stack* stalled;
     struct __cilkrts_ivar_waitlist* tail; // null to terminate.
-};
+} __attribute__((aligned(CACHE_LINE)));
+
+struct __cilkrts_forwarding_array {
+  unsigned int elems;
+  uintptr_t *ptrs[ARRAY_SIZE];
+  
+} __attribute__((aligned(CACHE_LINE)));
+
 
 __cilkrts_worker* replace_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker, volatile __cilkrts_paused_stack* stk);
 __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w);

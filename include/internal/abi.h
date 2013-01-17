@@ -239,24 +239,19 @@ struct __cilkrts_worker {
 
     /*! Either 0 or 1 */
     unsigned short cached;
+
+
 #endif
+/* tracks if this worker is a replacment worker or a real rts worker */
+    unsigned short is_replacement;
+
+    /* Keeps a pointer to another worker that can be a source of work upon stealing if
+       this worker has run dry: */
+    struct __cilkrts_forwarding_array* forwarding_array;
 
 #ifdef CACHE_AWARE_QUEUE
     volatile struct queue_t *paused_but_ready_stacks;
 #endif 
-
-    /* Keeps a pointer to another worker that can be a source of work upon stealing if
-       this worker has run dry: */
-    struct __cilkrts_worker* forwarding_pointer;
-
-    /* Keeps a pointer to the worker's parent if it is a replacement
-     * this lets us steal work from our parent. without this it is impossible
-     * to steal from our own continuation in single threaded configurations
-     */
-    struct __cilkrts_worker* blocked_parent;
-
-    /* tracks if this worker is a replacment worker or a real rts worker */
-    short is_replacement;
 
 #endif
 };

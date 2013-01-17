@@ -153,51 +153,56 @@ struct __cilkrts_worker* replace_worker (__cilkrts_worker* old_w, __cilkrts_work
   // Initialize the new worker:
   //---------------------------------   
 
-  // Should the replacement be a user worker or a system worker?
-  // It should be a system worker.
-  //  #define CONCCILK_WORKER_USER
-#ifdef CONCCILK_WORKER_USER
-  fresh_worker->l->type = WORKER_USER;
-  fresh_worker->l->team = fresh_worker;
-#else
   fresh_worker->l->type = WORKER_FREE;
   make_worker_system(fresh_worker);
   signal_node_msg(fresh_worker->l->signal_node, 1); // Set 'run' field to 1
 
-#endif
-
   fresh_worker->l->scheduler_stack = sysdep_make_tiny_stack(fresh_worker);
+
   IVAR_DBG_PRINT_(1," [concurrent-cilk, replace_worker] Created scheduler stack for replacement: %p\n", fresh_worker->l->scheduler_stack);
-  __cilkrts_fence(); //probably redundant
 
   //---------------------------------
+  
   // Label the fresh worker as a replacement, and link the old worker to it:
   fresh_worker->is_replacement = 1;
+  fresh_worker->blocked_parent = old_w;
+  old_w->forwarding_pointer = fresh_worker;
   stk->replacement_worker = fresh_worker;
-  __cilkrts_fence();
   CILK_ASSERT(stk->replacement_worker);
 
-  fresh_worker->blocked_parent = old_w;
+  //increment the reference count
+  fresh_worker->reference_count++; 
+
+  if_t(old_w->forwarding_array->elems < ARRAY_SIZE-1) {
+    while(!__sync_bool_compare_and_swap(&old_w->forwarding_array[old_w->forwarding_array->elems],NULL,fresh_worker)) {
+      old_w->forwarding_array->elems++;
+      if (old_w->forwarding_array->elems >= ARRAY_SIZE-1) {
+        __cilkrts_forwarding_array *newp = 
+          (__cilkrts_forwarding_array *) __cilkrts_malloc(sizeof(__cilkrts_forwarding_array));
+        
+        //NEED TO HANDLE HERE NEW POINTER
+        if(__sync_bool_compare_and_swap(&old_w->forwarding_array[old_w->forwarding_array->elems],NULL,fresh_worker)) {
+        }
+
+        old_w->forwarding_array->elems++;
+
+    }
+      if_t(old_w->forwarding_array->elems < ARRAY_SIZE-1) {
+        //the workers share the array since there is a slot
+        fresh_worker->forwarding_array = old_w->forwarding_array;
+    
+  }
+
+    //the workers share the array since there is a slot
+    fresh_worker->forwarding_array = old_w->forwarding_array;
+    
+
   IVAR_DBG_PRINT_(1," [concurrent-cilk, replace_worker] Created REPLACEMENT worker %d/%p, paused stack %p\n", 
       fresh_worker->self, fresh_worker, stk);
+  
   IVAR_DBG_PRINT_(1," [concurrent-cilk, replace_worker] old worker %d/%p\n", 
       old_w->self, old_w);
 
-  BEGIN_WITH_WORKER_LOCK(old_w) {
-
-    if_f (old_w->forwarding_pointer) {
-      fresh_worker->forwarding_pointer=old_w->forwarding_pointer;
-      //IVAR_DBG_PRINT_(1," [UNIMPLEMENTED] worker is replaced TWICE, need to keep the old target of the forwarding pointer available for work stealing\n");
-      IVAR_DBG_PRINT_(1," [concurrent-cilk] NAIVE STRATEGY: worker is replaced TWICE, need to keep the old target of the forwarding pointer available for work stealing\n");
-    }
-
-
-    old_w->forwarding_pointer = fresh_worker;
-#ifdef CILK_IVARS_CACHING
-    fresh_worker->reference_count++; //increment the reference count
-#endif
-
-  } END_WITH_WORKER_LOCK(old_w);
 
   // At this point the current OS thread should forget about the old worker:
   __cilkrts_set_tls_worker(fresh_worker);
@@ -423,10 +428,6 @@ CILK_API(void) __cilkrts_undo_pause(__cilkrts_worker* w, volatile __cilkrts_paus
 {
   CILK_ASSERT(stk);
   CILK_ASSERT(stk->orig_worker);
-
-  BEGIN_WITH_WORKER_LOCK((__cilkrts_worker *) stk->orig_worker) {
-    stk->orig_worker->forwarding_pointer = NULL;
-  } END_WITH_WORKER_LOCK((__cilkrts_worker *) stk->orig_worker);
 
   __cilkrts_free((void *) stk);
   IVAR_DBG_PRINT_(2," [concurrent-cilk, undo_pause] Pause of stk %p undone.\n", stk);

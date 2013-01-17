@@ -253,7 +253,11 @@ typedef /* COMMON_PORTABLE */ struct global_state_t {
        should have its own threadpool.  */
 
     queue_t *paused_but_ready_stacks;  // Initially NULL.
+
     queue_t *cached_workers;  // Initially NULL.
+
+    __cilkrts_forwarding_array **forwarding_ptrs;
+
     volatile int num_paused_stacks;
 
 #ifdef CILK_IVARS_GLOBAL_CACHE
