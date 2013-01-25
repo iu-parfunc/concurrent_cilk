@@ -52,11 +52,8 @@ struct __cilkrts_forwarding_array {
 
   ///these three elements are accessed in an add of an element
   ///so we keep them all on one cache line.
-  ///4+8+8+8 = 28bytes aligned in a single cache line
   uint32_t elems;                
-  struct __cilkrts_forwarding_array *cur;
-  struct __cilkrts_forwarding_array *prev;
-  struct __cilkrts_forwarding_array *next align(64);
+  struct __cilkrts_forwarding_array **links; align(64);
 
   ///keep the head aligned on a new cache line. this is read only.
   struct __cilkrts_forwarding_array *head align(64);

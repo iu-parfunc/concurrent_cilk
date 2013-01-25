@@ -854,6 +854,7 @@ static void random_steal(__cilkrts_worker *w)
 
     if(w->forwarding_array->cur->elems == 0) {
       __cilkrts_forwarding_array *wkrs = w->forwarding_array->head;
+
       while(wkrs != NULL) {
         if(wkrs->elems > 0) {
           //reset the cur because obviously it was empty.
@@ -862,10 +863,21 @@ static void random_steal(__cilkrts_worker *w)
         }
         wkrs = wkrs->next;
       }
-    }
+
+      //try to steal from another worker's forwarding array
+      //this is the most expensive steal since it will probably
+      //destroy our cache
+      if(wkrs == NULL) {
+        wkrs = victim->w->forwarding_array->head;
+
+        while(wkrs != NULL) {
+          if(wkrs->elems > 0) break;
+          wkrs = wkrs->next;
+        }
+      }
 
     n = myrand(w) % (ARRAY_SIZE - 1); 
-    victim = w->forwarding_array->cur->ptrs[n];
+    victim = wkrs->ptrs[n];
 
     //if we didn't get a worker, then fail the steal. 
     if (victim == NULL) {
@@ -878,7 +890,7 @@ static void random_steal(__cilkrts_worker *w)
     if(victim == w) {
       n = ++n;
       n %= (ARRAY_SIZE-1);
-      victim = w->forwarding_array->cur->ptrs[n];
+      victim = wkrs->ptrs[n];
     }
     CILK_ASSERT (victim);
     CILK_ASSERT (victim != w);
