@@ -488,15 +488,11 @@ global_state_t* cilkg_init_global_state()
     pthread_mutex_init( &g->restmut, 0);
 #endif
 
-    g->paused_but_ready_stacks = make_stack_queue();
-
     //maintain a global cache which workers draw from
 #ifdef CILK_IVARS_GLOBAL_CACHE 
     g->paused_stack_cache  = make_stack_queue();
     g->worker_cache        = make_stack_queue();
 #endif
-    g->cached_workers      = make_stack_queue();
-
     g->num_paused_stacks = 0;
 
 #endif //END CILK_IVARS

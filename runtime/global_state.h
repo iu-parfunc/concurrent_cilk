@@ -246,19 +246,10 @@ typedef /* COMMON_PORTABLE */ struct global_state_t {
 #endif
 
 #ifdef CILK_IVARS    
-    
-
-    /* Support for Concurrent Cilk.  This is essentially a ready queue of lightweight
-       threads.  For simplicity, this is initially global.  Eventually, each thread/worker
-       should have its own threadpool.  */
-
-    queue_t *paused_but_ready_stacks;  // Initially NULL.
-
-    queue_t *cached_workers;  // Initially NULL.
 
     __cilkrts_forwarding_array **forwarding_ptrs;
 
-    volatile int num_paused_stacks;
+    volatile unsigned int num_paused_stacks;
 
 #ifdef CILK_IVARS_GLOBAL_CACHE
 

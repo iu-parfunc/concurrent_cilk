@@ -230,6 +230,10 @@ struct __cilkrts_worker {
     /* Maintain a cache of paused stacks */
     struct  queue_t *paused_stack_cache;
 
+    /*! Either 0 or 1 */
+    unsigned short cached;
+#endif
+
     /* Keeps a count of the outstanding references to this
      * worker. if a worker is referenced, it cannot be brought
      * out of the cache for reuse. Right now this is either 0 or 1,
@@ -237,21 +241,34 @@ struct __cilkrts_worker {
      */
     unsigned int reference_count;
 
-    /*! Either 0 or 1 */
-    unsigned short cached;
-
-
-#endif
-/* tracks if this worker is a replacment worker or a real rts worker */
+    /* tracks if this worker is a replacment worker or a real rts worker */
     unsigned short is_replacement;
 
     /* Keeps a pointer to another worker that can be a source of work upon stealing if
        this worker has run dry: */
     struct __cilkrts_forwarding_array* forwarding_array;
 
-#ifdef CACHE_AWARE_QUEUE
-    volatile struct queue_t *paused_but_ready_stacks;
-#endif 
+    struct /** the block the worker is located in for stealing*/
+    __cilkrts_forwarding_array *array_block;
+
+    /** a pointer to our own location in the forwarding array */
+    __cilkrts_worker **array_loc;
+
+
+    /** when the stack is ready. This pointer is populated with
+     * the address of the paused stack that is now ready to be
+     * restored
+     * NOTE: does this need to be volatile or have a fence when it is set? 
+     * It might be the case that if the worker is still in cache (a good possibility)
+     * that we might read a null pointer or the wrong pointer?
+     */
+    struct __cilkrts_paused_stack *pstk;
+
+    /** a per worker queue of paused but ready stacks.
+     * the rts will check this queue everytime it returns
+     * to the scheduler
+     */
+    struct queue_t *paused_but_ready_stacks;
 
 #endif
 };
