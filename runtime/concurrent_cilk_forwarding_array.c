@@ -160,10 +160,6 @@ failed_cas:
         goto failed_cas;
       }
       newa->elems = 0; 
-      newa->prev  = old_w->forwarding_array;
-      newa->head  = old_w->forwarding_array->head;
-      newa->cur   = newa;
-      old_w->forwarding_array->cur  = newa;
       old_w->forwarding_array->next = newa;
     }
     //------------------
