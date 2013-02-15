@@ -135,6 +135,11 @@ static inline void verify_current_wkr(__cilkrts_worker *w)
 #include "queues/locking_queue.c"
 #endif
 
+
+#ifdef B_QUEUE_VERSION
+#include "queues/bqueue/fifo.c"
+#endif
+
 #endif //CILK_IVARS
 
 #ifdef CILK_IVARS
@@ -864,13 +869,18 @@ static void random_steal(__cilkrts_worker *w)
     //n maps to a victim candidate location in the chosen forwarding array
     //together, these gain us a new victim (possibly null)
     victim = (w->forwarding_array->links[m])->ptrs[n];
-    
+
     //if we didn't get a worker, or we are trying to steal from ourselves,
     //then fail the steal. 
     if (victim == NULL || victim == w) {
       NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_EMPTYQ);
       __cilkrts_release_stack(w, sd);
       return;
+    }
+
+    if(victim->pstk && !can_steal_from(victim) && !can_steal_from(victim->pstk->orig_worker)) {
+      restore_paused_worker(victim);
+      CILK_ASSERT(0); //does not return
     }
 
     CILK_ASSERT (victim);
@@ -905,7 +915,18 @@ static void random_steal(__cilkrts_worker *w)
       // holds it.
       NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_USER_WORKER);
 
+#ifdef CILK_IVARS
+      //replacement workers my not have a call state because their state
+      //is essentially void. Therefore, require that there be a call stack
+      //in order to start a steal. Otherwise, we will fail the steal and 
+      //when the worker steals from a victim that does have a call stack
+      //everything will be groovy.
+
+    } else if (victim->l->frame_ff && victim->l->frame_ff->sync_sp != NULL || w->self == -1) {
+    //} else if (victim->l->frame_ff) {
+#else
     } else if (victim->l->frame_ff) {
+#endif
       // A successful steal will change victim->frame_ff, even
       // though the victim may be executing.  Thus, the lock on
       // the victim's deque is also protecting victim->frame_ff.

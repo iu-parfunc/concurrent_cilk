@@ -175,6 +175,11 @@ void restore_worker2(__cilkrts_worker* old_w, volatile __cilkrts_paused_stack* s
   //there should be no more work left to de
   //since we don't preempt our threads
   CILK_ASSERT(!can_steal_from(old_w));
+  CILK_ASSERT(!can_steal_from(tlsw));
+  CILK_ASSERT(!can_steal_from(stk->replacement_worker));
+
+  //remove the paused stack that we are restoring so that it doesn't get run again. 
+  old_w->pstk = NULL;
 
   //remove the old worker form the forwarding array 
   remove_replacement_worker(old_w);
@@ -207,6 +212,7 @@ void restore_worker2(__cilkrts_worker* old_w, volatile __cilkrts_paused_stack* s
   if(old_w->self < 0 && old_w->reference_count == 0) {
     IVAR_DBG_PRINT_(1," [concurrent-cilk, restore_worker2] cached worker %d/%p\n", old_w->self, old_w);
     old_w->cached = 1;
+    //TODO: remove this lock and we will play fast and loose
     __cilkrts_worker_lock(old_w); //lock the worker. no one should be able to reference us while we are waiting
     enqueue(w->worker_cache, (ELEMENT_TYPE) old_w); 
   }
