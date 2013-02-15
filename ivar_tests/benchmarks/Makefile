@@ -11,10 +11,13 @@ OUT=bin
 SCRIPTS="../scripts"
 
 #path from scripts to the current directory
-SCRIPT_PREFIX="../readwrite"
+SCRIPT_PREFIX="../benchmarks"
 
 #magic
 include ../Makefile.common
+
+.PHONY: test
+test: parfor1 parfor2 dnc 
 
 .PHONY: parfor1
 parfor1: $(addprefix $(OUT)/,wavefront.exe)

@@ -16,6 +16,8 @@ INCLUDE=$(RTSDIR)/include
 CFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -std=c99 -g3 -ggdb -Wno-int-to-pointer-cast -O3 -I$(INCLUDE) -L$(LIBS)
 CPLUSFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -std=c99 -g3 -ggdb -Wno-int-to-pointer-cast -fpermissive -O2 -I$(INCLUDE) -L$(LIBS) 
 
+parfib_ivars: parfib_ivars.c
+	$(CC) $(CFLAGS) -I$(INCLUDE) -L$(LIBS) parfib_ivars.c -o parfib_ivars.exe
 
 parfib: parfib.c
 	$(CC) $(CFLAGS) -I$(INCLUDE) -L$(LIBS) parfib.c -o parfib.exe
