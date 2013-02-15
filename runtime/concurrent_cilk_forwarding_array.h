@@ -7,7 +7,10 @@ typedef struct __cilkrts_forwarding_array __cilkrts_forwarding_array;
 typedef struct __cilkrts_paused_stack __cilkrts_paused_stack;
 
 ///TODO: add some runtime knobs to tweak this
-#define ARRAY_SIZE 1024
+#define ARRAY_SIZE 4096
+#define CACHE_LINE 64
+#define GROW_ARRAY_INCREMENT 4
+#define INITIAL_CAPACITY 1
 #include "concurrent_cilk_internal.h"
 #define align(n) __attribute__((aligned(n)))
 
@@ -52,14 +55,14 @@ struct __cilkrts_forwarding_array {
 
   ///these three elements are accessed in an add of an element
   ///so we keep them all on one cache line.
-  uint32_t elems;                
-  uint32_t *nblocks;
-  uint32_t *capacity;
-  struct __cilkrts_forwarding_array **links; align(64);
+  int elems;                
+  int *capacity;
 
   ///there is contention over the elements of the array
   ///each operation must be a cas
-  __cilkrts_worker *ptrs[ARRAY_SIZE] align(64);  
+  __cilkrts_worker *ptrs[ARRAY_SIZE]; 
+
+  struct __cilkrts_forwarding_array **links align(64);
 
 } align(64);
 

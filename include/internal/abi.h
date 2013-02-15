@@ -239,12 +239,15 @@ struct __cilkrts_worker {
      * out of the cache for reuse. Right now this is either 0 or 1,
      * but this could change in the future
      */
-    unsigned int reference_count;
+    unsigned short reference_count;
 
     /* tracks if this worker is a replacment worker or a real rts worker */
     unsigned short is_replacement;
 
-    /* Keeps a pointer to another worker that can be a source of work upon stealing if
+    //Forwading array book keeping
+    //---------------------------
+    
+    /* Keeps a pointer to another structure that can be a source of work upon stealing if
        this worker has run dry: */
     struct __cilkrts_forwarding_array* forwarding_array;
 
@@ -253,6 +256,8 @@ struct __cilkrts_worker {
 
     /** a pointer to our own location in the forwarding array */
     __cilkrts_worker **array_loc;
+
+    //---------------------------
 
 
     /** when the stack is ready. This pointer is populated with

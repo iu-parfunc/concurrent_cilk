@@ -846,52 +846,33 @@ static void random_steal(__cilkrts_worker *w)
   /* do not steal from self */
   CILK_ASSERT (victim != w);
 
-#ifdef CILK_IVAR_FOLLOW_FORWARDING
 #ifdef CILK_IVARS 
+#ifdef CILK_IVAR_FOLLOW_FORWARDING
 
   if_f(!can_steal_from(victim) && w->l->do_not_steal == 0 || w == victim && w->is_replacement) {
-    IVAR_DBG_PRINT_(3,"[scheduler] could not steal from first choice. trying a forwarding pointer\n");
+    IVAR_DBG_PRINT_(4,"[scheduler] could not steal from first choice. trying a forwarding pointer\n");
+    int m;
 
-    if(w->forwarding_array->cur->elems == 0) {
-      __cilkrts_forwarding_array *wkrs = w->forwarding_array->head;
+    //select a new victim by randomly selecting a forwarding array
+    //and then randomly selecting an array slot within that
+    m = (myrand(w) % (*victim->forwarding_array->capacity+1)) -1; 
+    n = (myrand(w) % (ARRAY_SIZE+1)) -1; 
+    m = max(0,m);
+    n = max(0,n);
 
-      while(wkrs != NULL) {
-        if(wkrs->elems > 0) {
-          //reset the cur because obviously it was empty.
-          w->forwarding_array->cur = wkrs;
-          break;
-        }
-        wkrs = wkrs->next;
-      }
-
-      //try to steal from another worker's forwarding array
-      //this is the most expensive steal since it will probably
-      //destroy our cache
-      if(wkrs == NULL) {
-        wkrs = victim->w->forwarding_array->head;
-
-        while(wkrs != NULL) {
-          if(wkrs->elems > 0) break;
-          wkrs = wkrs->next;
-        }
-      }
-
-    n = myrand(w) % (ARRAY_SIZE - 1); 
-    victim = wkrs->ptrs[n];
-
-    //if we didn't get a worker, then fail the steal. 
-    if (victim == NULL) {
+    //m maps to the array of forwarding arrays. 
+    //n maps to a victim candidate location in the chosen forwarding array
+    //together, these gain us a new victim (possibly null)
+    victim = (w->forwarding_array->links[m])->ptrs[n];
+    
+    //if we didn't get a worker, or we are trying to steal from ourselves,
+    //then fail the steal. 
+    if (victim == NULL || victim == w) {
       NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_EMPTYQ);
       __cilkrts_release_stack(w, sd);
       return;
     }
 
-    //don't steal from self!
-    if(victim == w) {
-      n = ++n;
-      n %= (ARRAY_SIZE-1);
-      victim = wkrs->ptrs[n];
-    }
     CILK_ASSERT (victim);
     CILK_ASSERT (victim != w);
   }
@@ -1587,7 +1568,7 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
       } else {
         //each worker must "pay their way" by checking
         //for a ready paused stack. Then they are free
-        //to restore their own paused stack if it ready.
+        //to restore their own paused stack if it is ready.
         check_concurrent_work(w);
         if(w->pstk) restore_paused_worker(w);
       }
@@ -2394,8 +2375,17 @@ __cilkrts_worker *make_worker(global_state_t *g,
 #endif//IVARS_CACHING
 
   w->reference_count  = 0;
-  w->forwarding_array = init_array();  /* If I have no work to steal, you can follow this link. */
   w->is_replacement   = 0;     /* Is the current thread a replacement for a paused one? */
+  w->pstk = NULL;
+
+  //register our own worker in the stealing array
+  //--------------------
+  w->forwarding_array = init_array();  /* If I have no work to steal, you can follow this link. */
+  w->forwarding_array->ptrs[ARRAY_SIZE-1] = w;
+  w->array_loc = &w->forwarding_array->ptrs[ARRAY_SIZE-1];
+  w->array_block = w->forwarding_array;
+  w->forwarding_array->elems++;
+  //--------------------
 #endif
 
   return w;

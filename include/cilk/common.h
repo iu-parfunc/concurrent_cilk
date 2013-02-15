@@ -263,7 +263,8 @@ typedef struct __cilkrts_pedigree
 #define CILK_IVARS_PEDIGREE_VARIANT 4
 
 // what queue we want to use:
-#define LOCKFREE_QUEUE_VERSION 1
+//#define LOCKFREE_QUEUE_VERSION 1
+#define B_QUEUE_VERSION 1
 //#define CACHE_AWARE_QUEUE 1
 
 // Set the default:
@@ -276,9 +277,9 @@ typedef struct __cilkrts_pedigree
 
 // turn on stack and worker caching
 // if a global cache isn't defined, this will use a per worker cache
-//#ifndef CILK_IVARS_CACHING 
-//#define CILK_IVARS_CACHING  1
-//#endif
+#ifndef CILK_IVARS_CACHING 
+#define CILK_IVARS_CACHING  1
+#endif
 
 // use a global stack and worker cache
 //#ifndef CILK_IVARS_GLOBAL_CACHE
@@ -286,9 +287,12 @@ typedef struct __cilkrts_pedigree
 //#endif
 
 
+//if you want to turn debugging for ivars on, use -D DEBUG_CILK_IVARS when compiling your program
+//#ifdef DEBUG_CILK_IVARS
 // Set IVAR_DBG to [0-5] to control debug verbosity.
-#ifndef IVAR_DBG
+#ifndef IVAR_DBG 
 #define IVAR_DBG (cilkg_get_global_state())->dbg_level
+//#endif
 #endif
 // The type of the contents of an ivar, currently a machine word:
 typedef void* ivar_payload_t;

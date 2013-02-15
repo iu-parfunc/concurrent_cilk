@@ -27,7 +27,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 # Compiler and linker flags.
 GENERAL_FLAGS = -I$(top_srcdir)/include -DIN_CILK_RUNTIME=1
-GENERAL_FLAGS += -fpic -O3 -fcilkplus -ggdb -g3
+GENERAL_FLAGS += -fpic -O3 -fcilkplus -ggdb -g3 -std=c11
 GENERAL_FLAGS += -DBUILD_USER=\"$(USER)\"
 GENERAL_FLAGS += -DBUILD_HOST=\"`hostname`\"
 AM_CFLAGS = $(GENERAL_FLAGS) -std=gnu99

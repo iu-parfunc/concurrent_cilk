@@ -37,16 +37,10 @@
 // ====================================================================================================
 
 
-#include "concurrent_cilk.h"
+#include <cilk/concurrent_cilk.h>
 #include <cilk/cilk_api.h>
 #include "cilk_malloc.h"
 #include <stdio.h>
-
-#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
-   pthread_t id = pthread_self(); char buf[512];             \
-   sprintf(buf, __VA_ARGS__);                                \
-   struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
-   fprintf(stderr, "[tid/W %3d %2d] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, buf); }
 
 ivar_payload_t __cilkrts_ivar_read(__cilkrts_ivar* ivar) 
 {
