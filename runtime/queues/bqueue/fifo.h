@@ -95,6 +95,7 @@ int enqueue(struct queue_t *q, ELEMENT_TYPE value);
 int dequeue(struct queue_t *q, ELEMENT_TYPE *value);
 void delete_stack_queue(struct queue_t* q);
 
+
 inline uint64_t read_tsc();
 inline void wait_ticks(uint64_t);
 
