@@ -1,1 +1,1 @@
-/nobackup/czakian/autotools/share/aclocal/lt~obsolete.m4
+/nobackup/parfunc/autotools/share/aclocal/lt~obsolete.m4

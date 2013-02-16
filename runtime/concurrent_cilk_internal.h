@@ -25,7 +25,7 @@ __CILKRTS_BEGIN_EXTERN_C
 #define atomic_add(ptr,num) __sync_fetch_and_add(ptr,num)
 #define atomic_sub(ptr,num) __sync_fetch_and_sub(ptr,num)
 #define align(n) __attribute__((aligned(n)))
-#define clear_cache(begin,end) __builtin___clear_cache(begin,end);
+//#define clear_cache(begin,end) __builtin___clear_cache(begin,end);
 
 /**
  * read only/read write levels for prefetch 

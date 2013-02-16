@@ -166,9 +166,9 @@ failed_cas:
           realloc(cur->links, capacity*(sizeof(__cilkrts_forwarding_array *)));
 
         //if realloc returned a brand new pointer, we need to flush out this cache line
-        if(links != cur->links) {
-          clear_cache(&cur->links, (&cur->links)+CACHE_LINE);
-        }
+        //if(links != cur->links) {
+        //  clear_cache(&cur->links, (&cur->links)+CACHE_LINE);
+        //}
 
         //populate the new space with forwarding array structs
         for (i=*cur->capacity-1; i>= *cur->capacity-GROW_ARRAY_INCREMENT; i--) {
