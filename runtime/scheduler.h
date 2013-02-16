@@ -342,6 +342,8 @@ COMMON_PORTABLE
 void __cilkrts_dump_stats_to_stderr(global_state_t *g);
 
 
+inline static void restore_paused_worker(__cilkrts_worker *w);
+
 __CILKRTS_END_EXTERN_C
 
 #endif // ! defined(INCLUDED_SCHEDULER_DOT_H)

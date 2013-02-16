@@ -20,10 +20,33 @@ __CILKRTS_BEGIN_EXTERN_C
 /**
  * syntactic sugar
  */
+#define spin_pause() __asm__("pause")
 #define cas(ptr,oldval,newval) __sync_bool_compare_and_swap(ptr,oldval,newval)
 #define atomic_add(ptr,num) __sync_fetch_and_add(ptr,num)
 #define atomic_sub(ptr,num) __sync_fetch_and_sub(ptr,num)
 #define align(n) __attribute__((aligned(n)))
+//#define clear_cache(begin,end) __builtin___clear_cache(begin,end);
+
+/**
+ * read only/read write levels for prefetch 
+ */
+#define READ_WRITE 1
+#define READ_ONLY  0
+
+/**
+ * cache locality levels
+ */
+#define NONE 0
+#define LOW 1
+#define MED 2
+#define HIGH 3
+
+/**
+ * prefetch if at all possible
+ */
+#define prefetch(addr,rw,locality) __builtin_prefetch(addr,rw,locality)
+#define prefetch_rw(addr,locality) __builtin_prefetch(addr,READ_WRITE,locality)
+#define prefetch_r(addr,locality)  __builtin_prefetch(addr,READ_ONLY,locality)
 
 
 /* struct tags */
