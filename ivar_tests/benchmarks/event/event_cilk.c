@@ -97,7 +97,7 @@ int event_fire(int eid, event_data_t *data){
   if(e == NULL)
     return -EINVAL;
 
-  //printf("writing %p\n", e);
+  printf("writing %p\n", e);
   __cilkrts_ivar_write(&e->iv, (ivar_payload_t) data);
   return 0;
 }
@@ -109,6 +109,7 @@ ivar_payload_t event_wait(int eid) {
   event *e = (event *) events[eid];
   event *etmp;
   int i;
+  printf("e in event wait: %p\n",e);
 
   //does this need to spawn?
   val =  __cilkrts_ivar_read(&(e->iv));

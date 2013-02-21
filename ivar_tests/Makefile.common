@@ -11,6 +11,8 @@ EXT=so
 GCC=$(RTSDIR)/bin
 CC=$(GCC)/gcc -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
 CPLUS=$(GCC)/g++ -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
+#CC=icc -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
+#CPLUS=icc -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
 
 #lib dependencies
 LIBDEPS= $(RTSDIR)/lib/libcilkrts.$(EXT)
@@ -34,13 +36,14 @@ test: all
 .PHONY: clean
 clean:
 	rm -f $(OUT)/*.exe
+	rm -f $(OBJS)
 	rmdir $(OUT)
 
 ##================================================================================
 
 $(OUT)/%.exe:%.c
 	mkdir -p $(OUT)
-	$(CC) $< $(OBJS) -o $@ $(LIBDEPS) $(OPTS) $(CFLAGS)
+	$(CC) $< $(OBJS) -o $@ -L$(LIBDEPS) $(OPTS) $(CFLAGS)
 
 $(OUT)/%.exe:%.cpp
 	mkdir -p $(OUT)

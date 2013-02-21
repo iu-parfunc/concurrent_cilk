@@ -40,7 +40,7 @@ int main(int argc, char **argv){
   num_fibers = 1000;
   }
   __cilkrts_ivar *all_ivars = (__cilkrts_ivar *) calloc(num_fibers, sizeof(__cilkrts_ivar));
-  printf("creating %d blocked fibers\n", num_fibers);
+  printf("creating %lu blocked fibers\n", num_fibers);
 
 
   printf("created array of ivars\n");

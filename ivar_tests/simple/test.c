@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <cilk/concurrent_cilk.h>
+#include <cilk/cilk.h>
 
 
 typedef union {
