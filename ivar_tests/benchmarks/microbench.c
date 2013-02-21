@@ -4,17 +4,19 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "../common/cycle.h"
+#include "../../timer.h"
 
 void writer(__cilkrts_ivar *array, long num_fibers){
 
   int i;
-  printf("inside spawned writer... WRITING\n");
+  //printf("inside spawned writer... WRITING\n");
   for(i = 0; i < num_fibers; i++){
   __cilkrts_ivar_clear(&array[i]);
   unsigned long num = 1000+i;
   __cilkrts_ivar_write(&(array[i]), (ivar_payload_t) num);
   }
-  printf("inside spawned writer.. ALL WRITES DONE\n");
+  //printf("inside spawned writer.. ALL WRITES DONE\n");
 }
 
 void read_one(int i, __cilkrts_ivar *iv){
@@ -31,7 +33,7 @@ void readers(__cilkrts_ivar *array, long num_fibers) {
 }
 
 int main(int argc, char **argv){
-  printf("===== Microbench many blocking ======\n");
+  //printf("===== Microbench many blocking ======\n");
 
   long long num_fibers;
   if(argc == 2){
@@ -40,24 +42,30 @@ int main(int argc, char **argv){
   num_fibers = 1000;
   }
   __cilkrts_ivar *all_ivars = (__cilkrts_ivar *) calloc(num_fibers, sizeof(__cilkrts_ivar));
-  printf("creating %d blocked fibers\n", num_fibers);
+  //printf("creating %d blocked fibers\n", num_fibers);
 
 
-  printf("created array of ivars\n");
+  //printf("created array of ivars\n");
 
+  TIMER_START(t);
+  start = getticks();
   cilk_spawn writer(all_ivars, num_fibers);
   cilk_spawn readers(all_ivars, num_fibers);
   cilk_sync;
+  end = getticks();
+  TIMER_STOP(t);
 
 
-  printf("all ivars read successfully\n");
+  //printf("all ivars read successfully\n");
 
+  ticks start, end;
+  my_timer_t t;
   int i;
   long long sum = 0;
   for(i = 0; i < num_fibers; i++){
     sum += (long) __cilkrts_ivar_read(&all_ivars[i]);
   }
-  printf("sum of all values: %ld\n", sum);
+  //printf("sum of all values: %ld\n", sum);
 
   long long expected = 0;
   for(i = 0; i < num_fibers; i++) {
@@ -69,7 +77,8 @@ int main(int argc, char **argv){
     fprintf(stderr, "BAD SUM!!\n");
     return 1;
   } else {
-    printf("SUM CORRECT\n");
+    //printf("SUM CORRECT\n");
+    printf("%lu\t%f\t%lf\n", num_fibers, TIMER_EVAL(t), elapsed(end,start));
     return 0;
   }
 }

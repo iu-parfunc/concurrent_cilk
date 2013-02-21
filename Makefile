@@ -5,8 +5,10 @@ INCLUDEDIR=$(RTSDIR)/include/cilk
 EXT=so
 
 GCC=$(RTSDIR)/bin
-CC=$(GCC)/gcc -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
-CPLUS=$(GCC)/g++ -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
+#CC=$(GCC)/gcc -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
+#CPLUS=$(GCC)/g++ -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
+CC=icc -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
+CPLUS=icc -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
 
 #lib dependencies
 LIBDEPS= $(RTSDIR)/lib/libcilkrts.$(EXT)
@@ -16,18 +18,14 @@ INCLUDE=$(RTSDIR)/include
 CFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -std=c99 -g3 -ggdb -Wno-int-to-pointer-cast -O3 -I$(INCLUDE) -L$(LIBS)
 CPLUSFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -std=c99 -g3 -ggdb -Wno-int-to-pointer-cast -fpermissive -O2 -I$(INCLUDE) -L$(LIBS) 
 
-parfib_ivars: parfib_ivars.c
-	$(CC) $(CFLAGS) -I$(INCLUDE) -L$(LIBS) parfib_ivars.c -o parfib_ivars.exe
+all: parfib ivars_parfib
+
+ivars_parfib: ivars_parfib.c
+	$(CC) $(CFLAGS) -I$(INCLUDE) -L$(LIBS) ivars_parfib.c -o ivars_parfib.exe
 
 parfib: parfib.c
 	$(CC) $(CFLAGS) -I$(INCLUDE) -L$(LIBS) parfib.c -o parfib.exe
 
-testcilk: testcilk.c
-	$(CC) $(CFLAGS) -I$(INCLUDE) -L$(LIBS) testcilk.c -o testcilk.exe
 
 
-run: parfib
-	./parfib
 
-clean:
-	rm -f *.o *.exe

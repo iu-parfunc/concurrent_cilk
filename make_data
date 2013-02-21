@@ -5,11 +5,18 @@
 # it must (ONLY) be the number it is run on, followed by a tab and then the time it took to run
 
 NUM=$1
-FUNC=$2
-FILE=$3
+NUMER=$2
+FUNC=$3
+FILE=$4
 
-for i in `seq 1 $NUM` 
+for i in `seq 1 $NUM`
 do
-  $FUNC $i >> $FILE
+  for j in `seq 1 $NUMER`
+  do
+    $FUNC $i >> $i.perf
+  done
 done
-
+for i in `seq 1 $NUM`
+do
+  awk "{sum+=\$2} END { print \"$i\" \"\t\" ,sum/NR}" $i.perf >> $FILE
+done
