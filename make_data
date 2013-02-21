@@ -1,0 +1,15 @@
+#!/bin/bash
+
+
+# The requirements for a program are the following
+# it must (ONLY) be the number it is run on, followed by a tab and then the time it took to run
+
+NUM=$1
+FUNC=$2
+FILE=$3
+
+for i in `seq 1 $NUM` 
+do
+  $FUNC $i >> $FILE
+done
+
