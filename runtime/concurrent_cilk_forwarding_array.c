@@ -35,7 +35,9 @@ void setup_new_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker, 
 
   fresh_worker->l->scheduler_stack = sysdep_make_tiny_stack(fresh_worker);
 
+#ifdef CILK_IVARS_DEBUG
   IVAR_DBG_PRINT_(1," [concurrent-cilk, replace_worker] Created scheduler stack for replacement: %p\n", fresh_worker->l->scheduler_stack);
+#endif
 
   //---------------------------------
 
@@ -102,8 +104,10 @@ add_replacement_worker(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker, 
    */
   fresh_worker->reference_count++; 
 
+#ifdef CILK_IVARS_DEBUG
   IVAR_DBG_PRINT_(1," [concurrent-cilk, replace_worker] Created REPLACEMENT worker %d/%p, paused stack %p\n", 
       fresh_worker->self, fresh_worker, stk);
+#endif
 
   //At this point the current OS thread should forget about the old worker.
   __cilkrts_set_tls_worker(fresh_worker);
@@ -121,8 +125,10 @@ inherit_forwarding_array(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker
     //immediately update th forwarding array of the new worker to be the same 
     //pointer as that of the old worker
     fresh_worker->forwarding_array = old_w->forwarding_array;
+#ifdef CILK_IVARS_DEBUG
     IVAR_DBG_PRINT_(1,"[forwarding_array, inherit_forwarding_array] fresh worker %d/%p inherited forwarding_array %p from old worker: %d/%p\n",
         fresh_worker->self, fresh_worker, old_w->forwarding_array, old_w->self, old_w);
+#endif
 
     /**
      * This label is here because we are effectively error catching. 
@@ -151,7 +157,9 @@ failed_cas:
     //ALLOCATE A NEW BLOCK IF NECESSARY
     //-------------------
     if_f(cur->elems >= ARRAY_SIZE-1) { //then we must be at the end of the list and its full
+#ifdef CILK_IVARS_DEBUG
       IVAR_DBG_PRINT_(1,"RAN OUT OF SPACE IN FORWARDING ARRAY. Allocating some more. Capacity: %d vs. %d\n", capacity, *old_w->forwarding_array->capacity);
+#endif
 
       //increment the capacity and reallocate
       //if this cas succeeds, we are committed and actually allocate the new memory without question
@@ -212,7 +220,9 @@ failed_cas:
     //in the off chance that we had so many workers that the whole block got filled up
     //in the above for loop, retry again.
     if(cur->ptrs[i] != fresh_worker){
+#ifdef CILK_IVARS_DEBUG
       IVAR_DBG_PRINT_(1,"FAILED CAS on worker assignemnt\n");
+#endif
       goto failed_cas;
     } 
 
@@ -231,12 +241,15 @@ __cilkrts_worker *get_replacement_worker(__cilkrts_worker *w, volatile __cilkrts
 {
   __cilkrts_worker *fresh_worker = NULL;
 #ifdef CILK_IVARS_CACHING
-  if(dequeue(w->worker_cache, (ELEMENT_TYPE *) &fresh_worker)) {
+  dequeue(w->worker_cache, (ELEMENT_TYPE *) &fresh_worker);
+  if(!fresh_worker) {
     fresh_worker = (__cilkrts_worker*)__cilkrts_malloc(sizeof(__cilkrts_worker)); 
     fresh_worker->reference_count = 0;
     setup_new_worker(w, fresh_worker, stk);
   } else {
+#ifdef CILK_IVARS_DEBUG
     IVAR_DBG_PRINT_(1,"[concurrent-cilk] got new CACHED worker %d/%p \n",fresh_worker->self, fresh_worker);
+#endif
     CILK_ASSERT(fresh_worker->cached == 1);
     CILK_ASSERT(fresh_worker->reference_count == 0);
     fresh_worker->cached = 0;

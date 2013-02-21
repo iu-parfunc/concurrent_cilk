@@ -733,7 +733,9 @@ void __cilkrts_sysdep_reset_stack(__cilkrts_stack *sd)
 {
 #ifdef CILK_IVARS
   if(sd->stack_op_routine != NULL || sd->stack_op_data != NULL)
+#ifdef CILK_IVARS_DEBUG
     IVAR_DBG_PRINT_(1, "[sysdep-unix] resetting stack. %p op routine: %p op data: %p\n", sd, sd->stack_op_routine, sd->stack_op_data)
+#endif
 #endif
     CILK_ASSERT(sd->stack_op_routine == NULL);
     CILK_ASSERT(sd->stack_op_data == NULL);

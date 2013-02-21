@@ -736,7 +736,9 @@ static void detach_for_steal(__cilkrts_worker *w,
 
 #ifdef CILK_IVARS
   // RRNTEMP
+#ifdef CILK_IVARS_DEBUG
   IVAR_DBG_PRINT_(1,"DETACHING... worker %d/%p frame %p victim %d/%p stack %p \n",w->self,w, w->l->frame_ff, victim->self,victim,sd);
+#endif
 #endif
 
   CILK_ASSERT(w->l->frame_ff == 0 || w == victim);
@@ -855,7 +857,9 @@ static void random_steal(__cilkrts_worker *w)
 #ifdef CILK_IVAR_FOLLOW_FORWARDING
 
   if_f(!can_steal_from(victim) && w->l->do_not_steal == 0 || w == victim && w->is_replacement) {
+#ifdef CILK_IVARS_DEBUG
     IVAR_DBG_PRINT_(4,"[scheduler] could not steal from first choice. trying a forwarding pointer\n");
+#endif
     int m;
 
     //select a new victim by randomly selecting a forwarding array
@@ -873,12 +877,16 @@ static void random_steal(__cilkrts_worker *w)
     //if we didn't get a worker, or we are trying to steal from ourselves,
     //then fail the steal. 
     if (victim == NULL || victim == w) {
-      NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_EMPTYQ);
       __cilkrts_release_stack(w, sd);
       return;
     }
 
-    if(victim->pstk && !can_steal_from(victim) && !can_steal_from(victim->pstk->orig_worker)) {
+    if(victim->pstk) {
+#ifdef CILK_IVARS_DEBUG
+      IVAR_DBG_PRINT_(1,"YO!!! you have a paused stack, you should be restoring it!!!!\n");
+#endif
+    }
+    if(victim->pstk && !can_steal_from(victim) && !can_steal_from((__cilkrts_worker *) victim->pstk->orig_worker)) {
       restore_paused_worker(victim);
       CILK_ASSERT(0); //does not return
     }
@@ -1359,8 +1367,10 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
       ff2 = pop_next_frame(w);
 
 #ifdef CILK_IVARS
+#ifdef CILK_IVARS_DEBUG
       IVAR_DBG_PRINT_(4,"[scheduler] longjmp into runtime, about to setup for execution. worker: %d/%p frame: %p\n",
           w->self, w, ff2);
+#endif
 #endif
 
       setup_for_execution(w, ff2, 0);
@@ -1421,7 +1431,9 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 
 #ifdef CILK_IVARS
     if (w->is_replacement) return;
+#ifdef CILK_IVARS_DEBUG
     IVAR_DBG_PRINT_(1," [concurrent-cilk] Worker notifying children %d\n", msg);
+#endif
 #endif
 
     int child_num;
@@ -1544,12 +1556,20 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
      * This new algorithm marks a departure from what we have done
      * in the past in that now our paused stacks are strictly nested.
      */
-    if(pstk) pstk->replacement_worker->pstk = (__cilkrts_paused_stack *) pstk;
+    if(pstk) {
+      pstk->replacement_worker->pstk = (__cilkrts_paused_stack *) pstk;
+#ifdef CILK_IVARS_DEBUG
+      IVAR_DBG_PRINT_(1,"[scheduler] populated paused stack %p to worker %d/%p\n",
+          pstk, pstk->replacement_worker->self, pstk->replacement_worker);
+#endif
+    }
   }
 
   inline static void restore_paused_worker(__cilkrts_worker *w) 
   {
-    IVAR_DBG_PRINT_(1," [scheduler] restoring paused stack %p\n", w->pstk);
+#ifdef CILK_IVARS_DEBUG
+    IVAR_DBG_PRINT_(1," [scheduler] worker %d/%p restoring paused stack %p\n", w->self, w, w->pstk);
+#endif
     // obtain a lock on the stack
     //while(!paused_stack_lock(w, w->pstk))
     //  __cilkrts_short_pause();

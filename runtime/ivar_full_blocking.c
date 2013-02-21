@@ -53,21 +53,6 @@ inline __cilkrts_ivar_waitlist* make_waitlist_cell()
   __cilkrts_ivar_waitlist* newcell = (__cilkrts_ivar_waitlist*)
     __cilkrts_malloc(sizeof(__cilkrts_ivar_waitlist));;
 
-  // CSZ: I am dubious that we actually need this. 
-  // it isn't even possible for the machine to retrn an address
-  // that isn't a power of 2. we have CILK_IVAR_FULL set to 1...
-  // therefore this being true is a physical impossibility. 
-  /*
-  // ----------------------------------------
-  // <Safety>  We use the special value CILK_IVAR_FULL which should not be in the
-  // range of addresses in the heap.  Nevertheless we check here just to be sure:
-  if_f (newcell == (__cilkrts_ivar_waitlist*)CILK_IVAR_FULL) {
-    newcell = (__cilkrts_ivar_waitlist*)__cilkrts_malloc(sizeof(__cilkrts_ivar_waitlist));
-    __cilkrts_free((void*)CILK_IVAR_FULL);
-  }
-  // </Safety>
-  // ----------------------------------------
-  */
   return newcell;
 }
 
@@ -84,7 +69,9 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar* iv)
   volatile uintptr_t first_peek = *loc;
 
   if_f (first_peek == CILK_IVAR_FULL) {
+#ifdef CILK_IVARS_DEBUG
     IVAR_DBG_PRINT_(3," [ivar]   Ivar was already available, returning %lu\n", ivar->__value);
+#endif
     return ivar->__value;
   }
 
@@ -98,37 +85,49 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar* iv)
   volatile __cilkrts_paused_stack* ptr = __cilkrts_pause(w);
 
   if_t ((unsigned long) ptr) {
+#ifdef CILK_IVARS_DEBUG
     IVAR_DBG_PRINT_(1," [ivar] Creating paused stack: %p\n", ptr);
+#endif
 
     newcell->stalled = (__cilkrts_paused_stack *) ptr;
+#ifdef CILK_IVARS_DEBUG
     IVAR_DBG_PRINT_(2," [ivar]  Observed IVar %p in empty state %p, captured continuation in %p.\n", 
         ivar, (void*)first_peek, newcell->stalled);
+#endif
     // Register the continuation in the front of the waitlist.
     newcell->tail = (__cilkrts_ivar_waitlist*)first_peek;    
 
     while(! __sync_bool_compare_and_swap(loc, first_peek, newcell) ) {             
 
+#ifdef CILK_IVARS_DEBUG
       IVAR_DBG_PRINT_(1," [ivar]  CAS to extend IVar %p waitlist failed... retrying.\n", ivar);
+#endif
       // Compare and swap failed; set up to try again:
       first_peek = *loc;
 
       if_f (first_peek == CILK_IVAR_FULL) {
         // Well nevermind then... now it is full.
+#ifdef CILK_IVARS_DEBUG
         IVAR_DBG_PRINT_(1," [ivar]  IVar %p became full while we were tring to read it (worker %p), undoing pause on %p.\n", ivar, w, ptr);
+#endif
         __cilkrts_free(newcell);
         __cilkrts_undo_pause(w,ptr);
         return ivar->__value;
       }
       newcell->tail = (__cilkrts_ivar_waitlist*) first_peek;
     }
+#ifdef CILK_IVARS_DEBUG
     IVAR_DBG_PRINT_(1," [ivar]  Added continuation %p to waitlist successfully.  Going to sleep.\n", newcell->stalled);
+#endif
 
     __cilkrts_finalize_pause(w,ptr); 
     CILK_ASSERT(0); //should never get here
   }
   // <-- We only jump back to here when the value is ready.
+#ifdef CILK_IVARS_DEBUG
   IVAR_DBG_PRINT_(1," [ivar] returning from setjmp in ivar read\n");
   IVAR_DBG_PRINT_(2," [ivar]  Read of IVar %p: fiber blocked, now awake, returning value %ld.\n", ivar, ivar->__value);
+#endif
   return ivar->__value;
 
 }
@@ -137,7 +136,9 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar* iv)
 // This need not be threadsafe because we are the only holder of the list.
 void __cilkrts_ivar_wakeup(__cilkrts_ivar_waitlist* list) 
 {
+#ifdef CILK_IVARS_DEBUG
   IVAR_DBG_PRINT_(1, " [ivar] WAKING UP stalled computation in list entry %p\n", list);
+#endif
 
   // The waitlist was atomically grabbed by __cilkrts_ivar_write below, at this point
   // there is no concurrent access to the waitlist.
@@ -149,7 +150,9 @@ void __cilkrts_ivar_wakeup(__cilkrts_ivar_waitlist* list)
 
 CILK_API(void) __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val) 
 {
+#ifdef CILK_IVARS_DEBUG
   IVAR_DBG_PRINT_(1,"[ivar] Writing IVar %p, value %lu\n", ivar, val);
+#endif
 
   __sync_lock_test_and_set(&ivar->__value, val);
 
@@ -159,9 +162,11 @@ CILK_API(void) __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
   switch((uintptr_t)list) 
   {
     case 0:
+#ifdef CILK_IVARS_DEBUG
       IVAR_DBG_PRINT_(1,"[ivar] looks like no one was waiting on our write...returning\n");
-      // It was empty with no one waiting.  Nothing to do.
-      break;        
+#endif
+      // It was empty with no one waiting. Nothing to do.
+      break;
     case CILK_IVAR_FULL:
       // DESIGN DECISION: One could allow multiple puts of the same value.  Not doing so for now.
       __cilkrts_bug("Attempted multiple puts on Cilk IVar in location %p.  Aborting program.\n", ivar);

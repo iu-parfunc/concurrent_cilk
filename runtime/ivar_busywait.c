@@ -44,7 +44,9 @@
 
 ivar_payload_t __cilkrts_ivar_read(__cilkrts_ivar* ivar) 
 {
+#ifdef CILK_IVARS_DEBUG
     IVAR_DBG_PRINT_(2," [ivar] Reading IVar %p\n", ivar);
+#endif
 
     volatile uintptr_t *loc = & ivar->__header; // Is there a better way to do this?
 
@@ -54,14 +56,20 @@ ivar_payload_t __cilkrts_ivar_read(__cilkrts_ivar* ivar)
 
     if (first_peek == CILK_IVAR_FULL)
     {
+#ifdef CILK_IVARS_DEBUG
         IVAR_DBG_PRINT_(2," [ivar]   Ivar was already available, returning %lu\n", ivar->__value);
+#endif
         return ivar->__value;
     }
     
     if (first_peek == 0 ) {
+#ifdef CILK_IVARS_DEBUG
         IVAR_DBG_PRINT_(1," [ivar]  Observed IVar %p in empty state with no one waiting. BUSY waiting!\n", ivar);
+#endif
         while( *loc != CILK_IVAR_FULL ) { } // Busy wait.
+#ifdef CILK_IVARS_DEBUG
         IVAR_DBG_PRINT_(1," [ivar] Done busy-waiting on IVar %p, now header has state: %lu, returning value %lu\n", 
+#endif
                              ivar, ivar->__header, ivar->__value);
         return ivar->__value;
     }
@@ -75,7 +83,9 @@ ivar_payload_t __cilkrts_ivar_read(__cilkrts_ivar* ivar)
 
 void __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val) 
 {
+#ifdef CILK_IVARS_DEBUG
     IVAR_DBG_PRINT_(2," [ivar] Writing IVar %p, value %lu\n", ivar, val);
+#endif
     // Write the value with impunity:
     ivar->__value = val;
 
