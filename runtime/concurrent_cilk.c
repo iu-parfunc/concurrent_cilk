@@ -104,27 +104,6 @@ CILK_API(void) __cilkrts_ivar_clear(__cilkrts_ivar* ivar)
   ivar->__header = 0; // Empty ivar.
 }
 
-/**returns 1 on successful lock, and 0 on failure */
-int paused_stack_lock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk)
-{
-  // two threads race for lock inform, and one comes out on top. 
-  // this thread then grabs the lock_success value and holds the lock
-  if(__sync_bool_compare_and_swap(&stk->lock_inform, 0, 1))
-    if(__sync_bool_compare_and_swap(&stk->lock_success, 0, 1))
-      return 1;
-  return 0;
-}
-/** CILK FUNCTIONS CALLED: returns 1 on successfull unlock, and 0 on failure */
-int paused_stack_unlock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk)
-{
-  // two threads race for lock inform, and one comes out on top. 
-  // this thread then grabs the lock_success value and holds the lock
-  if(__sync_bool_compare_and_swap(&stk->lock_success, 1, 0))
-    if(__sync_bool_compare_and_swap(&stk->lock_inform, 1, 0))
-      return 1;
-  return 0;
-}
-
 inline static void restore_paused_worker(__cilkrts_worker *old_w) 
 {
 #ifdef CILK_IVARS_DEBUG
@@ -190,10 +169,10 @@ __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w)
 #ifdef CILK_IVARS_CACHING
   dequeue(w->paused_stack_cache, (ELEMENT_TYPE *) &sustk);
   if_f(!sustk)
-    sustk = (__cilkrts_paused_stack *)__cilkrts_malloc(sizeof(__cilkrts_paused_stack));
+    sustk = (__cilkrts_paused_stack *) memalign(64, sizeof(__cilkrts_paused_stack));
   else
 #else
-  sustk = (__cilkrts_paused_stack *)__cilkrts_malloc(sizeof(__cilkrts_paused_stack));
+  sustk = (__cilkrts_paused_stack *)memalign(64, sizeof(__cilkrts_paused_stack));
 #endif
 
   //system workers might not have a frame!
@@ -204,9 +183,6 @@ __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w)
 
   sustk->orig_worker        = w;
   sustk->replacement_worker = NULL;
-  sustk->ready        = 0;
-  sustk->lock_inform  = 0;
-  sustk->lock_success = 0;
   return sustk;
 }
 
@@ -257,14 +233,11 @@ CILK_API(void) __cilkrts_pause_a_bit(struct __cilkrts_worker* w)
 
 // Mark a paused stack as ready by populating the workers pstk pointer.
 // multiple writes are idempotent
+inline
 CILK_API(void) __cilkrts_wake_stack(volatile __cilkrts_paused_stack* stk)
 {
-  CILK_ASSERT(stk->ready == 0);
-  if( __sync_bool_compare_and_swap(& stk->ready, 0, 1 ) ) {
-    __cilkrts_worker* w = (__cilkrts_worker *) stk->replacement_worker;
-
-    w->pstk = (__cilkrts_paused_stack *) stk;
-  }
+  __cilkrts_worker* w = (__cilkrts_worker *) stk->replacement_worker;
+  w->pstk = (__cilkrts_paused_stack *) stk;
   return;
 }
 

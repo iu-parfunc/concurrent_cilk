@@ -78,13 +78,6 @@ typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
     /// And this is the original worker that got stalled, in its original location:
     __cilkrts_worker* orig_worker;  // Should be NON-NULL
 
-    /// 0/1 Flag set to indicate that the work is ready to resume.
-    /// Whoever sets the flag (atomically) to 1 is responsible for enqueing the task in the
-    /// ready queue.
-    volatile int ready;    
-    volatile int lock_inform;
-    volatile int lock_success;
-
 #if CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
     /// This is a private condition used by only this worker/stack.
     pthread_cond_t cond;

@@ -90,22 +90,22 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar* ivar)
 inline
 CILK_API(void) __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val) 
 {
-  __sync_lock_test_and_set(&ivar->__value, val);
+ ivar->__value = val;
 
-  // Atomically set the ivar to the full state and grab the waitlist:
-  volatile __cilkrts_paused_stack *pstk = (volatile __cilkrts_paused_stack *) __sync_headerk_test_and_set( &ivar->__header, CILK_IVAR_FULL );
+  //Atomically set the ivar to the full state and grab the waitlist:
+  volatile __cilkrts_paused_stack *pstk = (volatile __cilkrts_paused_stack *)
+    __sync_lock_test_and_set(&ivar->__header, CILK_IVAR_FULL);
 
   switch((uintptr_t)pstk) 
   {
     case 0:
-      // It was empty with no one waiting. Nothing to do.
+      //It was empty with no one waiting. Nothing to do.
       break;
     case CILK_IVAR_FULL:
-      // DESIGN DECISION: One could allow multiple puts of the same value.  Not doing so for now.
+      //DESIGN DECISION: One could allow multiple puts of the same value.  Not doing so for now.
       __cilkrts_bug("Attempted multiple puts on Cilk IVar in headeration %p.  Aborting program.\n", ivar);
       break;
     default:
-      //__cilkrts_ivar_wakeup(list);
       __cilkrts_wake_stack(pstk);
   }
 }

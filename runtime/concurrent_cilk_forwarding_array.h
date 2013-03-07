@@ -62,7 +62,7 @@ struct __cilkrts_forwarding_array {
   ///each operation must be a cas
   __cilkrts_worker *ptrs[ARRAY_SIZE]; 
 
-  volatile struct __cilkrts_forwarding_array **links align(64);
+  struct __cilkrts_forwarding_array **links align(64);
 
 } align(64);
 
