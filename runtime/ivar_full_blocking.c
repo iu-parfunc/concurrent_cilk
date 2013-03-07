@@ -47,38 +47,39 @@
 inline
 CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar* ivar)
 {
-
-  volatile uintptr_t *loc = & ivar->__header; 
+  __cilkrts_worker *wkr;
+  __cilkrts_paused_stack *ptr;
+  volatile uintptr_t *header = &ivar->__header; 
 
   // First we do a regular load to see if the value is already there.
   // Because it transitions from empty->full only once (and never back) there is no race:
-  volatile uintptr_t first_peek = *loc;
+  volatile uintptr_t first_peek = *header;
 
   //fast path -- already got a value
   if(first_peek == CILK_IVAR_FULL) {
     return ivar->__value;
   }
 
-  __cilkrts_worker* w = __cilkrts_get_tls_worker_fast();
-  volatile __cilkrts_paused_stack* ptr = __cilkrts_pause(w);
-
   //slow path -- operation must block until a value is available
+  wkr = __cilkrts_get_tls_worker_fast();
+  ptr = __cilkrts_pause(wkr);
+
   if((unsigned long) ptr) {
     // Register the continuation in the ivar's header.
-    while(! __sync_bool_compare_and_swap(loc, first_peek, ptr) ) {             
+    while(! __sync_bool_compare_and_swap(header, first_peek, ptr) ) {             
 
       // Compare and swap failed; set up to try again:
-      first_peek = *loc;
+      first_peek = *header;
 
       if(first_peek == CILK_IVAR_FULL) {
 
         // Well nevermind then... now it is full.
-        __cilkrts_undo_pause(w,ptr);
+        __cilkrts_undo_pause(wkr,ptr);
         return ivar->__value;
       }
     }
 
-    __cilkrts_finalize_pause(w,ptr); 
+    __cilkrts_finalize_pause(wkr,ptr); 
     CILK_ASSERT(0); //should never get here
   }
 
@@ -89,26 +90,19 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar* ivar)
 inline
 CILK_API(void) __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val) 
 {
-#ifdef CILK_IVARS_DEBUG
-  IVAR_DBG_PRINT_(1,"[ivar] Writing IVar %p, value %lu\n", ivar, val);
-#endif
-
   __sync_lock_test_and_set(&ivar->__value, val);
 
   // Atomically set the ivar to the full state and grab the waitlist:
-  volatile __cilkrts_paused_stack *pstk = (volatile __cilkrts_paused_stack *) __sync_lock_test_and_set( &ivar->__header, CILK_IVAR_FULL );
+  volatile __cilkrts_paused_stack *pstk = (volatile __cilkrts_paused_stack *) __sync_headerk_test_and_set( &ivar->__header, CILK_IVAR_FULL );
 
   switch((uintptr_t)pstk) 
   {
     case 0:
-#ifdef CILK_IVARS_DEBUG
-      IVAR_DBG_PRINT_(1,"[ivar] looks like no one was waiting on our write...returning\n");
-#endif
       // It was empty with no one waiting. Nothing to do.
       break;
     case CILK_IVAR_FULL:
       // DESIGN DECISION: One could allow multiple puts of the same value.  Not doing so for now.
-      __cilkrts_bug("Attempted multiple puts on Cilk IVar in location %p.  Aborting program.\n", ivar);
+      __cilkrts_bug("Attempted multiple puts on Cilk IVar in headeration %p.  Aborting program.\n", ivar);
       break;
     default:
       //__cilkrts_ivar_wakeup(list);
