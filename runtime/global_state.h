@@ -247,10 +247,6 @@ typedef /* COMMON_PORTABLE */ struct global_state_t {
 
 #ifdef CILK_IVARS    
 
-    __cilkrts_forwarding_array **forwarding_ptrs;
-
-    volatile unsigned int num_paused_stacks;
-
 #ifdef CILK_IVARS_GLOBAL_CACHE
 
     /* Maintain a cache of replacement workers */

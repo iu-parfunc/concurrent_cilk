@@ -1,1 +1,1 @@
-/nobackup/czakian/autotools/share/aclocal/ltversion.m4
+/opt/autotools/share/aclocal/ltversion.m4

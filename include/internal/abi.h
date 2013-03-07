@@ -229,17 +229,7 @@ struct __cilkrts_worker {
 
     /* Maintain a cache of paused stacks */
     struct  queue_t *paused_stack_cache;
-
-    /*! Either 0 or 1 */
-    unsigned short cached;
 #endif
-
-    /* Keeps a count of the outstanding references to this
-     * worker. if a worker is referenced, it cannot be brought
-     * out of the cache for reuse. Right now this is either 0 or 1,
-     * but this could change in the future
-     */
-    unsigned short reference_count;
 
     /* tracks if this worker is a replacment worker or a real rts worker */
     unsigned short is_replacement;
@@ -259,7 +249,6 @@ struct __cilkrts_worker {
 
     //---------------------------
 
-
     /** when the stack is ready. This pointer is populated with
      * the address of the paused stack that is now ready to be
      * restored
@@ -268,12 +257,6 @@ struct __cilkrts_worker {
      * that we might read a null pointer or the wrong pointer?
      */
     struct __cilkrts_paused_stack *pstk;
-
-    /** a per worker queue of paused but ready stacks.
-     * the rts will check this queue everytime it returns
-     * to the scheduler
-     */
-    struct queue_t *paused_but_ready_stacks;
 
 #endif
 };

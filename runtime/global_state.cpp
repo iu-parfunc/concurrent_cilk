@@ -492,8 +492,7 @@ global_state_t* cilkg_init_global_state()
 #ifdef CILK_IVARS_GLOBAL_CACHE 
     g->paused_stack_cache  = make_stack_queue();
     g->worker_cache        = make_stack_queue();
-#endif
-    g->num_paused_stacks = 0;
+#endif //CACHE
 
 #endif //END CILK_IVARS
 

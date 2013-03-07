@@ -1533,53 +1533,6 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 #endif
   }
 
-#ifdef CILK_IVARS
-  inline static void check_concurrent_work(__cilkrts_worker *w) 
-  {
-    ///This is the MAIN modification to the scheduling algorithm.
-    ///Worker users must stay live to receive frames that are pushed to them.  Thus
-    ///they cannot give way for workers pulled from the ready queue:
-    ///note: there is a specal case for a single thread, which is that anyone
-    ///can restore a worker. we are essentially running serially at this point, 
-    ///and there will potentially be no worker users. see the special casing 
-    ///for handling replacements in schedule_work
-
-    volatile  __cilkrts_paused_stack* pstk = NULL;
-
-    dequeue(w->paused_but_ready_stacks, (ELEMENT_TYPE *) &pstk);
-    /**
-     * If workers must restore their own stacks, can we leak workers
-     * and stacks if we get a situation that isn't nested? Is that even
-     * possible. I can't think of an instance right now, but I am in an
-     * airplane...so I may be tired.
-     *
-     * This new algorithm marks a departure from what we have done
-     * in the past in that now our paused stacks are strictly nested.
-     */
-    if(pstk) {
-      pstk->replacement_worker->pstk = (__cilkrts_paused_stack *) pstk;
-#ifdef CILK_IVARS_DEBUG
-      IVAR_DBG_PRINT_(1,"[scheduler] populated paused stack %p to worker %d/%p\n",
-          pstk, pstk->replacement_worker->self, pstk->replacement_worker);
-#endif
-    }
-  }
-
-  inline static void restore_paused_worker(__cilkrts_worker *w) 
-  {
-#ifdef CILK_IVARS_DEBUG
-    IVAR_DBG_PRINT_(1," [scheduler] worker %d/%p restoring paused stack %p\n", w->self, w, w->pstk);
-#endif
-    // obtain a lock on the stack
-    //while(!paused_stack_lock(w, w->pstk))
-    //  __cilkrts_short_pause();
-    restore_worker2(w, w->pstk);
-
-    //does not return
-    CILK_ASSERT(0);
-  }
-#endif
-
   /*
    * Try to do work.  If there is none available, try to steal some and do it.
    */
@@ -1593,27 +1546,10 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     if (NULL == ff) {
 
 #ifdef CILK_IVARS
-      // special case for a single pthread. We take a shortcut with multithreads because we just overwrite
-      // workers and everything works out in the end because workers follow the forwarding pointers.
-      // in the case of a single pthread, we might not end up restoring the root worker. 
-      // this fixes the problem by observing that if there are no paused stack left, need to get rid of
-      // the replacement and just restore the root worker to complete the computation
-      //
-      //TODO: under the new check concurrent work strategy, I don't think this should be a problem
-      //anymore. once the protype is working, come back and see if this can be done away with.
-      if_f((w->g->P == 1 && w->is_replacement && 
-            w->g->num_paused_stacks == 0)) {
-
-        __cilkrts_set_tls_worker(w->g->workers[0]);
-        w = __cilkrts_get_tls_worker_fast();
-      } else {
-        //each worker must "pay their way" by checking
-        //for a ready paused stack. Then they are free
-        //to restore their own paused stack if it is ready.
-        check_concurrent_work(w);
-        if(w->pstk) restore_paused_worker(w);
-      }
-
+      //each worker must "pay their way" by checking
+      //for a ready paused stack. Then they are free
+      //to restore their own paused stack if it is ready.
+      if(w->pstk) restore_paused_worker(w);
 #endif
 
       START_INTERVAL(w, INTERVAL_STEALING) {
@@ -2401,10 +2337,7 @@ __cilkrts_worker *make_worker(global_state_t *g,
 
 #ifdef CILK_IVARS
 
-  w->paused_but_ready_stacks = (queue_t *) make_stack_queue();
-
 #ifdef CILK_IVARS_CACHING  
-
 #ifdef CILK_IVARS_GLOBAL_CACHE
   w->paused_stack_cache  = g->paused_stack_cache;
   w->worker_cache = g->worker_cache; 
@@ -2412,10 +2345,8 @@ __cilkrts_worker *make_worker(global_state_t *g,
   w->paused_stack_cache = (queue_t *) make_stack_queue();
   w->worker_cache = (queue_t *) make_stack_queue();
 #endif//GLOBAL_CACHE
-  w->cached           = 0;
 #endif//IVARS_CACHING
 
-  w->reference_count  = 0;
   w->is_replacement   = 0;     /* Is the current thread a replacement for a paused one? */
   w->pstk = NULL;
 

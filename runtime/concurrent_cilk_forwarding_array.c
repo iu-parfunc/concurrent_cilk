@@ -86,23 +86,9 @@ add_replacement_worker(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker, 
   CILK_ASSERT(stk->replacement_worker);
   //end stuff we don't need
 
-  //we inherit the paused stack of our parent
-  fresh_worker->paused_but_ready_stacks = old_w->paused_but_ready_stacks;
-
   //pass down the forwarding array to the old worker's
   //replacement
   inherit_forwarding_array(old_w, fresh_worker);
-
-  //increment the reference count
-  CILK_ASSERT(fresh_worker->reference_count == 0);
-  /**
-   * this could use a CAS instruction here,
-   * however at this point no one should even know
-   * that this worker exists. Therefore a CAS would
-   * be unecessary as no worker should be able to race
-   * for this piece of memory. 
-   */
-  fresh_worker->reference_count++; 
 
 #ifdef CILK_IVARS_DEBUG
   IVAR_DBG_PRINT_(1," [concurrent-cilk, replace_worker] Created REPLACEMENT worker %d/%p, paused stack %p\n", 
@@ -244,18 +230,12 @@ __cilkrts_worker *get_replacement_worker(__cilkrts_worker *w, volatile __cilkrts
   dequeue(w->worker_cache, (ELEMENT_TYPE *) &fresh_worker);
   if(!fresh_worker) {
     fresh_worker = (__cilkrts_worker*)__cilkrts_malloc(sizeof(__cilkrts_worker)); 
-    fresh_worker->reference_count = 0;
     setup_new_worker(w, fresh_worker, stk);
   } else {
 #ifdef CILK_IVARS_DEBUG
     IVAR_DBG_PRINT_(1,"[concurrent-cilk] got new CACHED worker %d/%p \n",fresh_worker->self, fresh_worker);
 #endif
-    CILK_ASSERT(fresh_worker->cached == 1);
-    CILK_ASSERT(fresh_worker->reference_count == 0);
-    fresh_worker->cached = 0;
-    //the worker was locked before being placed
-    //in the cache. It is now available for use.
-    __cilkrts_worker_unlock(fresh_worker);
+    CILK_ASSERT(fresh_worker);
   }
 #else
   fresh_worker = (__cilkrts_worker *) __cilkrts_malloc(sizeof(__cilkrts_worker)); 
