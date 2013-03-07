@@ -20,15 +20,15 @@ __cilkrts_ivar_clear(&iv5);
 int i1, i2, i3, i4, i5;
 
 printf("spawning reader1\n");
-i1 = (int) cilk_spawn __cilkrts_ivar_read(&iv1);
+i1 = cilk_spawn __cilkrts_ivar_read(&iv1);
 printf("spawning reader2\n");
-i2 = (int) cilk_spawn __cilkrts_ivar_read(&iv2);
+i2 = cilk_spawn __cilkrts_ivar_read(&iv2);
 printf("spawning reader3\n");
-i3 = (int) cilk_spawn __cilkrts_ivar_read(&iv3);
+i3 = cilk_spawn __cilkrts_ivar_read(&iv3);
 printf("spawning reader4\n");
-i4 = (int) cilk_spawn __cilkrts_ivar_read(&iv4);
+i4 = cilk_spawn __cilkrts_ivar_read(&iv4);
 printf("spawning reader5\n");
-i5 = (int) cilk_spawn __cilkrts_ivar_read(&iv5);
+i5 = cilk_spawn __cilkrts_ivar_read(&iv5);
 
 printf("done spawning readers. Now starting to write\n");
 

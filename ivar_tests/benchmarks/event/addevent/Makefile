@@ -7,9 +7,4 @@ $(OUT)/%.exe: $(OBJS)
 	mkdir -p $(OUT)
 	$(CC) $(OBJS) -o $@ $(LIBDEPS) $(OPTS) $(CFLAGS)
 
-.PHONY: clean
-clean:
-	rm -f $(OUT)/*.exe
-	rm -f $(OBJS)
-	rmdir $(OUT)
 
