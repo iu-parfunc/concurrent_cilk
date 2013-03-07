@@ -98,19 +98,15 @@ CILK_API(void) __cilkrts_usleep(unsigned long micros)
   nanosleep(&time,NULL);
 }
 
-CILK_API(void) __cilkrts_ivar_clear(__cilkrts_ivar* ivar) {
+inline
+CILK_API(void) __cilkrts_ivar_clear(__cilkrts_ivar* ivar)
+{
   ivar->__header = 0; // Empty ivar.
 }
 
-/* CILK FUNCTIONS CALLED:
- * NONE
- *
- returns 1 on successful lock, and 0 on failure */
-int paused_stack_lock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk) {
-
-#ifdef CILK_IVARS_DEBUG
-  IVAR_DBG_PRINT_(1,"[concurrent-cilk, paused_stack_lock] locking stack %p with worker owner: %d/%p\n", stk, w->self,w);
-#endif
+/**returns 1 on successful lock, and 0 on failure */
+int paused_stack_lock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk)
+{
   // two threads race for lock inform, and one comes out on top. 
   // this thread then grabs the lock_success value and holds the lock
   if(__sync_bool_compare_and_swap(&stk->lock_inform, 0, 1))
@@ -118,15 +114,9 @@ int paused_stack_lock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk)
       return 1;
   return 0;
 }
-/* CILK FUNCTIONS CALLED:
- * NONE
- *
- returns 1 on successfull unlock, and 0 on failure */
+/** CILK FUNCTIONS CALLED: returns 1 on successfull unlock, and 0 on failure */
 int paused_stack_unlock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk)
 {
-#ifdef CILK_IVARS_DEBUG
-  IVAR_DBG_PRINT_(1,"[concurrent-cilk, paused_stack_unlock] unlocking stack %p with worker owner: %d/%p\n", stk, w->self,w);
-#endif
   // two threads race for lock inform, and one comes out on top. 
   // this thread then grabs the lock_success value and holds the lock
   if(__sync_bool_compare_and_swap(&stk->lock_success, 1, 0))
@@ -166,9 +156,6 @@ inline static void restore_paused_worker(__cilkrts_worker *old_w)
 #else
   __cilkrts_free((__cilkrts_paused_stack *) stk);
 #endif
-#ifdef CILK_IVARS_DEBUG
-  IVAR_DBG_PRINT_(1," [concurrent-cilk, restore_worker2] Unthawing stalled worker %d with paused stack %p.\n", w->self, stk);
-#endif
 
   //restore the original blocked worker
   //at this point. the scheduler forgets about tlsw
@@ -178,9 +165,6 @@ inline static void restore_paused_worker(__cilkrts_worker *old_w)
 #ifdef CILK_IVARS_CACHING
   // only cache replacement workers.
   if(old_w->self < 0) {
-#ifdef CILK_IVARS_DEBUG
-    IVAR_DBG_PRINT_(1," [concurrent-cilk, restore_worker2] cached worker %d/%p\n", old_w->self, old_w);
-#endif
     enqueue(w->worker_cache, (ELEMENT_TYPE) old_w); 
   }
 #else
@@ -190,23 +174,17 @@ inline static void restore_paused_worker(__cilkrts_worker *old_w)
 #endif
 
   //--------------------------- restore the context -------------------
-  void *sp = SP(w->current_stack_frame);
-  /* Debugging: make sure stack is accessible. */
-  ((volatile char *)sp)[-1];
-
   CILK_LONGJMP(w->current_stack_frame->ctx);
 
   //does not return
   CILK_ASSERT(0);
 }
 
-// ================================================================================
-
 // This initiializes the data structure that represents a paused stack, but save_worker
 // must be called subsequently to fully populate it.
+inline
 __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w)
 {
-  CILK_ASSERT(w);
   __cilkrts_paused_stack* sustk = NULL; 
 
 #ifdef CILK_IVARS_CACHING
@@ -214,9 +192,6 @@ __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w)
   if_f(!sustk)
     sustk = (__cilkrts_paused_stack *)__cilkrts_malloc(sizeof(__cilkrts_paused_stack));
   else
-#ifdef CILK_IVARS_DEBUG
-    IVAR_DBG_PRINT_(1,"[concurrent-cilk] got new CACHED stack %p \n", sustk);
-#endif
 #else
   sustk = (__cilkrts_paused_stack *)__cilkrts_malloc(sizeof(__cilkrts_paused_stack));
 #endif
@@ -229,56 +204,17 @@ __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w)
 
   sustk->orig_worker        = w;
   sustk->replacement_worker = NULL;
-
   sustk->ready        = 0;
   sustk->lock_inform  = 0;
   sustk->lock_success = 0;
   return sustk;
 }
 
-// DUPLICATE CODE: from __cilkrts_sysdep_import_user_thread and worker_user_scheduler:
-NORETURN setup_and_invoke_scheduler(__cilkrts_worker *w) 
-{
-  __cilkrts_worker_lock(w);
-  void *ctx[5]; // Jump buffer for __builtin_setjmp/longjmp.
-
-  CILK_ASSERT(w->l->scheduler_stack);
-  if (0 == __builtin_setjmp(ctx)) {
-    ctx[2] = w->l->scheduler_stack; // replace the stack pointer.
-    __builtin_longjmp(ctx, 1);
-  } else {
-
-#ifdef CILK_IVARS_DEBUG
-    IVAR_DBG_PRINT_(1," [concurrent-cilk, setup and invoke] BEGIN SCHEDULING on new thread\n");
-#endif
-    CILK_ASSERT( ! w->l->post_suspend );
-    w->reducer_map = 0; // like worker_user_scheduler and do_work..
-    __cilkrts_worker_unlock(w);
-
-    __cilkrts_run_scheduler_with_exceptions(w); // calls __cilkrts_scheduler
-    CILK_ASSERT(0); //no return
-  }
-}
-
 // Commit the pause.
+inline
   CILK_API(void)
 __cilkrts_finalize_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk) 
 {
-  CILK_ASSERT(stk);
-  CILK_ASSERT(w);
-
-#ifdef CILK_IVARS_DEBUG
-  IVAR_DBG_PRINT_(2," [concurrent-cilk,finalize pause]  finalize_pause: blocked worker %d/%p created a paused stack %p.\n", 
-      w->self, w, stk);
-#endif
-
-  //Can we remove this?
-  // obtain a lock on the stack
-  /*
-  while(!paused_stack_lock(w,stk))
-    __cilkrts_short_pause();
-    */
-
   // create a new replacement worker:
   __cilkrts_worker* new_w = get_replacement_worker(w, stk);
 
@@ -287,14 +223,8 @@ __cilkrts_finalize_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* s
   //forwarding array.
   add_replacement_worker(w, new_w, stk);
 
-  //Can we remove this?
-  /*
-  while(!paused_stack_unlock(w,stk))
-    __cilkrts_short_pause();
-    */
-
   // head to the scheduler with the replacement worker
-  setup_and_invoke_scheduler(new_w);
+  __cilkrts_run_scheduler_with_exceptions(w); // calls __cilkrts_scheduler
   CILK_ASSERT(0); //no return
 }
 
@@ -307,9 +237,6 @@ CILK_API(void) __cilkrts_undo_pause(__cilkrts_worker* w, volatile __cilkrts_paus
 
   //TODO: add caching!
   __cilkrts_free((void *) stk);
-#ifdef CILK_IVARS_DEBUG
-  IVAR_DBG_PRINT_(2," [concurrent-cilk, undo_pause] Pause of stk %p undone.\n", stk);
-#endif
 }
 
 // This function is a `yield` for defining coroutines.  It stops the current computation but adds it
@@ -322,43 +249,23 @@ CILK_API(void) __cilkrts_pause_a_bit(struct __cilkrts_worker* w)
   // Here we do not need to save anything... the worker is left in place, but the thread abandons it.
   // Save the continuation in the top stack frame of the old (stalled) worker:
   volatile struct __cilkrts_paused_stack* ptr = __cilkrts_pause(w);
-#ifdef CILK_IVARS_DEBUG
-  IVAR_DBG_PRINT_(1," [scheduler: pause_a_bit] Creating paused stack: %p capturing current stack %p\n", ptr, w->l->frame_ff->stack_self);
-#endif
   if(ptr) {
     __cilkrts_wake_stack(ptr);
     __cilkrts_finalize_pause(w,ptr);
   }
 }
 
-// Mark a paused stack as ready and add it to the ready queue.
+// Mark a paused stack as ready by populating the workers pstk pointer.
+// multiple writes are idempotent
 CILK_API(void) __cilkrts_wake_stack(volatile __cilkrts_paused_stack* stk)
 {
-  CILK_ASSERT(stk);
   CILK_ASSERT(stk->ready == 0);
-#ifdef CILK_IVARS_DEBUG
-  IVAR_DBG_PRINT_(1," [concurrent-cilk, wake_stack] Attempting wakeup on stack %p (orig_worker %p)...\n", stk, stk->orig_worker);
-#endif
-  // Waking the stack up means moving it to the ready queue.
-  //if_t ( __sync_bool_compare_and_swap(& stk->ready, 0, 1 ) ) { //does this need to be a cas? who modifies this value except runtime in serial?
-  stk->ready = 1;
-  if_t(stk->ready) {
+  if( __sync_bool_compare_and_swap(& stk->ready, 0, 1 ) ) {
     __cilkrts_worker* w = (__cilkrts_worker *) stk->replacement_worker;
-    CILK_ASSERT(w);
 
-    //enqueue(w->paused_but_ready_stacks, (ELEMENT_TYPE) stk);
-    CILK_ASSERT(w->pstk == NULL);
     w->pstk = (__cilkrts_paused_stack *) stk;
-#ifdef CILK_IVARS_DEBUG
-    IVAR_DBG_PRINT_(1," [concurrent-cilk, wake_stack]   Woke stack %p by putting it in ready queue of worker %d/%p.\n", stk, w->self, w);
-#endif
-    return;
-  } else {
-#ifdef CILK_IVARS_DEBUG
-    IVAR_DBG_PRINT_(2," [concurrent-cilk, wake_stack] FAILED to wakeup stack %p; did someone else do it?\n", stk);
-#endif
-    return;
   }
+  return;
 }
 
 // Helper used for debugging:

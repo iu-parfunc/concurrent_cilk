@@ -73,10 +73,10 @@ typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
 
     /// For this variant the new worker does not cache the *stalled* workers state, instead 
     /// the stalled worker stays put and we have a fresh replacement worker:
-    volatile struct __cilkrts_worker* replacement_worker;
+    __cilkrts_worker* replacement_worker;
 
     /// And this is the original worker that got stalled, in its original location:
-    volatile struct __cilkrts_worker* orig_worker;  // Should be NON-NULL
+    __cilkrts_worker* orig_worker;  // Should be NON-NULL
 
     /// 0/1 Flag set to indicate that the work is ready to resume.
     /// Whoever sets the flag (atomically) to 1 is responsible for enqueing the task in the
@@ -94,12 +94,6 @@ typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
 
 /*   Cilk IVars:  Types & API   */
 
-struct __cilkrts_ivar_waitlist {
-    struct __cilkrts_paused_stack* stalled;
-    struct __cilkrts_ivar_waitlist* tail; // null to terminate.
-} __attribute__((aligned(64)));
-
-
 __cilkrts_worker* replace_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker, volatile __cilkrts_paused_stack* stk);
 __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w);
 int paused_stack_lock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk);
@@ -107,7 +101,7 @@ int paused_stack_unlock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* st
 void __cilkrts_concurrent_yield(__cilkrts_worker *w);
 void my_resume (__cilkrts_worker *w, full_frame *f, __cilkrts_stack_frame *sf);
 void restore_worker2(__cilkrts_worker* old_w, volatile  __cilkrts_paused_stack* stk);
-NORETURN setup_and_invoke_scheduler(__cilkrts_worker *w);
+void setup_and_invoke_scheduler(__cilkrts_worker *w);
 
 __CILKRTS_END_EXTERN_C
 #endif

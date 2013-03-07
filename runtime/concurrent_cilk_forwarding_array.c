@@ -35,10 +35,6 @@ void setup_new_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker, 
 
   fresh_worker->l->scheduler_stack = sysdep_make_tiny_stack(fresh_worker);
 
-#ifdef CILK_IVARS_DEBUG
-  IVAR_DBG_PRINT_(1," [concurrent-cilk, replace_worker] Created scheduler stack for replacement: %p\n", fresh_worker->l->scheduler_stack);
-#endif
-
   //---------------------------------
 
   // Label the fresh worker as a replacement. 
@@ -63,7 +59,6 @@ inline void remove_replacement_worker(__cilkrts_worker *w)
    w->array_loc   = NULL; //null out the worker's reference to the slot
    while(!atomic_sub(&w->array_block->elems,1)) spin_pause();
    w->array_block = NULL;
-   __cilkrts_fence();
 }
 
 /** When adding a replacement worker, we don't always have to run setup new worker. This is the shortcut
@@ -81,11 +76,7 @@ inline void remove_replacement_worker(__cilkrts_worker *w)
   inline void 
 add_replacement_worker(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker, volatile __cilkrts_paused_stack *stk)
 {
-  //leaving this for now, but we really don't need this. It is only for debugging purposes
   stk->replacement_worker = fresh_worker;
-  CILK_ASSERT(stk->replacement_worker);
-  //end stuff we don't need
-
   //pass down the forwarding array to the old worker's
   //replacement
   inherit_forwarding_array(old_w, fresh_worker);
@@ -153,16 +144,8 @@ failed_cas:
 
         __cilkrts_forwarding_array **links = cur->links;
 
-        //BIG WHOPPING TODO: (I.E. YOU WILL CERTAINLY SEGFAULT)
-        //the new realloced memory needs to be set to NULL, otherwise
-        //you will grab an invalid pointer
         cur->links = (__cilkrts_forwarding_array **) 
           realloc(cur->links, capacity*(sizeof(__cilkrts_forwarding_array *)));
-
-        //if realloc returned a brand new pointer, we need to flush out this cache line
-        //if(links != cur->links) {
-        //  clear_cache(&cur->links, (&cur->links)+CACHE_LINE);
-        //}
 
         //populate the new space with forwarding array structs
         for (i=*cur->capacity-1; i>= *cur->capacity-GROW_ARRAY_INCREMENT; i--) {
@@ -206,9 +189,6 @@ failed_cas:
     //in the off chance that we had so many workers that the whole block got filled up
     //in the above for loop, retry again.
     if(cur->ptrs[i] != fresh_worker){
-#ifdef CILK_IVARS_DEBUG
-      IVAR_DBG_PRINT_(1,"FAILED CAS on worker assignemnt\n");
-#endif
       goto failed_cas;
     } 
 
@@ -219,7 +199,6 @@ failed_cas:
     //remember where we are stored in the array for easy removal later
     fresh_worker->array_loc = &cur->ptrs[i];
     fresh_worker->array_block = cur;
-
 
 }
 

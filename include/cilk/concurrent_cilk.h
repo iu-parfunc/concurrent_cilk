@@ -30,7 +30,9 @@ CILK_API(void) __cilkrts_pause_a_bit   (struct __cilkrts_worker* w);
 CILK_API(void) __cilkrts_msleep(unsigned long millis);
 CILK_API(void) __cilkrts_usleep(unsigned long micros);
 void __cilkrts_show_threadid();
-
+// CSZ: it is necessary that pause be a macro because the longjump must return to a valid frame. 
+// you will experience erratic behavior if this is not the case
+#define __cilkrts_pause(w)  (CILK_SETJMP((w->current_stack_frame->ctx))) ?  NULL : make_paused_stack((w)) 
 
 
 #ifdef IVAR_DBG
