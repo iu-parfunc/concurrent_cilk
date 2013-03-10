@@ -164,8 +164,6 @@ failed_cas:
         //reset the current array to be the fresh array just recently mapped
         cur = cur->links[*cur->capacity-1];
 
-        //now force all loads and stores above this to complete.
-        __cilkrts_fence();
       } else goto failed_cas; //looks like someone already was here and added on to the list.
     }
     //------------------

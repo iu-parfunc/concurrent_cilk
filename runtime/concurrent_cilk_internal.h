@@ -24,6 +24,7 @@ __CILKRTS_BEGIN_EXTERN_C
 #define cas(ptr,oldval,newval) __sync_bool_compare_and_swap(ptr,oldval,newval)
 #define atomic_add(ptr,num) __sync_fetch_and_add(ptr,num)
 #define atomic_sub(ptr,num) __sync_fetch_and_sub(ptr,num)
+#define atomic_set(ptr,val) __sync_lock_test_and_set(ptr,val)
 #define align(n) __attribute__((aligned(n)))
 //#define clear_cache(begin,end) __builtin___clear_cache(begin,end);
 

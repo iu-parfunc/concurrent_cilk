@@ -101,22 +101,14 @@ CILK_API(void) __cilkrts_usleep(unsigned long micros)
 inline
 CILK_API(void) __cilkrts_ivar_clear(__cilkrts_ivar* ivar)
 {
-  ivar->__header = 0; // Empty ivar.
+  *ivar = 0;
 }
 
 inline static void restore_paused_worker(__cilkrts_worker *old_w) 
 {
-#ifdef CILK_IVARS_DEBUG
-  IVAR_DBG_PRINT_(1," [scheduler] worker %d/%p restoring paused stack %p\n", w->self, w, w->pstk);
-
-  //current worker
-  __cilkrts_worker* tlsw = __cilkrts_get_tls_worker_fast();
-  CILK_ASSERT(!can_steal_from(tlsw));
-#endif
-
   __cilkrts_paused_stack *stk = old_w->pstk;
   //the worker to restore
-  __cilkrts_worker* w = (__cilkrts_worker *) stk->orig_worker;
+  __cilkrts_worker *w = (__cilkrts_worker *) stk->orig_worker;
 
   //if the worker came into the scheduler
   //there should be no more work left to de
@@ -130,27 +122,16 @@ inline static void restore_paused_worker(__cilkrts_worker *old_w)
   //remove the old worker form the forwarding array 
   remove_replacement_worker(old_w);
 
-#ifdef CILK_IVARS_CACHING
+  //cache the paused stack for reuse
   enqueue(w->paused_stack_cache, (ELEMENT_TYPE) stk);
-#else
-  __cilkrts_free((__cilkrts_paused_stack *) stk);
-#endif
 
   //restore the original blocked worker
   //at this point. the scheduler forgets about tlsw
   __cilkrts_set_tls_worker(w);
 
-
-#ifdef CILK_IVARS_CACHING
   // only cache replacement workers.
-  if(old_w->self < 0) {
+  if(old_w->self < 0) 
     enqueue(w->worker_cache, (ELEMENT_TYPE) old_w); 
-  }
-#else
-#ifdef CILK_IVARS_DEBUG
-  IVAR_DBG_PRINT_(1, "[concurrent-cilk] WARNING: leaking a replacement worker. the RTS does not give workers back to the OS!  please define CILK_IVARS_CACHING to reuse old replacement workers\n");
-#endif
-#endif
 
   //--------------------------- restore the context -------------------
   CILK_LONGJMP(w->current_stack_frame->ctx);
@@ -166,14 +147,9 @@ __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w)
 {
   __cilkrts_paused_stack* sustk = NULL; 
 
-#ifdef CILK_IVARS_CACHING
   dequeue(w->paused_stack_cache, (ELEMENT_TYPE *) &sustk);
   if_f(!sustk)
     sustk = (__cilkrts_paused_stack *) memalign(64, sizeof(__cilkrts_paused_stack));
-  else
-#else
-  sustk = (__cilkrts_paused_stack *)memalign(64, sizeof(__cilkrts_paused_stack));
-#endif
 
   //system workers might not have a frame!
   if(w->l->frame_ff) 
@@ -189,7 +165,7 @@ __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w)
 // Commit the pause.
 inline
   CILK_API(void)
-__cilkrts_finalize_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk) 
+__cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_stack* stk) 
 {
   // create a new replacement worker:
   __cilkrts_worker* new_w = get_replacement_worker(w, stk);
@@ -206,13 +182,11 @@ __cilkrts_finalize_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* s
 
 // Back out of the pause before making any externally visible changes.
 // The client better not have stored the __cilkrts_paused_stack anywhere!
-CILK_API(void) __cilkrts_undo_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk) 
+inline
+CILK_API(void) __cilkrts_undo_pause(__cilkrts_worker *w, __cilkrts_paused_stack* stk) 
 {
-  CILK_ASSERT(stk);
-  CILK_ASSERT(stk->orig_worker);
-
-  //TODO: add caching!
-  __cilkrts_free((void *) stk);
+  //cache the paused stack for reuse
+  enqueue(w->paused_stack_cache, (ELEMENT_TYPE) stk);
 }
 
 // This function is a `yield` for defining coroutines.  It stops the current computation but adds it
@@ -221,7 +195,6 @@ CILK_API(void) __cilkrts_undo_pause(__cilkrts_worker* w, volatile __cilkrts_paus
 //be implemented!
 CILK_API(void) __cilkrts_pause_a_bit(struct __cilkrts_worker* w)
 {
-
   // Here we do not need to save anything... the worker is left in place, but the thread abandons it.
   // Save the continuation in the top stack frame of the old (stalled) worker:
   volatile struct __cilkrts_paused_stack* ptr = __cilkrts_pause(w);
@@ -234,11 +207,9 @@ CILK_API(void) __cilkrts_pause_a_bit(struct __cilkrts_worker* w)
 // Mark a paused stack as ready by populating the workers pstk pointer.
 // multiple writes are idempotent
 inline
-CILK_API(void) __cilkrts_wake_stack(volatile __cilkrts_paused_stack* stk)
+CILK_API(void) __cilkrts_wake_stack(__cilkrts_paused_stack* stk)
 {
-  __cilkrts_worker* w = (__cilkrts_worker *) stk->replacement_worker;
-  w->pstk = (__cilkrts_paused_stack *) stk;
-  return;
+  stk->replacement_worker->pstk = stk;
 }
 
 // Helper used for debugging:

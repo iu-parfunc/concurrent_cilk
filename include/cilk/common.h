@@ -294,8 +294,5 @@ typedef struct __cilkrts_pedigree
 #define IVAR_DBG (cilkg_get_global_state())->dbg_level
 //#endif
 #endif
-// The type of the contents of an ivar, currently a machine word:
-typedef void* ivar_payload_t;
-//typedef uintptr_t ivar_payload_t;
 
 #endif /* INCLUDED_CILK_COMMON */

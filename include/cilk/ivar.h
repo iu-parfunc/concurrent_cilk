@@ -49,38 +49,32 @@ class ivar
   public:
     ivar() { clear(); }
 
-    ~ivar() { if(tmpptr) delete tmpptr; }
+    ~ivar() {}
 
-    // Copying creates a NEW empty ivar.
-    // It could also clone the contents of the ivar if it is full... but that seems messy.
-    ivar<T>(const ivar<T>& d) { clear(); }
+    /*wtf?
+    ivar<T>(ivar<T>& d)
+    {
+      clear();
+    }
+    */
 
     void put(const T& val) 
     {
-      // No error checking!  This will only happen once, and if it happens more than
-      // once the underlying __cilkrts_ivar_write is expected to catch it.
-
-      // Allocate space for a copy:
-      tmpptr = new T();
-      *tmpptr = val; // Copy it.
-      // Store the pointer in the ivar:
-      __cilkrts_ivar_write(&iv, (ivar_payload_t)tmpptr);
+      __cilkrts_ivar_write(&iv, (ivar_payload_t) val);
     }
 
     const T& get() 
     {
-      tmpptr = (T*)__cilkrts_ivar_read(&iv);
-      return *tmpptr;
+      return (T*) __cilkrts_ivar_read(&iv);
     }
 
   private:
+    __cilkrts_ivar iv;
+
     void clear() {
-      tmpptr = NULL;
       __cilkrts_ivar_clear(&iv);
     }
 
-    T* tmpptr; // Need a place to store things to return const references:
-    __cilkrts_ivar iv;
 };
 
 //==================== Unboxing via Template Specialization ========================

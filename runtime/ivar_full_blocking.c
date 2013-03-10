@@ -44,20 +44,21 @@
 #include "scheduler.h"
 #include "bug.h"
 
+#define IVAR_SHIFT 0x4
+#define IVAR_READY(iv) ((*iv & 0xf) == 1)
+#define TAG(iv)   (*iv << IVAR_SHIFT)
+#define UNTAG(iv) (*iv >> IVAR_SHIFT)
+
 inline
-CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar* ivar)
+CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)
 {
   __cilkrts_worker *wkr;
   __cilkrts_paused_stack *ptr;
-  volatile uintptr_t *header = &ivar->__header; 
-
-  // First we do a regular load to see if the value is already there.
-  // Because it transitions from empty->full only once (and never back) there is no race:
-  volatile uintptr_t first_peek = *header;
+  __cilkrts_ivar *old_iv;
 
   //fast path -- already got a value
-  if(first_peek == CILK_IVAR_FULL) {
-    return ivar->__value;
+  if(IVAR_READY(ivar)) {
+    return UNTAG(ivar);
   }
 
   //slow path -- operation must block until a value is available
@@ -65,18 +66,15 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar* ivar)
   ptr = __cilkrts_pause(wkr);
 
   if((unsigned long) ptr) {
+
     // Register the continuation in the ivar's header.
-    while(! __sync_bool_compare_and_swap(header, first_peek, ptr) ) {             
+    old_iv = (__cilkrts_ivar *) atomic_set(ivar, ((unsigned long) ptr) << IVAR_SHIFT);
 
-      // Compare and swap failed; set up to try again:
-      first_peek = *header;
+    if(IVAR_READY(old_iv)) {
 
-      if(first_peek == CILK_IVAR_FULL) {
-
-        // Well nevermind then... now it is full.
-        __cilkrts_undo_pause(wkr,ptr);
-        return ivar->__value;
-      }
+      // Well nevermind then... now it is full.
+      __cilkrts_undo_pause(wkr,ptr);
+      return UNTAG(old_iv);
     }
 
     __cilkrts_finalize_pause(wkr,ptr); 
@@ -84,29 +82,22 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar* ivar)
   }
 
   // <-- We only jump back to here when the value is ready.
-  return ivar->__value;
+  return UNTAG(ivar);
 }
 
-inline
+  inline
 CILK_API(void) __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val) 
 {
- ivar->__value = val;
+  //the new value is the actual value with the full ivar tag added to it
+  ivar_payload_t newval = (val << IVAR_SHIFT) | CILK_IVAR_FULL;
 
   //Atomically set the ivar to the full state and grab the waitlist:
-  volatile __cilkrts_paused_stack *pstk = (volatile __cilkrts_paused_stack *)
-    __sync_lock_test_and_set(&ivar->__header, CILK_IVAR_FULL);
+  __cilkrts_ivar *pstk = (__cilkrts_ivar *) atomic_set(ivar, newval);
 
-  switch((uintptr_t)pstk) 
-  {
-    case 0:
-      //It was empty with no one waiting. Nothing to do.
-      break;
-    case CILK_IVAR_FULL:
-      //DESIGN DECISION: One could allow multiple puts of the same value.  Not doing so for now.
-      __cilkrts_bug("Attempted multiple puts on Cilk IVar in headeration %p.  Aborting program.\n", ivar);
-      break;
-    default:
-      __cilkrts_wake_stack(pstk);
-  }
+  //DESIGN DECISION: One could allow multiple puts of the same value.  Not doing so for now.
+  if(!pstk) return;
+  if_f(IVAR_READY(pstk)) 
+      __cilkrts_bug("Attempted multiple puts on Cilk IVar %p. Aborting program.\n", ivar);
+
+  __cilkrts_wake_stack((__cilkrts_paused_stack *) UNTAG(pstk));
 }
-
