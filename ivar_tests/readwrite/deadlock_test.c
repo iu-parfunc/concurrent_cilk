@@ -51,7 +51,7 @@ void fun() {
     __cilkrts_worker* w_ = __cilkrts_get_tls_worker();
     unsigned long val;
     val = (unsigned long) cilk_spawn reader(&iv);
-    printf("   Ivar (%p) read successfully: %lu double check of ivarstruct %lu w=%d\n",  &iv, val, iv.__value, w_->self);
+    printf("   Ivar (%p) read successfully: %lu w=%d\n",  &iv, val, w_->self);
 
     struct __cilkrts_worker* w = __cilkrts_get_tls_worker();
     printf("fun(): Going to attempt Sync.  Current Cilk worker = %d\n", w->self);

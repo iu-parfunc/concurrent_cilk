@@ -17,8 +17,8 @@ void fun() {
  
     cilk_sync;
 
-    printf("Ivar read successfully: %d\n", iv.__value);
-    if ((int) iv.__value != 39) abort();
+    printf("Ivar read successfully: %d\n", __cilkrts_ivar_read(&iv));
+    if ((int) __cilkrts_ivar_read(&iv) != 39) abort();
 }
 
 int main(int argc, char **argv) 

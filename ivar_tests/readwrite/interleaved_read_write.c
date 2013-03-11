@@ -55,7 +55,11 @@ printf("going for a sync now!\n");
 
 cilk_sync;
 
-if (((int) iv1.__value + (int)iv2.__value + (int)iv3.__value + (int)iv4.__value + (int)iv5.__value) == 15)
+if (((int)__cilkrts_ivar_read(&iv1) +
+     (int)__cilkrts_ivar_read(&iv2) +
+     (int)__cilkrts_ivar_read(&iv3) +
+     (int)__cilkrts_ivar_read(&iv4) +
+     (int)__cilkrts_ivar_read(&iv5)) == 15)
   printf("sum of ivars is corect! (15)\n");
 else 
   printf("sum wrong!! \n");

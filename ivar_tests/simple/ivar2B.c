@@ -20,7 +20,7 @@ void writer(__cilkrts_ivar* iv) {
     int val = 39;
     printf("     Inside spawned writer... sleeping for a bit\n");
     __cilkrts_usleep(750 * 1000); // microseconds   
-    __cilkrts_ivar_write(iv, (void*)val);
+    __cilkrts_ivar_write(iv,(ivar_payload_t) val);
     printf("     Inside spawned writer... WRITE OF %d DONE (ivar %p).\n", val, iv);
 
     // [2011.07.19] DEBUGGING:  If I force this worker to get to the sync LAST then I get a segfault:
