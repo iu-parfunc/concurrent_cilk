@@ -55,6 +55,7 @@ struct __cilkrts_forwarding_array {
 
   ///these three elements are accessed in an add of an element
   ///so we keep them all on one cache line.
+  volatile int leftmost_idx;
   volatile int elems;                
   volatile int *capacity;
 

@@ -45,7 +45,7 @@
 #include "bug.h"
 
 #define IVAR_SHIFT 0x4
-#define IVAR_READY(iv) ((*iv & 0xf) == 1)
+#define IVAR_READY(iv) (iv && (*iv & 0xf) == 1)
 #define TAG(iv)   (*iv << IVAR_SHIFT)
 #define UNTAG(iv) (*iv >> IVAR_SHIFT)
 
@@ -92,12 +92,12 @@ CILK_API(void) __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
   ivar_payload_t newval = (val << IVAR_SHIFT) | CILK_IVAR_FULL;
 
   //Atomically set the ivar to the full state and grab the waitlist:
-  __cilkrts_ivar *pstk = (__cilkrts_ivar *) atomic_set(ivar, newval);
+  __cilkrts_ivar pstk = (__cilkrts_ivar) atomic_set(ivar, newval);
 
   //DESIGN DECISION: One could allow multiple puts of the same value.  Not doing so for now.
   if(!pstk) return;
-  if_f(IVAR_READY(pstk)) 
+  if_f(IVAR_READY(&pstk)) 
       __cilkrts_bug("Attempted multiple puts on Cilk IVar %p. Aborting program.\n", ivar);
 
-  __cilkrts_wake_stack((__cilkrts_paused_stack *) UNTAG(pstk));
+  __cilkrts_wake_stack((__cilkrts_paused_stack *) UNTAG(&pstk));
 }

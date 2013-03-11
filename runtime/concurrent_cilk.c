@@ -176,7 +176,7 @@ __cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_stack* stk)
   add_replacement_worker(w, new_w, stk);
 
   // head to the scheduler with the replacement worker
-  __cilkrts_run_scheduler_with_exceptions(w); // calls __cilkrts_scheduler
+  __cilkrts_run_scheduler_with_exceptions(new_w); // calls __cilkrts_scheduler
   CILK_ASSERT(0); //no return
 }
 
@@ -197,7 +197,7 @@ CILK_API(void) __cilkrts_pause_a_bit(struct __cilkrts_worker* w)
 {
   // Here we do not need to save anything... the worker is left in place, but the thread abandons it.
   // Save the continuation in the top stack frame of the old (stalled) worker:
-  volatile struct __cilkrts_paused_stack* ptr = __cilkrts_pause(w);
+  struct __cilkrts_paused_stack* ptr = __cilkrts_pause(w);
   if(ptr) {
     __cilkrts_wake_stack(ptr);
     __cilkrts_finalize_pause(w,ptr);

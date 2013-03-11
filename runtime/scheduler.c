@@ -861,13 +861,17 @@ static void random_steal(__cilkrts_worker *w)
     IVAR_DBG_PRINT_(4,"[scheduler] could not steal from first choice. trying a forwarding pointer\n");
 #endif
     int m;
+    __cilkrts_forwarding_array *arr = w->forwarding_array;
 
     //select a new victim by randomly selecting a forwarding array
     //and then randomly selecting an array slot within that
-    m = (myrand(w) % (*victim->forwarding_array->capacity+1)) -1; 
-    n = (myrand(w) % (ARRAY_SIZE+1)) -1; 
+    m = (myrand(w) % (*arr->capacity+1)) -1; 
     m = max(0,m);
-    n = max(0,n);
+
+    n = (myrand(w) % (ARRAY_SIZE - arr->leftmost_idx)); 
+    n = arr->leftmost_idx+n;
+    //printf("elems: %d leftmost: %d random idx: %d\n", arr->elems, arr->leftmost_idx, n);
+    n = max(arr->leftmost_idx,n);
 
     //m maps to the array of forwarding arrays. 
     //n maps to a victim candidate location in the chosen forwarding array
@@ -2357,6 +2361,7 @@ __cilkrts_worker *make_worker(global_state_t *g,
   w->array_loc = &w->forwarding_array->ptrs[ARRAY_SIZE-1];
   w->array_block = w->forwarding_array;
   w->forwarding_array->elems++;
+  w->forwarding_array->leftmost_idx = ARRAY_SIZE-1;
   //--------------------
 #endif
 
