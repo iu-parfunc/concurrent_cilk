@@ -856,42 +856,47 @@ static void random_steal(__cilkrts_worker *w)
 #ifdef CILK_IVARS 
 #ifdef CILK_IVAR_FOLLOW_FORWARDING
 
-  if_f(!can_steal_from(victim) && w->l->do_not_steal == 0 || w == victim && w->is_replacement) {
-#ifdef CILK_IVARS_DEBUG
-    IVAR_DBG_PRINT_(4,"[scheduler] could not steal from first choice. trying a forwarding pointer\n");
-#endif
-    int m;
+  //TODO: in ivar deadlock tests, there is an available frame in
+  //the top level worker to be stolen, but it must be stolen by 
+  //a top level worker on another thread. the steal is failing for 
+  //some reason (something on the internals of the cilk rts)
+  //this needs to be fixed or the worker spinlocks.
+  if(deletme) asm("nop;");
+
+  if_f(victim->forwarding_array->leftmost_idx < (ARRAY_SIZE-1) && 
+      !can_steal_from(victim) && w->l->do_not_steal == 0 ||
+      w == victim && w->is_replacement) {
+    int m, i;
+
 
     //select a new victim by randomly selecting a forwarding array
     //and then randomly selecting an array slot within that
     m = (myrand(w) % (*victim->forwarding_array->capacity+1)) -1; 
-    n = (myrand(w) % (ARRAY_SIZE+1)) -1; 
     m = max(0,m);
-    n = max(0,n);
 
     //m maps to the array of forwarding arrays. 
-    //n maps to a victim candidate location in the chosen forwarding array
-    //together, these gain us a new victim (possibly null)
-    victim = (w->forwarding_array->links[m])->ptrs[n];
+    __cilkrts_forwarding_array *arr = victim->forwarding_array->links[m];
+    for(i = ARRAY_SIZE-1; i>=arr->leftmost_idx; i-- ) {
+      __cilkrts_worker *ptr = arr->ptrs[i];
 
-    //if we didn't get a worker, or we are trying to steal from ourselves,
-    //then fail the steal. 
-    if (victim == NULL || victim == w) {
-      __cilkrts_release_stack(w, sd);
-      return;
+      if(!ptr) continue;
+
+      //work to steal. yay.
+      if(can_steal_from(ptr) && ptr != w) {
+        victim = ptr;
+        break;
+      }
+
+      //there is a worker that can be unblocked right now. let's do it.
+      if(ptr->pstk &&
+          !can_steal_from((__cilkrts_worker *) ptr->pstk->orig_worker)) {
+
+        restore_paused_worker(ptr);
+        CILK_ASSERT(0); //does not return
+      }
+
     }
 
-    if(victim->pstk) {
-#ifdef CILK_IVARS_DEBUG
-      IVAR_DBG_PRINT_(1,"YO!!! you have a paused stack, you should be restoring it!!!!\n");
-#endif
-    }
-    if(victim->pstk && !can_steal_from(victim) && !can_steal_from((__cilkrts_worker *) victim->pstk->orig_worker)) {
-      restore_paused_worker(victim);
-      CILK_ASSERT(0); //does not return
-    }
-
-    CILK_ASSERT (victim);
     CILK_ASSERT (victim != w);
   }
 
@@ -2356,7 +2361,7 @@ __cilkrts_worker *make_worker(global_state_t *g,
   w->forwarding_array->ptrs[ARRAY_SIZE-1] = w;
   w->array_loc = &w->forwarding_array->ptrs[ARRAY_SIZE-1];
   w->array_block = w->forwarding_array;
-  w->forwarding_array->elems++;
+  w->forwarding_array->leftmost_idx = ARRAY_SIZE-1;
   //--------------------
 #endif
 

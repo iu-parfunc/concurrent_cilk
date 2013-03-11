@@ -45,7 +45,7 @@
 #include "bug.h"
 
 #define IVAR_SHIFT 0x4
-#define IVAR_READY(iv) ((*iv & 0xf) == 1)
+#define IVAR_READY(iv) (iv && (*iv & 0xf) == 1)
 #define TAG(iv)   (*iv << IVAR_SHIFT)
 #define UNTAG(iv) (*iv >> IVAR_SHIFT)
 

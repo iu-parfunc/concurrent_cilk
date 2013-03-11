@@ -13,7 +13,7 @@
  *  __cilkrts_fence
  *  __cilkrts_set_tls_worker
  Create a new worker. */  
-void setup_new_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker, volatile __cilkrts_paused_stack* stk) 
+void setup_new_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker, __cilkrts_paused_stack* stk) 
 {   
   CILK_ASSERT(old_w);
   CILK_ASSERT(fresh_worker);
@@ -57,7 +57,6 @@ inline void remove_replacement_worker(__cilkrts_worker *w)
   
   *w->array_loc   = NULL; //null out the the slot in the forwarding array
    w->array_loc   = NULL; //null out the worker's reference to the slot
-   while(!atomic_sub(&w->array_block->elems,1)) spin_pause();
    w->array_block = NULL;
 }
 
@@ -74,17 +73,12 @@ inline void remove_replacement_worker(__cilkrts_worker *w)
  *
  */
   inline void 
-add_replacement_worker(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker, volatile __cilkrts_paused_stack *stk)
+add_replacement_worker(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker, __cilkrts_paused_stack *stk)
 {
   stk->replacement_worker = fresh_worker;
   //pass down the forwarding array to the old worker's
   //replacement
   inherit_forwarding_array(old_w, fresh_worker);
-
-#ifdef CILK_IVARS_DEBUG
-  IVAR_DBG_PRINT_(1," [concurrent-cilk, replace_worker] Created REPLACEMENT worker %d/%p, paused stack %p\n", 
-      fresh_worker->self, fresh_worker, stk);
-#endif
 
   //At this point the current OS thread should forget about the old worker.
   __cilkrts_set_tls_worker(fresh_worker);
@@ -93,131 +87,85 @@ add_replacement_worker(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker, 
   inline void
 inherit_forwarding_array(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker)
 {
-    __cilkrts_forwarding_array *cur;
-    uintptr_t *arr;
-    int i = 0, j = 0;
-    uint32_t nblocks;
-    volatile int capacity;
+    __cilkrts_forwarding_array *cur, *newa;
+    int i = 0;
 
-    //immediately update th forwarding array of the new worker to be the same 
+    //immediately update the forwarding array of the new worker to be the same 
     //pointer as that of the old worker
     fresh_worker->forwarding_array = old_w->forwarding_array;
-#ifdef CILK_IVARS_DEBUG
-    IVAR_DBG_PRINT_(1,"[forwarding_array, inherit_forwarding_array] fresh worker %d/%p inherited forwarding_array %p from old worker: %d/%p\n",
-        fresh_worker->self, fresh_worker, old_w->forwarding_array, old_w->self, old_w);
-#endif
-
-    /**
-     * This label is here because we are effectively error catching. 
-     * When a CAS operation fails it is because someone has already
-     * replaced the pointer to the next array block with a valid one.
-     */
-failed_cas:
-
-    /**
-     * take a snapshot of how large our capacity is before we try
-     * to find a place with a free space.
-     */
-    capacity = *old_w->forwarding_array->capacity;
-    CILK_ASSERT(capacity > 0);
 
     /**
      * skip over each array pointer until we find somewhere
      * with an open space
      */
-    for(i=capacity-1; i>=0; i--) {
-
+    while(1) {
       cur = old_w->forwarding_array->links[i];
-      if(cur->elems < ARRAY_SIZE-1) break;
+      if(!cur) break;
+      if(cur->leftmost_idx > 0) break;
+      i++;
     }
 
     //ALLOCATE A NEW BLOCK IF NECESSARY
     //-------------------
-    if_f(cur->elems >= ARRAY_SIZE-1) { //then we must be at the end of the list and its full
-#ifdef CILK_IVARS_DEBUG
-      IVAR_DBG_PRINT_(1,"RAN OUT OF SPACE IN FORWARDING ARRAY. Allocating some more. Capacity: %d vs. %d\n", capacity, *old_w->forwarding_array->capacity);
-#endif
+    if(!cur) { //then we must be at the end of the list
 
-      //increment the capacity and reallocate
-      //if this cas succeeds, we are committed and actually allocate the new memory without question
-      if_t(cas(cur->capacity,capacity, capacity+GROW_ARRAY_INCREMENT)) { 
-
-        __cilkrts_forwarding_array **links = cur->links;
-
-        cur->links = (__cilkrts_forwarding_array **) 
-          realloc(cur->links, capacity*(sizeof(__cilkrts_forwarding_array *)));
+      cur->links = (__cilkrts_forwarding_array **) 
+        realloc(cur->links, (i+GROW_ARRAY_INCREMENT)*(sizeof(__cilkrts_forwarding_array *)));
 
         //populate the new space with forwarding array structs
-        for (i=*cur->capacity-1; i>= *cur->capacity-GROW_ARRAY_INCREMENT; i--) {
-          __cilkrts_forwarding_array *newa =  (__cilkrts_forwarding_array *)
+        for (i; i<i+GROW_ARRAY_INCREMENT; i++) {
+          newa =  (__cilkrts_forwarding_array *) 
             memalign(CACHE_LINE, sizeof(__cilkrts_forwarding_array)); 
 
-          newa->elems    = 0;
-          newa->capacity = cur->capacity;
-          newa->links    = cur->links;
+          newa->leftmost_idx = ARRAY_SIZE-1;
+          newa->links = cur->links;
           bzero(newa->ptrs, ARRAY_SIZE);
 
           //assign the new struct to the list of available arrays
           cur->links[i] = newa;
         }
+        i++;
+        cur->links[i] = NULL; //null out the last element of the links array
 
         //reset the current array to be the fresh array just recently mapped
-        cur = cur->links[*cur->capacity-1];
-
-      } else goto failed_cas; //looks like someone already was here and added on to the list.
-    }
+        cur = cur->links[i-GROW_ARRAY_INCREMENT];
+        *cur->capacity  += GROW_ARRAY_INCREMENT;
+      } 
     //------------------
 
     //ASSIGN REPLACEMENT TO ARRAY SLOT
     //-----------------
-    do {
-
-      //even now someone could have filled
-      //up the buffer
-      if_f(cur->elems >= ARRAY_SIZE) 
-        goto failed_cas;
-
       //scan from the back of the list of the array and find
       //a place for a worker. there should be one now.
+      //the scan from the right may be more expensive
+      //then starting from the leftmost idx, but this should 
+      //help reduce the array fragmentation that is likely to happen
       for (i=ARRAY_SIZE-1; i >= 0; i--)
         if (cur->ptrs[i] == NULL) break;
-    } while(!cas(&cur->ptrs[i], NULL, fresh_worker));
+      cur->ptrs[i] = fresh_worker;
 
-
-    //in the off chance that we had so many workers that the whole block got filled up
-    //in the above for loop, retry again.
-    if(cur->ptrs[i] != fresh_worker){
-      goto failed_cas;
-    } 
-
-    //increment the element counter
-    while(!atomic_add(&cur->elems,1)) spin_pause();
     //-----------------
+    //set the leftmost pointer in the array block is saved.
+    //this represent our "best guess" as to where the array
+    //has been populated to. 
+    cur->leftmost_idx = i;
 
     //remember where we are stored in the array for easy removal later
     fresh_worker->array_loc = &cur->ptrs[i];
     fresh_worker->array_block = cur;
-
+    //__cilkrts_fence(); //maybe we need a fence here...lets play fast and loose for now
 }
 
-__cilkrts_worker *get_replacement_worker(__cilkrts_worker *w, volatile __cilkrts_paused_stack *stk)
+__cilkrts_worker *get_replacement_worker(__cilkrts_worker *w, __cilkrts_paused_stack *stk)
 {
   __cilkrts_worker *fresh_worker = NULL;
-#ifdef CILK_IVARS_CACHING
   dequeue(w->worker_cache, (ELEMENT_TYPE *) &fresh_worker);
   if(!fresh_worker) {
     fresh_worker = (__cilkrts_worker*)__cilkrts_malloc(sizeof(__cilkrts_worker)); 
     setup_new_worker(w, fresh_worker, stk);
   } else {
-#ifdef CILK_IVARS_DEBUG
-    IVAR_DBG_PRINT_(1,"[concurrent-cilk] got new CACHED worker %d/%p \n",fresh_worker->self, fresh_worker);
-#endif
     CILK_ASSERT(fresh_worker);
   }
-#else
-  fresh_worker = (__cilkrts_worker *) __cilkrts_malloc(sizeof(__cilkrts_worker)); 
-  setup_new_worker(w, fresh_worker, stk);
-#endif
 
   return fresh_worker;
 }
@@ -234,18 +182,17 @@ __cilkrts_forwarding_array *init_array()
 
   for(i=0; i < INITIAL_CAPACITY; i++) {
     newa = (__cilkrts_forwarding_array *) memalign(CACHE_LINE, sizeof(__cilkrts_forwarding_array)); 
-    newa->elems = 0;
+    newa->leftmost_idx = ARRAY_SIZE-1;
     newa->links = links;
     links[i]    = newa;
 
-    //the first time, capacity gets a value.
-    //the pointer is passed around every time after that
     if(i == 0) {
-      newa->capacity = (int *) __cilkrts_malloc(sizeof(int));
-      *(newa->capacity) = INITIAL_CAPACITY;
-    } else 
+      newa->capacity = (int *) malloc (sizeof(int));
+      *newa->capacity = INITIAL_CAPACITY;
+    } else {
       newa->capacity = links[0]->capacity;
-    
+    }
+
     bzero(newa->ptrs, ARRAY_SIZE*sizeof(__cilkrts_worker *));
   }
 

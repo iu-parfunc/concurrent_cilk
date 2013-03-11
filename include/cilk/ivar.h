@@ -51,7 +51,8 @@ class ivar
 
     ~ivar() {}
 
-    /*wtf?
+    //what is this?
+    /*
     ivar<T>(ivar<T>& d)
     {
       clear();
@@ -60,12 +61,12 @@ class ivar
 
     void put(const T& val) 
     {
-      __cilkrts_ivar_write(&iv, (ivar_payload_t) val);
+      __cilkrts_ivar_write(&iv, (ivar_payload_t) &val);
     }
 
-    const T& get() 
+    const T* get() 
     {
-      return (T*) __cilkrts_ivar_read(&iv);
+      return (const T*) __cilkrts_ivar_read(&iv);
     }
 
   private:

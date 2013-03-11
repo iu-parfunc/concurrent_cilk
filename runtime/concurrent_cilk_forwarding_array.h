@@ -55,8 +55,8 @@ struct __cilkrts_forwarding_array {
 
   ///these three elements are accessed in an add of an element
   ///so we keep them all on one cache line.
-  volatile int elems;                
-  volatile int *capacity;
+  int leftmost_idx;
+  int *capacity;
 
   ///there is contention over the elements of the array
   ///each operation must be a cas
@@ -67,11 +67,11 @@ struct __cilkrts_forwarding_array {
 } align(64);
 
 void inherit_forwarding_array(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker);
-void setup_new_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker, volatile __cilkrts_paused_stack* stk);
+void setup_new_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker, __cilkrts_paused_stack* stk);
 void remove_replacement_worker(__cilkrts_worker *w);
-void add_replacement_worker(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker, volatile __cilkrts_paused_stack *stk);
+void add_replacement_worker(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker, __cilkrts_paused_stack *stk);
 void destroy_array(__cilkrts_worker *w);
-__cilkrts_worker *get_replacement_worker(__cilkrts_worker *w, volatile __cilkrts_paused_stack *stk);
+__cilkrts_worker *get_replacement_worker(__cilkrts_worker *w, __cilkrts_paused_stack *stk);
 __cilkrts_forwarding_array *init_array();
 
 __CILKRTS_END_EXTERN_C
