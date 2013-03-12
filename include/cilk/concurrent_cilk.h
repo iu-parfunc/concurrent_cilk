@@ -8,6 +8,17 @@
 
 __CILKRTS_BEGIN_EXTERN_C
 
+typedef struct __cilkrts_coroutine {
+  void (*f)(void *);
+  void *args;
+  struct __cilkrts_worker *slave;
+  struct __cilkrts_paused_stack *cont;
+} __cilkrts_coroutine;
+
+void __coroutine_run(__cilkrts_coroutine *c);
+void yieldto(__cilkrts_coroutine *self, __cilkrts_coroutine *ctx);
+__cilkrts_coroutine *new_coroutine(void (*f1), void* f1_args);
+
 
 typedef unsigned long __cilkrts_ivar;
 typedef unsigned long ivar_payload_t;
@@ -23,7 +34,6 @@ CILK_API(void) __cilkrts_wake_stack    (PAUSED_FIBER stk);
 CILK_API(void) __cilkrts_pause_a_bit   (struct __cilkrts_worker* w);
 CILK_API(void) __cilkrts_msleep(unsigned long millis);
 CILK_API(void) __cilkrts_usleep(unsigned long micros);
-void __cilkrts_show_threadid();
 // CSZ: it is necessary that pause be a macro because the longjump must return to a valid frame. 
 // you will experience erratic behavior if this is not the case
 #define __cilkrts_pause(w)  (CILK_SETJMP((w->current_stack_frame->ctx))) ?  NULL : make_paused_stack((w)) 

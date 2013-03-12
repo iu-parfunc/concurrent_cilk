@@ -51,7 +51,6 @@
 
 
 // For my_resume only (SP): 
-#include "concurrent_cilk_internal.h"
 #include "jmpbuf.h"
 #include <pthread.h>
 #include <stdio.h>
@@ -59,28 +58,12 @@
 #include "scheduler.h"
 #include <time.h>
 
+#include "concurrent_cilk_internal.h"
 #include "concurrent_cilk_forwarding_array.h"
 #include "concurrent_cilk_forwarding_array.c"
+#include "coroutine.c"
 
-
-// ================================================================================
-// TEMP: DUPLICATED MACRO DEFINITIONS:
-#define BEGIN_WITH_WORKER_LOCK(w) __cilkrts_worker_lock(w); do
-#define END_WITH_WORKER_LOCK(w)   while (__cilkrts_worker_unlock(w), 0)
-
-extern void __cilkrts_concurrent_yield(__cilkrts_worker *w);
 int can_steal_from(__cilkrts_worker *victim);
-void pthread_yield();
-
-void __cilkrts_concurrent_yield(struct __cilkrts_worker *w)
-{
-#if __APPLE__ || __MIC__
-  sched_yield();
-#else
-  pthread_yield();
-#endif
-}
-
 
 CILK_API(void) __cilkrts_msleep(unsigned long millis)
 {
@@ -104,7 +87,8 @@ CILK_API(void) __cilkrts_ivar_clear(__cilkrts_ivar* ivar)
   *ivar = 0;
 }
 
-inline static void restore_paused_worker(__cilkrts_worker *old_w) 
+inline
+static void restore_paused_worker(__cilkrts_worker *old_w) 
 {
   __cilkrts_paused_stack *stk = old_w->pstk;
   //the worker to restore
@@ -130,7 +114,7 @@ inline static void restore_paused_worker(__cilkrts_worker *old_w)
   __cilkrts_set_tls_worker(w);
 
   // only cache replacement workers.
-  if(old_w->self < 0) 
+  if(old_w->self == -1) 
     enqueue(w->worker_cache, (ELEMENT_TYPE) old_w); 
 
   //--------------------------- restore the context -------------------
@@ -149,7 +133,7 @@ __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w)
 
   dequeue(w->paused_stack_cache, (ELEMENT_TYPE *) &sustk);
   if_f(!sustk)
-    sustk = (__cilkrts_paused_stack *) memalign(64, sizeof(__cilkrts_paused_stack));
+    sustk = memalign(64, sizeof(__cilkrts_paused_stack));
 
   //system workers might not have a frame!
   if(w->l->frame_ff) 
@@ -164,11 +148,10 @@ __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w)
 
 // Commit the pause.
 inline
-  CILK_API(void)
-__cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_stack* stk) 
+CILK_API(void) __cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_stack* stk) 
 {
   // create a new replacement worker:
-  __cilkrts_worker* new_w = get_replacement_worker(w, stk);
+  __cilkrts_worker* new_w = get_replacement_worker(w);
 
   //register the replacement worker for stealing and
   //additionally have the replacement inherit the parent's
@@ -189,21 +172,6 @@ CILK_API(void) __cilkrts_undo_pause(__cilkrts_worker *w, __cilkrts_paused_stack*
   enqueue(w->paused_stack_cache, (ELEMENT_TYPE) stk);
 }
 
-// This function is a `yield` for defining coroutines.  It stops the current computation but adds it
-// to a ready queue to be awoken after other tasks are given a chance to run.
-//DEPRECATED/does not work. the whole api has change. concurrent_yield and concurrent_wake should 
-//be implemented!
-CILK_API(void) __cilkrts_pause_a_bit(struct __cilkrts_worker* w)
-{
-  // Here we do not need to save anything... the worker is left in place, but the thread abandons it.
-  // Save the continuation in the top stack frame of the old (stalled) worker:
-  struct __cilkrts_paused_stack* ptr = __cilkrts_pause(w);
-  if(ptr) {
-    __cilkrts_wake_stack(ptr);
-    __cilkrts_finalize_pause(w,ptr);
-  }
-}
-
 // Mark a paused stack as ready by populating the workers pstk pointer.
 // multiple writes are idempotent
 inline
@@ -212,9 +180,3 @@ CILK_API(void) __cilkrts_wake_stack(__cilkrts_paused_stack* stk)
   stk->replacement_worker->pstk = stk;
 }
 
-// Helper used for debugging:
-void __cilkrts_show_threadid()
-{
-  pthread_t id = pthread_self();
-  fprintf(stderr, "TID %lu ", (unsigned long)id);
-}

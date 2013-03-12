@@ -13,11 +13,10 @@
  *  __cilkrts_fence
  *  __cilkrts_set_tls_worker
  Create a new worker. */  
-void setup_new_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker, __cilkrts_paused_stack* stk) 
+void setup_new_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker) 
 {   
   CILK_ASSERT(old_w);
   CILK_ASSERT(fresh_worker);
-  CILK_ASSERT(stk);
 
   // WARNING: FUTURE CILKSCREEN SUPPORT WOULD REQUIRE MORE WORK HERE:
   // __cilkrts_cilkscreen_ignore_block(fresh_worker, fresh_worker + sizeof(struct __cilkrts_worker));
@@ -169,13 +168,13 @@ inherit_forwarding_array(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker
     fresh_worker->array_block = cur;
 }
 
-__cilkrts_worker *get_replacement_worker(__cilkrts_worker *w, __cilkrts_paused_stack *stk)
+__cilkrts_worker *get_replacement_worker(__cilkrts_worker *w)
 {
   __cilkrts_worker *fresh_worker = NULL;
   dequeue(w->worker_cache, (ELEMENT_TYPE *) &fresh_worker);
   if(!fresh_worker) {
     fresh_worker = __cilkrts_malloc(sizeof(__cilkrts_worker)); 
-    setup_new_worker(w, fresh_worker, stk);
+    setup_new_worker(w, fresh_worker);
   } else {
     CILK_ASSERT(fresh_worker);
   }
