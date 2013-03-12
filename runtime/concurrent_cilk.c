@@ -176,7 +176,7 @@ __cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_stack* stk)
   add_replacement_worker(w, new_w, stk);
 
   // head to the scheduler with the replacement worker
-  __cilkrts_run_scheduler_with_exceptions(w); // calls __cilkrts_scheduler
+  __cilkrts_run_scheduler_with_exceptions(new_w); // calls __cilkrts_scheduler
   CILK_ASSERT(0); //no return
 }
 

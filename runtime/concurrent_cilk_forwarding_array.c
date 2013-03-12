@@ -55,6 +55,11 @@ inline void remove_replacement_worker(__cilkrts_worker *w)
   //the steal. Therefore since both states are valid states, there
   //is no need to pay for a cas.
   
+  //move up the lefmost index if this is the leftmost pointer
+  if(*w->array_loc == w->array_block->ptrs[w->array_block->leftmost_idx]) 
+    w->array_block->leftmost_idx++;
+
+   w->array_block->elems--;
   *w->array_loc   = NULL; //null out the the slot in the forwarding array
    w->array_loc   = NULL; //null out the worker's reference to the slot
    w->array_block = NULL;
@@ -87,12 +92,15 @@ add_replacement_worker(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker, 
   inline void
 inherit_forwarding_array(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker)
 {
-    __cilkrts_forwarding_array *cur, *newa;
+    __cilkrts_forwarding_array *cur;
     int i = 0;
+    volatile int capacity;
 
     //immediately update the forwarding array of the new worker to be the same 
     //pointer as that of the old worker
     fresh_worker->forwarding_array = old_w->forwarding_array;
+
+    capacity = *old_w->forwarding_array->capacity;
 
     /**
      * skip over each array pointer until we find somewhere
@@ -107,43 +115,49 @@ inherit_forwarding_array(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker
 
     //ALLOCATE A NEW BLOCK IF NECESSARY
     //-------------------
-    if(!cur) { //then we must be at the end of the list
+    if_f(cur->elems >= ARRAY_SIZE-1) { //then we must be at the end of the list and its full
+
+      //increment the capacity and reallocate
+      //if this cas succeeds, we are committed and actually allocate the new memory without question
+      *cur->capacity = capacity+GROW_ARRAY_INCREMENT;
+
+      __cilkrts_forwarding_array **links = cur->links;
 
       cur->links = (__cilkrts_forwarding_array **) 
-        realloc(cur->links, (i+GROW_ARRAY_INCREMENT)*(sizeof(__cilkrts_forwarding_array *)));
+        realloc(cur->links, capacity*(sizeof(__cilkrts_forwarding_array *)));
 
-        //populate the new space with forwarding array structs
-        for (i; i<i+GROW_ARRAY_INCREMENT; i++) {
-          newa =  (__cilkrts_forwarding_array *) 
-            memalign(CACHE_LINE, sizeof(__cilkrts_forwarding_array)); 
+      //populate the new space with forwarding array structs
+      for (i=*cur->capacity-1; i>= *cur->capacity-GROW_ARRAY_INCREMENT; i--) {
+        __cilkrts_forwarding_array *newa = memalign(CACHE_LINE, sizeof(__cilkrts_forwarding_array)); 
 
-          newa->leftmost_idx = ARRAY_SIZE-1;
-          newa->links = cur->links;
-          bzero(newa->ptrs, ARRAY_SIZE);
+        newa->elems    = 0;
+        newa->capacity = cur->capacity;
+        newa->links    = cur->links;
+        bzero(newa->ptrs, ARRAY_SIZE);
 
-          //assign the new struct to the list of available arrays
-          cur->links[i] = newa;
-        }
-        i++;
-        cur->links[i] = NULL; //null out the last element of the links array
+        //assign the new struct to the list of available arrays
+        cur->links[i] = newa;
+      }
 
-        //reset the current array to be the fresh array just recently mapped
-        cur = cur->links[i-GROW_ARRAY_INCREMENT];
-        *cur->capacity  += GROW_ARRAY_INCREMENT;
-      } 
+      //reset the current array to be the fresh array just recently mapped
+      cur = cur->links[*cur->capacity-1];
+    }
     //------------------
 
     //ASSIGN REPLACEMENT TO ARRAY SLOT
     //-----------------
-      //scan from the back of the list of the array and find
-      //a place for a worker. there should be one now.
-      //the scan from the right may be more expensive
-      //then starting from the leftmost idx, but this should 
-      //help reduce the array fragmentation that is likely to happen
-      for (i=ARRAY_SIZE-1; i >= 0; i--)
-        if (cur->ptrs[i] == NULL) break;
-      cur->ptrs[i] = fresh_worker;
 
+    //scan from the back of the list of the array and find
+    //a place for a worker. there should be one now.
+    for (i=ARRAY_SIZE-1; i >= 0; i--)
+      if (cur->ptrs[i] == NULL) break;
+    cur->ptrs[i] = fresh_worker;
+
+    //reset the leftmost index if this wasn't a fragmentation fill
+    if(i < cur->leftmost_idx) cur->leftmost_idx = i;
+
+    //increment the element counter
+    cur->elems++;
     //-----------------
     //set the leftmost pointer in the array block is saved.
     //this represent our "best guess" as to where the array
@@ -153,7 +167,6 @@ inherit_forwarding_array(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker
     //remember where we are stored in the array for easy removal later
     fresh_worker->array_loc = &cur->ptrs[i];
     fresh_worker->array_block = cur;
-    //__cilkrts_fence(); //maybe we need a fence here...lets play fast and loose for now
 }
 
 __cilkrts_worker *get_replacement_worker(__cilkrts_worker *w, __cilkrts_paused_stack *stk)
@@ -161,7 +174,7 @@ __cilkrts_worker *get_replacement_worker(__cilkrts_worker *w, __cilkrts_paused_s
   __cilkrts_worker *fresh_worker = NULL;
   dequeue(w->worker_cache, (ELEMENT_TYPE *) &fresh_worker);
   if(!fresh_worker) {
-    fresh_worker = (__cilkrts_worker*)__cilkrts_malloc(sizeof(__cilkrts_worker)); 
+    fresh_worker = __cilkrts_malloc(sizeof(__cilkrts_worker)); 
     setup_new_worker(w, fresh_worker, stk);
   } else {
     CILK_ASSERT(fresh_worker);
@@ -176,12 +189,12 @@ __cilkrts_forwarding_array *init_array()
   __cilkrts_forwarding_array *newa = NULL;
 
   __cilkrts_forwarding_array **links = (__cilkrts_forwarding_array **) 
-   memalign(CACHE_LINE, INITIAL_CAPACITY*sizeof(__cilkrts_forwarding_array *)); 
+    memalign(CACHE_LINE, INITIAL_CAPACITY*sizeof(__cilkrts_forwarding_array *)); 
 
   bzero(links, INITIAL_CAPACITY*sizeof(__cilkrts_forwarding_array **));
 
   for(i=0; i < INITIAL_CAPACITY; i++) {
-    newa = (__cilkrts_forwarding_array *) memalign(CACHE_LINE, sizeof(__cilkrts_forwarding_array)); 
+    newa = memalign(CACHE_LINE, sizeof(__cilkrts_forwarding_array)); 
     newa->leftmost_idx = ARRAY_SIZE-1;
     newa->links = links;
     links[i]    = newa;

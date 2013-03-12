@@ -55,12 +55,13 @@ struct __cilkrts_forwarding_array {
 
   ///these three elements are accessed in an add of an element
   ///so we keep them all on one cache line.
-  int leftmost_idx;
-  int *capacity;
+  volatile int leftmost_idx;
+  volatile int elems;                
+  volatile int *capacity;
 
   ///there is contention over the elements of the array
   ///each operation must be a cas
-  __cilkrts_worker *ptrs[ARRAY_SIZE]; 
+  __cilkrts_worker *ptrs[ARRAY_SIZE] align(64);
 
   struct __cilkrts_forwarding_array **links align(64);
 
