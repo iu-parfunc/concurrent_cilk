@@ -22,7 +22,7 @@ void writer(__cilkrts_ivar* iv) {
     int val = 39;
     printf("     Inside spawned writer... (approx stack addr %p) sleeping for a bit\n", &val);
     __cilkrts_usleep(750 * 1000); // microseconds   
-    __cilkrts_ivar_write(iv, (void*)val);
+    __cilkrts_ivar_write(iv, (ivar_payload_t)val);
     printf("     Inside spawned writer... WRITE OF %d DONE (ivar %p).\n", val, iv);
 
     // [2011.07.19] DEBUGGING:  If I force this worker to get to the sync LAST then I get a segfault:
@@ -45,7 +45,7 @@ void fun() {
     unsigned long val = (unsigned long)__cilkrts_ivar_read(&iv);
     //val = (unsigned long)__cilkrts_ivar_read(&iv); //this gets the right answer 4.22.2012 csz
     __cilkrts_worker* w_ = __cilkrts_get_tls_worker();
-    printf("   Ivar (%p) read successfully: %lu double check of ivarstruct %lu w=%d\n",  &iv, val, iv.__value, w_->self);
+    printf("   Ivar (%p) read successfully: %lu w=%d\n",  &iv, val, w_->self);
 
     // [2011.07.19] Presently I'm crashing on the sync:
     struct __cilkrts_worker* w = __cilkrts_get_tls_worker();

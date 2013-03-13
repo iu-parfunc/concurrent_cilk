@@ -62,12 +62,12 @@ void fun() {
   printf("fun(): Going to attempt Sync.  Current Cilk worker = %d\n", w->self);
   cilk_sync;
 
-  printf("   Ivar read successfully: %lu  w=%d\n", iv.__value, __cilkrts_get_tls_worker()->self);
+  printf("   Ivar read successfully: %lu  w=%d\n", __cilkrts_ivar_read(&iv), __cilkrts_get_tls_worker()->self);
 
   printf("   fun(): reached position AFTER cilk_sync\n");
 
-  if ((int) iv.__value != 39) { 
-    printf("TEST ERROR - BAD VALUE, %ld, EXPECTED 39 - ABORTING!\n", iv.__value); abort(); 
+  if ((int) __cilkrts_ivar_read(&iv) != 39) { 
+    printf("TEST ERROR - BAD VALUE, %ld, EXPECTED 39 - ABORTING!\n", __cilkrts_ivar_read(&iv)); abort(); 
   }
 }
 

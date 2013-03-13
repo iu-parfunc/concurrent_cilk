@@ -36,13 +36,14 @@ test: all
 .PHONY: clean
 clean:
 	rm -f $(OUT)/*.exe
+	rm -f $(OBJS)
 	rmdir $(OUT)
 
 ##================================================================================
 
 $(OUT)/%.exe:%.c
 	mkdir -p $(OUT)
-	$(CC) $< $(OBJS) -o $@ $(LIBDEPS) $(OPTS) $(CFLAGS)
+	$(CC) $< $(OBJS) -o $@ -L$(LIBDEPS) $(OPTS) $(CFLAGS)
 
 $(OUT)/%.exe:%.cpp
 	mkdir -p $(OUT)

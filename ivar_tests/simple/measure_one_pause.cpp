@@ -10,7 +10,6 @@
 #include <setjmp.h>
 #include <pthread.h>
 #include "../common/cycle.h"
-
 #include <cilk/abi.h>
 #include <cilk/cilk_api.h>
 

@@ -4,8 +4,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../common/cycle.h"
-#include "../../timer.h"
+#include "../../common/cycle.h"
+#include "../../../timer.h"
 
 void writer(__cilkrts_ivar *array, long num_fibers){
 
@@ -35,6 +35,8 @@ void readers(__cilkrts_ivar *array, long num_fibers) {
 int main(int argc, char **argv){
   //printf("===== Microbench many blocking ======\n");
 
+  ticks start, end;
+  my_timer_t t;
   long long num_fibers;
   if(argc == 2){
     num_fibers = atoi(argv[1]);
@@ -58,8 +60,6 @@ int main(int argc, char **argv){
 
   //printf("all ivars read successfully\n");
 
-  ticks start, end;
-  my_timer_t t;
   int i;
   long long sum = 0;
   for(i = 0; i < num_fibers; i++){
