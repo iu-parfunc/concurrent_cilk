@@ -1,5 +1,8 @@
+include ../../../Makefile.common
 
+OUT=bin
+OBJS=../event_cilk.o ../lockfree_queue.o #main.o
 
-OBJS=../event_cilk.o ../lockfree_queue.o main.o
-include ../../../Makefile.generic
-
+$(OUT)/%.exe: $(OBJS)
+	mkdir -p $(OUT)
+	$(CC) $(OBJS) -o $@ $(LIBDEPS) $(OPTS) $(CFLAGS)

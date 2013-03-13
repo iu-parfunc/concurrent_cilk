@@ -5,12 +5,13 @@
 #include <cilk/cilk.h>
 #include "lockfree_queue.h"
 #include <cilk/cilk_api.h>
+#include <cilk/concurrent_cilk.h>
 
 #define MAXEVENTS 1000
 #define MAXDEPS 100
 
 //__cilkrts_ivar payload is just a machine word
-typedef void* ivar_payload_t;
+//typedef void* ivar_payload_t;
 
 typedef enum {ADD, DEL} ctl_t;
 

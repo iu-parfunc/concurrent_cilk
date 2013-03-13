@@ -3,6 +3,7 @@
 BIN= microbench_many_blocking.exe \
   wavefront.exe  							 \
 	microbench.exe               \
+	non_ivar_wavefront.exe      \
 
 #directory where compiled files wil be put
 OUT=bin
