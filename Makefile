@@ -26,6 +26,8 @@ ivars_parfib: ivars_parfib.c
 parfib: parfib.c
 	$(CC) $(CFLAGS) -I$(INCLUDE) -L$(LIBS) parfib.c -o parfib.exe
 
+clean:
+	rm -rf *.exe
 
 
 

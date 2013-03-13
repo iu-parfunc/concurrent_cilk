@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <cilk/common.h>
 #include <cilk/cilk_api.h>
-
+#include <cilk/cilk.h>
 // The simplest IVar usage -- write before read.
 void fun() {
     __cilkrts_ivar iv;

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include "timer.h"
+#include "ivar_tests/common/cycle.h"
 
 void *fibonacci(void *n) { 
   
@@ -45,14 +46,16 @@ int main(int argc, char *argv[]) {
   int initial_thread_return_value;
 
   TIMER_START(t);
+  ticks start = getticks();
   thread_create_status = pthread_create (&initial_thread, NULL, (void *)fibonacci, (void *)&number);
   thread_create_status = pthread_join(initial_thread, (void *)&initial_thread_return_value);
+  ticks end = getticks();
   TIMER_STOP(t);
 
   result = (int *)malloc(sizeof(int *));
   result = (int *)initial_thread_return_value;
 
-  printf("%d\t%f\n", n, TIMER_EVAL(t));
+  printf("%d\t%f\t%lf\n", n, TIMER_EVAL(t), elapsed(end,start));
   //printf("The fibonacci for %d is : %d \t time take: %f\n",number ,*result, TIMER_EVAL(t)); 
   return 0;
 }

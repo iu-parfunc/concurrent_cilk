@@ -7,9 +7,9 @@
 #include <stdlib.h>
 #include <cilk/cilk.h>
 #include <cilk/ivar.h>
-
+#include <setjmp.h>
 #include <pthread.h>
-#include "cycle.h"
+#include "../common/cycle.h"
 
 #include <cilk/abi.h>
 #include <cilk/cilk_api.h>
