@@ -90,10 +90,7 @@ typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
 
 __cilkrts_worker* replace_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker, volatile __cilkrts_paused_stack* stk);
 __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w);
-int paused_stack_lock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk);
-int paused_stack_unlock(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk);
 void __cilkrts_concurrent_yield(__cilkrts_worker *w);
-void my_resume (__cilkrts_worker *w, full_frame *f, __cilkrts_stack_frame *sf);
 void restore_worker2(__cilkrts_worker* old_w, volatile  __cilkrts_paused_stack* stk);
 void setup_and_invoke_scheduler(__cilkrts_worker *w);
 

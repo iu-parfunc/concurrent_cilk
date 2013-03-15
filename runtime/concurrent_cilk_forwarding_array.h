@@ -70,7 +70,7 @@ struct __cilkrts_forwarding_array {
 void inherit_forwarding_array(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker);
 void setup_new_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker);
 void remove_replacement_worker(__cilkrts_worker *w);
-void add_replacement_worker(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker, __cilkrts_paused_stack *stk);
+void add_replacement_worker(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker, volatile __cilkrts_paused_stack *stk);
 void destroy_array(__cilkrts_worker *w);
 __cilkrts_worker *get_replacement_worker(__cilkrts_worker *w);
 __cilkrts_forwarding_array *init_array();

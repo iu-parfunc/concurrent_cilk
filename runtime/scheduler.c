@@ -734,13 +734,6 @@ static void detach_for_steal(__cilkrts_worker *w,
   __cilkrts_stack_frame *volatile *h;
   __cilkrts_stack_frame *sf;
 
-#ifdef CILK_IVARS
-  // RRNTEMP
-#ifdef CILK_IVARS_DEBUG
-  IVAR_DBG_PRINT_(1,"DETACHING... worker %d/%p frame %p victim %d/%p stack %p \n",w->self,w, w->l->frame_ff, victim->self,victim,sd);
-#endif
-#endif
-
   CILK_ASSERT(w->l->frame_ff == 0 || w == victim);
   w->l->team = victim->l->team;
 
@@ -856,7 +849,17 @@ static void random_steal(__cilkrts_worker *w)
 #ifdef CILK_IVARS 
    if_f(!can_steal_from(victim) && w->l->do_not_steal == 0 || w == victim && w->is_replacement) {
     int m;
-    __cilkrts_forwarding_array *arr = w->forwarding_array;
+
+    __cilkrts_worker *wkr;
+    m = myrand(w) % 2;
+
+    //pick to take from the worker or the victim at random
+    if (m == 0)
+      wkr = w;
+    else
+      wkr = victim;
+
+    __cilkrts_forwarding_array *arr = wkr->forwarding_array;
 
     //select a new victim by randomly selecting a forwarding array
     //and then randomly selecting an array slot within that
@@ -871,7 +874,7 @@ static void random_steal(__cilkrts_worker *w)
     //m maps to the array of forwarding arrays. 
     //n maps to a victim candidate location in the chosen forwarding array
     //together, these gain us a new victim (possibly null)
-    victim = (w->forwarding_array->links[m])->ptrs[n];
+    victim = (wkr->forwarding_array->links[m])->ptrs[n];
 
     //if we didn't get a worker, or we are trying to steal from ourselves,
     //then fail the steal. 
@@ -880,95 +883,90 @@ static void random_steal(__cilkrts_worker *w)
       return;
     }
 
-    if(victim->pstk && !can_steal_from(victim) && !can_steal_from((__cilkrts_worker *) victim->pstk->orig_worker)) {
-      restore_paused_worker(victim);
-      CILK_ASSERT(0); //does not return
-    }
-
     CILK_ASSERT (victim);
     CILK_ASSERT (victim != w);
-  }
- 
+   }
+
 #endif
 
-  /* Execute a quick check before engaging in the THE protocol.
-     Avoid grabbing locks if there is nothing to steal. */
-  if (!can_steal_from(victim)) {
-    NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_EMPTYQ);
-    __cilkrts_release_stack(w, sd);
-    return;
-  }
+   /* Execute a quick check before engaging in the THE protocol.
+      Avoid grabbing locks if there is nothing to steal. */
+   if (!can_steal_from(victim)) {
+     NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_EMPTYQ);
+     __cilkrts_release_stack(w, sd);
+     return;
+   }
 
-  /* Attempt to steal work from the victim */
-  if (worker_trylock_other(w, victim)) {
-    if (w->l->type == WORKER_USER && victim->l->team != w) {
+   /* Attempt to steal work from the victim */
+   if (worker_trylock_other(w, victim)) {
+     if (w->l->type == WORKER_USER && victim->l->team != w) {
 
-      // Fail to steal if this is a user worker and the victim is not
-      // on this team.  If a user worker were allowed to steal work
-      // descended from another user worker, the former might not be
-      // done with its work by the time it was needed to resume and
-      // unbind.  Therefore, user workers are not permitted to change
-      // teams.
+       // Fail to steal if this is a user worker and the victim is not
+       // on this team.  If a user worker were allowed to steal work
+       // descended from another user worker, the former might not be
+       // done with its work by the time it was needed to resume and
+       // unbind.  Therefore, user workers are not permitted to change
+       // teams.
 
-      // There is no race on the victim's team because the victim cannot
-      // change its team until it runs out of work to do, at which point
-      // it will try to take out its own lock, and this worker already
-      // holds it.
-      NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_USER_WORKER);
+       // There is no race on the victim's team because the victim cannot
+       // change its team until it runs out of work to do, at which point
+       // it will try to take out its own lock, and this worker already
+       // holds it.
+       NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_USER_WORKER);
 
 #ifdef CILK_IVARS
-      //replacement workers my not have a call state because their state
-      //is essentially void. Therefore, require that there be a call stack
-      //in order to start a steal. Otherwise, we will fail the steal and 
-      //when the worker steals from a victim that does have a call stack
-      //everything will be groovy.
+       //replacement workers my not have a call state because their state
+       //is essentially void. Therefore, require that there be a call stack
+       //in order to start a steal. Otherwise, we will fail the steal and 
+       //when the worker steals from a victim that does have a call stack
+       //everything will be groovy.
 
-    } else if (victim->l->frame_ff && victim->l->frame_ff->sync_sp != NULL || w->self == -1) {
-    //} else if (victim->l->frame_ff) {
+     } else if (victim->l->frame_ff && victim->l->frame_ff->sync_sp != NULL || w->self == -1) {
+       //} else if (victim->l->frame_ff) {
 #else
-    } else if (victim->l->frame_ff) {
+   } else if (victim->l->frame_ff) {
 #endif
-      // A successful steal will change victim->frame_ff, even
-      // though the victim may be executing.  Thus, the lock on
-      // the victim's deque is also protecting victim->frame_ff.
-      if (dekker_protocol(victim)) {
-        START_INTERVAL(w, INTERVAL_STEAL_SUCCESS) {
-          success = 1;
-          detach_for_steal(w, victim, sd);
+     // A successful steal will change victim->frame_ff, even
+     // though the victim may be executing.  Thus, the lock on
+     // the victim's deque is also protecting victim->frame_ff.
+     if (dekker_protocol(victim)) {
+       START_INTERVAL(w, INTERVAL_STEAL_SUCCESS) {
+         success = 1;
+         detach_for_steal(w, victim, sd);
 #if REDPAR_DEBUG >= 1
-          fprintf(stderr, "Wkr %d stole from victim %d, sd = %p\n",
-              w->self, victim->self, sd);
+         fprintf(stderr, "Wkr %d stole from victim %d, sd = %p\n",
+             w->self, victim->self, sd);
 #endif
 
-          // The use of victim->self contradicts our
-          // classification of the "self" field as 
-          // local.  But since this code is only for
-          // debugging, it is ok.
-          DBGPRINTF ("%d-%p: Stealing work from worker %d\n"
-              "            sf: %p, call parent: %p\n",
-              w->self, GetCurrentFiber(), victim->self,
-              w->l->next_frame_ff->call_stack,
-              w->l->next_frame_ff->call_stack->call_parent);
-        } STOP_INTERVAL(w, INTERVAL_STEAL_SUCCESS);
-      } else {
-        NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_DEKKER);
-      }
-    } else {
-      NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_EMPTYQ);
-    }
-    worker_unlock_other(w, victim);
-  } else {
-    NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_LOCK);
-  }
+         // The use of victim->self contradicts our
+         // classification of the "self" field as 
+         // local.  But since this code is only for
+         // debugging, it is ok.
+         DBGPRINTF ("%d-%p: Stealing work from worker %d\n"
+             "            sf: %p, call parent: %p\n",
+             w->self, GetCurrentFiber(), victim->self,
+             w->l->next_frame_ff->call_stack,
+             w->l->next_frame_ff->call_stack->call_parent);
+       } STOP_INTERVAL(w, INTERVAL_STEAL_SUCCESS);
+     } else {
+       NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_DEKKER);
+     }
+   } else {
+     NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_EMPTYQ);
+   }
+   worker_unlock_other(w, victim);
+   } else {
+     NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_LOCK);
+   }
 
-  // Record whether work was stolen.  When true, this will flag
-  // setup_for_execution_pedigree to increment the pedigree
-  w->l->work_stolen = success;
+   // Record whether work was stolen.  When true, this will flag
+   // setup_for_execution_pedigree to increment the pedigree
+   w->l->work_stolen = success;
 
-  if (0 == success) {
-    // failed to steal work.  Return the stack to the pool.
-    __cilkrts_release_stack(w, sd);
-  }
+   if (0 == success) {
+     // failed to steal work.  Return the stack to the pool.
+     __cilkrts_release_stack(w, sd);
+   }
 }
 
 /**
@@ -1359,13 +1357,6 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
        * must call pop_next_frame here to complete the push/pop cycle. */
       ff2 = pop_next_frame(w);
 
-#ifdef CILK_IVARS
-#ifdef CILK_IVARS_DEBUG
-      IVAR_DBG_PRINT_(4,"[scheduler] longjmp into runtime, about to setup for execution. worker: %d/%p frame: %p\n",
-          w->self, w, ff2);
-#endif
-#endif
-
       setup_for_execution(w, ff2, 0);
       __cilkrts_resume(w, ff2, w->current_stack_frame); /* no return */
       CILK_ASSERT(("returned from __cilkrts_resume", 0));
@@ -1424,9 +1415,6 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 
 #ifdef CILK_IVARS
     if (w->is_replacement) return;
-#ifdef CILK_IVARS_DEBUG
-    IVAR_DBG_PRINT_(1," [concurrent-cilk] Worker notifying children %d\n", msg);
-#endif
 #endif
 
     int child_num;
@@ -2345,7 +2333,6 @@ __cilkrts_worker *make_worker(global_state_t *g,
   w->forwarding_array->leftmost_idx = ARRAY_SIZE-1;
   //--------------------
 #endif
-
   return w;
 }
 

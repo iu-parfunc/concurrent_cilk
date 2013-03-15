@@ -256,7 +256,7 @@ struct __cilkrts_worker {
      * It might be the case that if the worker is still in cache (a good possibility)
      * that we might read a null pointer or the wrong pointer?
      */
-    struct __cilkrts_paused_stack *pstk;
+    volatile struct __cilkrts_paused_stack *pstk;
 
 #endif
 };

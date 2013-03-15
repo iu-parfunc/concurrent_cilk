@@ -90,7 +90,7 @@ CILK_API(void) __cilkrts_ivar_clear(__cilkrts_ivar* ivar)
 inline
 static void restore_paused_worker(__cilkrts_worker *old_w) 
 {
-  __cilkrts_paused_stack *stk = old_w->pstk;
+ volatile __cilkrts_paused_stack *stk = old_w->pstk;
   //the worker to restore
   __cilkrts_worker *w = (__cilkrts_worker *) stk->orig_worker;
 
@@ -103,7 +103,7 @@ static void restore_paused_worker(__cilkrts_worker *old_w)
   //remove the paused stack that we are restoring so that it doesn't get run again. 
   old_w->pstk = NULL;
 
-  //remove the old worker form the forwarding array 
+  //remove the old worker from the forwarding array 
   remove_replacement_worker(old_w);
 
   //cache the paused stack for reuse
@@ -148,7 +148,7 @@ __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w)
 
 // Commit the pause.
 inline
-CILK_API(void) __cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_stack* stk) 
+CILK_API(void) __cilkrts_finalize_pause(__cilkrts_worker* w, volatile __cilkrts_paused_stack* stk) 
 {
   // create a new replacement worker:
   __cilkrts_worker* new_w = get_replacement_worker(w);
@@ -166,7 +166,7 @@ CILK_API(void) __cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_st
 // Back out of the pause before making any externally visible changes.
 // The client better not have stored the __cilkrts_paused_stack anywhere!
 inline
-CILK_API(void) __cilkrts_undo_pause(__cilkrts_worker *w, __cilkrts_paused_stack* stk) 
+CILK_API(void) __cilkrts_undo_pause(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk) 
 {
   //cache the paused stack for reuse
   enqueue(w->paused_stack_cache, (ELEMENT_TYPE) stk);
@@ -175,8 +175,10 @@ CILK_API(void) __cilkrts_undo_pause(__cilkrts_worker *w, __cilkrts_paused_stack*
 // Mark a paused stack as ready by populating the workers pstk pointer.
 // multiple writes are idempotent
 inline
-CILK_API(void) __cilkrts_wake_stack(__cilkrts_paused_stack* stk)
+CILK_API(void) __cilkrts_wake_stack(volatile __cilkrts_paused_stack* stk)
 {
-  stk->replacement_worker->pstk = stk;
+  //printf("waking stack: %p\n", stk);
+  if(stk->replacement_worker)
+    stk->replacement_worker->pstk = stk;
 }
 

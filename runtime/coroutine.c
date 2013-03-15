@@ -12,39 +12,61 @@ __cilkrts_coroutine *new_coroutine(void (*f1), void* f1_args) {
   return c;
 }
 
-void __coroutine_run(__cilkrts_coroutine *c)
+void coroutine_run(__cilkrts_coroutine *c)
 {
   __cilkrts_worker *w = __cilkrts_get_tls_worker_fast();
-  __cilkrts_paused_stack *pstk = __cilkrts_pause(w);
-  if(pstk) {
-    add_replacement_worker(w,c->slave,pstk); //sets the current worker to be slave!
-    //call the function serially
-    c->f(c->args);
-  } else {
-    //TODO: cleanup the coroutine!
+  //the paused stack must live on the stack of the persistent
+  //coroutine worker
+  __cilkrts_set_tls_worker(c->slave);
+  volatile __cilkrts_paused_stack *pstk = __cilkrts_pause(w);
 
+  if(pstk) {
+    //housekeeping
+    pstk->replacement_worker = c->slave;
+    w->pstk = pstk; 
+    //self->cont = pstk;
+
+    //publish the slave for stealing.
+    inherit_forwarding_array(w, c->slave);
+
+    //call the function 
+    c->f(c->args);
+
+    restore_paused_worker(w);
+  } else {
+    //TODO: cleanup the coroutine! <<< slave workers persist! cleanup!
+    CILK_ASSERT(1);
   } 
-  //the slave restores *w (the original worker)
-  restore_paused_worker(c->slave);
 }
 
 void yieldto(__cilkrts_coroutine *self, __cilkrts_coroutine *ctx)
 {
-  //save the old continuation
-  __cilkrts_paused_stack *old_cont = self->cont;
   //save a new contiuation
-  __cilkrts_paused_stack *new_cont = __cilkrts_pause(self->slave);
+  volatile __cilkrts_paused_stack *new_cont = __cilkrts_pause(self->slave);
 
   if(new_cont) {
+    new_cont->orig_worker = self->slave->pstk->orig_worker;
+    self->slave->pstk = new_cont;
     //yield to ctx!
-    if(ctx->slave)
+    if(ctx->slave->pstk)
       restore_paused_worker(ctx->slave);
     else
-      __coroutine_run(ctx);
+      coroutine_run(ctx);
 
   } else {
     //restore self
-    self->slave->pstk = old_cont;
   }
+}
+
+inline void call_cont(__cilkrts_coroutine *self) {
+  volatile __cilkrts_paused_stack *pstk = self->slave->pstk;
+  self->slave->pstk = NULL;
+
+  //remove the old worker from the forwarding array 
+  remove_replacement_worker(self->slave);
+  //cache the paused stack for reuse
+  enqueue(self->slave->paused_stack_cache, (ELEMENT_TYPE) pstk);
+
+
 }
 

@@ -263,8 +263,8 @@ typedef struct __cilkrts_pedigree
 #define CILK_IVARS_PEDIGREE_VARIANT 4
 
 // what queue we want to use:
-#define LOCKFREE_QUEUE_VERSION 1
-//#define B_QUEUE_VERSION 1
+//#define LOCKFREE_QUEUE_VERSION 1
+#define B_QUEUE_VERSION 1
 //#define CACHE_AWARE_QUEUE 1
 
 // Set the default:
