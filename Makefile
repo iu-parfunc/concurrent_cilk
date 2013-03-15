@@ -18,13 +18,16 @@ INCLUDE=$(RTSDIR)/include
 CFLAGS+= -lcilkrts -lpthread -ldl -lcilkrts -fcilkplus -std=c99 -g3 -ggdb -Wno-int-to-pointer-cast -O3 -I$(INCLUDE) -L$(LIBS)
 CPLUSFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -std=c99 -g3 -ggdb -Wno-int-to-pointer-cast -fpermissive -O2 -I$(INCLUDE) -L$(LIBS) 
 
-all: parfib ivars_parfib
+all: parfib ivars_parfib 
 
 parfib: parfib.c
 	$(CC) $(CFLAGS) -I$(INCLUDE) -L$(LIBS) parfib.c -o parfib.exe
 
 ivars_parfib: ivars_parfib.c
 	$(CC) $(CFLAGS) -I$(INCLUDE) -L$(LIBS) ivars_parfib.c -o ivars_parfib.exe
+
+coroutine: coroutine.cpp
+	$(CPLUS) $(CPLUSFLAGS) -I$(INCLUDE) -L$(LIBS) coroutine.cpp -o coroutine.exe
 
 clean:
 	rm -f *.o *.exe
