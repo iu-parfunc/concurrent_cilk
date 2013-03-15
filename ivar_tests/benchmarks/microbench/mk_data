@@ -1,0 +1,19 @@
+#!/bin/bash
+
+
+START=$1
+STEP=$2
+STOP=$3
+FILE=$4
+FUNC=$5
+NUM_RUNS=$6
+NM_TEST=$7
+for i in `seq $START $STEP $STOP`
+do
+  for j in `seq 1 $NUM_RUNS`
+  do
+    $FUNC $i >> $NM_TEST.$i
+  done
+done
+awk '{ sum[$1]+=$2; cnt[$1]++ } END { for (i in sum) print i, sum[i]/cnt[i] | "sort -n" }'  $NM_TEST.* >> $FILE
+

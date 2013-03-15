@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# This DOES NOT work for dnc, We have to look at how we want to do the orders of 2 thing
+
+START=$1
+STEP=$2
+STOP=$3
+FILE=$4
+FUNC=$5
+T_TYPE=$6
+NUM_RUNS=$7
+NM_TEST=$8
+for i in `seq $START $STEP $STOP`
+do
+  for j in `seq 1 $NUM_RUNS`
+  do
+    $FUNC $T_TYPE $i $i >> $NM_TEST.$i
+  done
+done
+awk '{ sum[$1]+=$2; cnt[$1]++ } END { for (i in sum) print i, sum[i]/cnt[i] | "sort -n" }'  $NM_TEST.* >> $FILE
+

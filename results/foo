@@ -1,0 +1,6 @@
+#! /bin/bash
+
+FOO=$1
+
+let BAR=$foo*60
+echo $[BAR*60]

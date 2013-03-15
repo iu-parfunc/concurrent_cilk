@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <cilk/concurrent_cilk.h>
 
 typedef struct pair pair;
 

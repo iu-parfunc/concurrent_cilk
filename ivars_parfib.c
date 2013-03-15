@@ -4,7 +4,7 @@
 #include <cilk/abi.h>
 #include <cilk/cilk.h>
 #include "timer.h"
-#include "cycle.h"
+#include "ivar_tests/common/cycle.h"
 
 
 #define READIV(IV, TYPE) ((TYPE)__cilkrts_ivar_read(IV))
@@ -26,11 +26,10 @@ void pfib(ivar *iv, int n){
     return;
   }
 
-
   cilk_spawn pfib(&iv1, n-1);
   cilk_spawn pfib(&iv2, n-2);
 
-  res = READIV(&iv1, long) + READIV(&iv2,long);
+  res = READIV(&iv1, long) + READIV(&iv2, long);
   WRITEIV(iv, res);
 }
 

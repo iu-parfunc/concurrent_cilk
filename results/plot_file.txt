@@ -1,0 +1,14 @@
+#plot "microbench_many.perf" using 2:2 title "Microbench" with linespoints 
+plot "parfor1.perf" using 1:2 title "Wavefront with Ivars, traversal strategy 1" with linespoints, \
+       "parfor2.perf" using 1:2 title "Wavefront with Ivars, traversal stategy 2" with linespoints, \
+       "parfor1_non_ivars.perf" using 1:2 title "Wavefront without Ivars, traversal stategy 1" with linespoints, \
+       "parfor2_non_ivars.perf" using 1:2 title "Wavefront without Ivars, traversal stategy 2" with linespoints
+#"qthreads.txt" using 1:2 title "parfib with syncvars" with linespoints,\
+#"pthreads.txt" using 1:2 title "pthreads" with linespoints
+set xlabel "Size of matrix"
+set ylabel "time (in seconds)"
+set logscale y
+set output "wavefront.eps"
+set term postscript color
+replot
+

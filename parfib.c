@@ -4,7 +4,7 @@
 #include <cilk/abi.h>
 #include <cilk/cilk.h>
 #include "timer.h"
-#include "cycle.h"
+#include "ivar_tests/common/cycle.h"
 
 long pfib(int n) {
   if (n<2) return 1;
@@ -44,3 +44,4 @@ int main(int argc, char** argv) {
   //printf("%d\t%f\n", n, TIMER_EVAL(t));
   return 0;
 }
+

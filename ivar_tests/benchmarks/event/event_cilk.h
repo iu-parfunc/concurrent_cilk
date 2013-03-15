@@ -6,6 +6,7 @@
 #include <cilk/concurrent_cilk.h>
 #include "lockfree_queue.h"
 #include <cilk/cilk_api.h>
+#include <cilk/concurrent_cilk.h>
 
 #define MAXEVENTS 1000
 #define MAXDEPS 100
