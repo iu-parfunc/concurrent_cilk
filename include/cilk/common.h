@@ -240,10 +240,9 @@ typedef struct __cilkrts_pedigree
     const struct __cilkrts_pedigree *parent;
 } __cilkrts_pedigree;
 
-#endif // __CILKRTS_ABI_VERSION >= 1
+//CILK_IVARS VARIANTS
+//---------------------
 
-// RRN: Turning IVars on unconditionally for now:
-//
 // To turn on IVars define CILK_IVARS to be one of the following constants.  Leave
 // CILK_IVARS undefined to disable the feature.
 //
@@ -257,10 +256,6 @@ typedef struct __cilkrts_pedigree
 // For development/benchmarking purposes let us go ahead and implement the same
 // API for Concurrent Cilk using full blown system threads.
 #define CILK_IVARS_PTHREAD_VARIANT  3
-// Finally, this [UNFINISHED] variant will extend the second with a cheaper, pedigree-restricted form of
-// stealing that reuses the current stack.  It works only for programs supporting serial
-// elision ("serializable IVar programs").
-#define CILK_IVARS_PEDIGREE_VARIANT 4
 
 // what queue we want to use:
 //#define LOCKFREE_QUEUE_VERSION 1
@@ -270,29 +265,11 @@ typedef struct __cilkrts_pedigree
 // Set the default:
 #ifndef CILK_IVARS
 #define CILK_IVARS CILK_IVARS_NORMAL_VARIANT
-#define CILK_IVAR_FOLLOW_FORWARDING 1
 //#define CILK_IVARS CILK_IVARS_BUSYWAIT_VARIANT
 //#define CILK_IVARS CILK_IVARS_PTHREAD_VARIANT
 #endif
 
-// turn on stack and worker caching
-// if a global cache isn't defined, this will use a per worker cache
-#ifndef CILK_IVARS_CACHING 
-#define CILK_IVARS_CACHING  1
-#endif
+#endif // __CILKRTS_ABI_VERSION >= 1
 
-// use a global stack and worker cache
-//#ifndef CILK_IVARS_GLOBAL_CACHE
-//#define CILK_IVARS_GLOBAL_CACHE  1
-//#endif
-
-
-//if you want to turn debugging for ivars on, use -D DEBUG_CILK_IVARS when compiling your program
-//#ifdef DEBUG_CILK_IVARS
-// Set IVAR_DBG to [0-5] to control debug verbosity.
-#ifndef IVAR_DBG 
-#define IVAR_DBG (cilkg_get_global_state())->dbg_level
-//#endif
-#endif
 
 #endif /* INCLUDED_CILK_COMMON */

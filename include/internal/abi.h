@@ -223,13 +223,11 @@ struct __cilkrts_worker {
 
 #ifdef CILK_IVARS
 
-#ifdef CILK_IVARS_CACHING
     /* Maintain a cache of replacement workers */
     struct queue_t *worker_cache;
 
     /* Maintain a cache of paused stacks */
     struct  queue_t *paused_stack_cache;
-#endif
 
     /* tracks if this worker is a replacment worker or a real rts worker */
     unsigned short is_replacement;

@@ -358,8 +358,9 @@ NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *ff,
     else if (flags & CILK_FRAME_UNSYNCHED)
         /* XXX By coincidence sync_sp could be null. */
 #ifdef CILK_IVARS
-      if(!w->is_replacement) {
+      if(!w->is_replacement) 
 #endif
+        {
         CILK_ASSERT(ff->stack_self != NULL);
         CILK_ASSERT(ff->sync_sp != NULL);
       }
