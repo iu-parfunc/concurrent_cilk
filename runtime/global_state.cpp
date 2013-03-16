@@ -39,10 +39,6 @@
 #include <climits>
 #include <cerrno>
 
-#if defined(CILK_IVARS) && CILK_IVARS == CILK_IVARS_NORMAL_VARIANT
-#   include "scheduler.h"
-#   include "concurrent_queue.h"
-#endif
 #ifdef _WIN32
 #   include <wchar.h>
 #endif
@@ -388,15 +384,6 @@ global_state_t* cilkg_get_user_settable_values()
       // and no more than 16 times the number of hardware threads.
       store_int(&g->P, envstr, 1, 16 * hardware_cpu_count);
 
-#ifdef CILK_IVARS
-        // CSZ: add ivar debug as a paramater to the global state struct.
-        if (cilkos_getenv(envstr, sizeof(envstr), "IVAR_DBG")) {
-            store_int(&g->dbg_level,envstr,0,5);
-        } else {
-          g->dbg_level = 0;
-        }
-#endif
-
     if (cilkos_getenv(envstr, sizeof(envstr), "CILK_MAX_USER_WORKERS"))
       // Set max_user_workers to environment variable, but limit to no
       // less than 1 and no more 16 times the number of hardware
@@ -477,24 +464,6 @@ global_state_t* cilkg_init_global_state()
   __cilkrts_init_stats(&g->stats);
 
   __cilkrts_frame_malloc_global_init(g);
-
-
-#ifdef CILK_IVARS
-
-#if CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
-    g->P_real    = __cilkrts_hardware_cpu_count();
-    g->P_current = g->P; //  Start with everyone awake... extras will then sleep.
-    pthread_cond_init( &g->restcond, 0);
-    pthread_mutex_init( &g->restmut, 0);
-#endif
-
-    //maintain a global cache which workers draw from
-#ifdef CILK_IVARS_GLOBAL_CACHE 
-    g->paused_stack_cache  = make_stack_queue();
-    g->worker_cache        = make_stack_queue();
-#endif //CACHE
-
-#endif //END CILK_IVARS
 
   g->Q = 0;
   g->total_workers = cilkg_calc_total_workers();

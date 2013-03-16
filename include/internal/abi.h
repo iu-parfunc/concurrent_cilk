@@ -38,9 +38,6 @@
 
 
 #include <cilk/common.h>
-#if CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
-#include <pthread.h>
-#endif
 
 /**
  * Jump buffers are OS and architecture dependent

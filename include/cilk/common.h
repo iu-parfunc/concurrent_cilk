@@ -243,31 +243,16 @@ typedef struct __cilkrts_pedigree
 //CILK_IVARS VARIANTS
 //---------------------
 
-// To turn on IVars define CILK_IVARS to be one of the following constants.  Leave
-// CILK_IVARS undefined to disable the feature.
-//
-// During the experimental phase there will be three variants.
-// The first is a simple reference implementation.  IVar blocking merely spins.  It works
-// only for serially executable (write before read) Cilk/IVar programs.
-#define CILK_IVARS_BUSYWAIT_VARIANT 1 
-// The second variant uses a separate stack for each blocked computation.  It works for
-// non-serializable Cilk/IVar programs.
-#define CILK_IVARS_NORMAL_VARIANT   2
-// For development/benchmarking purposes let us go ahead and implement the same
-// API for Concurrent Cilk using full blown system threads.
-#define CILK_IVARS_PTHREAD_VARIANT  3
+// Set the default:
+#define CILK_IVARS_NORMAL_VARIANT 1
+
+#ifndef CILK_IVARS
+#define CILK_IVARS CILK_IVARS_NORMAL_VARIANT
+#endif
 
 // what queue we want to use:
 //#define LOCKFREE_QUEUE_VERSION 1
 #define B_QUEUE_VERSION 1
-//#define CACHE_AWARE_QUEUE 1
-
-// Set the default:
-#ifndef CILK_IVARS
-#define CILK_IVARS CILK_IVARS_NORMAL_VARIANT
-//#define CILK_IVARS CILK_IVARS_BUSYWAIT_VARIANT
-//#define CILK_IVARS CILK_IVARS_PTHREAD_VARIANT
-#endif
 
 #endif // __CILKRTS_ABI_VERSION >= 1
 

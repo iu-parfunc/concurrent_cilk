@@ -357,17 +357,21 @@ NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *ff,
         CILK_ASSERT(flags & CILK_FRAME_UNSYNCHED && ff->sync_sp == NULL);
     else if (flags & CILK_FRAME_UNSYNCHED)
         /* XXX By coincidence sync_sp could be null. */
+    /*
 #ifdef CILK_IVARS
       if(!w->is_replacement) 
 #endif
+*/
         {
         CILK_ASSERT(ff->stack_self != NULL);
         CILK_ASSERT(ff->sync_sp != NULL);
       }
     else
+      /*
 #ifdef CILK_IVARS
       if(!w->is_replacement)
 #endif
+*/
         /* XXX This frame could be resumed unsynched on the leftmost stack */
         CILK_ASSERT((ff->sync_master == 0 || ff->sync_master == w) &&
                     ff->sync_sp == 0);
@@ -732,12 +736,11 @@ void __cilkrts_free_stack(global_state_t *g,
 
 void __cilkrts_sysdep_reset_stack(__cilkrts_stack *sd)
 {
+  /*
 #ifdef CILK_IVARS
   if(sd->stack_op_routine != NULL || sd->stack_op_data != NULL)
-#ifdef CILK_IVARS_DEBUG
-    IVAR_DBG_PRINT_(1, "[sysdep-unix] resetting stack. %p op routine: %p op data: %p\n", sd, sd->stack_op_routine, sd->stack_op_data)
 #endif
-#endif
+*/
     CILK_ASSERT(sd->stack_op_routine == NULL);
     CILK_ASSERT(sd->stack_op_data == NULL);
     return;
@@ -1011,9 +1014,11 @@ void worker_user_scheduler()
     CILK_ASSERT(WORKER_USER == w->l->type);
 
     // Run the continuation function passed to longjmp_into_runtime
+    /*
 #ifdef CILK_IVARS
   if(w->l->post_suspend !=NULL && w->l->frame_ff !=NULL)
 #endif
+*/
     run_scheduling_stack_fcn(w);
     w->reducer_map = 0;
 

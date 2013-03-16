@@ -117,47 +117,10 @@ static inline void verify_current_wkr(__cilkrts_worker *w)
 
 
 #ifdef CILK_IVARS
-#include "cilk/cilk_api.h"
-
-#ifndef LOCKFREE_QUEUE_VERSION
-#include <pthread.h>
-#endif
-
-#ifdef CACHE_AWARE_QUEUE
-#include "queues/cache_aware_queue.c"
-#endif 
-
-#ifdef LOCKFREE_QUEUE_VERSION
-#include "queues/lockfree_queue.c"
-#endif
-
-#ifdef LOCKING_QUEUE_VERSION
-#include "queues/locking_queue.c"
-#endif
-
-
-#ifdef B_QUEUE_VERSION
-#include "queues/bqueue/fifo.c"
-#endif
-
-#endif //CILK_IVARS
-
-#ifdef CILK_IVARS
-
-#ifdef CILK_IVARS_PTHREAD_VARIANT
-extern global_state_t *cilkg_get_user_settable_values(void);
-#endif
-
-
 #include "concurrent_cilk_internal.h"
 #include "concurrent_queue.h"
 #include "ivar_full_blocking.c"
-
-#if CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
-#include "concurrent_cilk_pthread.c"
-#else
 #include "concurrent_cilk.c"
-#endif
 #endif
 
 static enum schedule_t worker_runnable(__cilkrts_worker *w);
@@ -851,6 +814,7 @@ static void random_steal(__cilkrts_worker *w)
     int m;
 
     __cilkrts_worker *wkr;
+    /*
     m = myrand(w) % 2;
 
     //pick to take from the worker or the victim at random
@@ -858,7 +822,9 @@ static void random_steal(__cilkrts_worker *w)
       wkr = w;
     else
       wkr = victim;
+      */
 
+    wkr = w;
     __cilkrts_forwarding_array *arr = wkr->forwarding_array;
 
     //select a new victim by randomly selecting a forwarding array
@@ -914,6 +880,7 @@ static void random_steal(__cilkrts_worker *w)
        // holds it.
        NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_USER_WORKER);
 
+       /*
 #ifdef CILK_IVARS
        //replacement workers my not have a call state because their state
        //is essentially void. Therefore, require that there be a call stack
@@ -924,14 +891,16 @@ static void random_steal(__cilkrts_worker *w)
      } else if (victim->l->frame_ff && victim->l->frame_ff->sync_sp != NULL || w->self == -1) {
        //} else if (victim->l->frame_ff) {
 #else
+       */
    } else if (victim->l->frame_ff) {
-#endif
+//#endif
      // A successful steal will change victim->frame_ff, even
      // though the victim may be executing.  Thus, the lock on
      // the victim's deque is also protecting victim->frame_ff.
      if (dekker_protocol(victim)) {
        START_INTERVAL(w, INTERVAL_STEAL_SUCCESS) {
          success = 1;
+         //fprintf(stderr, "Wkr %d stole from victim %d, sd = %p\n", w->self, victim->self, sd);
          detach_for_steal(w, victim, sd);
 #if REDPAR_DEBUG >= 1
          fprintf(stderr, "Wkr %d stole from victim %d, sd = %p\n",
@@ -1413,9 +1382,11 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   static void notify_children(__cilkrts_worker *w, unsigned int msg)
   {
 
+    /*
 #ifdef CILK_IVARS
     if (w->is_replacement) return;
 #endif
+*/
 
     int child_num;
     __cilkrts_worker *child;
@@ -1498,10 +1469,12 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
        may be immediately executed by this worker after provably_good_steal.
 
        The active frame and call_stack may have changed since _resume.  */
+    /*
 #ifdef CILK_IVARS
     // replacement workers don't get to return from cilk or execute a sync.
     if(w->l->post_suspend !=NULL && w->l->frame_ff !=NULL)
 #endif
+*/
       run_scheduling_stack_fcn(w);
 
     /* The worker borrowed the full frame's reducer map.
@@ -1577,6 +1550,9 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 
       /* this thread now becomes a worker---associate the thread
          with the worker state */
+      
+      __cilkrts_worker *old_w = __cilkrts_get_tls_worker_fast();
+      //printf("old_worker %d/%p about to set worker: %d/%p\n", old_w->self, old_w, w->self, w);
       __cilkrts_set_tls_worker(w);
 
       /* Notify tools about the new worker. Inspector needs this, but we
@@ -1587,7 +1563,7 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 
       mysrand(w, (w->self + 1));
 
-      if (WORKER_SYSTEM == w->l->type) {
+      if (WORKER_SYSTEM == w->l->type && w->self > -1) {
         // Runtime begins in a wait-state and is woken up by the first user
         // worker when the runtime is ready.
         signal_node_wait(w->l->signal_node);
@@ -1856,18 +1832,22 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
                                                 speculatively
                                                 decremented by the
                                                 compiled code */
+      /*
 #ifdef CILK_IVARS
       //we could get ourselves in the situation where we don't have a frame
       //when a SYSTEM_WORKER comes through here
       if(ff != NULL) {
 #endif
+*/
         CILK_ASSERT(ff);
         if (stolen_p)
           /* XXX This will be charged to THE for accounting purposes */
           __cilkrts_save_exception_state(w, ff);
+        /*
 #ifdef CILK_IVARS
       }
 #endif
+    */
       // Save the value of the current stack frame.
       saved_sf = w->current_stack_frame;
 
@@ -3322,36 +3302,6 @@ execute_reductions_for_sync(__cilkrts_worker *w,
 
   return w;
 }
-
-//   Finally, here we inline the appropriate IVar implementation.
-//   With a proper modification of the build system, this will go away.
-//   (Eseecally because ivars are simply a library built on pause/unpause.)
-/*
-#ifdef CILK_IVARS
-
-void __cilkrts_ivar_clear(__cilkrts_ivar* ivar) {
-ivar->__header = 0; // Empty ivar.
-}
-
-#if CILK_IVARS == CILK_IVARS_BUSYWAIT_VARIANT
-#include "ivar_busywait.c"
-
-#elif CILK_IVARS == CILK_IVARS_NORMAL_VARIANT
-#include "ivar_full_blocking.c"
-
-#elif CILK_IVARS == CILK_IVARS_PEDIGREE_VARIANT
-#error "CILK_IVARS_PEDIGREE_VARIANT not implemented yet"
-
-#elif CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
-// The pthread version exposes the same API, so the IVar implementation can be reused:
-#include "ivar_full_blocking.c"
-
-#else 
-#error "Invalid setting for CILK_IVARS preprocessor variable."
-#endif // Dispatch on cilk ivars variant.
-
-#endif // CILK_IVARS
-*/
 
 /*
    Local Variables: **

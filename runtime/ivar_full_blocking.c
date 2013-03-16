@@ -34,17 +34,20 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *iv)
 
     // Register the continuation in the ivar's header.
     //printf("pausing stack %p\n", ptr);
-   old_val = (ivar_payload_t) atomic_set(ivar, ((ivar_payload_t) ptr) << IVAR_SHIFT);
+   //old_val = (ivar_payload_t) atomic_set(ivar, ((ivar_payload_t) ptr) << IVAR_SHIFT);
+   while(1) {
+     old_val = cas(ivar, 0, ((ivar_payload_t) ptr) << IVAR_SHIFT);
  
 
-    if(IVAR_READY(old_val)) {
+    if(old_val) {
 
      // printf("DING! ivar got written to while we were pausing abort abort! %p\n", ptr);
       // Well nevermind then... now it is full.
       __cilkrts_undo_pause(wkr,ptr);
-      atomic_set(ivar, ((ivar_payload_t) old_val));
+      //atomic_set(ivar, ((ivar_payload_t) old_val));
       return UNTAG(old_val);
-    }
+    } else break;
+   }
 
     //FINALIZE THE PAUSE
     //---------------------------------------------
@@ -63,6 +66,7 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *iv)
       __cilkrts_undo_pause(wkr,ptr);
       return UNTAG(*ivar);
     }
+//      printf("old_w %d/%p going to sched with worker: %d/%p\n", wkr->self, wkr, new_w->self, new_w);
     __cilkrts_run_scheduler_with_exceptions(new_w); // calls __cilkrts_scheduler
     CILK_ASSERT(0); //should never get here
   }
@@ -79,6 +83,7 @@ CILK_API(void) __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
 
   //Atomically set the ivar to the full state and grab the waitlist:
   volatile __cilkrts_ivar pstk = (__cilkrts_ivar) atomic_set(ivar, newval);
+  __cilkrts_fence();
 
   //printf("ivar_write %p\n", (__cilkrts_paused_stack *) UNTAG(pstk));
   //DESIGN DECISION: One could allow multiple puts of the same value.  Not doing so for now.
