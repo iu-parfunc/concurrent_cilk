@@ -65,6 +65,7 @@ inline void remove_replacement_worker(__cilkrts_worker *w)
   *w->array_loc   = NULL; //null out the the slot in the forwarding array
   w->array_loc   = NULL; //null out the worker's reference to the slot
   w->array_block = NULL;
+  __cilkrts_fence();
 }
 
 /** When adding a replacement worker, we don't always have to run setup new worker. This is the shortcut
@@ -84,6 +85,9 @@ add_replacement_worker(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker, 
 {
   stk->replacement_worker = fresh_worker;
 
+  //now we know our paused stack
+  fresh_worker->pstk = stk;
+
   //printf("fresh worker: %d/%p stack: %p\n", stk->replacement_worker->self, stk->replacement_worker, stk);
   //pass down the forwarding array to the old worker's
   //replacement
@@ -101,6 +105,7 @@ inherit_forwarding_array(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker
   //pointer as that of the old worker
   fresh_worker->forwarding_array = old_w->forwarding_array;
 
+retry:
   capacity = *old_w->forwarding_array->capacity;
 
   /**
@@ -152,7 +157,11 @@ inherit_forwarding_array(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker
   //a place for a worker. there should be one now.
   for (i=ARRAY_SIZE-1; i >= 0; i--)
     if (cur->ptrs[i] == NULL) break;
-  cur->ptrs[i] = fresh_worker;
+  //cur->ptrs[i] = fresh_worker;
+  if(! cas(&cur->ptrs[i],NULL,fresh_worker)) {
+    printf("WOAH....should never happen going to retry\n");
+    goto retry;
+  }
 
   //reset the leftmost index if this wasn't a fragmentation fill
   if(i < cur->leftmost_idx) cur->leftmost_idx = i;
@@ -168,6 +177,7 @@ inherit_forwarding_array(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker
   //remember where we are stored in the array for easy removal later
   fresh_worker->array_loc = &cur->ptrs[i];
   fresh_worker->array_block = cur;
+  __cilkrts_fence();
 }
 
 __cilkrts_worker *get_replacement_worker(__cilkrts_worker *w)
@@ -176,11 +186,16 @@ __cilkrts_worker *get_replacement_worker(__cilkrts_worker *w)
   dequeue(w->worker_cache, (ELEMENT_TYPE *) &fresh_worker);
   if(!fresh_worker) {
     fresh_worker = __cilkrts_malloc(sizeof(__cilkrts_worker)); 
+    worker_trylock_other(fresh_worker, w);
     setup_new_worker(w, fresh_worker);
   } else {
     CILK_ASSERT(fresh_worker);
   }
 
+  memcpy(fresh_worker->l, w->l, sizeof(local_state));
+  fresh_worker->ready = 0;
+  worker_unlock_other(fresh_worker, w);
+  __cilkrts_fence();
   return fresh_worker;
 }
 
@@ -211,5 +226,6 @@ __cilkrts_forwarding_array *init_array()
     bzero(newa->ptrs, ARRAY_SIZE*sizeof(__cilkrts_worker *));
   }
 
+  __cilkrts_fence();
   return newa->links[0]; //return the first link
 }

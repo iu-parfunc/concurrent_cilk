@@ -61,7 +61,7 @@
 #include "concurrent_cilk_internal.h"
 #include "concurrent_cilk_forwarding_array.h"
 #include "concurrent_cilk_forwarding_array.c"
-#include "coroutine.c"
+//#include "coroutine.c"
 
 int can_steal_from(__cilkrts_worker *victim);
 
@@ -88,17 +88,22 @@ CILK_API(void) __cilkrts_ivar_clear(__cilkrts_ivar* ivar)
 }
 
 inline
-static void restore_paused_worker(__cilkrts_worker *old_w) 
+static void __cilkrts_reset_paused_stack(volatile __cilkrts_paused_stack *pstk) {
+  pstk->orig_worker        = NULL;
+  pstk->replacement_worker = NULL;
+  __cilkrts_fence();
+}
+
+inline
+static void restore_paused_worker(__cilkrts_worker *old_w, __cilkrts_worker *w, int do_restore) 
 {
  volatile __cilkrts_paused_stack *stk = old_w->pstk;
-  //the worker to restore
-  __cilkrts_worker *w = (__cilkrts_worker *) stk->orig_worker;
 
   //if the worker came into the scheduler
   //there should be no more work left to de
   //since we don't preempt our threads
   CILK_ASSERT(!can_steal_from(old_w));
-  CILK_ASSERT(!can_steal_from((__cilkrts_worker *) stk->replacement_worker));
+  CILK_ASSERT(!can_steal_from(w));
 
   //remove the paused stack that we are restoring so that it doesn't get run again. 
   old_w->pstk = NULL;
@@ -107,19 +112,21 @@ static void restore_paused_worker(__cilkrts_worker *old_w)
   remove_replacement_worker(old_w);
 
   //cache the paused stack for reuse
-  enqueue(w->paused_stack_cache, (ELEMENT_TYPE) stk);
+  //enqueue(w->paused_stack_cache, (ELEMENT_TYPE) stk);
+
+
+  // only cache replacement workers.
+ // if(old_w->self == -1) 
+ //   enqueue(w->worker_cache, (ELEMENT_TYPE) old_w); 
+
 
   //restore the original blocked worker
   //at this point. the scheduler forgets about tlsw
+  printf("restoring worker %d/%p. Old worker %d/%p cached.\n", w->self, w, old_w->self, old_w);
+  __cilkrts_fence();
   __cilkrts_set_tls_worker(w);
-
-  // only cache replacement workers.
-  if(old_w->self == -1) 
-    enqueue(w->worker_cache, (ELEMENT_TYPE) old_w); 
-
   //--------------------------- restore the context -------------------
-  CILK_LONGJMP(w->current_stack_frame->ctx);
-
+    longjmp(w->ctx,1);
   //does not return
   CILK_ASSERT(0);
 }
@@ -135,16 +142,34 @@ __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w)
   if_f(!sustk)
     sustk = memalign(64, sizeof(__cilkrts_paused_stack));
 
-  //system workers might not have a frame!
-  if(w->l->frame_ff) 
-    sustk->stack = w->l->frame_ff->stack_self; 
-  else
-    sustk->stack = NULL;
-
   sustk->orig_worker        = w;
   sustk->replacement_worker = NULL;
+  sustk->lock_inform  = 0;
+  sustk->lock_success = 0;
+  sustk->ready = 0;
   return sustk;
 }
+
+int paused_stack_lock(__cilkrts_paused_stack* stk) {
+
+  // two threads race for lock inform, and one comes out on top. 
+  // this thread then grabs the lock_success value and holds the lock
+  if(__sync_bool_compare_and_swap(&stk->lock_inform, 0, 1))
+    if(__sync_bool_compare_and_swap(&stk->lock_success, 0, 1))
+      return 1;
+  return 0;
+}
+
+int paused_stack_unlock(__cilkrts_paused_stack* stk)
+{
+  // two threads race for lock inform, and one comes out on top. 
+  // this thread then grabs the lock_success value and holds the lock
+  if(__sync_bool_compare_and_swap(&stk->lock_success, 1, 0))
+    if(__sync_bool_compare_and_swap(&stk->lock_inform, 1, 0))
+      return 1;
+  return 0;
+}
+
 
 // Commit the pause.
 inline
@@ -169,7 +194,8 @@ inline
 CILK_API(void) __cilkrts_undo_pause(__cilkrts_worker *w, volatile __cilkrts_paused_stack* stk) 
 {
   //cache the paused stack for reuse
-  enqueue(w->paused_stack_cache, (ELEMENT_TYPE) stk);
+  //enqueue(w->paused_stack_cache, (ELEMENT_TYPE) stk);
+  __cilkrts_fence();
 }
 
 // Mark a paused stack as ready by populating the workers pstk pointer.
@@ -178,7 +204,7 @@ inline
 CILK_API(void) __cilkrts_wake_stack(volatile __cilkrts_paused_stack* stk)
 {
   //printf("waking stack: %p\n", stk);
-  if(stk->replacement_worker)
-    stk->replacement_worker->pstk = stk;
+  stk->ready = 1;
+  __cilkrts_fence();
 }
 

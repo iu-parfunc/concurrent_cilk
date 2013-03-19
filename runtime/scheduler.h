@@ -342,7 +342,7 @@ COMMON_PORTABLE
 void __cilkrts_dump_stats_to_stderr(global_state_t *g);
 
 
-inline static void restore_paused_worker(__cilkrts_worker *w);
+static void restore_paused_worker(__cilkrts_worker *old_w, __cilkrts_worker *w, int do_restore);
 
 __CILKRTS_END_EXTERN_C
 

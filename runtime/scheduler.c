@@ -264,7 +264,7 @@ void __cilkrts_worker_unlock(__cilkrts_worker *w)
 }
 
 /* try to acquire the lock of some *other* worker */
-static int worker_trylock_other(__cilkrts_worker *w,
+int worker_trylock_other(__cilkrts_worker *w,
     __cilkrts_worker *other)
 {
   int status = 0;
@@ -294,7 +294,7 @@ static int worker_trylock_other(__cilkrts_worker *w,
   return status;
 }
 
-static void worker_unlock_other(__cilkrts_worker *w,
+void worker_unlock_other(__cilkrts_worker *w,
     __cilkrts_worker *other)
 {
   __cilkrts_mutex_unlock(w, &other->l->lock);
@@ -566,7 +566,7 @@ static int dekker_protocol(__cilkrts_worker *victim)
 }
 
 /* Link PARENT and CHILD in the spawn tree */
-static full_frame *make_child(__cilkrts_worker *w, 
+ full_frame *make_child(__cilkrts_worker *w, 
     full_frame *parent_ff,
     __cilkrts_stack_frame *child_sf,
     __cilkrts_stack *sd)
@@ -810,7 +810,8 @@ static void random_steal(__cilkrts_worker *w)
   CILK_ASSERT (victim != w);
 
 #ifdef CILK_IVARS 
-   if_f(!can_steal_from(victim) && w->l->do_not_steal == 0 || w == victim && w->is_replacement) {
+  //prehaps we need w->l->do_not_steal == 0 && ...
+   if_f(!can_steal_from(victim)) {
     int m;
 
     __cilkrts_worker *wkr;
@@ -849,8 +850,14 @@ static void random_steal(__cilkrts_worker *w)
       return;
     }
 
-    CILK_ASSERT (victim);
-    CILK_ASSERT (victim != w);
+    /*
+    if(victim->ready && w->is_replacement == 1) {
+      if(w->pstk->orig_worker == victim && !can_steal_from(victim)) {
+        w->pstk->orig_worker = victim->pstk->orig_worker;
+        restore_paused_worker(victim, w, 0);
+      }
+    }
+    */
    }
 
 #endif
@@ -888,19 +895,20 @@ static void random_steal(__cilkrts_worker *w)
        //when the worker steals from a victim that does have a call stack
        //everything will be groovy.
 
-     } else if (victim->l->frame_ff && victim->l->frame_ff->sync_sp != NULL || w->self == -1) {
+       } else if (victim->l->frame_ff && victim->l->frame_ff->sync_sp != NULL || w->self == -1) {
        //} else if (victim->l->frame_ff) {
 #else
-       */
+*/
    } else if (victim->l->frame_ff) {
-//#endif
+     //#endif
      // A successful steal will change victim->frame_ff, even
      // though the victim may be executing.  Thus, the lock on
      // the victim's deque is also protecting victim->frame_ff.
      if (dekker_protocol(victim)) {
        START_INTERVAL(w, INTERVAL_STEAL_SUCCESS) {
          success = 1;
-         //fprintf(stderr, "Wkr %d stole from victim %d, sd = %p\n", w->self, victim->self, sd);
+         fprintf(stderr, "Wkr %d/%p stole from victim %d/%p, sd = %p victim->head = %p victim->tail = %p\n",
+             w->self, w, victim->self, victim, sd, victim->head, victim->tail);
          detach_for_steal(w, victim, sd);
 #if REDPAR_DEBUG >= 1
          fprintf(stderr, "Wkr %d stole from victim %d, sd = %p\n",
@@ -1312,12 +1320,12 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   // Assume that this is a steal or return from spawn in a force-reduce case.
   // We don't have a scheduling stack to switch to, so call the continuation
   // function directly.
-#ifdef CILK_IVARS
+//#ifdef CILK_IVARS
   //it's not *really* a 1 processor situation if this was a replacement worker
-  if (1 == w->g->P && w->l->next_frame_ff != NULL) {
-#else
+//  if (1 == w->g->P && w->l->next_frame_ff != NULL) {
+//#else
     if (1 == w->g->P) {
-#endif
+//#endif
       fcn(w, ff, sf);
 
       /* The call to function c() will have pushed ff as the next frame.  If
@@ -1384,7 +1392,7 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 
     /*
 #ifdef CILK_IVARS
-    if (w->is_replacement) return;
+if (w->is_replacement) return;
 #endif
 */
 
@@ -1469,13 +1477,7 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
        may be immediately executed by this worker after provably_good_steal.
 
        The active frame and call_stack may have changed since _resume.  */
-    /*
-#ifdef CILK_IVARS
-    // replacement workers don't get to return from cilk or execute a sync.
-    if(w->l->post_suspend !=NULL && w->l->frame_ff !=NULL)
-#endif
-*/
-      run_scheduling_stack_fcn(w);
+    run_scheduling_stack_fcn(w);
 
     /* The worker borrowed the full frame's reducer map.
        Clear the extra reference.  Bookkeeping uses the
@@ -1503,7 +1505,12 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
       //each worker must "pay their way" by checking
       //for a ready paused stack. Then they are free
       //to restore their own paused stack if it is ready.
-      if(w->pstk) restore_paused_worker(w);
+      if(w->pstk && w->pstk->ready) 
+        if(!can_steal_from(w)) {
+          printf("worker %d/%p in sched. going for restore!\n", w->self, w);
+          restore_paused_worker(w, w->pstk->orig_worker, 1);
+          CILK_ASSERT(0); //no return
+        }
 #endif
 
       START_INTERVAL(w, INTERVAL_STEALING) {
@@ -1550,10 +1557,11 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 
       /* this thread now becomes a worker---associate the thread
          with the worker state */
-      
-      __cilkrts_worker *old_w = __cilkrts_get_tls_worker_fast();
-      //printf("old_worker %d/%p about to set worker: %d/%p\n", old_w->self, old_w, w->self, w);
+
+       __cilkrts_worker *old_w = __cilkrts_get_tls_worker_fast();
+      printf("old_worker %d/%p about to set worker: %d/%p\n", old_w->self, old_w, w->self, w);
       __cilkrts_set_tls_worker(w);
+      __cilkrts_fence();
 
       /* Notify tools about the new worker. Inspector needs this, but we
          don't want to confuse Cilkscreen with system threads.  User threads
@@ -1578,6 +1586,7 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
         switch (worker_runnable(w))
         {
           case SCHEDULE_RUN:             // do some work.
+            __cilkrts_fence();
             schedule_work(w);
             break;
 
@@ -1839,59 +1848,59 @@ static NORETURN longjmp_into_runtime(__cilkrts_worker *w,
       if(ff != NULL) {
 #endif
 */
-        CILK_ASSERT(ff);
-        if (stolen_p)
-          /* XXX This will be charged to THE for accounting purposes */
-          __cilkrts_save_exception_state(w, ff);
-        /*
+      CILK_ASSERT(ff);
+      if (stolen_p)
+        /* XXX This will be charged to THE for accounting purposes */
+        __cilkrts_save_exception_state(w, ff);
+      /*
 #ifdef CILK_IVARS
-      }
+}
 #endif
-    */
-      // Save the value of the current stack frame.
-      saved_sf = w->current_stack_frame;
+*/
+        // Save the value of the current stack frame.
+        saved_sf = w->current_stack_frame;
 
-      // Reverse the decrement from undo_detach.
-      // This update effectively resets the deque to be
-      // empty (i.e., changes w->tail back to equal w->head). 
-      // We need to reset the deque to execute parallel
-      // reductions.  When we have only serial reductions, it
-      // does not matter, since serial reductions do not
-      // change the deque.
-      w->tail++;
+        // Reverse the decrement from undo_detach.
+        // This update effectively resets the deque to be
+        // empty (i.e., changes w->tail back to equal w->head). 
+        // We need to reset the deque to execute parallel
+        // reductions.  When we have only serial reductions, it
+        // does not matter, since serial reductions do not
+        // change the deque.
+        w->tail++;
 #if REDPAR_DEBUG > 1            
-      // ASSERT our deque is empty.
-      CILK_ASSERT(w->head == w->tail);
+        // ASSERT our deque is empty.
+        CILK_ASSERT(w->head == w->tail);
 #endif
-      //}
-  } END_WITH_WORKER_LOCK(w);
+        //}
+        } END_WITH_WORKER_LOCK(w);
 
-  STOP_INTERVAL(w, INTERVAL_THE_EXCEPTION_CHECK);
+STOP_INTERVAL(w, INTERVAL_THE_EXCEPTION_CHECK);
 
-  if (stolen_p)
-  {
-    w = execute_reductions_for_spawn_return(w, ff, returning_sf);
+if (stolen_p)
+{
+  w = execute_reductions_for_spawn_return(w, ff, returning_sf);
 
-    // Update the pedigree only after we've finished the
-    // reductions.
-    update_pedigree_on_leave_frame(w, returning_sf);
+  // Update the pedigree only after we've finished the
+  // reductions.
+  update_pedigree_on_leave_frame(w, returning_sf);
 
 #ifdef ENABLE_NOTIFY_ZC_INTRINSIC
-    // Notify Inspector that the parent has been stolen and we're
-    // going to abandon this work and go do something else.  This
-    // will match the cilk_leave_begin in the compiled code
-    __notify_zc_intrinsic("cilk_leave_stolen", saved_sf);
+  // Notify Inspector that the parent has been stolen and we're
+  // going to abandon this work and go do something else.  This
+  // will match the cilk_leave_begin in the compiled code
+  __notify_zc_intrinsic("cilk_leave_stolen", saved_sf);
 #endif // defined ENABLE_NOTIFY_ZC_INTRINSIC
 
-    DBGPRINTF ("%d-%p: longjmp_into_runtime from __cilkrts_c_THE_exception_check\n", w->self, GetWorkerFiber(w));
-    longjmp_into_runtime(w, do_return_from_spawn, 0);
-    DBGPRINTF ("%d-%p: returned from longjmp_into_runtime from __cilkrts_c_THE_exception_check?!\n", w->self, GetWorkerFiber(w));
-  }
-  else
-  {
-    NOTE_INTERVAL(w, INTERVAL_THE_EXCEPTION_CHECK_USELESS);
-    return;
-  }
+  DBGPRINTF ("%d-%p: longjmp_into_runtime from __cilkrts_c_THE_exception_check\n", w->self, GetWorkerFiber(w));
+  longjmp_into_runtime(w, do_return_from_spawn, 0);
+  DBGPRINTF ("%d-%p: returned from longjmp_into_runtime from __cilkrts_c_THE_exception_check?!\n", w->self, GetWorkerFiber(w));
+}
+else
+{
+  NOTE_INTERVAL(w, INTERVAL_THE_EXCEPTION_CHECK_USELESS);
+  return;
+}
 }
 
 /* Return an exception to a stolen parent. */
@@ -2014,7 +2023,7 @@ void __cilkrts_return(__cilkrts_worker *w)
   full_frame *ff, *parent_ff;
   START_INTERVAL(w, INTERVAL_RETURNING);
 
-  BEGIN_WITH_WORKER_LOCK_OPTIONAL(w) {
+  BEGIN_WITH_WORKER_LOCK(w) {
     ff = w->l->frame_ff;
     CILK_ASSERT(ff);
     CILK_ASSERT(ff->join_counter == 1);
@@ -2062,7 +2071,7 @@ void __cilkrts_return(__cilkrts_worker *w)
         setup_for_execution(w, ff, 1);
       } END_WITH_FRAME_LOCK(w, ff);
     }
-  } END_WITH_WORKER_LOCK_OPTIONAL(w);
+  } END_WITH_WORKER_LOCK(w);
 
   STOP_INTERVAL(w, INTERVAL_RETURNING);
 }
@@ -2301,6 +2310,7 @@ __cilkrts_worker *make_worker(global_state_t *g,
   w->paused_stack_cache = (queue_t *) make_stack_queue();
   w->worker_cache = (queue_t *) make_stack_queue();
   w->is_replacement = 0;
+  w->ready = 0;
   w->pstk = NULL;
 
   //register our own worker in the stealing array

@@ -251,8 +251,8 @@ typedef struct __cilkrts_pedigree
 #endif
 
 // what queue we want to use:
-//#define LOCKFREE_QUEUE_VERSION 1
-#define B_QUEUE_VERSION 1
+#define LOCKFREE_QUEUE_VERSION 1
+//#define B_QUEUE_VERSION 1
 
 #endif // __CILKRTS_ABI_VERSION >= 1
 

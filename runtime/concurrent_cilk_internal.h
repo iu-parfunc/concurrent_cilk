@@ -22,6 +22,7 @@ __CILKRTS_BEGIN_EXTERN_C
  */
 #define spin_pause() __asm__("pause")
 #define cas(ptr,oldval,newval) __sync_bool_compare_and_swap(ptr,oldval,newval)
+#define casv(ptr,oldval,newval) __sync_val_compare_and_swap(ptr,oldval,newval)
 #define atomic_add(ptr,num) __sync_fetch_and_add(ptr,num)
 #define atomic_sub(ptr,num) __sync_fetch_and_sub(ptr,num)
 #define atomic_set(ptr,val) __sync_lock_test_and_set(ptr,val)
@@ -70,7 +71,9 @@ typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
 /*   Concurrent Cilk:  Types & API   */
 
  struct __cilkrts_paused_stack {
-    struct __cilkrts_stack* stack;
+   volatile int lock_inform;
+   volatile int lock_success;
+   volatile short ready;
 
     /// For this variant the new worker does not cache the *stalled* workers state, instead 
     /// the stalled worker stays put and we have a fresh replacement worker:
@@ -79,20 +82,23 @@ typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
     /// And this is the original worker that got stalled, in its original location:
     __cilkrts_worker* orig_worker;  // Should be NON-NULL
 
-#if CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
-    /// This is a private condition used by only this worker/stack.
-    pthread_cond_t cond;
-    pthread_mutex_t mut;
-#endif
 } __attribute__((aligned(64)));
+
+/*   Cilk IVars:  Types & API   */
+struct __cilkrts_ivar_waitlist {
+    struct __cilkrts_paused_stack* stalled;
+    struct __cilkrts_ivar_waitlist* tail; // null to terminate.
+};
+
 
 /*   Cilk IVars:  Types & API   */
 
 __cilkrts_worker* replace_worker (__cilkrts_worker* old_w, __cilkrts_worker* fresh_worker, volatile __cilkrts_paused_stack* stk);
 __cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w);
 void __cilkrts_concurrent_yield(__cilkrts_worker *w);
-void restore_worker2(__cilkrts_worker* old_w, volatile  __cilkrts_paused_stack* stk);
 void setup_and_invoke_scheduler(__cilkrts_worker *w);
+int paused_stack_lock(__cilkrts_paused_stack* stk); 
+int paused_stack_unlock(__cilkrts_paused_stack* stk);
 
 __CILKRTS_END_EXTERN_C
 #endif

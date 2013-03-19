@@ -39,6 +39,10 @@
 
 #include <cilk/common.h>
 
+#ifdef CILK_IVARS
+#include <setjmp.h>
+#endif
+
 /**
  * Jump buffers are OS and architecture dependent
  */
@@ -229,6 +233,8 @@ struct __cilkrts_worker {
     /* tracks if this worker is a replacment worker or a real rts worker */
     unsigned short is_replacement;
 
+    volatile unsigned short ready;
+
     //Forwading array book keeping
     //---------------------------
     
@@ -252,6 +258,8 @@ struct __cilkrts_worker {
      * that we might read a null pointer or the wrong pointer?
      */
     volatile struct __cilkrts_paused_stack *pstk;
+
+    jmp_buf ctx;
 
 #endif
 };

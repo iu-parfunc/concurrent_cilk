@@ -32,7 +32,7 @@ void coroutine_run(__cilkrts_coroutine *c)
     //call the function 
     c->f(c->args);
 
-    restore_paused_worker(w);
+    //restore_paused_worker(w);
   } else {
     //TODO: cleanup the coroutine! <<< slave workers persist! cleanup!
     CILK_ASSERT(1);
@@ -49,7 +49,7 @@ void yieldto(__cilkrts_coroutine *self, __cilkrts_coroutine *ctx)
     self->slave->pstk = new_cont;
     //yield to ctx!
     if(ctx->slave->pstk)
-      restore_paused_worker(ctx->slave);
+      //restore_paused_worker(ctx->slave);
     else
       coroutine_run(ctx);
 
