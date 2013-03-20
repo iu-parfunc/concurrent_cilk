@@ -1,6 +1,4 @@
-BIN=cilksort_inplace.exe 
-# cilksort_outofplace.exe
-# cilksort_ivars.exe
+BIN= cilksort_inplace.exe cilksort_outofplace.exe cilksort_ivars.exe
 
 default: all simple
 
