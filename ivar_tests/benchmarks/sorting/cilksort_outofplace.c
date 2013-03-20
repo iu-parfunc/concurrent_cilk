@@ -68,6 +68,9 @@
 #include <unistd.h>
 #include <sys/time.h>
 
+// #define MERGE_MEMCOPY_OPT
+// #define MERGE_REMAINDER_OPT
+
 typedef uint32_t ELM;
 
 /* MERGESIZE must be >= 2 */
@@ -208,11 +211,6 @@ void seqquick(ELM *low, ELM *high)
      insertion_sort(low, high);
 }
 
-void wrap_seqquick(ELM *low, long len)
-{
-    seqquick(low, low + len - 1);
-}
-
 void seqmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2,
 	      ELM *lowdest)
 {
@@ -243,36 +241,39 @@ void seqmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2,
       * element) and the 'slow' loop for the rest, saving both
       * performance and correctness.
       */
-
+// [2013.03.20] This does make a 2^25 sort a bit faster:
+// But it's more like ONE PERCENT:
+#ifdef MERGE_REMAINDER_OPT
      if (low1 < high1 && low2 < high2) {
 	  a1 = *low1;
 	  a2 = *low2;
 	  for (;;) {
 	       if (a1 < a2) {
-		    *lowdest++ = a1;
+		    *lowdest++ = a1; // IVAR this WRITE.
 		    a1 = *++low1;
 		    if (low1 >= high1)
 			 break;
 	       } else {
-		    *lowdest++ = a2;
+		    *lowdest++ = a2; // IVAR this WRITE.
 		    a2 = *++low2;
 		    if (low2 >= high2)
 			 break;
 	       }
 	  }
      }
+#endif
      if (low1 <= high1 && low2 <= high2) {
 	  a1 = *low1;
 	  a2 = *low2;
 	  for (;;) {
 	       if (a1 < a2) {
-		    *lowdest++ = a1;
+		    *lowdest++ = a1; // IVAR this WRITE.
 		    ++low1;
 		    if (low1 > high1)
 			 break;
 		    a1 = *low1;
 	       } else {
-		    *lowdest++ = a2;
+		    *lowdest++ = a2; // IVAR this WRITE.
 		    ++low2;
 		    if (low2 > high2)
 			 break;
@@ -280,17 +281,21 @@ void seqmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2,
 	       }
 	  }
      }
-     if (low1 > high1) {
-	  memcpy(lowdest, low2, sizeof(ELM) * (high2 - low2 + 1));
+#ifdef MERGE_MEMCOPY_OPT
+     if (low1 > high1) {       
+          memcpy(lowdest, low2, sizeof(ELM) * (high2 - low2 + 1));
      } else {
 	  memcpy(lowdest, low1, sizeof(ELM) * (high1 - low1 + 1));
      }
-}
-
-void wrap_seqmerge(ELM *low1, long len1, ELM* low2, long len2, ELM* dest)
-{
-    seqmerge(low1, low1 + len1 - 1, 
-             low2, low2 + len2 - 1, dest);
+#else 
+     if (low1 > high1) {       
+       int i; int size=high2-low2+1;
+       for (i=0; i<size; i++) lowdest[i] = low2[i];
+     } else {
+       int i; int size=high1-low1+1;
+       for (i=0; i<size; i++) lowdest[i] = low1[i];
+     }
+#endif
 }
 
 #define swap_indices(a, b) \
@@ -351,11 +356,14 @@ void cilkmerge(ELM *low1, ELM *high1, ELM *low2,
 	  swap_indices(low1, low2);
 	  swap_indices(high1, high2);
      }
+// [2013.03.20] Actually: this one makes things SLOWER on 2^25 atm:
+#ifdef MERGE_MEMCOPY_OPT
      if (high1 < low1) {
 	  /* smaller range is empty */
 	  memcpy(lowdest, low2, sizeof(ELM) * (high2 - low2));
 	  return;
      }
+#endif
      if (high2 - low2 < MERGESIZE) {
 	  seqmerge(low1, high1, low2, high2, lowdest);
 	  return;
@@ -374,8 +382,8 @@ void cilkmerge(ELM *low1, ELM *high1, ELM *low2,
      /* 
       * directly put the splitting element into
       * the appropriate location
-      */
-     *(lowdest + lowsize + 1) = *split1;
+      */     
+     *(lowdest + lowsize + 1) = *split1; // IVAR this WRITE...
      cilk_spawn cilkmerge(low1, split1 - 1, low2, split2, lowdest);
 
      cilk_spawn cilkmerge(split1 + 1, high1, split2 + 1, high2,
@@ -400,10 +408,15 @@ ELM* cilksort(ELM *low, long size)
 
      if (size < QUICKSIZE) {
 	  /* quicksort when less than 1024 elements */
-	  seqquick(low, low + size - 1);
-
+	  // seqquick(low, low + size - 1);
           // TODO: probably have to malloc and memcopy here?  To match the contract...
-	  return low;
+	  // return low;
+
+          // Uh, using this in lieu of an out of place sort:
+	  result = (ELM *) malloc(size * sizeof(ELM));
+	  memcpy(result,low,size * sizeof(ELM));
+	  seqquick(result, result + size - 1);
+	  return result;
      }
 
      A = low;
@@ -446,11 +459,12 @@ ELM* cilksort(ELM *low, long size)
      /* cilk_spawn cilkmerge(tmpA, tmpC - 1, tmpC, tmpA + size - 1, A); */
 
      // This final merge is full sized, values go to the ...
+     free(tmpA); free(tmpB); free(tmpC); free(tmpD);
      result2 = (ELM *) malloc(size * sizeof(ELM));
      cilk_spawn cilkmerge(result, result + 2*quarter - 1, result+2*quarter, result + size - 1, result2);
-     
-     cilk_sync;
 
+     cilk_sync;
+     free(result);  
      return result2;
 }
 
@@ -509,13 +523,18 @@ unsigned long long run_cilksort(long size)
 
      success = 1;
      for (i = 0; i < size; ++i)
-	  if (result[i] != i)
-	       success = 0;
+       if (result[i] != i) {
+	 success = 0;
+	 break;
+       }
 
      if (!success) {
-	  printf("SORTING FAILURE, prefix:\n ");
-	  for(i=0; i < 10; i++) {
-	    if (i<size) printf("%d ", result[i]);
+          int j;
+          printf("SORTING FAILURE, prefix, position %ld:\n ... ", i);
+          // j = i - 2; if (j<0) j=0;
+          j = i;
+	  for(; j < i+8; j++) {
+	    if (j<size) printf("%d ", result[j]);
 	  }
 	  printf("\n");
      } else {
@@ -526,7 +545,7 @@ unsigned long long run_cilksort(long size)
      }
 
      free(array);
-     //     free(tmp); 
+     free(result); 
 
      return t1;
 }
