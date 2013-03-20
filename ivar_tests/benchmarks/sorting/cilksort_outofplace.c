@@ -71,7 +71,8 @@
 // #define MERGE_MEMCOPY_OPT
 // #define MERGE_REMAINDER_OPT
 
-typedef uint32_t ELM;
+// typedef uint32_t ELM;
+typedef uint64_t ELM;
 
 /* MERGESIZE must be >= 2 */
 #define KILO 1024
@@ -534,7 +535,7 @@ unsigned long long run_cilksort(long size)
           // j = i - 2; if (j<0) j=0;
           j = i;
 	  for(; j < i+8; j++) {
-	    if (j<size) printf("%d ", result[j]);
+	    if (j<size) printf("%ld ", result[j]);
 	  }
 	  printf("\n");
      } else {
