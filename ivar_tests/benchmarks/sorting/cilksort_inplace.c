@@ -450,27 +450,6 @@ void fill_array(ELM *arr, unsigned long size)
      scramble_array(arr, size);
 }
 
-/* Just so that we can pass on arrays via FFI and time things */
-unsigned long long wrap_cilksort(ELM *low, ELM *tmp, long size)
-{
-    unsigned long long start, end;
-    int success, i;
-
-    start = getticks();
-    cilksort(low, tmp, size);
-    end = getticks();
-
-    success = 1;
-    for (i = 0; i < size - 1; ++i)
-	if (low[i] >= low[i+1])
-	    success = 0;
-
-    if (!success)
-	printf("SORTING FAILURE\n");
-
-    return (end - start);
-}
-
 /* creates arrays and measures cilksort() running time */
 unsigned long long run_cilksort(long size)
 {
@@ -559,8 +538,13 @@ int main(int argc, char **argv)
 	 }
      }
 #else
-     benchmark = 3;
+     //     benchmark = 3;
 #endif
+
+     if (argc > 1) {
+       size = strtol(argv[1], NULL, 10);
+       printf("Setting size based on command line arg: %ld\n", size);
+     }
 
      if (benchmark) {
 	 switch (benchmark) {
@@ -572,6 +556,8 @@ int main(int argc, char **argv)
 	     break;
 	 case 3:		/* long benchmark options -- a lot of work */
 	     size = 4100000;
+	     // size = 1 << 26; // RRN: pumping this up.  2^26
+  	     // size = 1 << 24; 
 	     break;
 	 }
      }

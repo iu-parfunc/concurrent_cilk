@@ -72,6 +72,7 @@ typedef uint32_t ELM;
 
 /* MERGESIZE must be >= 2 */
 #define KILO 1024
+// #define KILO 32
 #define MERGESIZE (2*KILO)
 #define QUICKSIZE (2*KILO)
 #define INSERTIONSIZE 20
@@ -384,7 +385,7 @@ void cilkmerge(ELM *low1, ELM *high1, ELM *low2,
      return;
 }
 
-void cilksort(ELM *low, ELM *tmp, long size)
+ELM* cilksort(ELM *low, long size)
 {
      /*
       * divide the input in four parts of the same size (A, B, C, D)
@@ -394,34 +395,63 @@ void cilksort(ELM *low, ELM *tmp, long size)
       *   3) merbe tmp1 and tmp2 into the original array
       */
      long quarter = size / 4;
-     ELM *A, *B, *C, *D, *tmpA, *tmpB, *tmpC, *tmpD;
+     long lastquarter = size - 3 * quarter;
+     ELM *A, *B, *C, *D, *tmpA, *tmpB, *tmpC, *tmpD, *result, *result2;
 
      if (size < QUICKSIZE) {
 	  /* quicksort when less than 1024 elements */
 	  seqquick(low, low + size - 1);
-	  return;
+
+          // TODO: probably have to malloc and memcopy here?  To match the contract...
+	  return low;
      }
+
      A = low;
-     tmpA = tmp;
      B = A + quarter;
-     tmpB = tmpA + quarter;
      C = B + quarter;
-     tmpC = tmpB + quarter;
      D = C + quarter;
-     tmpD = tmpC + quarter;
+     //     tmpA = tmp;
+     //     tmpB = tmpA + quarter;
+     //     tmpC = tmpB + quarter;
+     //     tmpD = tmpC + quarter;
 
-     cilk_spawn cilksort(A, tmpA, quarter);
-     cilk_spawn cilksort(B, tmpB, quarter);
-     cilk_spawn cilksort(C, tmpC, quarter);
-     cilk_spawn cilksort(D, tmpD, size - 3 * quarter);
+     tmpA = cilk_spawn cilksort(A, quarter);
+     tmpB = cilk_spawn cilksort(B, quarter);
+     tmpC = cilk_spawn cilksort(C, quarter);
+     tmpD = cilk_spawn cilksort(D, lastquarter);
      cilk_sync;
 
-     cilk_spawn cilkmerge(A, A + quarter - 1, B, B + quarter - 1, tmpA);
-     cilk_spawn cilkmerge(C, C + quarter - 1, D, low + size - 1, tmpC);
+     //     printf("[%ld] ALL spawned sorts finished!!\n", size);
+
+     // COPY results back into tmp:
+     /* memcpy(tmp            , tmpA, sizeof(ELM) * quarter); */
+     /* memcpy(tmp +   quarter, tmpB, sizeof(ELM) * quarter); */
+     /* memcpy(tmp + 2*quarter, tmpC, sizeof(ELM) * quarter); */
+     /* memcpy(tmp + 3*quarter, tmpC, sizeof(ELM) * lastquarter); */
+
+     //     printf("  [%ld] Results copied back into tmp...\n",size);
+
+     /* cilk_spawn cilkmerge(A, A + quarter - 1, B, B + quarter - 1, tmpA); */
+     /* cilk_spawn cilkmerge(C, C + quarter - 1, D, low + size - 1,  tmpC); */
+
+     //  tmpE = (ELM *) malloc(quarter * sizeof(ELM));
+
+     result = (ELM *) malloc(size * sizeof(ELM));
+     // Each of these merges writes out a half-sized chunk:
+     cilk_spawn cilkmerge(tmpA, tmpA + quarter - 1, tmpB, tmpB + quarter - 1, result);
+     cilk_spawn cilkmerge(tmpC, tmpC + quarter - 1, tmpD, tmpD + lastquarter - 1, result+2*quarter);
+
      cilk_sync;
 
-     cilk_spawn cilkmerge(tmpA, tmpC - 1, tmpC, tmpA + size - 1, A);
+     /* cilk_spawn cilkmerge(tmpA, tmpC - 1, tmpC, tmpA + size - 1, A); */
+
+     // This final merge is full sized, values go to the ...
+     result2 = (ELM *) malloc(size * sizeof(ELM));
+     cilk_spawn cilkmerge(result, result + 2*quarter - 1, result+2*quarter, result + size - 1, result2);
+     
      cilk_sync;
+
+     return result2;
 }
 
 void scramble_array(ELM *arr, unsigned long size)
@@ -450,37 +480,17 @@ void fill_array(ELM *arr, unsigned long size)
      scramble_array(arr, size);
 }
 
-/* Just so that we can pass on arrays via FFI and time things */
-unsigned long long wrap_cilksort(ELM *low, ELM *tmp, long size)
-{
-    unsigned long long start, end;
-    int success, i;
-
-    start = getticks();
-    cilksort(low, tmp, size);
-    end = getticks();
-
-    success = 1;
-    for (i = 0; i < size - 1; ++i)
-	if (low[i] >= low[i+1])
-	    success = 0;
-
-    if (!success)
-	printf("SORTING FAILURE\n");
-
-    return (end - start);
-}
 
 /* creates arrays and measures cilksort() running time */
 unsigned long long run_cilksort(long size)
 {
-     ELM *array, *tmp;
+     ELM *array, *result;
      unsigned long long start, end, t1;
      int success;
      long i;
 
      array = (ELM *) malloc(size * sizeof(ELM));
-     tmp = (ELM *) malloc(size * sizeof(ELM));
+     //     tmp = (ELM *) malloc(size * sizeof(ELM));
 
      cilk_spawn fill_array(array, size);
      cilk_sync;
@@ -489,7 +499,7 @@ unsigned long long run_cilksort(long size)
      cilk_sync;
      start = getticks();
 
-     cilk_spawn cilksort(array, tmp, size);
+     result = cilk_spawn cilksort(array, size);
      cilk_sync;
 
      /* Timing. "Stop" timers */
@@ -499,12 +509,16 @@ unsigned long long run_cilksort(long size)
 
      success = 1;
      for (i = 0; i < size; ++i)
-	  if (array[i] != i)
+	  if (result[i] != i)
 	       success = 0;
 
-     if (!success)
-	  printf("SORTING FAILURE");
-     else {
+     if (!success) {
+	  printf("SORTING FAILURE, prefix:\n ");
+	  for(i=0; i < 10; i++) {
+	    if (i<size) printf("%d ", result[i]);
+	  }
+	  printf("\n");
+     } else {
           printf("\nCilk Example: cilksort\n");
           printf("Number of elements: %ld\n", size);
           printf("Executed in: %llu ticks (%f s)\n\n",
@@ -512,7 +526,7 @@ unsigned long long run_cilksort(long size)
      }
 
      free(array);
-     free(tmp);
+     //     free(tmp); 
 
      return t1;
 }
@@ -538,7 +552,7 @@ int main(int argc, char **argv)
      int c, benchmark, help;
 
      /* standard benchmark options */
-     size = 3000000;
+     size = 400;
      help = 0;
      benchmark = 0;
 
@@ -559,8 +573,13 @@ int main(int argc, char **argv)
 	 }
      }
 #else
-     benchmark = 3;
+     //     benchmark = 3;
 #endif
+
+     if (argc > 1) {
+       size = strtol(argv[1], NULL, 10);
+       printf("Setting size based on command line arg: %ld\n", size);
+     }
 
      if (benchmark) {
 	 switch (benchmark) {
@@ -571,7 +590,9 @@ int main(int argc, char **argv)
 	     size = 3000000;
 	     break;
 	 case 3:		/* long benchmark options -- a lot of work */
-	     size = 4100000;
+	     size =  4100000; // About 16M .. i guess this was supposed to fit in cache.
+	    // size = 10000000; // RRN: pumping this up.  10M e.g. 40Mb
+	    // size = 1 << 24; 
 	     break;
 	 }
      }

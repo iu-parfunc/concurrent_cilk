@@ -9,6 +9,10 @@ SCRIPTS="../../scripts"
 SCRIPT_PREFIX="../benchmarks/sorting"
 include  ../../Makefile.common
 
-simple: 
-	icc -lcilkrts cilksort_inplace.c -o cilksort_inplace_plainicc.exe
-#	icc -lm -lcilkrts cilksort_inplace.c -o cilksort_inplace_icc.exe
+simple: cilksort_inplace_plainicc.exe cilksort_outofplace_plainicc.exe
+
+cilksort_inplace_plainicc.exe: cilksort_inplace.c
+	icc -O3 -lcilkrts $^ -o $@
+
+cilksort_outofplace_plainicc.exe: cilksort_outofplace.c
+	icc -O3 -lcilkrts $^ -o $@
