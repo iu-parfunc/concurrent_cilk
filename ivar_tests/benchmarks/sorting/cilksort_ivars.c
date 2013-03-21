@@ -56,6 +56,7 @@
 
 #ifdef __INTEL_COMPILER
 #include <cilk/cilk.h>
+// #include <cilk/cilk_api.h>
 #include <cilk/concurrent_cilk.h>
 #else
 #define cilk_sync
@@ -77,8 +78,13 @@
 #define IVAR_READY(iv) (iv & 0xf) == 1
 #define TAG(iv)   (iv << IVAR_SHIFT)
 #define UNTAG(iv) (iv >> IVAR_SHIFT)
-// #define FULLIVAR(x) (x<<IVAR_SHIFT + 1)
-#define FULLIVAR(x) (x)
+#define FULLIVAR(x) ((x<<IVAR_SHIFT) + 1)
+
+// Ensure that this works.  We should expose this from the IVar API:
+#define ALLOC_EMPTY_IVARS(size) calloc(size, sizeof(__cilkrts_ivar))
+// #define ALLOC_EMPTY_IVARS(size) malloc(size * sizeof(__cilkrts_ivar))
+
+// #define FULLIVAR(x) (x)
 
 // typedef uint32_t ELM;
 typedef uint64_t ELM;
@@ -339,7 +345,7 @@ ELM *binsplit(ELM val, ELM *low, ELM *high)
 }
 
 void cilkmerge(ELM *low1, ELM *high1, ELM *low2,
-		    ELM *high2, ELM *lowdest)
+	       ELM *high2, __cilkrts_ivar *lowdest)
 {
      /*
       * Cilkmerge: Merges range [low1, high1] with range [low2, high2] 
@@ -393,11 +399,12 @@ void cilkmerge(ELM *low1, ELM *high1, ELM *low2,
       * directly put the splitting element into
       * the appropriate location
       */     
+     // printf("Trying to write split in... ivar at address %p, writing val %ld\n", lowdest + lowsize + 1, *split1);
+     // __cilkrts_ivar_write(lowdest + lowsize + 1, *split1); 
      *(lowdest + lowsize + 1) = *split1; // IVAR this WRITE...
      cilk_spawn cilkmerge(low1, split1 - 1, low2, split2, lowdest);
-
      cilk_spawn cilkmerge(split1 + 1, high1, split2 + 1, high2,
-		     lowdest + lowsize + 2);
+			  lowdest + lowsize + 2);
 
      cilk_sync;
      return;
@@ -414,7 +421,8 @@ __cilkrts_ivar* cilksort(ELM *low, long size)
       */
      long quarter = size / 4;
      long lastquarter = size - 3 * quarter;
-     ELM *A, *B, *C, *D, *tmpA, *tmpB, *tmpC, *tmpD, *result, *result2;
+     ELM *A, *B, *C, *D, *tmpA, *tmpB, *tmpC, *tmpD;
+     __cilkrts_ivar *result, *result2;
 
      if (size < QUICKSIZE) {
 	  /* quicksort when less than 1024 elements */
@@ -423,7 +431,8 @@ __cilkrts_ivar* cilksort(ELM *low, long size)
 	  // return low;
 
           // Uh, using this in lieu of an out of place sort:
-	  result = (ELM *) malloc(size * sizeof(ELM));
+          result = (__cilkrts_ivar*) malloc(size * sizeof(__cilkrts_ivar));
+          // DISADVANTAGE OF IVARS:  Can't just memcpy this.. Have to at least mark full bits:
 	  // memcpy(result,low,size * sizeof(ELM));
 	  int i; for(i=0; i<size; i++) result[i] = FULLIVAR(low[i]);
 	  seqquick(result, result + size - 1);
@@ -434,10 +443,6 @@ __cilkrts_ivar* cilksort(ELM *low, long size)
      B = A + quarter;
      C = B + quarter;
      D = C + quarter;
-     //     tmpA = tmp;
-     //     tmpB = tmpA + quarter;
-     //     tmpC = tmpB + quarter;
-     //     tmpD = tmpC + quarter;
 
      tmpA = cilk_spawn cilksort(A, quarter);
      tmpB = cilk_spawn cilksort(B, quarter);
@@ -458,9 +463,7 @@ __cilkrts_ivar* cilksort(ELM *low, long size)
      /* cilk_spawn cilkmerge(A, A + quarter - 1, B, B + quarter - 1, tmpA); */
      /* cilk_spawn cilkmerge(C, C + quarter - 1, D, low + size - 1,  tmpC); */
 
-     //  tmpE = (ELM *) malloc(quarter * sizeof(ELM));
-
-     result = (__cilkrts_ivar*) calloc(size, sizeof(__cilkrts_ivar));
+     result = ALLOC_EMPTY_IVARS(size);
 
      // Each of these merges writes out a half-sized chunk:
      cilk_spawn cilkmerge(tmpA, tmpA + quarter - 1, tmpB, tmpB + quarter - 1, result);
@@ -472,7 +475,7 @@ __cilkrts_ivar* cilksort(ELM *low, long size)
 
      // This final merge is full sized, values go to the ...
      free(tmpA); free(tmpB); free(tmpC); free(tmpD);
-     result2 = (ELM *) malloc(size * sizeof(ELM));
+     result2 = ALLOC_EMPTY_IVARS(size);
      cilk_spawn cilkmerge(result, result + 2*quarter - 1, result+2*quarter, result + size - 1, result2);
 
      cilk_sync;
@@ -535,7 +538,14 @@ unsigned long long run_cilksort(long size)
 
      success = 1;
      for (i = 0; i < size; ++i)
-       if (result[i] != i) {
+       // TODO: It would be nice to have a non-blocking read here to ensure it's full:
+       // FIXME: Getting problems with this:
+#if 1
+       if (__cilkrts_ivar_read(result + i) != i) 
+#else
+       if (UNTAG(result[i]) != i)
+#endif
+       {
 	 success = 0;
 	 break;
        }
@@ -547,6 +557,10 @@ unsigned long long run_cilksort(long size)
           j = i;
 	  for(; j < i+8; j++) {
 	    if (j<size) printf("%ld ", result[j]);
+	  }
+          printf("\nUntagged: \n ... "); j = i;
+	  for(; j < i+8; j++) {
+	    if (j<size) printf("%ld ", UNTAG(result[j]));
 	  }
 	  printf("\n");
      } else {
