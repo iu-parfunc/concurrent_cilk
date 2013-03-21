@@ -279,27 +279,27 @@ void seqmerge(__cilkrts_ivar *low1, __cilkrts_ivar *high1, __cilkrts_ivar *low2,
      }
 #endif
      if (low1 <= high1 && low2 <= high2) {
-       //a1 = __cilkrts_ivar_read(low1);  
-       //  a2 = __cilkrts_ivar_read(low2); 
-	  a1 = *low1; // IVAR READ 
-	  a2 = *low2; // IVAR READ
+       a1 = __cilkrts_ivar_read(low1);  
+       a2 = __cilkrts_ivar_read(low2); 
+        //  a1 = *low1; // IVAR READ 
+	// a2 = *low2; // IVAR READ
 	  for (;;) {
 	       if (a1 < a2) {
-		 // __cilkrts_ivar_write(lowdest,a1); lowdest++; 
-		 *lowdest++ = a1; // IVAR this WRITE.
+		  __cilkrts_ivar_write(lowdest,a1); lowdest++; 
+		 //*lowdest++ = a1; // IVAR this WRITE.
 		    ++low1;
 		    if (low1 > high1)
 			 break;
-		    // a1 = __cilkrts_ivar_read(low1); 
-		    a1 = *low1; // IVAR READ 
+		    a1 = __cilkrts_ivar_read(low1); 
+		    // a1 = *low1; // IVAR READ 
 	       } else {
-		 // __cilkrts_ivar_write(lowdest,a1); lowdest++; 
-		 *lowdest++ = a2; // IVAR this WRITE.
+		  __cilkrts_ivar_write(lowdest,a1); lowdest++; 
+		  // *lowdest++ = a2; // IVAR this WRITE.
 		    ++low2;
 		    if (low2 > high2)
 			 break;
-		    // a2 = __cilkrts_ivar_read(low2); 
-		    a2 = *low2;
+		    a2 = __cilkrts_ivar_read(low2); 
+		    // a2 = *low2;
 	       }
 	  }
      }
@@ -312,12 +312,12 @@ void seqmerge(__cilkrts_ivar *low1, __cilkrts_ivar *high1, __cilkrts_ivar *low2,
 #else 
      if (low1 > high1) {       
        int i; int size=high2-low2+1;
-       for (i=0; i<size; i++) lowdest[i] = low2[i];
-       // for (i=0; i<size; i++) __cilkrts_ivar_write(lowdest+i, __cilkrts_ivar_read(low2+i));
+       // for (i=0; i<size; i++) lowdest[i] = low2[i];
+       for (i=0; i<size; i++) __cilkrts_ivar_write(lowdest+i, __cilkrts_ivar_read(low2+i));
      } else {
        int i; int size=high1-low1+1;
-       for (i=0; i<size; i++) lowdest[i] = low1[i];
-       // for (i=0; i<size; i++) __cilkrts_ivar_write(lowdest+i, __cilkrts_ivar_read(low1+i));
+       // for (i=0; i<size; i++) lowdest[i] = low1[i];
+       for (i=0; i<size; i++) __cilkrts_ivar_write(lowdest+i, __cilkrts_ivar_read(low1+i));
      }
 #endif
 }
@@ -330,23 +330,23 @@ void seqmerge(__cilkrts_ivar *low1, __cilkrts_ivar *high1, __cilkrts_ivar *low2,
   b = tmp;\
 }
 
-ELM *binsplit(ELM val, ELM *low, ELM *high)
+__cilkrts_ivar *binsplit(ELM val, __cilkrts_ivar *low, __cilkrts_ivar *high)
 {
      /*
       * returns index which contains greatest element <= val.  If val is
       * less than all elements, returns low-1
       */
-     ELM *mid;
+     __cilkrts_ivar *mid;
 
      while (low != high) {
 	  mid = low + ((high - low + 1) >> 1);
-	  if (val <= *mid)
+	  if (val <= __cilkrts_ivar_read(mid))
 	       high = mid - 1;
 	  else
 	       low = mid;
      }
 
-     if (*low > val)
+     if (__cilkrts_ivar_read(low) > val)
 	  return low - 1;
      else
 	  return low;
@@ -360,7 +360,7 @@ void cilkmerge(__cilkrts_ivar *low1, __cilkrts_ivar *high1, __cilkrts_ivar *low2
       * into the range [lowdest, ...]  
       */
 
-     ELM *split1, *split2;	/*
+     __cilkrts_ivar *split1, *split2;	/*
 				 * where each of the ranges are broken for 
 				 * recursive merge 
 				 */
@@ -376,9 +376,13 @@ void cilkmerge(__cilkrts_ivar *low1, __cilkrts_ivar *high1, __cilkrts_ivar *low2
       * actually the smaller range, we should swap it with [low2, high2] 
       */
 
+     /* if (high2 - low2 > high1 - low1) { */
+     /* 	  swap_indices(low1, low2); */
+     /* 	  swap_indices(high1, high2); */
+     /* } */
      if (high2 - low2 > high1 - low1) {
-	  swap_indices(low1, low2);
-	  swap_indices(high1, high2);
+       cilkmerge(low2,high2,low1,high1,lowdest);
+       return;
      }
 // [2013.03.20] Actually: this one makes things SLOWER on 2^25 atm:
 #ifdef MERGE_MEMCOPY_OPT
@@ -430,12 +434,13 @@ __cilkrts_ivar* cilksort(ELM *low, long size)
       */
      long quarter = size / 4;
      long lastquarter = size - 3 * quarter;
-     ELM *A, *B, *C, *D, *tmpA, *tmpB, *tmpC, *tmpD;
+     ELM *A, *B, *C, *D;
+     __cilkrts_ivar *tmpA, *tmpB, *tmpC, *tmpD;
      __cilkrts_ivar *result, *result2;
 
      if (size < QUICKSIZE) {
 	  /* quicksort when less than 1024 elements */
-	  // seqquick(low, low + size - 1);
+	  seqquick(low, low + size - 1);
           // TODO: probably have to malloc and memcopy here?  To match the contract...
 	  // return low;
 
@@ -444,7 +449,7 @@ __cilkrts_ivar* cilksort(ELM *low, long size)
           // DISADVANTAGE OF IVARS:  Can't just memcpy this.. Have to at least mark full bits:
 	  // memcpy(result,low,size * sizeof(ELM));
 	  int i; for(i=0; i<size; i++) result[i] = FULLIVAR(low[i]);
-	  seqquick(result, result + size - 1);
+	  // seqquick(result, result + size - 1);
 	  return result;
      }
 
@@ -526,7 +531,8 @@ void fill_array(ELM *arr, unsigned long size)
 /* creates arrays and measures cilksort() running time */
 unsigned long long run_cilksort(long size)
 {
-     ELM *array, *result;
+     ELM *array;
+     __cilkrts_ivar *result;
      unsigned long long start, end, t1;
      int success;
      long i;
