@@ -56,7 +56,7 @@
 
 #ifdef __INTEL_COMPILER
 #include <cilk/cilk.h>
-// #include <cilk/concurrent_cilk.h>
+#include <cilk/concurrent_cilk.h>
 #else
 #define cilk_sync
 #define cilk_spawn
@@ -71,6 +71,14 @@
 
 // #define MERGE_MEMCOPY_OPT
 // #define MERGE_REMAINDER_OPT
+
+// TEMP: Duplicating here:
+#define IVAR_SHIFT 0x4
+#define IVAR_READY(iv) (iv & 0xf) == 1
+#define TAG(iv)   (iv << IVAR_SHIFT)
+#define UNTAG(iv) (iv >> IVAR_SHIFT)
+// #define FULLIVAR(x) (x<<IVAR_SHIFT + 1)
+#define FULLIVAR(x) (x)
 
 // typedef uint32_t ELM;
 typedef uint64_t ELM;
@@ -395,7 +403,7 @@ void cilkmerge(ELM *low1, ELM *high1, ELM *low2,
      return;
 }
 
-ELM* cilksort(ELM *low, long size)
+__cilkrts_ivar* cilksort(ELM *low, long size)
 {
      /*
       * divide the input in four parts of the same size (A, B, C, D)
@@ -416,7 +424,8 @@ ELM* cilksort(ELM *low, long size)
 
           // Uh, using this in lieu of an out of place sort:
 	  result = (ELM *) malloc(size * sizeof(ELM));
-	  memcpy(result,low,size * sizeof(ELM));
+	  // memcpy(result,low,size * sizeof(ELM));
+	  int i; for(i=0; i<size; i++) result[i] = FULLIVAR(low[i]);
 	  seqquick(result, result + size - 1);
 	  return result;
      }
@@ -451,7 +460,8 @@ ELM* cilksort(ELM *low, long size)
 
      //  tmpE = (ELM *) malloc(quarter * sizeof(ELM));
 
-     result = (ELM *) malloc(size * sizeof(ELM));
+     result = (__cilkrts_ivar*) calloc(size, sizeof(__cilkrts_ivar));
+
      // Each of these merges writes out a half-sized chunk:
      cilk_spawn cilkmerge(tmpA, tmpA + quarter - 1, tmpB, tmpB + quarter - 1, result);
      cilk_spawn cilkmerge(tmpC, tmpC + quarter - 1, tmpD, tmpD + lastquarter - 1, result+2*quarter);

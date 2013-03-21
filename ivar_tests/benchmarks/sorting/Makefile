@@ -7,6 +7,9 @@ SCRIPTS="../../scripts"
 SCRIPT_PREFIX="../benchmarks/sorting"
 include  ../../Makefile.common
 
+RTSDIR:=$(shell echo $(CILK_ROOT))
+CFLAGS+= -I$(RTSDIR)/include
+
 simple: cilksort_inplace_plainicc.exe cilksort_outofplace_plainicc.exe
 
 cilksort_inplace_plainicc.exe: cilksort_inplace.c
