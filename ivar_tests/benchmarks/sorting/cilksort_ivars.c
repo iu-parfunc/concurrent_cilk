@@ -227,8 +227,8 @@ void seqquick(ELM *low, ELM *high)
      insertion_sort(low, high);
 }
 
-void seqmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2,
-	      ELM *lowdest)
+void seqmerge(__cilkrts_ivar *low1, __cilkrts_ivar *high1, __cilkrts_ivar *low2, __cilkrts_ivar *high2,
+	      __cilkrts_ivar *lowdest)
 {
      ELM a1, a2;
 
@@ -279,20 +279,26 @@ void seqmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2,
      }
 #endif
      if (low1 <= high1 && low2 <= high2) {
-	  a1 = *low1;
-	  a2 = *low2;
+       //a1 = __cilkrts_ivar_read(low1);  
+       //  a2 = __cilkrts_ivar_read(low2); 
+	  a1 = *low1; // IVAR READ 
+	  a2 = *low2; // IVAR READ
 	  for (;;) {
 	       if (a1 < a2) {
-		    *lowdest++ = a1; // IVAR this WRITE.
+		 // __cilkrts_ivar_write(lowdest,a1); lowdest++; 
+		 *lowdest++ = a1; // IVAR this WRITE.
 		    ++low1;
 		    if (low1 > high1)
 			 break;
-		    a1 = *low1;
+		    // a1 = __cilkrts_ivar_read(low1); 
+		    a1 = *low1; // IVAR READ 
 	       } else {
-		    *lowdest++ = a2; // IVAR this WRITE.
+		 // __cilkrts_ivar_write(lowdest,a1); lowdest++; 
+		 *lowdest++ = a2; // IVAR this WRITE.
 		    ++low2;
 		    if (low2 > high2)
 			 break;
+		    // a2 = __cilkrts_ivar_read(low2); 
 		    a2 = *low2;
 	       }
 	  }
@@ -307,9 +313,11 @@ void seqmerge(ELM *low1, ELM *high1, ELM *low2, ELM *high2,
      if (low1 > high1) {       
        int i; int size=high2-low2+1;
        for (i=0; i<size; i++) lowdest[i] = low2[i];
+       // for (i=0; i<size; i++) __cilkrts_ivar_write(lowdest+i, __cilkrts_ivar_read(low2+i));
      } else {
        int i; int size=high1-low1+1;
        for (i=0; i<size; i++) lowdest[i] = low1[i];
+       // for (i=0; i<size; i++) __cilkrts_ivar_write(lowdest+i, __cilkrts_ivar_read(low1+i));
      }
 #endif
 }
@@ -344,8 +352,8 @@ ELM *binsplit(ELM val, ELM *low, ELM *high)
 	  return low;
 }
 
-void cilkmerge(ELM *low1, ELM *high1, ELM *low2,
-	       ELM *high2, __cilkrts_ivar *lowdest)
+void cilkmerge(__cilkrts_ivar *low1, __cilkrts_ivar *high1, __cilkrts_ivar *low2,
+	       __cilkrts_ivar *high2, __cilkrts_ivar *lowdest)
 {
      /*
       * Cilkmerge: Merges range [low1, high1] with range [low2, high2] 
@@ -407,7 +415,6 @@ void cilkmerge(ELM *low1, ELM *high1, ELM *low2,
      cilk_spawn cilkmerge(low1, split1 - 1, low2, split2, lowdest);
      cilk_spawn cilkmerge(split1 + 1, high1, split2 + 1, high2,
 			  lowdest + lowsize + 2);
-
      cilk_sync;
      return;
 }
@@ -466,6 +473,10 @@ __cilkrts_ivar* cilksort(ELM *low, long size)
      /* cilk_spawn cilkmerge(C, C + quarter - 1, D, low + size - 1,  tmpC); */
 
      result = ALLOC_EMPTY_IVARS(size);
+
+     // ONE OPTION -- if we liked we could read all the IVar results
+     // back out and put them in an array of plain results before alling
+     // cilkmerge... NOT doing that for now. -RRN [2013.03.21]
 
      // Each of these merges writes out a half-sized chunk:
      cilk_spawn cilkmerge(tmpA, tmpA + quarter - 1, tmpB, tmpB + quarter - 1, result);
