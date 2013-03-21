@@ -399,9 +399,11 @@ void cilkmerge(ELM *low1, ELM *high1, ELM *low2,
       * directly put the splitting element into
       * the appropriate location
       */     
-     // printf("Trying to write split in... ivar at address %p, writing val %ld\n", lowdest + lowsize + 1, *split1);
-     // __cilkrts_ivar_write(lowdest + lowsize + 1, *split1); 
-     *(lowdest + lowsize + 1) = *split1; // IVAR this WRITE...
+     /* printf("Trying to write split in... ivar at address %p, offset %ld, writing val %ld, val low bits %ld\n", */
+     /* 	    lowdest + lowsize + 1, lowsize + 1, *split1, *split1 & 0xf); */
+     // FIXME: Shouldn't have to untag here...
+     __cilkrts_ivar_write(lowdest + lowsize + 1, UNTAG(*split1));
+     // *(lowdest + lowsize + 1) = *split1; // IVAR this WRITE...
      cilk_spawn cilkmerge(low1, split1 - 1, low2, split2, lowdest);
      cilk_spawn cilkmerge(split1 + 1, high1, split2 + 1, high2,
 			  lowdest + lowsize + 2);

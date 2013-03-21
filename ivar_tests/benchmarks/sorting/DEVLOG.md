@@ -26,3 +26,28 @@ Things get quite a bit slower.  For four threads, 2^25:
 Wow, the gap is up to almost 2X!  And it holds even at 2^24.
 Why is the out-of-place version so disproportionately affected by switching to 64 bit ops?
 
+[2013.03.21] {Wait... were those prev numbers right?}
+
+Now it's much slower 2^24 = 16777216... is taking over two seconds.
+WAIT... is this a big slowdown with the concurrent/cilk runtime?
+Irrespective of which version of the benchmark?
+
+ * inplace (1.594147 s)
+ * outofplace (2.202818 s)
+ * ivars (2.308277 s)
+
+ * inplace plain cilk: (1.589038 s)    [WRONG]
+ * outofplace plain cilk: (2.206963 s) [WRONG]
+
+No apparent difference on that run... I feel like somethings weird
+about the build state.  
+
+Wait... it IS THE CONCURRENT CILK RUNTIME.  I must be catching the
+concurrent Cilk version EVEN in my "plainicc" builds.  If I BREAK the
+concurrent cilk build... then I get a proper (plain icc) run for 2^24:
+
+ * inplace TRUE plain icc (0.439702 s)  [3X BETTER THAN OTHER RUNTIME]
+ * outof place, TRUE plain icc (1.000862 s)
+
+Now that's consistent(ish) with the above.
+

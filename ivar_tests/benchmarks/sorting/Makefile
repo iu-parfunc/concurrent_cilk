@@ -17,3 +17,17 @@ cilksort_inplace_plainicc.exe: cilksort_inplace.c
 
 cilksort_outofplace_plainicc.exe: cilksort_outofplace.c
 	icc -O3 -lcilkrts $^ -o $@
+
+runall: all simple
+	./bin/cilksort_inplace.exe 16777216
+	./bin/cilksort_outofplace.exe 16777216
+	./bin/cilksort_ivars.exe 16777216
+
+# Will need stricter linking for these:
+#	echo "Vanilla Cilk versions:"
+#	./cilksort_inplace_plainicc.exe 16777216
+#	./cilksort_outofplace_plainicc.exe 16777216
+
+distclean:
+	rm -f *.exe
+	${MAKE} clean
