@@ -8,29 +8,36 @@
 
 namespace cilk_event
 {
-  if(!event_init())
-    fprintf(stderr, "Exception in event_cilk: initialization faied");
-
-  template<typename T>
-    class event
+  int cilk_event(){
+  event_init();
+  }
+ template<typename T>
+    class event_c
     {
       public:
+
+        event_c(){
+          e = event_create();
+        }
+
+        int id(){ e->self; }
+
         int get_dep_value(int i){ ((event_data_t *) e->deps[i])->u64; }
 
         int deps(){ e->ndeps; }
 
         uint64_t get(){ ((event_data_t *) event_wait(e->self))->u64; }
 
-        ~event() { destroy_event(e); }
+        //~event() { destroy_event(e); }
 
 //        void create() { event_create(); }
 
-        int add_event_dep(event *e_add){
-          return event_ctl(e->self, e_add->self, ADD);
+        int add_event_dep(event_c e_add){
+          return event_ctl(e->self, e_add.id(), ADD);
         }
 
-        int remove_event_dep(event *e_remove){
-          return event_ctl(e->self, e_remove->self, DEL);
+        int remove_event_dep(event_c *e_remove){
+          return event_ctl(e->self, e_remove.id(), DEL);
         }
 
         int fulfill(T data){ // this T might need to be a pointer
@@ -50,7 +57,7 @@ namespace cilk_event
         }
 
       private:
-        event *e = event_create();
+        event *e; //= event_create();
     };
 }
 #endif

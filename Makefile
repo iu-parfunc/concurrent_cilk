@@ -26,8 +26,9 @@ parfib: parfib.c
 ivars_parfib: ivars_parfib.c
 	$(CC) $(CFLAGS) -I$(INCLUDE) -L$(LIBS) ivars_parfib.c -o ivars_parfib.exe
 
-coroutine: coroutine.cpp
-	$(CPLUS) $(CPLUSFLAGS) -I$(INCLUDE) -L$(LIBS) coroutine.cpp -o coroutine.exe
+coroutines: coroutines.c
+	$(CC) $(CFLAGS) -I$(INCLUDE) -L$(LIBS) coroutines.c -o coroutines.exe
+
 
 clean:
 	rm -f *.o *.exe

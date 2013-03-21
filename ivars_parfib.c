@@ -51,9 +51,9 @@ int main(int argc, char** argv) {
   CLEARIV(&dummy);
 
 // passing a dummy argument through in order to warm things up (and keep them warm...)
-  long ret;
-  pfib(&dummy, n);
-  ret = (long) __cilkrts_ivar_read(&dummy);
+//  long ret;
+ // pfib(&dummy, n);
+  //ret = (long) __cilkrts_ivar_read(&dummy);
 
 // Ok, we've warmed up now, let actually run it
   TIMER_START(t);
@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
   ticks t2 = getticks();
   TIMER_STOP(t);
 
-  printf("%d\t%f\t%lf\n", n, TIMER_EVAL(t), elapsed(t2,t1));
+  printf("%d\t%f\t%lf\t%d\n", n, TIMER_EVAL(t), elapsed(t2,t1), __cilkrts_get_total_workers());
   //printf("%d\t%f\n", n, TIMER_EVAL(t));
   return 0;
 }

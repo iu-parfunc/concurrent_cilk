@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "../utils/getoptions.h"
+#include "../utils/timer.h"
 #define SizeAtWhichDivideAndConquerIsMoreEfficient 64
 #define SizeAtWhichNaiveAlgorithmIsMoreEfficient 16
 #define CacheBlockSizeInBytes 32
@@ -714,6 +715,8 @@ int main(int argc, char *argv[])
 {
      REAL *A, *B, *C1, *C2;
      int verify, benchmark, help, n;
+     timer_t t;
+
      /*
      Cilk_time tm_begin, tm_elapsed;
      Cilk_time wk_begin, wk_elapsed;
@@ -762,9 +765,10 @@ int main(int argc, char *argv[])
      wk_begin = Cilk_user_work;
      tm_begin = Cilk_get_wall_time();
      */
+     TIMER_START(t);
      cilk_spawn strassen(n, A, n, B, n, C2, n);
      cilk_sync;
-
+     TIMER_STOP(t);
      /* Timing. "Stop" timers */
      /*
      tm_elapsed = Cilk_get_wall_time() - tm_begin;
@@ -782,6 +786,7 @@ int main(int argc, char *argv[])
 	   printf("\nCilk Example: strassen\n");
 	   //printf("	      running on %d processor%s\n\n", Cilk_active_size, Cilk_active_size > 1 ? "s" : "");
 	   printf("Options: n = %d\n\n", n);
+     printf("Time:%4f\n", TIMER_EVAL(t));
 	   //printf("Running time  = %4f s\n", Cilk_wall_time_to_sec(tm_elapsed));
 	   //printf("Work          = %4f s\n", Cilk_time_to_sec(wk_elapsed));
 	   //printf("Critical path = %4f s\n\n", Cilk_time_to_sec(cp_elapsed));

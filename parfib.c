@@ -13,7 +13,7 @@ long pfib(int n) {
   long y;
   x = cilk_spawn pfib(n-1);
   // We add a spawn here in order to match time_fib in qthreads
-  y = cilk_spawn pfib(n-2);
+  y =  pfib(n-2);
 
   cilk_sync;
   return x+y;
@@ -31,8 +31,8 @@ int main(int argc, char** argv) {
     n = 42;
 
 // passing a dummy argument through in order to warm things up (and keep them warm...)
-  long ret;
-  ret = pfib(n);
+  //long ret;
+  //ret = pfib(n);
 
   TIMER_START(t);
   ticks t1 = getticks();
@@ -40,7 +40,8 @@ int main(int argc, char** argv) {
   ticks t2 = getticks();
   TIMER_STOP(t);
 
-  printf("%d\t%f\t%lf\n", n, TIMER_EVAL(t), elapsed(t2,t1));
+  printf("%lu\n", j);
+  printf("%d\t%f\t%lf\t%d\n", n, TIMER_EVAL(t), elapsed(t2,t1), __cilkrts_get_total_workers());
   //printf("%d\t%f\n", n, TIMER_EVAL(t));
   return 0;
 }

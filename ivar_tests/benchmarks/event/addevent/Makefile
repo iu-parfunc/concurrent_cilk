@@ -1,7 +1,7 @@
 include ../../../Makefile.common
 
 OUT=bin
-OBJS=../event_cilk.o ../lockfree_queue.o add.o #main.o
+OBJS=../event_cilk.o ../lockfree_queue.o main.o
 
 $(OUT)/%.exe: $(OBJS)
 	mkdir -p $(OUT)
