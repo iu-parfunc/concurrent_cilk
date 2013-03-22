@@ -293,7 +293,7 @@ void seqmerge(__cilkrts_ivar *low1, __cilkrts_ivar *high1, __cilkrts_ivar *low2,
 		    a1 = __cilkrts_ivar_read(low1); 
 		    // a1 = *low1; // IVAR READ 
 	       } else {
-		  __cilkrts_ivar_write(lowdest,a1); lowdest++; 
+		  __cilkrts_ivar_write(lowdest,a2); lowdest++; 
 		  // *lowdest++ = a2; // IVAR this WRITE.
 		    ++low2;
 		    if (low2 > high2)
@@ -340,6 +340,7 @@ __cilkrts_ivar *binsplit(ELM val, __cilkrts_ivar *low, __cilkrts_ivar *high)
 
      while (low != high) {
 	  mid = low + ((high - low + 1) >> 1);
+	  //	  printf("  binsplit... comparing val %ld against ivar mid %ld\n", val, __cilkrts_ivar_read(mid));
 	  if (val <= __cilkrts_ivar_read(mid))
 	       high = mid - 1;
 	  else
@@ -404,17 +405,16 @@ void cilkmerge(__cilkrts_ivar *low1, __cilkrts_ivar *high1, __cilkrts_ivar *low2
       */
 
      split1 = ((high1 - low1 + 1) / 2) + low1;
-     split2 = binsplit(*split1, low2, high2);
+     split2 = binsplit(__cilkrts_ivar_read(split1), low2, high2);
      lowsize = split1 - low1 + split2 - low2;
 
      /* 
       * directly put the splitting element into
       * the appropriate location
       */     
-     /* printf("Trying to write split in... ivar at address %p, offset %ld, writing val %ld, val low bits %ld\n", */
-     /* 	    lowdest + lowsize + 1, lowsize + 1, *split1, *split1 & 0xf); */
-     // FIXME: Shouldn't have to untag here...
-     __cilkrts_ivar_write(lowdest + lowsize + 1, UNTAG(*split1));
+     /* printf("split2 result %ld, trying to write split in... ivar at address %p, offset %ld, writing val %ld, val low bits %ld\n", */
+     /* 	    split2, lowdest + lowsize + 1, lowsize + 1, UNTAG(*split1), *split1 & 0xf); */
+     __cilkrts_ivar_write(lowdest + lowsize + 1, __cilkrts_ivar_read(split1));
      // *(lowdest + lowsize + 1) = *split1; // IVAR this WRITE...
      cilk_spawn cilkmerge(low1, split1 - 1, low2, split2, lowdest);
      cilk_spawn cilkmerge(split1 + 1, high1, split2 + 1, high2,
