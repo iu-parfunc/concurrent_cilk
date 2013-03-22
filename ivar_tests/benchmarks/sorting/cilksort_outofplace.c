@@ -68,8 +68,18 @@
 #include <unistd.h>
 #include <sys/time.h>
 
+// TOGGLES: Various optimizations
+// ------------------------------
 // #define MERGE_MEMCOPY_OPT
 // #define MERGE_REMAINDER_OPT
+// #define NO_CALLOC_OPT
+// ------------------------------
+
+#ifdef NO_CALLOC_OPT
+ #define ALLOC_RESULTS(size) ((ELM *)malloc(size * sizeof(ELM)))
+#else
+ #define ALLOC_RESULTS(size) ((ELM *)calloc(size, sizeof(ELM)))
+#endif
 
 // typedef uint32_t ELM;
 typedef uint64_t ELM;
@@ -454,7 +464,8 @@ ELM* cilksort(ELM *low, long size)
 
      //  tmpE = (ELM *) malloc(quarter * sizeof(ELM));
 
-     result = (ELM *) malloc(size * sizeof(ELM));
+     result = ALLOC_RESULTS(size);
+
      // Each of these merges writes out a half-sized chunk:
      cilk_spawn cilkmerge(tmpA, tmpA + quarter - 1, tmpB, tmpB + quarter - 1, result);
      cilk_spawn cilkmerge(tmpC, tmpC + quarter - 1, tmpD, tmpD + lastquarter - 1, result+2*quarter);
@@ -465,7 +476,9 @@ ELM* cilksort(ELM *low, long size)
 
      // This final merge is full sized, values go to the ...
      free(tmpA); free(tmpB); free(tmpC); free(tmpD);
-     result2 = (ELM *) malloc(size * sizeof(ELM));
+
+     result2 = ALLOC_RESULTS(size);
+
      cilk_spawn cilkmerge(result, result + 2*quarter - 1, result+2*quarter, result + size - 1, result2);
 
      cilk_sync;

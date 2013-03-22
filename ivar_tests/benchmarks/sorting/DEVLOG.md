@@ -26,7 +26,14 @@ Things get quite a bit slower.  For four threads, 2^25:
 Wow, the gap is up to almost 2X!  And it holds even at 2^24.
 Why is the out-of-place version so disproportionately affected by switching to 64 bit ops?
 
+For reference, here are the results for 2^24 with the vanilla cilk
+runtime:
+
+ * inplace    - 1.49s (1Thread) -> 0.45s (4T) 
+ * outofplace - 1.98s (1Thread) -> 0.85s (4T)
+
 [2013.03.21] {Wait... were those prev numbers right?}
+-----------------------------------------------------
 
 Now it's much slower 2^24 = 16777216... is taking over two seconds.
 WAIT... is this a big slowdown with the concurrent/cilk runtime?
@@ -50,4 +57,21 @@ concurrent cilk build... then I get a proper (plain icc) run for 2^24:
  * outof place, TRUE plain icc (1.000862 s)
 
 Now that's consistent(ish) with the above.
+
+
+[2013.03.22] {First valid results for ivars vs. out of place.}
+--------------------------------------------------------------
+
+Here are two runs, outofplace vs. ivars, where the ONLY difference
+should be dealing with the ivars (should be equal memory alloc, space
+usage, equal calloc'ing).
+
+ * 1 thread, outofplace, 
+ * 4 thread, outofplace,  
+ * 1 thread, ivars,      
+ * 4 thread, ivars,      
+
+WAIT - scratch that for now, I'm getting NO parallel speedup right now
+out of even the inplace version!!  This needs to be fixed.
+
 
