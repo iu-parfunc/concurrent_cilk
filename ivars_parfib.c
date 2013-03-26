@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <cilk/cilk_api.h>
 #include <cilk/abi.h>
 #include <cilk/cilk.h>
+#include <cilk/concurrent_cilk.h>
 #include "timer.h"
 #include "ivar_tests/common/cycle.h"
 
@@ -30,12 +30,13 @@ void pfib(ivar *iv, int n){
   cilk_spawn pfib(&iv2, n-2);
 
   res = READIV(&iv1, long) + READIV(&iv2, long);
+  //printf("fib of %d read of ivars %p and %p writing value: %ld\n", n, &iv1, &iv2, res);
   WRITEIV(iv, res);
 }
 
 int main(int argc, char** argv) {
   int n;
-  long j;
+  long j = 0;
   my_timer_t t;
 
 
@@ -47,15 +48,6 @@ int main(int argc, char** argv) {
   ivar iv;
   CLEARIV(&iv);
   
-  ivar dummy;
-  CLEARIV(&dummy);
-
-// passing a dummy argument through in order to warm things up (and keep them warm...)
-//  long ret;
- // pfib(&dummy, n);
-  //ret = (long) __cilkrts_ivar_read(&dummy);
-
-// Ok, we've warmed up now, let actually run it
   TIMER_START(t);
   ticks t1 = getticks();
   pfib(&iv, n);
@@ -63,6 +55,7 @@ int main(int argc, char** argv) {
   ticks t2 = getticks();
   TIMER_STOP(t);
 
+  printf("result: %ld\t", j);
   printf("%d\t%f\t%lf\t%d\n", n, TIMER_EVAL(t), elapsed(t2,t1), __cilkrts_get_total_workers());
   //printf("%d\t%f\n", n, TIMER_EVAL(t));
   return 0;
