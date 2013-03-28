@@ -3,6 +3,7 @@
 #include <cilk/cilk_api.h>
 #include <cilk/abi.h>
 #include <cilk/cilk.h>
+#include <cilk/cilk_undocumented.h>
 #include "timer.h"
 #include "ivar_tests/common/cycle.h"
 
@@ -42,6 +43,7 @@ int main(int argc, char** argv) {
 
   printf("%lu\n", j);
   printf("%d\t%f\t%lf\t%d\n", n, TIMER_EVAL(t), elapsed(t2,t1), __cilkrts_get_total_workers());
+  __cilkrts_dump_stats();
   //printf("%d\t%f\n", n, TIMER_EVAL(t));
   return 0;
 }

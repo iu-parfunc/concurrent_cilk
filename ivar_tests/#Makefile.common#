@@ -1,0 +1,52 @@
+
+
+#Makefile.common is the master makefile for the ivar tests. you should include this
+#in all of your sub makefiles
+
+#global properties related to the runtime location 
+RTSDIR:=$(shell echo $(CILK_ROOT))
+INCLUDEDIR=$(RTSDIR)/include/cilk
+EXT=so
+
+GCC=$(RTSDIR)/bin
+#CC=$(GCC)/gcc -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
+#CPLUS=$(GCC)/g++ -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
+CC=icc -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
+CPLUS=icc -L$(RTSDIR)/lib:$(RTSDIR)/lib64 -I$(INCLUDEDIR)
+
+#lib dependencies
+LIBDEPS= $(RTSDIR)/lib/libcilkrts.$(EXT)
+LIBS=$(RTSDIR)/lib/:$(RTSDIR)/lib64/:$(RTSDIR)/libexec/
+DEFINES=DEBUG_CILK_IVARS
+
+INCLUDE=$(RTSDIR)/include
+CFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -std=c99 -g3 -ggdb -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -O3 -I$(INCLUDE) -L$(LIBS) -D$(DEFINES)
+CPLUSFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -g3 -ggdb -Wno-int-to-pointer-cast -fpermissive -O2 -I$(INCLUDE) -L$(LIBS) -D$(DEFINES)
+
+
+##================================================================================
+
+.PHONY: all
+all: $(addprefix $(OUT)/,$(BIN))
+
+.PHONY: test
+test: all
+	$(SCRIPTS)/run_tests.sh $(addprefix $(SCRIPT_PREFIX)/$(OUT)/,$(BIN))
+
+.PHONY: clean
+clean:
+	rm -f $(OUT)/*.exe
+	rm -f $(OBJS)
+	rmdir $(OUT)
+
+##================================================================================
+
+$(OUT)/%.exe:%.c
+	mkdir -p $(OUT)
+	$(CC) $< $(OBJS) -o $@ -L$(LIBDEPS) $(OPTS) $(CFLAGS)
+
+$(OUT)/%.exe:%.cpp
+	mkdir -p $(OUT)
+	$(CPLUS) $< $(OBJS) -o $@ $(OPTS) $(CPLUSFLAGS)
+
+##================================================================================

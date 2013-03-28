@@ -7,6 +7,8 @@
 #include "../../common/cycle.h"
 #include "../../../timer.h"
 
+#define ALLOC_EMPTY_IVARS(size) calloc(size, sizeof(__cilkrts_ivar))
+
 void writer(__cilkrts_ivar *array, long num_fibers){
 
   int i;
@@ -43,7 +45,7 @@ int main(int argc, char **argv){
   } else {
   num_fibers = 1000;
   }
-  __cilkrts_ivar *all_ivars = (__cilkrts_ivar *) calloc(num_fibers, sizeof(__cilkrts_ivar));
+  __cilkrts_ivar *all_ivars = ALLOC_EMPTY_IVARS(num_fibers);
   //printf("creating %d blocked fibers\n", num_fibers);
 
 

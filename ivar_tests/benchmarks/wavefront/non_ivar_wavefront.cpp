@@ -378,7 +378,7 @@ int main(int argc, char** argv)
 
     //printf("Beginning to consume matrix results...\n");
     unsigned long long sum = sum_matrix();
-   //printf("Read all positions, summed to: %lu\n", sum);
+   printf("Read all positions, summed to: %lu\n", sum);
 
     //printf("Done with matrix test.  Successfull.\n");
     printf("%d\t%f\t%lf\n", dim, TIMER_EVAL(t), elapsed(end,start));
