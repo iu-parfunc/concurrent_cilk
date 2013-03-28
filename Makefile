@@ -16,7 +16,7 @@ LIBS=$(RTSDIR)/lib/:$(RTSDIR)/lib64/:$(RTSDIR)/libexec/
 
 INCLUDE=$(RTSDIR)/include
 CFLAGS+= -lcilkrts -lpthread -ldl -lcilkrts -fcilkplus -std=c99 -g3 -ggdb -Wno-int-to-pointer-cast -O3 -I$(INCLUDE) -L$(LIBS)
-CPLUSFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -std=c99 -g3 -ggdb -Wno-int-to-pointer-cast -fpermissive -O2 -I$(INCLUDE) -L$(LIBS) 
+CPLUSFLAGS+= -lcilkrts -lpthread -ldl -fcilkplus -std=c99 -g3 -ggdb -Wno-int-to-pointer-cast -fpermissive -O3 -I$(INCLUDE) -L$(LIBS) 
 
 all: parfib ivars_parfib 
 

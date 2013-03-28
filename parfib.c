@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
   ticks t2 = getticks();
   TIMER_STOP(t);
 
-  printf("%lu\n", j);
+  printf("%ld\t", j);
   printf("%d\t%f\t%lf\t%d\n", n, TIMER_EVAL(t), elapsed(t2,t1), __cilkrts_get_total_workers());
   __cilkrts_dump_stats();
   //printf("%d\t%f\n", n, TIMER_EVAL(t));

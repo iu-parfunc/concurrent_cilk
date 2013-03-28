@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 #include <cilk/cilk.h>
-#include <cilk/cilk_api.h>
+#include <cilk/concurrent_cilk.h>
 
 #define DELAY (750*1000)
 
