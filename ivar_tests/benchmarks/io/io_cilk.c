@@ -8,15 +8,12 @@
 #include <string.h>
 
 
-int cilk_read(int fd, char *buf, int nbytes) {
+int cilk_read(int fd, char *buf, int nbytes, __cilkrts_ivar iv) {
   int bytes = nbytes, tmp = 0;
-  __cilkrts_ivar iv;
-  __cilkrts_ivar_clear(&iv);
   
   //figure that we are going to block,
   //let the continuation get stolen
   printf("in read\n");
-  cilk_spawn __cilkrts_ivar_read(&iv);
 
   //read in serial until we get nbytes
   while(bytes > 0) {
@@ -41,15 +38,12 @@ int cilk_read(int fd, char *buf, int nbytes) {
   return nbytes;
 }
 
-int cilk_write(int fd, char *buf, int nbytes) {
+int cilk_write(int fd, char *buf, int nbytes, __cilkrts_ivar iv) {
   int bytes = nbytes, tmp = 0;
-  __cilkrts_ivar iv;
-  __cilkrts_ivar_clear(&iv);
   
   printf("in write\n");
   //figure that we are going to block,
   //let the continuation get stolen
-  cilk_spawn __cilkrts_ivar_read(&iv);
 
   //write in serial until we get nbytes
   while(bytes > 0) {

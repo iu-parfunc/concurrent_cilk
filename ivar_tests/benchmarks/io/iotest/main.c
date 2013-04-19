@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cilk/cilk.h>
+#include <cilk/concurrent_cilk.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -16,7 +17,9 @@ int main(void) {
 //   cilk_spawn cilk_read(fd, rbuf, len);
    sleep(1);
    lseek(fd, 0, SEEK_SET);
-   cilk_write(fd, buf, len);
+   __cilkrts_ivar iv;
+   __cilkrts_ivar_clear(&iv);
+   cilk_write(fd, buf, len, iv);
    close(fd);
   // printf("result of reading file: %s \n",rbuf);
   // free(rbuf);

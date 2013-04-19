@@ -1,5 +1,5 @@
 OUT=bin
-BIN=main.exe
+BIN=ivar_rw.exe rw.exe
 #OBJS=../io_cilk.o
 include ../../../Makefile.common
 
