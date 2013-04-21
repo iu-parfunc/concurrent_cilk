@@ -1556,10 +1556,6 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
         w->l->steal_failure_count++;
         return;
       } else {
-        if(w->paused_ff == ff) {
-          printf("paused FF == FF\n");
-          return;
-        }
         // Reset steal_failure_count since there is obviously still work to
         // be done.
         w->l->steal_failure_count = 0;
