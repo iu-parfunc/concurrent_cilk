@@ -1,3 +1,0 @@
-PCC = g++
-PLFLAGS = $(LFLAGS)
-PCFLAGS = -O2

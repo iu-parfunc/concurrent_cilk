@@ -1,2 +1,0 @@
-#!/bin/bash/
-export CILKP=$1
