@@ -1,5 +1,189 @@
-TODO:
-----------------------------------------------
--- fix reducers. asserts commented out for CILK_IVARS in local_state.c:126
---
-----------------------------------------------
+
+TODO List:
+-------------------------------------------------------
+-- See if all set/longjmps can be turned into builtin_set/longjmps, and use less of a buffer size. 
+
+-- examine if we really need a paused stack struct. shouldn't the ivar paused frame be good enough 
+   because it lives "lower" on the cactus stack, It should be externally visable?
+
+-- add macros to expose ivar_read, ivar_write, ivar, instead of the __cilkrts_* variants in concurrent_cilk.h
+-- 
+
+
+
+-------------------------------------------------------
+
+DEVLOGS:
+-------------------------------------------------------
+
+devlog: april 7 2013: working on implementing a self steal. 
+
+  adding function: self_steal in scheduler.c
+
+  The self steal of a spawn is working, but there
+  is a problem when returning from a function call. 
+
+  there needs to be a patchup where ALL frames have returned 
+  before function can return. 
+
+  idea: we should add a new frame tag to mark a frame as
+  a self steal off an ivar read that blocked. The semantics
+  should be that a function can only return when all spawns 
+  in the function have been executed. The last frame needs to not 
+  execute the function return until we gather 
+
+devlog april 10 2013: continuing self steal implementation
+
+  Running with one worker for now on ivar read write tests. There is still
+  an issue with concurrent contention for frames in head + tail stealing. 
+  The dekker protocol needs to be augmented to support this. 
+
+  Fixed the __cilkrts_return() issue from April 7th.
+  Added a field to the full_frame struct in full_frame.h that is called blocked. 
+  A blocked full frame is not selected for an unconditional steal.
+  Currently, we the w->l->frame_ff is left null and the pop cycle is not completed. 
+
+  The above caused an error in __cilkrts_c_THE_exception_check as w->l->frame_ff is now null. 
+  The fix is likely to use the blocked frame as a "dummy" frame. <<<< TODO
+
+devlog april 11 2013: adding correct semantics to runtime for blocked workers
+
+  fixing assertion failure in scheduler:1826 ==> CILK_ASSERT(ff);
+
+  cause: the next frame to be popped was a blocked frame off a self steal.
+  Since blocked frames are not allowed to run, there will be no full frame gotten from
+  the __cilkrts_return() call in cilk_abi.c:238
+
+      else if (sf->flags & CILK_FRAME_STOLEN)
+        __cilkrts_return(w); /* does return */
+
+   __cilkrts_return(w) calls finalize_child_for_call(w, parent_ff, ff); which under normal
+   circumstances would executes an unconditional steal.
+
+   The frame gets popped from the worker after finalize_child_for_call() and then pushed
+   back on in setup_for_execution(w,ff,1); in scheduler.c:2058
+
+   If the parent_ff is blocked, we do not enter finalize_child_for_call() and setup_for_execution().
+   This means that a full frame never gets pushed. Should this not happen?
+   Perhaps the frame should get popped later on in return_frame
+
+devlog april 14 2013: Still implementing self steal. 
+
+  At this point, the self steal itself works fine on trivial test cases
+  using 1 core (multiple cores should not be a problem...already implemented in cilk). 
+  The issue at this point is frame validity. 
+
+  imagine a function:
+      foo()
+      {
+        ivar iv;
+        
+
+        write(iv);
+      }
+
+      main() { spawn foo(); }
+
+  in cilk this gets us 3 stack frames ([] denote parallel work exposed): 
+
+     [sf 1
+      foo()
+      {
+        ivar iv;
+        
+        [sf 2 spawn read(iv); ]
+
+        [sf 3 write(iv, 39); ]
+      }
+    ]
+
+  In a self stealing execution on 1 processor, necessarily, the same worker must steal sf3 as sf2. 
+  in this case, the execution should run as follows
+
+    foo()
+     {
+        ivar iv;
+        
+        write(iv);
+        read(iv);
+     }
+
+  However the acutual execution is like this:
+
+    foo()
+     {
+        ivar iv;
+        
+        write(iv);
+     }                <<<<<< a return from foo happens right after iv.
+
+     read(iv);        <<<<<< the read's frame is invalid because foo() was popped by the return of write. 
+
+
+     cilk_abi.c:__cilkrts_leave_frame() is called on the exit from the function.
+     There needs to be a flag noting that there are blocked frames that still need to use
+     the real stack frame, and prevent a real return until all ivar reads have been unified to their variables. 
+
+devlog april 15 2013: fixing frame exit protocol from self stolen frames. 
+
+  Added Three new tags to stack frames: CILK_FRAME_STOLEN and CILK_FRAME_BLOCKED CILK_FRAME_BLOCKED_RETURNING. 
+  (definitions in include/internal/abi.h)
+
+  A frame is marked as stolen when it is the frame directly stolen from itself as the result of a blocked frame. 
+  A frame is marked as blocked when it is the currently executing frame when a __cilkrts_finalize_pause() is called.
+  A frame is marked as blocked_returning when it has returned once (from the self stolen frame's return) and is now
+  doing a REAL return (more on this later). 
+
+
+  Currently, I have the a paused frame returning twice. When I self steal happens, the stolen frame is marked as self stolen. 
+  when that frame returns, we dequeue from the ready dequeue. Hopefully, there is something there. If not, that is currently unhandled (TODO).
+
+  The first self stolen frame doesnt't return. Rather, the dequeue paused stack returns. The dequeued paused stack now does its own __cilkrts_leave_frame()
+  return. We use that return to restore the return of currently executing tail frame (the childmost computation) and continue on our merry way. 
+
+  This is still buggy. I have yet to implement the second jump back to the currently executing tail frame. 
+
+  This method is currently very unstable, and not proven. To hack on laters. 
+
+devlog april 16/17 2013: 
+  
+  1. got clang with cilkplus to compile on turing. Ran the parfib and it looks to be within the margin of error in comparison to icc. 
+  2. started writing documentation on how cilk stealing and syncing works. This is located in the cilk_docs folder at top level (libcilkrts). 
+
+devlog april 18 2013: (back to hacking on runtime) implementing the return from an ivar read on a single core. 
+
+  Since the april 15 entry, I have inverted the method of rentry. No function returns twice. The flow logic is now as follows:
+
+    in cilk-abi.c:__cilkrts_leave_frame():
+
+      if sf->flags & CILK_FRAME_SELF_STEAL:
+        if not setjmp(w->paused_ff->blocked_ctx):
+          longjmp(w->l->env, do_return_frome_self_steal, sf);
+        else:
+          return;
+
+      if sf->flags & CILK_FRAME_BLOCKED_RETURNING:
+          self_steal_return();
+          longjmp(w->l->frame_ff->blocked_ctx, 1);
+
+
+   The idea here is that the ivar spawn *never* gives control back to the C stack once it enters (the rbp is never popped). Rather, we select
+   a new exit point, which is the childmost (furthest from the start of computation) frame, which happens to be the head in the THE protocol. 
+
+   This is a simple reference implementation and it is only for one core. It does not handle more advanced control flow in the frames. 
+   The current status is that the actual spawn return works. There is some state missing on the return out the bottom frame that pops back up
+   to the non nested spawn that is the last cilk frame. I think the frame_ff needs to be the real child, not the paused_ff carried over into the frame_ff 
+   on restore. I will likely work this out tomorrow, so I won't belabor an explanation here. The main thing to remember, is that the actual exit is working,
+   it is the recovery of non ivar controled frames that still has one more tweak needed.
+
+   I am using deadlock_test1.c as my moste simple read before write case within a nested spawn. I am only running it on 1 core. stealing must still be resolved
+   via the dekker protocol on cases where w->tail+1 == w->head. 
+
+
+-------------------------------------------------------
+
+
+
+
+
+  

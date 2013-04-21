@@ -222,20 +222,11 @@ struct __cilkrts_worker {
 #endif  /* __CILKRTS_ABI_VERSION >= 1 */
 
 #ifdef CILK_IVARS
+    short is_blocked;
 
-    void *ctx[5];
+    struct full_frame *paused_ff;
 
-    /* Maintain a cache of replacement workers */
-    struct queue_t *worker_cache;
-
-    /* tracks if this worker is a replacment worker or a real rts worker */
-    unsigned short is_replacement;
-
-    volatile __cilkrts_ivar *ivar;
-
-    /* Keeps a pointer to another structure that can be a source of work upon stealing if
-       this worker has run dry: */
-    volatile struct __cilkrts_forwarding_array* forwarding_array;
+    struct queue_t *ready_queue;
 
 #endif
 };
@@ -381,6 +372,12 @@ struct __cilkrts_stack_frame
 
 /** Is this the last (oldest) Cilk frame? */
 #define CILK_FRAME_LAST	     0x80
+
+#ifdef CILK_IVARS
+#define CILK_FRAME_SELF_STEAL 0x200
+#define CILK_FRAME_BLOCKED 0x400
+#define CILK_FRAME_BLOCKED_RETURNING 0x800
+#endif
 
 /**
  * Is this frame in the epilogue, or more generally after the last

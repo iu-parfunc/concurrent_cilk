@@ -3,7 +3,6 @@
 
 
 #include "cilk/concurrent_cilk.h"
-#include "concurrent_cilk_forwarding_array.h"
 #include "full_frame.h"
 // This can be any constant that is not in the range of addresses returned by malloc:
 // it is used as the flag value to check if an ivar is full or empty
@@ -72,16 +71,24 @@ typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
 
  typedef struct __cilkrts_paused_stack {
 
-   volatile short ready;
+   __cilkrts_worker *w;
 
-    /// For this variant the new worker does not cache the *stalled* workers state, instead 
-    /// the stalled worker stays put and we have a fresh replacement worker:
-    __cilkrts_worker* replacement_worker;
+  void *scheduler_stack;
 
+  __cilkrts_worker *team;
 
-    /// And this is the original worker that got stalled, in its original location:
-    __cilkrts_worker* orig_worker;  // Should be NON-NULL
-    __cilkrts_ivar *iv;
+  short is_blocked;
+
+  jmp_buf env;
+
+  jmp_buf ctx;
+
+  full_frame *ff;
+
+  __cilkrts_stack_frame *current_stack_frame;
+
+  __cilkrts_paused_stack *waitlist;
+
 } __cilkrts_paused_stack;
 
 /*   Cilk IVars:  Types & API   */
@@ -92,7 +99,11 @@ int paused_stack_lock(__cilkrts_worker *w, __cilkrts_paused_stack* stk);
 int paused_stack_unlock(__cilkrts_worker *w, __cilkrts_paused_stack* stk);
 void __cilkrts_concurrent_yield(__cilkrts_worker *w);
 __cilkrts_worker *pick_random_victim(__cilkrts_worker *w);
-void restore_paused_worker(__cilkrts_worker *ready_w);
+void restore_paused_worker(__cilkrts_paused_stack *pstk);
+
+
+void do_leave_paused_frame_child(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
+void do_return_from_self_steal(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
 
 __CILKRTS_END_EXTERN_C
 #endif

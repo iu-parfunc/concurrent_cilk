@@ -41,11 +41,11 @@
 
 #ifdef LOCKFREE_QUEUE_VERSION
 #include "queues/lockfree_queue.h"
-#include "queues/lockfree_queue.c"
+//#include "queues/lockfree_queue.c"
 #endif
 
 #ifdef B_QUEUE_VERSION
 #include "queues/bqueue/fifo.h"
-#include "queues/bqueue/fifo.c"
+//#include "queues/bqueue/fifo.c"
 #endif
 

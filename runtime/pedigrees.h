@@ -102,15 +102,15 @@ void save_pedigree_leaf_from_user_worker(__cilkrts_worker *w);
  */ 
 COMMON_PORTABLE
 inline void update_pedigree_on_leave_frame(__cilkrts_worker *w,
-					   __cilkrts_stack_frame *sf) 
+    __cilkrts_stack_frame *sf) 
 {
-    // Update the worker's pedigree information if this is an ABI 1 or later
-    // frame
-    if (CILK_FRAME_VERSION_VALUE(sf->flags) >= 1)
-    {
-	w->pedigree.rank = sf->spawn_helper_pedigree.rank + 1;
-	w->pedigree.parent = sf->spawn_helper_pedigree.parent;
-    }
+  // Update the worker's pedigree information if this is an ABI 1 or later
+  // frame
+  if (CILK_FRAME_VERSION_VALUE(sf->flags) >= 1)
+  {
+    w->pedigree.rank = sf->spawn_helper_pedigree.rank + 1;
+    w->pedigree.parent = sf->spawn_helper_pedigree.parent;
+  }
 }
 
 
