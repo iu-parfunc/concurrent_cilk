@@ -38,8 +38,8 @@
 
 
 #include <cilk/common.h>
-#if CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
-#include <pthread.h>
+#ifdef CILK_IVARS
+#include <cilk/concurrent_cilk.h>
 #endif
 
 /**
@@ -223,40 +223,19 @@ struct __cilkrts_worker {
 
 #ifdef CILK_IVARS
 
-#ifdef CILK_IVARS_CACHING
+    void *ctx[5];
+
     /* Maintain a cache of replacement workers */
     struct queue_t *worker_cache;
 
-    /* Maintain a cache of paused stacks */
-    struct  queue_t *paused_stack_cache;
-
-    /* Keeps a count of the outstanding references to this
-     * worker. if a worker is referenced, it cannot be brought
-     * out of the cache for reuse. Right now this is either 0 or 1,
-     * but this could change in the future
-     */
-    unsigned int reference_count;
-
-    /*! Either 0 or 1 */
-    unsigned short cached;
-#endif
-
-#ifdef CACHE_AWARE_QUEUE
-    volatile struct queue_t *paused_but_ready_stacks;
-#endif 
-
-    /* Keeps a pointer to another worker that can be a source of work upon stealing if
-       this worker has run dry: */
-    struct __cilkrts_worker* forwarding_pointer;
-
-    /* Keeps a pointer to the worker's parent if it is a replacement
-     * this lets us steal work from our parent. without this it is impossible
-     * to steal from our own continuation in single threaded configurations
-     */
-    struct __cilkrts_worker* blocked_parent;
-
     /* tracks if this worker is a replacment worker or a real rts worker */
-    short is_replacement;
+    unsigned short is_replacement;
+
+    volatile __cilkrts_ivar *ivar;
+
+    /* Keeps a pointer to another structure that can be a source of work upon stealing if
+       this worker has run dry: */
+    volatile struct __cilkrts_forwarding_array* forwarding_array;
 
 #endif
 };

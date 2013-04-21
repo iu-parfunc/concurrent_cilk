@@ -37,7 +37,6 @@
 #define INCLUDED_SCHEDULER_DOT_H
 
 #include <cilk/common.h>
-#include <cilk/cilk_api.h>
 #include <internal/abi.h>
 
 #include "rts-common.h"
@@ -50,10 +49,6 @@ __CILKRTS_BEGIN_EXTERN_C
 // Set to 0 to allow parallel reductions.
 #define DISABLE_PARALLEL_REDUCERS 0
 #define REDPAR_DEBUG 0
-
-#ifdef CILK_IVARS
-typedef struct __cilkrts_paused_stack __cilkrts_paused_stack;
-#endif
 
 /**
  * Lock the worker mutex to allow exclusive access to the values in the
@@ -256,16 +251,6 @@ COMMON_PORTABLE
 __cilkrts_worker *make_worker(global_state_t *g,
                               int self,
                               __cilkrts_worker *w);
-
-/**
- * Initialize a __cilkrts_worker.  The memory for the worker must have been
- * allocated outside this call.
- *
- * @param w The worker to be made a system worker
- *
- */
-COMMON_PORTABLE
-void make_worker_system(__cilkrts_worker *w);
 
 /**
  * Free up any resources allocated for a worker.  The memory for the

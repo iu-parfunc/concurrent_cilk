@@ -34,28 +34,18 @@
 
 // Concurrent Queues: a few different options.
 //
-// Option 1 -- lock based
+// Option 1 -- B-Quee implementation
 // Option 2 -- basic Michael & Scott lockfree queue
-
-#ifndef LOCKFREE_QUEUE_VERSION
-#include <pthread.h>
-#endif
 
 #include "concurrent_cilk_internal.h"
 
-#ifdef CACHE_AWARE_QUEUE
-#include "queues/cache_aware_queue.c"
-#endif 
-
 #ifdef LOCKFREE_QUEUE_VERSION
 #include "queues/lockfree_queue.h"
+#include "queues/lockfree_queue.c"
 #endif
 
 #ifdef B_QUEUE_VERSION
 #include "queues/bqueue/fifo.h"
+#include "queues/bqueue/fifo.c"
 #endif
 
-#ifdef LOCKING_QUEUE_VERSION
-//this should be .h TOFIX
-#include "queues/locking_queue.c"
-#endif

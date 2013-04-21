@@ -37,11 +37,6 @@
 #define INCLUDED_GLOBAL_STATE_DOT_H
 
 #include <cilk/common.h>
-#ifdef CILK_IVARS
-#include "scheduler.h"
-#include "concurrent_cilk_internal.h"
-typedef struct __cilkrts_stack_queue_struct __cilkrts_stack_queue;
-#endif
 
 #include "frame_malloc.h"
 #include "stats.h"
@@ -51,7 +46,6 @@ __CILKRTS_BEGIN_EXTERN_C
 
 /** @brief Abstract, per-strand stack (system dependent) */
 typedef struct __cilkrts_stack __cilkrts_stack;
-
 
 /**
  * Non-null place-holder for a stack handle that has no meaningful value.
@@ -120,9 +114,6 @@ typedef /* COMMON_PORTABLE */ struct global_state_t {
      * stealing_disabled, sysdep, and workers.  If these offsets change, the
      * debugger integration library will need to be changed to match!!!
      *************************************************************************/
-#ifdef CILK_IVARS
-     int dbg_level;
-#endif
 
     int addr_size; /**< Number of bytes for an address, used by debugger (fixed)*/
 
@@ -236,37 +227,6 @@ typedef /* COMMON_PORTABLE */ struct global_state_t {
 
     int P;         /**< USER SETTING: number of system workers + 1 (fixed) */
     int Q;         /**< Number of user threads currently bound to workers */
-
-#if defined(CILK_IVARS) && CILK_IVARS == CILK_IVARS_PTHREAD_VARIANT
-    int P_real;    /* this is the number of real system workers, the rest are "extras" */
-    volatile int P_current;  /* P_current tracks the number of workers currently awake.
-                                It is atomically incremented/decremented. */
-    pthread_cond_t  restcond;
-    pthread_mutex_t restmut;
-#endif
-
-#ifdef CILK_IVARS    
-    
-
-    /* Support for Concurrent Cilk.  This is essentially a ready queue of lightweight
-       threads.  For simplicity, this is initially global.  Eventually, each thread/worker
-       should have its own threadpool.  */
-
-    queue_t *paused_but_ready_stacks;  // Initially NULL.
-    queue_t *cached_workers;  // Initially NULL.
-    volatile int num_paused_stacks;
-
-#ifdef CILK_IVARS_GLOBAL_CACHE
-
-    /* Maintain a cache of replacement workers */
-    queue_t *worker_cache;
-
-    /* Maintain a cache of paused stacks */
-   queue_t *paused_stack_cache;
-
-#endif //CILK_IVARS_GLOBAL_CACHE
-#endif //CILK_IVARS
-
 } global_state_t;
 
 /**

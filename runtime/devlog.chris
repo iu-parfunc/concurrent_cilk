@@ -1,0 +1,5 @@
+TODO:
+----------------------------------------------
+-- fix reducers. asserts commented out for CILK_IVARS in local_state.c:126
+--
+----------------------------------------------

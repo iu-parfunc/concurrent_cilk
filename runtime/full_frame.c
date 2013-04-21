@@ -122,11 +122,13 @@ COMMON_PORTABLE
 void __cilkrts_destroy_full_frame(__cilkrts_worker *w, full_frame *ff)
 {
     validate_full_frame(ff);
+#ifndef CILK_IVARS
     CILK_ASSERT(ff->children_reducer_map == 0);
     CILK_ASSERT(ff->right_reducer_map == 0);
     CILK_ASSERT(NULL == ff->pending_exception);
     CILK_ASSERT(NULL == ff->child_pending_exception);
     CILK_ASSERT(NULL == ff->right_pending_exception);
+#endif
     __cilkrts_mutex_destroy(w, &ff->lock);
     __cilkrts_frame_free(w, ff, sizeof(*ff));
 }

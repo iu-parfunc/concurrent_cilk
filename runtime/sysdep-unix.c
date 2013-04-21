@@ -36,7 +36,6 @@
 #   define _GNU_SOURCE
 #endif
 
-
 #include "sysdep.h"
 #include "os.h"
 #include "bug.h"
@@ -53,6 +52,12 @@
 #include "cilk-ittnotify.h"
 
 #include <stddef.h>
+
+#ifdef __CYGWIN__
+// On Cygwin, string.h doesnt declare strcasecmp if __STRICT_ANSI__ is defined
+#   undef __STRICT_ANSI__
+#endif
+
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
@@ -69,6 +74,7 @@
 // BSD does not define MAP_ANONYMOUS, but *does* define MAP_ANON. Aren't standards great!
 #   define MAP_ANONYMOUS MAP_ANON
 #endif
+
 
 static void internal_enforce_global_visibility();
 
@@ -303,11 +309,15 @@ void __cilkrts_stop_workers(global_state_t *g)
  * spawn.  This should be called each time a frame is resumed.
  */
 static inline void restore_fp_state (__cilkrts_stack_frame *sf) {
+#if defined __i386__ || defined __x86_64
     __asm__ ( "ldmxcsr %0\n\t"
               "fnclex\n\t"
               "fldcw %1"
               :
               : "m" (sf->mxcsr), "m" (sf->fpcsr));
+#else
+#   warning "unimplemented: code to restore the floating point state"
+#endif
 }
 
 /* Resume user code after a spawn or sync, possibly on a different stack.
@@ -357,16 +367,8 @@ NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *ff,
         CILK_ASSERT(flags & CILK_FRAME_UNSYNCHED && ff->sync_sp == NULL);
     else if (flags & CILK_FRAME_UNSYNCHED)
         /* XXX By coincidence sync_sp could be null. */
-#ifdef CILK_IVARS
-      if(!w->is_replacement) {
-#endif
-        CILK_ASSERT(ff->stack_self != NULL);
-        CILK_ASSERT(ff->sync_sp != NULL);
-      }
+        CILK_ASSERT(ff->stack_self != NULL && ff->sync_sp != NULL);
     else
-#ifdef CILK_IVARS
-      if(!w->is_replacement)
-#endif
         /* XXX This frame could be resumed unsynched on the leftmost stack */
         CILK_ASSERT((ff->sync_master == 0 || ff->sync_master == w) &&
                     ff->sync_sp == 0);
@@ -731,10 +733,6 @@ void __cilkrts_free_stack(global_state_t *g,
 
 void __cilkrts_sysdep_reset_stack(__cilkrts_stack *sd)
 {
-#ifdef CILK_IVARS
-  if(sd->stack_op_routine != NULL || sd->stack_op_data != NULL)
-    IVAR_DBG_PRINT_(1, "[sysdep-unix] resetting stack. %p op routine: %p op data: %p\n", sd, sd->stack_op_routine, sd->stack_op_data)
-#endif
     CILK_ASSERT(sd->stack_op_routine == NULL);
     CILK_ASSERT(sd->stack_op_data == NULL);
     return;
@@ -835,9 +833,14 @@ void dummy_function() { }
  */
 static const char *get_runtime_path ()
 {
+#ifdef __CYGWIN__
+    // Cygwin doesn't support dladdr, which sucks
+    return "unknown";
+#else
     Dl_info info;
     if (0 == dladdr(dummy_function, &info)) return "unknown";
     return info.dli_fname;
+#endif
 }
 
 /* if the environment variable, CILK_VERSION, is defined, writes the version
@@ -1008,9 +1011,6 @@ void worker_user_scheduler()
     CILK_ASSERT(WORKER_USER == w->l->type);
 
     // Run the continuation function passed to longjmp_into_runtime
-#ifdef CILK_IVARS
-  if(w->l->post_suspend !=NULL && w->l->frame_ff !=NULL)
-#endif
     run_scheduling_stack_fcn(w);
     w->reducer_map = 0;
 

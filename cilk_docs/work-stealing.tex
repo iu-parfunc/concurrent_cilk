@@ -1,0 +1,90 @@
+
+
+\section{A Simple Program}\label{s:prog_simple}
+
+Consider the the program in figure \ref{fig:prog1_serial}: it enters at main, grows the stack by
+three C stack frames before returning to main and exiting. 
+
+\begin{figure}[H]
+\centering
+\framebox[4cm]{main()}\\
+\framebox[4cm]{\parbox {4cm}{ \centering foo() \\ locals: x, y, z }}\\
+\framebox[4cm]{add()}\\
+\caption{Call Stack of Figure \ref{fig:prog1_serial}.}
+\label{fig:prog1_stack_serial}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\begin{lstlisting}
+#include <stdio.h>
+
+int add(int x, int y)
+{
+  return x + y;
+}
+
+void foo(void)
+{
+  int x;
+  int y;
+  int z;
+
+  x = add(5, 6);
+  y = add(7, 8);
+
+  z = add(x, y);
+
+  printf("result: %d\n", z);
+}
+
+int main() 
+{ 
+  foo();
+  return 0;
+}
+\end{lstlisting}
+\caption{A Simple Serial Program}
+\label{fig:prog1_serial}
+\end{figure}
+
+In contrast, figure \ref{fig:prog1_parallel} shows how the same code as figure
+\ref{fig:prog1_serial} is parallelized using Cilk. The 
+
+\begin{figure}[H]
+\centering
+\begin{lstlisting}
+#include <stdio.h>
+
+int add(int x, int y)
+{
+  return x + y;
+}
+
+void foo(void)
+{
+  int x;
+  int y;
+  int z;
+
+  x = cilk_spawn add(5, 6);
+  y = cilk_spawn add(7, 8);
+  cilk_sync;
+
+  z = add(x, y);
+  printf("result: %d\n", z);
+}
+
+int main() 
+{ 
+  foo();
+  return 0;
+}
+\end{lstlisting}
+\caption{Parallelized With Cilk}
+\label{fig:prog1_parallel}
+\end{figure}
+
+
+
