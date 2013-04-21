@@ -1,0 +1,4 @@
+PCC = icpc
+PCFLAGS = -O3 -DCILKP $(INTT)
+PLFLAGS = 
+
