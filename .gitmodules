@@ -1,3 +1,3 @@
 [submodule "cilk_tests"]
 	path = cilk_tests
-	url = git@github.com:iu-parfunc/cilk_tests.git
+	url = https://github.com/iu-parfunc/cilk_tests.git

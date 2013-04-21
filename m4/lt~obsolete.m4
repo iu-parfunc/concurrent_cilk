@@ -1,1 +1,1 @@
-/opt/autotools/share/aclocal/lt~obsolete.m4
+/usr/share/aclocal/lt~obsolete.m4
