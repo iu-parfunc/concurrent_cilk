@@ -1,0 +1,73 @@
+# The set of languages for which implicit dependencies are needed:
+SET(CMAKE_DEPENDS_LANGUAGES
+  "C"
+  "CXX"
+  )
+# The set of files for implicit dependencies of each language:
+SET(CMAKE_DEPENDS_CHECK_C
+  "/home/czakian/research/concurrent_cilk/runtime/c_reducers.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/c_reducers.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/cilk-abi.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/cilk-abi.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/cilk_api.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/cilk_api.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/cilk_malloc.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/cilk_malloc.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/concurrent_cilk.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/concurrent_cilk.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/frame_malloc.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/frame_malloc.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/full_frame.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/full_frame.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/ivar_full_blocking.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/ivar_full_blocking.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/jmpbuf.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/jmpbuf.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/local_state.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/local_state.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/metacall_impl.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/metacall_impl.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/os-unix.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/os-unix.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/os_mutex-unix.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/os_mutex-unix.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/pedigrees.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/pedigrees.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/queues/bqueue/fifo.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/queues/bqueue/fifo.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/scheduler.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/scheduler.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/signal_node.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/signal_node.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/stacks.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/stacks.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/stats.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/stats.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/symbol_test.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/symbol_test.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/sysdep-unix.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/sysdep-unix.c.o"
+  "/home/czakian/research/concurrent_cilk/runtime/worker_mutex.c" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/worker_mutex.c.o"
+  )
+SET(CMAKE_C_COMPILER_ID "GNU")
+SET(CMAKE_DEPENDS_CHECK_CXX
+  "/home/czakian/research/concurrent_cilk/runtime/bug.cpp" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/bug.cpp.o"
+  "/home/czakian/research/concurrent_cilk/runtime/cilk-abi-cilk-for.cpp" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/cilk-abi-cilk-for.cpp.o"
+  "/home/czakian/research/concurrent_cilk/runtime/except-gcc.cpp" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/except-gcc.cpp.o"
+  "/home/czakian/research/concurrent_cilk/runtime/global_state.cpp" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/global_state.cpp.o"
+  "/home/czakian/research/concurrent_cilk/runtime/reducer_impl.cpp" "/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir/runtime/reducer_impl.cpp.o"
+  )
+SET(CMAKE_CXX_COMPILER_ID "GNU")
+
+# Preprocessor definitions for this target.
+SET(CMAKE_TARGET_DEFINITIONS
+  "__CILKRTS_ABI_VERSION=1"
+  "IN_CILK_RUNTIME=1"
+  "BUILD_USER=\"anonymous\""
+  "BUILD_HOST=\"Linux\""
+  "CONCURRENT_CILK"
+  "__CILKRTS_ABI_VERSION=1"
+  "IN_CILK_RUNTIME=1"
+  "BUILD_USER=\"anonymous\""
+  "BUILD_HOST=\"Linux\""
+  "CONCURRENT_CILK"
+  )
+
+# Pairs of files generated by the same build rule.
+SET(CMAKE_MULTIPLE_OUTPUT_PAIRS
+  "/home/czakian/research/concurrent_cilk/build/libcilkrts.so" "/home/czakian/research/concurrent_cilk/build/libcilkrts.so.0.0.5"
+  "/home/czakian/research/concurrent_cilk/build/libcilkrts.so.5" "/home/czakian/research/concurrent_cilk/build/libcilkrts.so.0.0.5"
+  )
+
+
+# Targets to which this target links.
+SET(CMAKE_TARGET_LINKED_INFO_FILES
+  )
+
+# The include file search paths:
+SET(CMAKE_C_TARGET_INCLUDE_PATH
+  "../include"
+  "../runtime"
+  )
+SET(CMAKE_CXX_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
+SET(CMAKE_Fortran_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
+SET(CMAKE_ASM_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
