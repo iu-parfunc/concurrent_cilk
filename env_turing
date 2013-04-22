@@ -1,0 +1,24 @@
+#!/bin/bash
+
+CILK_ROOT=/opt/cilkplus
+CILK_SRC=/home/czakian/research/concurrent_cilk
+
+LIB_PATH=$CILK_ROOT/lib
+
+#export the root for the cilk enabled gcc
+export CILK_ROOT
+
+#export the source directory for cilk
+export CILK_SRC
+
+#export header path
+export CPATH=$CILK_ROOT/include:$CILK_ROOT/include/cilk:$CPATH
+export C_INCLUDE_PATH=$CILK_ROOT/include:$CILK_ROOT/include/cilk:$C_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=$CILK_ROOT/include:$CPLUS_INCLUDE_PATH
+
+#export library path
+export LD_LIBRARY_PATH=$LIB_PATH:$LD_LIBRARY_PATH
+export LIBRARY_PATH=$LIB_PATH:$LIBRARY_PATH
+
+#cilk specific aliases
+alias m=$CILK_SRC/clean_and_rebuild.sh

@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cilk/cilk_api.h>
-#include <cilk/abi.h>
 #include <cilk/cilk.h>
 #include <cilk/cilk_undocumented.h>
-#include "timer.h"
-#include "ivar_tests/common/cycle.h"
+#include <timer.h>
+#include <cycle.h>
 
 long pfib(int n) {
   if (n<2) return 1;
