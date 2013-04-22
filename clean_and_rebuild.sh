@@ -9,5 +9,23 @@ echo "removing old libraries..."
 rm -f $CILK_ROOT/lib/libcilkrts.*
 echo "success! building libcilkrts..."
 
-#build libcilk
-make -C $CILK_SRC clean; make -j -C $CILK_SRC/Makefile; make -C $CILK_SRC install
+
+pushd .
+
+cd $CILK_SRC
+
+rm -rf build
+mkdir build 
+cd build 
+
+#-DCMAKE_BUILD_TYPE=Debug \
+#-DCMAKE_BUILD_TYPE=Release \
+cmake \
+  -DCONCURRENT_CILK=ON \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_INSTALL_PREFIX=$CILK_ROOT ..;
+
+make && make install
+
+popd
+

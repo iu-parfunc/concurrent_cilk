@@ -17,6 +17,17 @@
 #include "scheduler.h"
 #include <time.h>
 #include "concurrent_cilk_internal.h"
+#include "bug.h"
+#include "os.h"
+#include "os_mutex.h"
+#include "local_state.h"
+#include "signal_node.h"
+#include "full_frame.h"
+#include "stacks.h"
+#include "sysdep.h"
+#include "except.h"
+#include "cilk_malloc.h"
+#include "pedigrees.h"
 #pragma warning(disable: 266)
 
 #define BEGIN_WITH_WORKER_LOCK(w) __cilkrts_worker_lock(w); do
@@ -55,7 +66,7 @@ __cilkrts_ivar_clear(__cilkrts_ivar* ivar)
 NOINLINE
 static void worker_replacement_scheduler()
 {
-    volatile __cilkrts_worker *w = __cilkrts_get_tls_worker_fast();
+    __cilkrts_worker *w = __cilkrts_get_tls_worker_fast();
     int stolen = 0;
 
     // Enter the scheduling loop on the worker. This function will

@@ -1,7 +1,16 @@
 #!/bin/bash
 
-libtoolize; aclocal; automake --add-missing; autoconf -i; 
+rm -rf $CILK_ROOT
+rm -rf build
+mkdir build 
+cd build 
 
-echo "build is setup. please run ./configure --prefix=<path-to-gcc-build, then make; make install>"
-  
+CMAKE_C_COMPILER=icc CMAKE_CXX_COMPILER=icc cmake \
+  -DCONCURRENT_CILK=ON \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_INSTALL_PREFIX=$CILK_ROOT ..;
+
+make && make install
+
+cd ..
 

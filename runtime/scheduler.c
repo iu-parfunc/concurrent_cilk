@@ -60,18 +60,6 @@
 #include <cilk/common.h>
 #include "concurrent_cilk_internal.h"
 #include "concurrent_queue.h"
-
-#ifdef LOCKFREE_QUEUE_VERSION
-#include "queues/lockfree_queue.c"
-#endif
-
-#ifdef B_QUEUE_VERSION
-#include "queues/bqueue/fifo.c"
-#endif
-
-#include "ivar_full_blocking.c"
-#include "concurrent_cilk.c"
-
 #endif
 
 // ICL: Don't complain about conversion from pointer to same-sized integral
@@ -356,7 +344,10 @@ static void make_runnable(__cilkrts_worker *w, full_frame *ff)
 /*
  * The worker parameter is unused, except for print-debugging purposes.
  */
-static void make_unrunnable(__cilkrts_worker *w,
+#ifndef CILK_IVARS
+static 
+#endif
+void make_unrunnable(__cilkrts_worker *w,
                             full_frame *ff,
                             __cilkrts_stack_frame *sf,
                             int state_valid,
