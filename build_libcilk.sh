@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 rm -rf $CILK_ROOT
 rm -rf build
 mkdir build 
