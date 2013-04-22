@@ -1,2 +1,0 @@
-/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilk-headers.dir
-/home/czakian/research/concurrent_cilk/build/CMakeFiles/cilkrts.dir

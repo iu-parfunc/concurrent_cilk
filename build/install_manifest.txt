@@ -1,3 +1,0 @@
-/opt/cilkplus/lib/libcilkrts.so.0.0.5
-/opt/cilkplus/lib/libcilkrts.so.5
-/opt/cilkplus/lib/libcilkrts.so
