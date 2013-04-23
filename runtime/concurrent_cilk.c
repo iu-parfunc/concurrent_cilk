@@ -27,16 +27,16 @@
 
 #include "concurrent_cilk_internal.h"
 #include "concurrent_cilk_forwarding_array.h"
-#include "concurrent_cilk_forwarding_array.c"
+#include <concurrent_queue.h>
 
 #   define max(a, b) ((a) < (b) ? (b) : (a))
 
 extern unsigned myrand(__cilkrts_worker *w);
 
-//#include "coroutine.c"
 
 int can_steal_from(__cilkrts_worker *victim);
 
+#   pragma warning(disable:266)   // disable warning that nanosleep is implicitely defined. it SHOULD be in time.h...
 CILK_API(void) __cilkrts_msleep(unsigned long millis)
 {
   struct timespec time;

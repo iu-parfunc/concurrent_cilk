@@ -1,7 +1,11 @@
+#include "scheduler.h"
 #include "concurrent_cilk_forwarding_array.h"
 #include <string.h>
 #include <stdlib.h>
 #include <malloc.h>
+#include "cilk_malloc.h"
+#include "worker_mutex.h"
+#include "concurrent_queue.h"
 
 
  /**
@@ -151,7 +155,7 @@ inherit_forwarding_array(__cilkrts_worker *old_w, __cilkrts_worker *fresh_worker
         newa->lock  = 0;
         newa->capacity = cur->capacity;
         newa->links    = cur->links;
-        bzero(newa->ptrs, ARRAY_SIZE);
+        memset(newa->ptrs, 0, ARRAY_SIZE);
 
         //assign the new struct to the list of available arrays
         cur->links[i] = newa;
@@ -210,7 +214,7 @@ __cilkrts_forwarding_array *init_array()
   __cilkrts_forwarding_array **links = (__cilkrts_forwarding_array **) 
     memalign(CACHE_LINE, INITIAL_CAPACITY*sizeof(__cilkrts_forwarding_array *)); 
 
-  bzero(links, INITIAL_CAPACITY*sizeof(__cilkrts_forwarding_array **));
+  memset(links, 0, INITIAL_CAPACITY*sizeof(__cilkrts_forwarding_array **));
 
   for(i=0; i < INITIAL_CAPACITY; i++) {
     newa = memalign(CACHE_LINE, sizeof(__cilkrts_forwarding_array)); 
@@ -227,7 +231,7 @@ __cilkrts_forwarding_array *init_array()
       newa->capacity = links[0]->capacity;
     }
 
-    bzero(newa->ptrs, ARRAY_SIZE*sizeof(__cilkrts_worker *));
+    memset(newa->ptrs, 0, ARRAY_SIZE*sizeof(__cilkrts_worker *));
   }
 
   __cilkrts_fence();

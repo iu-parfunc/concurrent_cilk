@@ -43,6 +43,7 @@
 #include <cilk/cilk_api.h>
 #include "scheduler.h"
 #include "bug.h"
+#include <string.h>
 
 
 inline
@@ -83,7 +84,7 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *iv)
      CILK_ASSERT(0); //should never get here
   }
 
-  bzero(&wkr->ctx, 5);
+  memset(&wkr->ctx, 0, 5);
   __cilkrts_mutex_unlock(wkr, &wkr->l->lock);
   // <-- We only jump back to here when the value is ready.
   return UNTAG(*ivar);

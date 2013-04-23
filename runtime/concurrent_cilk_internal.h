@@ -2,6 +2,7 @@
 #define __CONCURRENT_CILK_INTERNAL_H
 
 
+#include "os.h"
 #include "cilk/concurrent_cilk.h"
 #include "concurrent_cilk_forwarding_array.h"
 #include "full_frame.h"

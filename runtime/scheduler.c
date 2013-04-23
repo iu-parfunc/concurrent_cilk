@@ -82,9 +82,7 @@
 //the definition for CILK_IVARS
 #ifdef CILK_IVARS
 #include "concurrent_cilk_internal.h"
-#include "concurrent_queue.h"
-#include "ivar_full_blocking.c"
-#include "concurrent_cilk.c"
+#include <concurrent_queue.h>
 #endif
 
 //#define DEBUG_LOCKS 1
@@ -2293,7 +2291,7 @@ static int provably_good_steal(__cilkrts_worker *w,
           w->worker_cache = (queue_t *) make_stack_queue();
         w->is_replacement = 0;
         w->ivar = NULL;
-        bzero(w->ctx, 5);
+        memset(w->ctx, 0, 5);
 
         //register our own worker in the stealing array
         //--------------------

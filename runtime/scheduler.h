@@ -50,6 +50,26 @@ __CILKRTS_BEGIN_EXTERN_C
 #define DISABLE_PARALLEL_REDUCERS 0
 #define REDPAR_DEBUG 0
 
+//forward definitions for use in concurrent_cilk.c
+#ifdef CILK_IVARS
+#include "local_state.h"
+NORETURN longjmp_into_runtime(__cilkrts_worker *w, scheduling_stack_fcn_t fcn, __cilkrts_stack_frame *sf);
+
+COMMON_SYSDEP void __cilkrts_yield(void);
+
+void signal_node_msg(signal_node_t *node, unsigned int msg);
+
+void make_worker_system(__cilkrts_worker *w);
+
+void *sysdep_make_tiny_stack (__cilkrts_worker *w);
+
+void make_unrunnable(__cilkrts_worker *w,
+                            full_frame *ff,
+                            __cilkrts_stack_frame *sf,
+                            int state_valid,
+                            const char *why);
+#endif
+
 /**
  * Lock the worker mutex to allow exclusive access to the values in the
  * __cilkrts_worker and local_state structures.
