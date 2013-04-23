@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 // For access to Cilk RTS internals:
-#include <cilk/abi.h>
+#include <internal/abi.h>
 #include <cilk/cilk.h>
 #include <cilk/cilk_api.h>
 

@@ -6,7 +6,7 @@
 
 
 // For access to Cilk RTS internals:
-#include <cilk/abi.h>
+#include <internal/abi.h>
 
 #include <unistd.h>
 #include <stdio.h>
