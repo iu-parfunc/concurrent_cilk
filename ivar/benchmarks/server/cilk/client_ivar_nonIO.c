@@ -9,7 +9,7 @@
 #include <cilk/concurrent_cilk.h>
 #include "agreement.h"
 #include "common.h"
-#include "../../../../timer.h"
+#include <timer.h>
 
 #define NUM_SERVERS 19
 

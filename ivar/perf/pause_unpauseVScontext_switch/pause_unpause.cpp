@@ -9,14 +9,10 @@
 #include <cilk/concurrent_cilk.h>
 
 #include <pthread.h>
-#include "../../common/cycle.h"
+#include <cycle.h>
 
-#include <cilk/abi.h>
+#include <internal/abi.h>
 #include <cilk/cilk_api.h>
-
-enqueue();
-
-
 
 
 void print_context() 

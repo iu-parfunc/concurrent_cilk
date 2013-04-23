@@ -7,7 +7,7 @@
 // #include <cilk/cilk_stub.h>
 
 // Careful, this has to be before concurrent_queue.h below:
-#include <cilk/abi.h>
+#include <internal/abi.h>
 
 // A little surgery here.  Any DBG messages will swamp this test.
 #  undef  IVAR_DBG

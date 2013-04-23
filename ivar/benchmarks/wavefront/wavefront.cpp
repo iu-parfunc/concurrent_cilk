@@ -13,8 +13,9 @@
 #include <cilk/cilk.h>
 #include <cilk/ivar.h>
 #include <cilk/cilk_api.h>
-#include "../../../timer.h"
-#include "../../common/cycle.h"
+#include <timer.h>
+#include <cycle.h>
+
 using namespace std;
 
 // Globals:

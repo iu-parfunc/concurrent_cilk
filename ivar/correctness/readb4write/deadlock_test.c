@@ -3,7 +3,7 @@
 #include <cilk/cilk.h>
 #include <cilk/cilk_api.h>
 // For access to Cilk RTS internals:
-#include <cilk/abi.h>
+#include <internal/abi.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,7 +50,7 @@ void fun() {
 
     __cilkrts_worker* w_ = __cilkrts_get_tls_worker();
     unsigned long val;
-    val = (unsigned long) cilk_spawn reader(&iv);
+    val = cilk_spawn reader(&iv);
     printf("   Ivar (%p) read successfully: %lu w=%d\n",  &iv, val, w_->self);
 
     struct __cilkrts_worker* w = __cilkrts_get_tls_worker();

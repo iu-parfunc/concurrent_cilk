@@ -10,4 +10,6 @@
 libcilkrts/configure
 libcilkrts/config.status
 libcilkrts/autom4te.m4
+build
+bin
 

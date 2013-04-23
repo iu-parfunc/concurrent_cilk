@@ -1,6 +1,2 @@
-BIN=microbench.exe microbench_many_blocking.exe
-OUT=bin
-SCRIPTS="../../scripts"
-SCRIPT_PREFIX="../benchmarks/microbench"
-include  ../../Makefile.common
 
+include $(CILK_SRC)/cilk_tests/Makefile.common

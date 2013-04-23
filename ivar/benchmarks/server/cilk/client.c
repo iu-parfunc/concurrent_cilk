@@ -9,7 +9,7 @@
 #include "agreement.h"
 #include "common.h"
 //#include "itoa.h"
-#include "../../../../timer.h"
+#include <timer.h>
 
 #define NUM_SERVERS 19
 

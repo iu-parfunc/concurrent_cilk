@@ -1,6 +1,2 @@
 
-include ../Makefile.common
-
-DIR_ROOT=.
-DIR_BIN=./bin
-
+include $(CILK_SRC)/cilk_tests/Makefile.common

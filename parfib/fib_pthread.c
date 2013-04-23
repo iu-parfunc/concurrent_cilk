@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
-#include "timer.h"
-#include "ivar_tests/common/cycle.h"
+#include <timer.h>
+#include <cycle.h>
 
 void *fibonacci(void *n) { 
   

@@ -3,7 +3,7 @@
 #include <cilk/cilk.h>
 #include <cilk/cilk_api.h>
 // For access to Cilk RTS internals:
-#include <cilk/abi.h>
+#include <internal/abi.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,7 +31,7 @@ void fun() {
     unsigned long val;
 
     __cilkrts_ivar_clear(&iv);
-    val = (unsigned long) cilk_spawn __cilkrts_ivar_read(&iv);
+    val = cilk_spawn __cilkrts_ivar_read(&iv);
 
 #ifdef DELAY_READER
     __cilkrts_usleep(DELAY);   printf("fun(): Reader done sleeping, now sync\n");
@@ -41,7 +41,7 @@ void fun() {
 
     cilk_sync;
     struct __cilkrts_worker* w = __cilkrts_get_tls_worker();
-    printf("   Ivar (%p) read successfully: %lu double check of ivarstruct %lu w=%d\n",  &iv, val, iv.__value, w->self);
+    printf("   Ivar (%p) read successfully: %lu\n",  &iv, val);
     printf("fun(): Going to attempt Sync.  Current Cilk worker = %d\n", w->self);
 
     printf("   fun(): reached position AFTER cilk_sync\n");

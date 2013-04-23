@@ -19,3 +19,7 @@ build:
 
 clean:
 	rm -rf build
+	
+distclean:
+	rm -rf build
+	rm -rf bin

@@ -1,11 +1,10 @@
 #include <cilk/cilk.h>
 #include <cilk/cilk_api.h>
-#include <cilk/abi.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../common/cycle.h"
-#include "../../../timer.h"
+#include <cycle.h>
+#include <timer.h>
 
 #define ALLOC_EMPTY_IVARS(size) calloc(size, sizeof(__cilkrts_ivar))
 
