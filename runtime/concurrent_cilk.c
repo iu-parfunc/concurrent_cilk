@@ -74,13 +74,13 @@ static void worker_replacement_scheduler()
     CILK_ASSERT(w->current_stack_frame);
     w->current_stack_frame->flags |= CILK_FRAME_BLOCKED;
 
-    if(w->current_stack_frame->flags & CILK_FRAME_STOLEN)
-      stolen = 1;
+  //  if(w->current_stack_frame->flags & CILK_FRAME_STOLEN)
+  //    stolen = 1;
 
     make_unrunnable(w, w->paused_ff, w->current_stack_frame, 1, "pause");
 
-    if(! stolen)
-      w->current_stack_frame->flags &= ~CILK_FRAME_STOLEN;
+  //  if(! stolen)
+  //    w->current_stack_frame->flags &= ~CILK_FRAME_STOLEN;
 
     __cilkrts_run_scheduler_with_exceptions((__cilkrts_worker *) w);
 
