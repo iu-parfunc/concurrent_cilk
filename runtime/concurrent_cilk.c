@@ -1,9 +1,3 @@
-// NOTE: Presently this code is CONDITIONALLY included/compiled into another file.
-
-// Thus this whole file is implicitly IFDEF CILK_IVARS
-
-// ====================================================================================================
-
 // Concurrent Cilk: 
 //   An API For pausing/suspending stacks, enabling cooperative multithreading and other forms of
 // concurrency.
@@ -37,9 +31,6 @@
 
 #define END_WITH_FRAME_LOCK(w, ff)                       \
     while (__cilkrts_frame_unlock(w, _locked_ff), 0); } while (0)
-
-//#include "coroutine.c"
-
 
 CILK_API(void) __cilkrts_msleep(unsigned long millis)
 {

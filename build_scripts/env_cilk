@@ -1,8 +1,18 @@
 #!/bin/bash
 
-CILK_ROOT=/nobackup/$USER/cilkplus
-CILK_SRC=/nobackup/$USER/gcc/libcilkrts
+#specifies the runtime destination for libcilkrts.so
+#the install for the library will be: CILK_ROOT/lib
+#header files will be located in CILK_ROOT/include
 
+CILK_ROOT=/opt/cilkplus #<<<<< EDIT this variable to point to your desired install location
+
+
+#note, this file MUST be sourced from the top level cilkplus directory. 
+#otherwise, pwd will get the wrong directory.
+CILK_SRC=$(pwd)
+echo $CILK_SRC
+
+#do not edit below this line
 LIB_PATH=$CILK_ROOT/lib:$CILK_ROOT/lib64:$CILK_ROOT/libexec:$CILK_ROOT/share
 BIN_PATH=$CILK_ROOT/bin
 

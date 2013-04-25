@@ -58,6 +58,7 @@ if(${CONCURRENT_CILK})
     ${cilk_header_files} 
     cilk/ivar.h
     cilk/concurrent_cilk.h
+    cilk/concurrent_queue.h
     )
   endif()
 
@@ -95,8 +96,7 @@ if(${CONCURRENT_CILK})
       ${cilk_runtime_sources} 
       runtime/concurrent_cilk.c
       runtime/ivar_full_blocking.c
-      runtime/queues/bqueue/fifo.c
-      #runtime/queues/lockfree_queue.c
+      runtime/concurrent_queue.c
       )
     endif()
 
