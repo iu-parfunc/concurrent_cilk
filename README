@@ -16,29 +16,28 @@ extensions to non-development systems, you need to build the Intel
 Cilk Plus runtime library and distribute it with your application.
 
 To build the libcilkrts.so runtime library component, you need the
-autoconf and automake packages, which are available through your
-favorite package manager.  You also need a C/C++ compiler that
+you need cmake 2.8.8 or higher, which is available through your
+favorite package manager. You also need a C/C++ compiler that
 supports the Intel Cilk Plus language extensions, since the runtime
 uses Intel Cilk Plus features internally.  Use either the Intel(R)
 C++ Compiler (icc command) v12.1 or later, or the "cilkplus" branch
-in GCC (gcc command).
+in GCC (gcc command) or clang 3.3 or later "cilkplus" branch.
 
 Once you have the necessary prerequisites installed, you can use the
 following commands to create the library:
 
-% libtoolize
-% aclocal
-% automake --add-missing
-% autoconf
-% ./configure
-% make
-% make install
+%a.
+%edit the ./build_scripts/env_cilk file so that $CILK_ROOT points to your 
+%desired installation directory and $CILK_SRC to point to your current 
+%directory of this README. If you are the same directory as the readme,
+%the CILK_SRC will be automatically set. 
 
-This will produce the libcilkrts.so shared object.  To install the
-library in a custom location, set the prefix while running the
-configure script:
+%b.
+%source the env_cilk script with: source .build_scripts/env_cilk
 
-% ./configure --prefix=/your/path/to/lib
+%c.
+%compile libcilkrts with ./build_libcilk.sh
+
 
 #
 #  2. USING:
@@ -67,6 +66,9 @@ based on the markup by changing directory into runtime and running:
 Issues with the Intel Cilk Plus runtime can be addressed in the Intel
 Cilk Plus forums:
 http://software.intel.com/en-us/forums/intel-cilk-plus/
+
+Or Questions on Concurrent Cilk can be directed to
+czakian at indianadotedu
 
 #
 #  5. CONTRIBUTIONS:
