@@ -978,7 +978,8 @@ static int provably_good_steal(__cilkrts_worker *w, full_frame *ff)
       } else {
         __cilkrts_push_next_frame(w, ff);
 #ifdef CILK_IVARS
-        if(ff->blocked) 
+        //TODO: delete this...should never be here
+        if(ff->concurrent_cilk_flags & FULL_FRAME_BLOCKED) 
           ff = pop_next_frame(w);
           printf("about to run a blocked frame %p ...popping it and aborting\n", ff);
           abort();
@@ -2097,7 +2098,7 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
       CILK_ASSERT(parent_ff);
 
       BEGIN_WITH_FRAME_LOCK(w, parent_ff) {
-        if(parent_ff->call_stack->flags &= CILK_FRAME_BLOCKED) {
+        if(parent_ff->call_stack->flags & CILK_FRAME_BLOCKED) {
           blocked_frame_finalize_child_for_call(w, parent_ff, ff);
         } else {
           finalize_child_for_call(w, parent_ff, ff);

@@ -56,6 +56,7 @@ set(cilk_header_files
 if(${CONCURRENT_CILK})
   set(cilk_header_files 
     ${cilk_header_files} 
+    internal/abi.h
     cilk/ivar.h
     cilk/concurrent_cilk.h
     cilk/concurrent_queue.h

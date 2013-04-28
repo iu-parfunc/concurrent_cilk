@@ -89,6 +89,8 @@ typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
 
   __cilkrts_paused_stack *waitlist;
 
+  int flags;
+
 } __cilkrts_paused_stack;
 
 /*   Cilk IVars:  Types & API   */

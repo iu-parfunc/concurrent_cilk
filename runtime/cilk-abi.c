@@ -150,6 +150,7 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
     sf->flags &= ~CILK_FRAME_DETACHED;
 #endif
 
+    printf("in undo detach: sf %p tail %p exc %p\n", sf, t, w->exc);
     return __builtin_expect(t < w->exc, 0);
 }
 
@@ -187,6 +188,9 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
    // update_pedigree_on_leave_frame(w, sf);
    if(sf == *w->head)
      if(! setjmp(w->paused_ff->blocked_ctx)) {
+       printf("marking sf %p as self steal unwinding\n", sf);
+       //does this need to be atomic since sf == head?
+       sf->flags &= ~CILK_FRAME_SELF_STEAL;
        self_steal_return(w);
        longjmp_into_runtime(w, do_return_from_self, sf);
      }

@@ -72,7 +72,7 @@ full_frame *__cilkrts_make_full_frame(__cilkrts_worker *w,
         ff->sync_master = 0;
 
 #ifdef CILK_IVARS
-        ff->blocked = 0;
+        ff->concurrent_cilk_flags = 0;
 #endif
 
         /*__cilkrts_init_full_frame_sysdep(w, ff);*/

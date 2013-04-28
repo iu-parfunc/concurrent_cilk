@@ -180,6 +180,16 @@ devlog april 18 2013: (back to hacking on runtime) implementing the return from 
    via the dekker protocol on cases where w->tail+1 == w->head. 
 
 
+devlog april 28 2013: implementing the return from an ivar read on a single core. 
+
+  added a concurrent_cilk_flags field to the full_frame struct in full_frame.h. This replaced the blocked int field. 
+
+  I added flags: FULL_FRAME_BLOCKED and FULL_FRAME_UNVINDING to internal/abi.h. These are the only valid flags (besides NULL)
+  for the concurrent_cilk_flags field. 
+
+  Runtime still segfaults on the full_frame->parent = NULL issue. The flags in the full frame should ensure that runtime knows
+  that this full frame in an unwinding full frame and should not be checking on exceptions or executing a return from spawn
+  reduction since the frame was self stolen. 
 -------------------------------------------------------
 
 

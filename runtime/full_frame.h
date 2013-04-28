@@ -192,7 +192,7 @@ struct full_frame
 
 #ifdef CILK_IVARS
     jmp_buf blocked_ctx;
-    int blocked;
+    int concurrent_cilk_flags;
 #endif
 
     /**

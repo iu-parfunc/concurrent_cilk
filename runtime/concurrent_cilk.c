@@ -122,11 +122,17 @@ restore_paused_worker(__cilkrts_paused_stack *pstk)
   //TODO cache these suckers
   //sysdep_destroy_tiny_stack(w->l->scheduler_stack);
 
-  pstk->ff->blocked = 0;
   w->l->scheduler_stack = pstk->scheduler_stack;
   w->l->team = pstk->team;
   w->is_blocked = pstk->is_blocked;
   w->current_stack_frame = pstk->current_stack_frame;
+  w->current_stack_frame->flags = pstk->flags;
+
+  //fixup the flags
+  //the full frame loses its blocked marking
+  //and the stack frame loses its blocked marking
+  //and gains a flag for a blocked frame that is now returning
+  pstk->ff->concurrent_cilk_flags &= ~FULL_FRAME_BLOCKED;
   w->current_stack_frame->flags &= ~CILK_FRAME_BLOCKED;
   w->current_stack_frame->flags |=  CILK_FRAME_BLOCKED_RETURNING;
   //------------end restore context------------
@@ -148,7 +154,10 @@ __cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_stack *pstk)
     pstk->scheduler_stack = w->l->scheduler_stack;
     pstk->current_stack_frame = w->current_stack_frame;
     pstk->ff = w->l->frame_ff;
-    pstk->ff->blocked = 1;
+    pstk->flags = w->current_stack_frame->flags;
+
+    //this full frame is now marked as a blocked frame
+    pstk->ff->concurrent_cilk_flags &= FULL_FRAME_BLOCKED;
     w->paused_ff = w->l->frame_ff;
     printf("pausing full frame %p\n", pstk->ff);
     //---------end save context of the worker-------
