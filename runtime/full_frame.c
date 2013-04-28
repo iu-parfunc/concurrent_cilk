@@ -33,6 +33,9 @@
 #include "bug.h"
 #include "jmpbuf.h"
 #include "frame_malloc.h"
+#ifdef CILK_IVARS
+#include "internal/abi.h" //for full_frame flags
+#endif
 
 COMMON_PORTABLE
 full_frame *__cilkrts_make_full_frame(__cilkrts_worker *w,
@@ -80,6 +83,17 @@ full_frame *__cilkrts_make_full_frame(__cilkrts_worker *w,
     } STOP_INTERVAL(w, INTERVAL_ALLOC_FULL_FRAME);
     return ff;
 }
+
+#ifdef CILK_IVARS
+void print_flags(full_frame *ff) 
+{
+  if(! ff->concurrent_cilk_flags) return;
+  printf("full_frame %p has flags ", ff);
+  if(ff->concurrent_cilk_flags & FULL_FRAME_BLOCKED)     printf("FULL_FRAME_BLOCKED ");
+  if(ff->concurrent_cilk_flags & FULL_FRAME_SELF_STEAL)  printf("FULL_FRAME_SELF_STEAL ");
+  printf("\n");
+}
+#endif
 
 COMMON_PORTABLE void __cilkrts_put_stack(full_frame *ff,
                                          __cilkrts_stack_frame *sf)

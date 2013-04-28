@@ -379,7 +379,7 @@ struct __cilkrts_stack_frame
 #define CILK_FRAME_BLOCKED_RETURNING 0x800
 
 #define FULL_FRAME_BLOCKED 0x01
-#define FULL_FRAME_SELF_STEAL 0x02;
+#define FULL_FRAME_SELF_STEAL 0x02
 #endif
 
 /**

@@ -480,6 +480,9 @@ COMMON_PORTABLE void __cilkrts_frame_lock(__cilkrts_worker *w,
  */
 COMMON_PORTABLE void __cilkrts_frame_unlock(__cilkrts_worker *w,
                                             full_frame *ff);
+#ifdef CILK_IVARS
+void print_flags(full_frame *ff);
+#endif
 /** @} */
 
 __CILKRTS_END_EXTERN_C
