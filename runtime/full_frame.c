@@ -88,7 +88,7 @@ full_frame *__cilkrts_make_full_frame(__cilkrts_worker *w,
 void print_flags(full_frame *ff) 
 {
   if(! ff->concurrent_cilk_flags) return;
-  printf("full_frame %p has flags ", ff);
+  printf("<<<<<<<<<<<<<<<<<<< >>>>> full_frame %p has flags ", ff);
   if(ff->concurrent_cilk_flags & FULL_FRAME_BLOCKED)     printf("FULL_FRAME_BLOCKED ");
   if(ff->concurrent_cilk_flags & FULL_FRAME_SELF_STEAL)  printf("FULL_FRAME_SELF_STEAL ");
   printf("\n");

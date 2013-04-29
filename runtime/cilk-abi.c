@@ -53,6 +53,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef CILK_IVARS
+#include "concurrent_cilk_internal.h"
+#endif
+
 #ifdef _MSC_VER
 /* Some versions of icc don't support limits.h on Linux if
    gcc 4.3 or newer is installed. */
@@ -150,7 +154,26 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
     sf->flags &= ~CILK_FRAME_DETACHED;
 #endif
 
-    printf("in undo detach: sf %p tail %p exc %p\n", sf, t, w->exc);
+#ifdef CILK_IVARS
+    if(w->l->frame_ff->concurrent_cilk_flags & FULL_FRAME_SELF_STEAL) {
+
+      w->l->frame_ff->concurrent_cilk_flags &= ~FULL_FRAME_SELF_STEAL;
+      if(t < w->exc) {
+        //ugh...so much overhead for so little work.
+        //too bad we can't CAS the tail...
+        BEGIN_WITH_WORKER_LOCK(w) {
+
+          w->exc = w->head;
+          w->tail++;
+
+          //the deque should be cleared at this point
+          CILK_ASSERT(w->tail == w->head);
+
+        } END_WITH_WORKER_LOCK(w);
+      }
+      return 0;
+    }
+#endif
     return __builtin_expect(t < w->exc, 0);
 }
 
@@ -253,6 +276,7 @@ if ((sf->flags & CILK_FRAME_DETACHED)) {
   }
 #endif
   if (__builtin_expect(__cilkrts_undo_detach(sf), 0)) {
+
     // The update of pedigree for leaving the frame occurs
     // inside this call if it does not return.
     __cilkrts_c_THE_exception_check(w, sf);

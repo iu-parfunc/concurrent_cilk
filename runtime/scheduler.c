@@ -387,7 +387,6 @@ void __cilkrts_push_next_frame(__cilkrts_worker *w, full_frame *ff)
     CILK_ASSERT(ff);
     CILK_ASSERT(!w->l->next_frame_ff);
     incjoin(ff);
-    printf("%d pushing full frame %p\n",w->self, ff);
     w->l->next_frame_ff = ff;
 }
 
@@ -718,8 +717,6 @@ static void detach_for_steal(__cilkrts_worker *w,
         /* obtain the victim call stack */
         sf = *h;
 
-        printf("detach for steal: %d pushing a victim %d's frame %p from head. head at %p tail at %p \n",
-            w->self, victim->self, sf, victim->head, victim->tail);
         /* perform system-dependent normalizations */
         /*__cilkrts_normalize_call_stack_on_steal(sf);*/
 
@@ -925,7 +922,6 @@ static void provably_good_steal_stacks(__cilkrts_worker *w, full_frame *ff)
 {
   __cilkrts_stack *s;
   s = ff->stack_self;
-  printf("<<<<<< provably_good_steal_stacks: ff %p getting stack %p old stack self: %p\n", ff, ff->stack_child, ff->stack_self);
   ff->stack_self = ff->stack_child;
   ff->stack_child = NULL;
   if (s) {
@@ -951,7 +947,6 @@ static int provably_good_steal(__cilkrts_worker *w, full_frame *ff)
   // thread and are going to attempt to steal work from
   // someone else
 
-  printf("provably_good_steal pushing ff %p\n", ff);
   START_INTERVAL(w, INTERVAL_PROVABLY_GOOD_STEAL) {
     if (decjoin(ff) == 0) {
       provably_good_steal_reducers(w, ff);
@@ -977,13 +972,6 @@ static int provably_good_steal(__cilkrts_worker *w, full_frame *ff)
           abandoned = 0;
       } else {
         __cilkrts_push_next_frame(w, ff);
-#ifdef CILK_IVARS
-        //TODO: delete this...should never be here
-        if(ff->concurrent_cilk_flags & FULL_FRAME_BLOCKED) 
-          ff = pop_next_frame(w);
-          printf("about to run a blocked frame %p ...popping it and aborting\n", ff);
-          abort();
-#endif
         abandoned = 0;  // Continue working on this thread
       }
 
@@ -1000,7 +988,6 @@ static void unconditional_steal(__cilkrts_worker *w,
     full_frame *ff)
 {
   // ASSERT: we hold ff->lock
-  printf("%d unconditional steal: pushing full frame %p\n", w->self, ff);
 
   START_INTERVAL(w, INTERVAL_UNCONDITIONAL_STEAL) {
     decjoin(ff);
@@ -1109,7 +1096,6 @@ static void finalize_child_for_call(__cilkrts_worker *w,
     /* remove CHILD from list of children of PARENT */
     unlink_child(parent_ff, child_ff);
 
-    printf("%d finalize child for call, unconditionally pushing frame: %p\n", w->self, parent_ff);
     /* continue with the parent. */
     unconditional_steal(w, parent_ff);
     __cilkrts_destroy_full_frame(w, child_ff);
@@ -1452,9 +1438,6 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     __cilkrts_stack_frame *sf;
     __cilkrts_stack *sd;
     char *sp;
-    //printf("entering self_steal w %d\n", w->self);
-
-    //printf("parent %p stack: %p\n", parent_ff, parent_ff->stack_self);
 
     if(!can_steal_from(w)) return;
 
@@ -1874,6 +1857,7 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 
     STOP_INTERVAL(w, INTERVAL_THE_EXCEPTION_CHECK);
 
+
     if (stolen_p)
     {
       w = execute_reductions_for_spawn_return(w, ff, returning_sf);
@@ -1889,7 +1873,6 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
       __notify_zc_intrinsic("cilk_leave_stolen", saved_sf);
 #endif // defined ENABLE_NOTIFY_ZC_INTRINSIC
 
-      printf ("%d-%p: longjmp_into_runtime from __cilkrts_c_THE_exception_check\n", w->self, w);
       DBGPRINTF ("%d-%p: longjmp_into_runtime from __cilkrts_c_THE_exception_check\n", w->self, GetWorkerFiber(w));
       longjmp_into_runtime(w, do_return_from_spawn, 0);
       DBGPRINTF ("%d-%p: returned from longjmp_into_runtime from __cilkrts_c_THE_exception_check?!\n", w->self, GetWorkerFiber(w));
@@ -2056,7 +2039,6 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
     /* remove CHILD from list of children of PARENT */
     unlink_child(parent_ff, child_ff);
 
-    printf("%d finalize child for call, unconditionally pushing frame: %p\n", w->self, parent_ff);
     /* continue with the parent. */
     unconditional_steal(w, parent_ff);
     __cilkrts_destroy_full_frame(w, child_ff);
@@ -2064,7 +2046,6 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
 }
 
   void self_steal_return(__cilkrts_worker *w) {
-    printf("in call return %d\n", w->self);
     full_frame *ff, *parent_ff;
     START_INTERVAL(w, INTERVAL_RETURNING);
 
@@ -2078,7 +2059,11 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
         // Technically, w will "own" ff until ff is freed,
         // however, because ff is a dying leaf full frame.
         parent_ff = disown(w, ff, 0, "return");
+
         decjoin(ff);
+
+        //the parent no longer references the child 
+        decjoin(parent_ff);
 
 #ifdef _WIN32
         __cilkrts_save_exception_state(w, ff);
@@ -2106,7 +2091,6 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
       } END_WITH_FRAME_LOCK(w, parent_ff);
 
       ff = pop_next_frame(w);
-      printf("ff %p\n",ff);
       /* ff will be non-null except when the parent frame is owned
          by another worker.
          CILK_ASSERT(ff)
@@ -2115,7 +2099,6 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
       if (ff) {
         BEGIN_WITH_FRAME_LOCK(w, ff) {
           __cilkrts_stack_frame *sf = ff->call_stack;
-          printf("ff %p sf %p sf->call_parent %p\n",ff, sf, sf->call_parent);
           CILK_ASSERT(sf && (!sf->call_parent || w->is_blocked));
           setup_for_execution(w, ff, 1);
         } END_WITH_FRAME_LOCK(w, ff);
@@ -2176,7 +2159,6 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
       if (ff) {
         BEGIN_WITH_FRAME_LOCK(w, ff) {
           __cilkrts_stack_frame *sf = ff->call_stack;
-          printf("sf %p sf->call_parent %p\n",sf, sf->call_parent);
           CILK_ASSERT(sf && !sf->call_parent);
           setup_for_execution(w, ff, 1);
         } END_WITH_FRAME_LOCK(w, ff);
@@ -2237,7 +2219,6 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
 
   void __cilkrts_c_return_from_initial(__cilkrts_worker *w)
   {
-    printf("in c return from initial %d\n", w->self);
     struct cilkred_map *rm;
 
     /* This is only called on a user thread worker. */

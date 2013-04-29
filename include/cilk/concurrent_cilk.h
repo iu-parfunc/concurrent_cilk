@@ -51,6 +51,12 @@ int make_paused_stack(__cilkrts_worker* w, __cilkrts_ivar *ivar);
 #define UNTAG(iv) (iv >> IVAR_SHIFT)
 
 
+//convenience aliases for a kinder use of ivars in C
+typedef __cilkrts_ivar ivar_t;
+#define read_iv  __cilkrts_ivar_read
+#define write_iv __cilkrts_ivar_write
+#define clear_iv __cilkrts_ivar_clear
+
 
 #ifdef IVAR_DBG
 
@@ -70,6 +76,7 @@ int make_paused_stack(__cilkrts_worker* w, __cilkrts_ivar *ivar);
  */
 #define IVAR_DBG_PRINT_(lvl, ...)   
 #endif
+
 
 __CILKRTS_END_EXTERN_C
 #endif

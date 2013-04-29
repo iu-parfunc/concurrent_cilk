@@ -190,6 +190,41 @@ devlog april 28 2013: implementing the return from an ivar read on a single core
   Runtime still segfaults on the full_frame->parent = NULL issue. The flags in the full frame should ensure that runtime knows
   that this full frame in an unwinding full frame and should not be checking on exceptions or executing a return from spawn
   reduction since the frame was self stolen. 
+
+
+devlog april 29 2013: implementing the ivar waitlist inside paused stacks. 
+
+  -- update I got the single read before write working on 1 core with tail stealing. I am now progressing onto multiple reads. 
+
+  The program that tests multiple reads is doublereadslowpath.c in cilk_tests/ivar/correctness/readb4write. 
+
+  The trip down the stack is fine. As expected, the return back is not. I am getting a segfault on the jump back to the top ivar read. 
+
+  The current order of ivar wakeup is a fifo as they are enqueued. To facilitate this, I have added a dequeue to the __cilkrts_paused_stack structure. 
+  I have also added a lock. When an ivar is paused and it is read again in a paused state, we must append the paused stacks to a list of call sites waiting
+  to be woken up. Currently, I select the first paused stack to be created and use that as the master lock for access to the waitlist of blocked stacks on a
+  given ivar. I think that I can make this more efficient by maintaining a separate concurrent queue (bqueue or michael scott) and then doing a splice on a write
+  instead of a linked list traversal and a dequeue. Oh well. It was easier to implement my own lightwight queue real quick than to muck about in their data structures. 
+  I think the process should be quite simple once I dig around a bit. I am leaving it as a todo (below) right now. 
+
+  TODO: investigate using a splitting strategy where a separate queue of blocked workers is maintained on an ivar. Once the ivar is written, the top node in the fifo
+  is spliced into the ready_q of the worker. This should save us a whole lot of CAS instructions, plus a linked list traversal. This modification will be essential for
+  broadcast applications with 1 writer and many many readers. 
+
+  In other news, I added ivar_t as a type alias for __cilkrts_ivar, and read_iv, write_iv, and clear_iv macros in cilk/concurrent_cilk.h for their __cilkrts_ivar 
+  counterparts respectively. Maybe we want to just change the names in runtime. The long names are really incovenient. 
+
+  I also re-examined the tests in readb4write. Turns out a lot of them were testing the same use cases. I removed the duplicates, assigned better names, and added 
+  documentation on what they really. As a team, we should get in the habit of writing many many minimal tests. I added Leiserson's snafoo test that should break
+  ivars if the stacks aren't right. A deeper question to investigate is how stacks will work on stealing. For tail stealing, everything is peachy because the child
+  is handed a new stack. I think that snafoo will still fail off of a steal of a steal because the thief takes the victim's stack and runs with it, leaving the victim
+  with a shiny new stack. What if the stack just so happens to encounter the situation in snafoo? We have no control over what work it will steal. shouldn't the new
+  stack be handed to the thief to execute new code on? I think that the switch should be made when the victim a.) has no work on its dequeue and b.) has no outstanding
+  ivars to return. In either case, a passing on of the stack could lead to deadlock. This will have to get modified in detach_for_steal in the scheduler. 
+
+  full_frame.c/h has received a printf_flags function that will print out all of the concurrent_cilk_flags in a human readable format. I think we should keep
+  this around just until the debugging phase starts to wind down. 
+
 -------------------------------------------------------
 
 

@@ -22,15 +22,13 @@
 #include "except.h"
 #include "cilk_malloc.h"
 #include "pedigrees.h"
+
+//for nanosleep "declared implicity"...it should be in time.h but isn't?
 #pragma warning(disable: 266)
 
-#define BEGIN_WITH_WORKER_LOCK(w) __cilkrts_worker_lock(w); do
-#define END_WITH_WORKER_LOCK(w)   while (__cilkrts_worker_unlock(w), 0)
-#define BEGIN_WITH_FRAME_LOCK(w, ff)                                     \
-    do { full_frame *_locked_ff = ff; __cilkrts_frame_lock(w, _locked_ff); do
+//for atomic_release
+#pragma warning(disable: 2206)
 
-#define END_WITH_FRAME_LOCK(w, ff)                       \
-    while (__cilkrts_frame_unlock(w, _locked_ff), 0); } while (0)
 
 CILK_API(void) __cilkrts_msleep(unsigned long millis)
 {
@@ -132,7 +130,12 @@ restore_paused_worker(__cilkrts_paused_stack *pstk)
   //the full frame loses its blocked marking
   //and the stack frame loses its blocked marking
   //and gains a flag for a blocked frame that is now returning
+  //the full frame is marked as being a self stolen so we know to take
+  //the fast path in leave frame.
+
   pstk->ff->concurrent_cilk_flags &= ~FULL_FRAME_BLOCKED;
+  pstk->ff->concurrent_cilk_flags |= FULL_FRAME_SELF_STEAL;
+
   w->current_stack_frame->flags &= ~CILK_FRAME_BLOCKED;
   w->current_stack_frame->flags |=  CILK_FRAME_BLOCKED_RETURNING;
   //------------end restore context------------
@@ -174,5 +177,13 @@ __cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_stack *pstk)
 
   setup_replacement_stack_and_run(w);
   CILK_ASSERT(0); //no return
+}
+
+int paused_stack_trylock(__cilkrts_paused_stack *pstk) {
+  return cas(&pstk->lock, 0, 1);
+}
+
+void paused_stack_unlock(__cilkrts_paused_stack *pstk) {
+   atomic_release(&pstk->lock, 0);
 }
 
