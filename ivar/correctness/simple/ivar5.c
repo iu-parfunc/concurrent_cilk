@@ -2,7 +2,7 @@
 // This variant runs a lot of other work on the side so that the replacement can issue steals.
 
 #include <cilk/cilk.h>
-#include <cilk/cilk_api.h>
+#include <cilk/concurrent_cilk.h>
 
 
 // For access to Cilk RTS internals:

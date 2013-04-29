@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cilk/concurrent_cilk.h>
 // For access to Cilk RTS internals:
 #include <internal/abi.h>
 #include <cilk/cilk.h>
