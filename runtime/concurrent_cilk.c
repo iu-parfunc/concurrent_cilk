@@ -61,15 +61,6 @@ static void worker_replacement_scheduler()
     // Enter the scheduling loop on the worker. This function will
     // never return
     CILK_ASSERT(w->current_stack_frame);
-    w->current_stack_frame->flags |= CILK_FRAME_BLOCKED;
-
-  //  if(w->current_stack_frame->flags & CILK_FRAME_STOLEN)
-  //    stolen = 1;
-
-    make_unrunnable(w, w->paused_ff, w->current_stack_frame, 1, "pause");
-
-  //  if(! stolen)
-  //    w->current_stack_frame->flags &= ~CILK_FRAME_STOLEN;
 
     __cilkrts_run_scheduler_with_exceptions((__cilkrts_worker *) w);
 
@@ -104,27 +95,58 @@ setup_replacement_stack_and_run(__cilkrts_worker *w)
     }
 }
 
-//restore the context of a paused worker
 inline void
-restore_paused_worker(__cilkrts_paused_stack *pstk) 
+freeze_frame(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf)
 {
-  CILK_ASSERT(pstk);
 
+  //ASSERT: frame lock owned
+  
+  CILK_ASSERT(ff);
+  CILK_ASSERT(sf);
+
+  if(! w->is_blocked) {
+    printf("recorded last blocked full frame as %p\n", ff);
+    ff->concurrent_cilk_flags |= FULL_FRAME_BLOCKED_LAST;
+    w->paused_ff  = ff;
+  }
+
+  //worker is now marked as blocked
+  w->is_blocked = 1;
+
+  /* CALL_STACK becomes valid again */
+  ff->call_stack = sf;
+
+  sf->flags |= CILK_FRAME_SUSPENDED | CILK_FRAME_BLOCKED;
+
+  __cilkrts_put_stack(ff, sf);
+
+  //this full frame is now marked as a blocked frame
+  ff->concurrent_cilk_flags |= FULL_FRAME_BLOCKED;
+}
+
+//restore the context of a paused worker
+  inline void
+thaw_frame(__cilkrts_paused_stack *pstk) 
+{
+
+  __cilkrts_stack_frame *sf;
+  full_frame *ff;
+
+  CILK_ASSERT(pstk);
+  ff = pstk->ff;
+  sf = pstk->current_stack_frame;
   __cilkrts_worker *w = pstk->w;
   CILK_ASSERT(w);
 
   //------------restore context------------
-  memcpy(&w->l->env, &pstk->env, sizeof(jmp_buf));
-  w->l->frame_ff = pstk->ff;
-
-  //TODO cache these suckers
-  //sysdep_destroy_tiny_stack(w->l->scheduler_stack);
-
-  w->l->scheduler_stack = pstk->scheduler_stack;
-  w->l->team = pstk->team;
-  w->is_blocked = pstk->is_blocked;
-  w->current_stack_frame = pstk->current_stack_frame;
+  w->l->team                    = pstk->team;
+  w->l->frame_ff                = pstk->ff;
+  w->is_blocked                 = pstk->is_blocked;
+  w->l->scheduler_stack         = pstk->scheduler_stack;
+  w->current_stack_frame        = pstk->current_stack_frame;
   w->current_stack_frame->flags = pstk->flags;
+  memcpy(&w->l->env, &pstk->env, sizeof(jmp_buf));
+  //------------end restore context------------
 
   //fixup the flags
   //the full frame loses its blocked marking
@@ -133,45 +155,41 @@ restore_paused_worker(__cilkrts_paused_stack *pstk)
   //the full frame is marked as being a self stolen so we know to take
   //the fast path in leave frame.
 
-  pstk->ff->concurrent_cilk_flags &= ~FULL_FRAME_BLOCKED;
-  pstk->ff->concurrent_cilk_flags |= FULL_FRAME_SELF_STEAL;
+  sf->flags &= ~CILK_FRAME_BLOCKED;
+  sf->flags |=  CILK_FRAME_BLOCKED_RETURNING;
 
-  w->current_stack_frame->flags &= ~CILK_FRAME_BLOCKED;
-  w->current_stack_frame->flags |=  CILK_FRAME_BLOCKED_RETURNING;
-  //------------end restore context------------
-  //
+  ff->concurrent_cilk_flags &= ~FULL_FRAME_BLOCKED;
+  ff->concurrent_cilk_flags |= FULL_FRAME_SELF_STEAL;
+
+  
+  //TODO cache these suckers
+  //sysdep_destroy_tiny_stack(w->l->scheduler_stack);
   longjmp(pstk->ctx, 1);
   CILK_ASSERT(0); //does not return
 }
 
 // Commit the pause.
-CILK_API(void)
+  CILK_API(void)
 __cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_stack *pstk) 
 {
-    //-------------save context of the worker-------
-    memcpy(&pstk->env, &w->l->env, sizeof(jmp_buf));
-    pstk->w = w;
-    //pstk->ff = w->l->frame_ff;
-    pstk->team = w->l->team;
-    pstk->is_blocked = w->is_blocked;
-    pstk->scheduler_stack = w->l->scheduler_stack;
-    pstk->current_stack_frame = w->current_stack_frame;
-    pstk->ff = w->l->frame_ff;
-    pstk->flags = w->current_stack_frame->flags;
-
-    //this full frame is now marked as a blocked frame
-    pstk->ff->concurrent_cilk_flags &= FULL_FRAME_BLOCKED;
-    w->paused_ff = w->l->frame_ff;
-    printf("pausing full frame %p\n", pstk->ff);
-    //---------end save context of the worker-------
-    
-  w->is_blocked = 1;
+  //-------------save context of the worker-------
+  pstk->w                   = w;
+  pstk->ff                  = w->l->frame_ff;
+  pstk->team                = w->l->team;
+  pstk->flags               = w->current_stack_frame->flags;
+  //pstk->paused_ff           = w->paused_ff;
+  pstk->is_blocked          = w->is_blocked;
+  pstk->scheduler_stack     = w->l->scheduler_stack;
+  pstk->current_stack_frame = w->current_stack_frame;
+  memcpy(&pstk->env, &w->l->env, sizeof(jmp_buf));
+  //---------end save context of the worker-------
 
   BEGIN_WITH_WORKER_LOCK(w) {
 
-    BEGIN_WITH_FRAME_LOCK(w, w->paused_ff) {
+    BEGIN_WITH_FRAME_LOCK(w, w->l->frame_ff) {
+      freeze_frame(w, w->l->frame_ff, w->current_stack_frame);
       w->l->frame_ff = NULL;
-    } END_WITH_FRAME_LOCK(w, w->paused_ff);
+    } END_WITH_FRAME_LOCK(w, w->l->frame_ff);
 
   } END_WITH_WORKER_LOCK(w);
 
@@ -184,6 +202,6 @@ int paused_stack_trylock(__cilkrts_paused_stack *pstk) {
 }
 
 void paused_stack_unlock(__cilkrts_paused_stack *pstk) {
-   atomic_release(&pstk->lock, 0);
+  atomic_release(&pstk->lock, 0);
 }
 

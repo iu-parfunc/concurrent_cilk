@@ -79,31 +79,39 @@ typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
 
  typedef struct __cilkrts_paused_stack {
 
-   int lock; 
-
+   /* Saved state fields */
+   //-----------------------------
    __cilkrts_worker *w;
-
-  void *scheduler_stack;
-
-  __cilkrts_worker *team;
-
-  short is_blocked;
-
-  jmp_buf env;
-
-  jmp_buf ctx;
 
   full_frame *ff;
 
+  __cilkrts_worker *team;
+
+  int flags;
+
+  full_frame *paused_ff;
+
+  short is_blocked;
+
+  void *scheduler_stack;
+
   __cilkrts_stack_frame *current_stack_frame;
 
+  jmp_buf env;
+  //-----------------------------
+
+  /* Paused stack internal record keeping */
+  //-----------------------------
   __cilkrts_paused_stack *head;
 
   __cilkrts_paused_stack *tail;
 
   __cilkrts_paused_stack *next;
 
-  int flags;
+  jmp_buf ctx;
+
+  int lock; 
+  //-----------------------------
 
 } __cilkrts_paused_stack;
 
@@ -113,7 +121,7 @@ void paused_stack_unlock(__cilkrts_paused_stack *pstk);
 
 /*   Cilk IVars:  Types & API   */
 void __cilkrts_concurrent_yield(__cilkrts_worker *w);
-void restore_paused_worker(__cilkrts_paused_stack *pstk);
+void thaw_frame(__cilkrts_paused_stack *pstk);
 
 
 void do_leave_paused_frame_child(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);

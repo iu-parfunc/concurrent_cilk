@@ -203,8 +203,11 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
   }
 
     void do_return_from_self (__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
-  if_f(sf->flags & CILK_FRAME_BLOCKED_RETURNING) {
-    longjmp(w->l->frame_ff->blocked_ctx, 1);
+
+  if_f(w->l->frame_ff->concurrent_cilk_flags & FULL_FRAME_BLOCKED_LAST) {
+    CILK_ASSERT(w->l->frame_ff == w->paused_ff);
+    w->paused_ff->concurrent_cilk_flags &= ~FULL_FRAME_BLOCKED_LAST;
+    longjmp(w->paused_ff->blocked_ctx, 1);
   }
 
   if(sf->flags & CILK_FRAME_SELF_STEAL) {
@@ -212,9 +215,11 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
    if(sf == *w->head)
      if(! setjmp(w->paused_ff->blocked_ctx)) {
        printf("marking sf %p as self steal unwinding\n", sf);
+       CILK_ASSERT(w->paused_ff->concurrent_cilk_flags & FULL_FRAME_BLOCKED_LAST);
+       self_steal_return(w);
+
        //does this need to be atomic since sf == head?
        sf->flags &= ~CILK_FRAME_SELF_STEAL;
-       self_steal_return(w);
        longjmp_into_runtime(w, do_return_from_self, sf);
      }
     return;

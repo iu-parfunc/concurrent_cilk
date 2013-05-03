@@ -344,10 +344,7 @@ static void make_runnable(__cilkrts_worker *w, full_frame *ff)
 /*
  * The worker parameter is unused, except for print-debugging purposes.
  */
-#ifndef CILK_IVARS
-static 
-#endif
-void make_unrunnable(__cilkrts_worker *w,
+static void make_unrunnable(__cilkrts_worker *w,
                             full_frame *ff,
                             __cilkrts_stack_frame *sf,
                             int state_valid,
@@ -1146,9 +1143,14 @@ static void setup_for_execution_reducers(__cilkrts_worker *w,
   //
   // First check whether ff is synched.
   __cilkrts_stack_frame *sf = ff->call_stack;
+#ifdef CILK_IVARS
+  //in the ivars variant, a self steal should never require that the reduce map be passed
+  if (!(sf->flags & CILK_FRAME_UNSYNCHED) && ! (sf->flags & CILK_FRAME_SELF_STEAL)) {
+#else
   if (!(sf->flags & CILK_FRAME_UNSYNCHED)) {
+#endif
     // In this case, ff is synched. (Case 1).
-    CILK_ASSERT(!ff->rightmost_child);
+      CILK_ASSERT(!ff->rightmost_child);
 
     // Test whether we are in case 1(a) and have
     // something to do.  Note that if both
@@ -1463,7 +1465,6 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     //looks like the last two arguments are never used? wtf...
     __cilkrts_bind_stack(child_ff, sp, NULL, NULL);
 
-    incjoin(parent_ff);
     sf->flags |= CILK_FRAME_SELF_STEAL;
     sf->call_parent = parent_ff->call_stack;
     make_unrunnable(w, child_ff, sf, 1, "self_steal");
@@ -1494,7 +1495,7 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
       dequeue(w->ready_queue, (ELEMENT_TYPE *) &pstk);
       if(pstk) {
         printf("dequeueing ctx %p\n", pstk);
-        restore_paused_worker(pstk);
+        thaw_frame(pstk);
         CILK_ASSERT(0);
       }
 #endif
@@ -2013,7 +2014,7 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
   // ASSERT: we hold w->lock and parent_ff->lock
 
   START_INTERVAL(w, INTERVAL_FINALIZE_CHILD) {
-    //make runtime happy. This isn't necessarily true in this case. 
+    //TODO TMP: make runtime happy. This isn't necessarily true in this case. 
     child_ff->is_call_child = 1;
     CILK_ASSERT(child_ff->join_counter == 0);
     CILK_ASSERT(!child_ff->rightmost_child);
@@ -2062,9 +2063,6 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
 
         decjoin(ff);
 
-        //the parent no longer references the child 
-        decjoin(parent_ff);
-
 #ifdef _WIN32
         __cilkrts_save_exception_state(w, ff);
 #else
@@ -2083,6 +2081,7 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
       CILK_ASSERT(parent_ff);
 
       BEGIN_WITH_FRAME_LOCK(w, parent_ff) {
+        w->l->frame_ff = 0;
         if(parent_ff->call_stack->flags & CILK_FRAME_BLOCKED) {
           blocked_frame_finalize_child_for_call(w, parent_ff, ff);
         } else {
@@ -2100,7 +2099,11 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
         BEGIN_WITH_FRAME_LOCK(w, ff) {
           __cilkrts_stack_frame *sf = ff->call_stack;
           CILK_ASSERT(sf && (!sf->call_parent || w->is_blocked));
+          //dirty little hack to workaround the reducer's view 
+          //of ivars doing a non nested return pattern.
+          sf->flags |=CILK_FRAME_SELF_STEAL;
           setup_for_execution(w, ff, 1);
+          sf->flags &= ~CILK_FRAME_SELF_STEAL;
         } END_WITH_FRAME_LOCK(w, ff);
       }
     } END_WITH_WORKER_LOCK_OPTIONAL(w);
@@ -2232,6 +2235,7 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
     BEGIN_WITH_WORKER_LOCK_OPTIONAL(w) {
       full_frame *ff = w->l->frame_ff;
       CILK_ASSERT(ff);
+      printf("ff->join_counter %d\n", ff->join_counter);
       CILK_ASSERT(ff->join_counter == 1);
       w->l->frame_ff = 0;
 
