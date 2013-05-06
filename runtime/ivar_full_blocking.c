@@ -1,44 +1,6 @@
-/*
- *
- * Copyright (C) 2009-2011 , Intel Corporation
- * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *   * Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in
- *     the documentation and/or other materials provided with the
- *     distribution.
- *   * Neither the name of Intel Corporation nor the names of its
- *     contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
- * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
-// NOTE: Presently this code is CONDITIONALLY included/compiled into another file.
-
-// ====================================================================================================
-
-
 #include <stdlib.h>
 #include "concurrent_cilk_internal.h"
+#include "concurrent_queue.h"
 #include "cilk_malloc.h"
 #include <cilk/cilk_api.h>
 #include "scheduler.h"
@@ -46,60 +8,102 @@
 #include <string.h>
 
 
-inline
-CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *iv)
-{
-  volatile __cilkrts_ivar *ivar = (volatile __cilkrts_ivar *) iv;
-  __cilkrts_worker *wkr, *new_w;
-  uintptr_t ptr;
-  __cilkrts_ivar *old_iv;
 
+inline
+CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)
+{
+  __cilkrts_worker *w;
+  __cilkrts_paused_stack *pstk;
+  __cilkrts_paused_stack *peek;
+  __cilkrts_paused_stack *pstk_head;
+  uintptr_t ptr;
   //fast path -- already got a value
   if(IVAR_READY(*ivar)) {
     return UNTAG(*ivar);
   }
 
-  //slow path -- operation must block until a value is available
-  wkr = __cilkrts_get_tls_worker_fast();
-  ptr = (uintptr_t) __cilkrts_pause(wkr, iv);
+  pstk = __cilkrts_malloc(sizeof(__cilkrts_paused_stack));
+  memset(pstk, 0, sizeof(__cilkrts_paused_stack));
 
-  if(ptr) {
+  //slow path -- operation must block until a value is available
+  w = __cilkrts_get_tls_worker_fast();
+  ptr = (uintptr_t) __cilkrts_pause((pstk->ctx));
+
+  if(! ptr) {
 
     // Register the continuation in the ivar's header.
     do {
 
+      if(IVAR_PAUSED(*ivar)) {
+        printf("ivar read in paused state\n");
+
+        //pull out the reference to the root paused stack
+        //all reads on a paused ivar compete for the lock on this
+        //paused stack
+        pstk_head = (__cilkrts_paused_stack  *) (*ivar >> IVAR_SHIFT);
+
+        //set the tail element to be the new paused stack
+        while (! paused_stack_trylock(pstk_head)) spin_pause();
+
+        //append the new paused stack to the waitlist 
+        pstk_head->tail->next = pstk; 
+
+        //the new stack is the new tail
+        pstk_head->tail = pstk;
+
+        paused_stack_unlock(pstk_head);
+
+        //go directly to finalize pause
+        break;
+
+      }
+
+
       if(IVAR_READY(*ivar)) {
-      // Well nevermind then... now it is full.
-        __cilkrts_undo_pause(wkr);
+        // Well nevermind then... now it is full.
         return UNTAG(*ivar);
       }
 
-      if(IVAR_PAUSED(*ivar)) break;
+      pstk->head = pstk;;
+      pstk->tail = pstk;
 
-    } while(! cas(ivar, 0, CILK_IVAR_PAUSED));
+    } while(! cas(ivar, 0, (((ivar_payload_t) pstk) << IVAR_SHIFT) | CILK_IVAR_PAUSED));
 
-    new_w = __cilkrts_finalize_pause(wkr); 
-    __cilkrts_set_tls_worker(new_w);
-     setup_replacement_stack_and_run(new_w);
-     CILK_ASSERT(0); //should never get here
+
+    __cilkrts_finalize_pause(w, pstk); 
+    CILK_ASSERT(0); //no return. heads to scheduler.
   }
 
   memset(&wkr->ctx, 0, 5);
   __cilkrts_mutex_unlock(wkr, &wkr->l->lock);
   // <-- We only jump back to here when the value is ready.
+
+  printf("ivar returning\n");
   return UNTAG(*ivar);
 }
 
-  inline
-CILK_API(void) __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val) 
+  inline CILK_API(void)
+__cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val) 
 {
   //the new value is the actual value with the full ivar tag added to it
   ivar_payload_t newval = (val << IVAR_SHIFT) | CILK_IVAR_FULL;
 
   //write without checking for any checking. Either this succeeds or there is a bug
-  ivar_payload_t flag = (ivar_payload_t) atomic_set(ivar, newval);
-  //printf("wrote ivar %p with val %ld\n", ivar, val);
+  ivar_payload_t old_val = (ivar_payload_t) atomic_set(ivar, newval);
 
-  if(IVAR_READY(flag)) 
+  if(IVAR_PAUSED(old_val)) {
+    __cilkrts_paused_stack *pstk = (__cilkrts_paused_stack *) (old_val >> IVAR_SHIFT);
+    printf("enqueueing ctx %p\n", pstk->w->ready_queue);
+
+    //this is thread safe because any other reads of the ivar take the fast path.
+    //Therefore the waitlist of paused stacks can only be referenced here.
+    do {
+      enqueue(pstk->w->ready_queue, (ELEMENT_TYPE) pstk);
+      pstk = pstk->next;
+    } while(pstk);
+
+  }
+
+  if(IVAR_READY(old_val)) 
     __cilkrts_bug("Attempted multiple puts on Cilk IVar %p. Aborting program.\n", ivar);
 }

@@ -53,6 +53,9 @@
 #       define CILK_EXPORT      __declspec(dllimport)
 #       define CILK_EXPORT_DATA __declspec(dllimport)
 #   endif  /* IN_CILK_RUNTIME */
+#elif defined(__CYGWIN__)
+#   define CILK_EXPORT      /* nothing */
+#   define CILK_EXPORT_DATA /* nothing */
 #else /* Unix/gcc */
 #   ifdef IN_CILK_RUNTIME
 #       define CILK_EXPORT      __attribute__((visibility("protected")))
@@ -242,26 +245,18 @@ typedef struct __cilkrts_pedigree
 
 #endif // __CILKRTS_ABI_VERSION >= 1
 
-// RRN: Turning IVars on unconditionally for now:
-//
-// To turn on IVars define CILK_IVARS to be one of the following constants.  Leave
-// CILK_IVARS undefined to disable the feature.
-//
-// During the experimental phase there will be three variants.
-// The first is a simple reference implementation.  IVar blocking merely spins.  It works
-// only for serially executable (write before read) Cilk/IVar programs.
-#define CILK_IVARS_BUSYWAIT_VARIANT 1 
-// The second variant uses a separate stack for each blocked computation.  It works for
-// non-serializable Cilk/IVar programs.
-#define CILK_IVARS_NORMAL_VARIANT   2
+
+// Set the default:
+
+#ifdef CONCURRENT_CILK
+#ifndef CILK_IVARS
+#define CILK_IVARS 1
 
 // what queue we want to use:
 #define LOCKFREE_QUEUE_VERSION 1
 //#define B_QUEUE_VERSION 1
+#endif //CILK_IVARS
 
-// Set the default:
-#ifndef CILK_IVARS
-#define CILK_IVARS CILK_IVARS_NORMAL_VARIANT
 #endif
 
 #endif /* INCLUDED_CILK_COMMON */

@@ -33,7 +33,7 @@ following commands to create the library:
 %the CILK_SRC will be automatically set. 
 
 %b.
-%source the env_cilk script with: source .build_scripts/env_cilk
+%source the env_cilk script with: source . ./build_scripts/env_cilk
 
 %c.
 %compile libcilkrts with ./build_libcilk.sh

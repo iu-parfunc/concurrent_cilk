@@ -35,6 +35,7 @@
 #include <cilk/common.h>
 
 #include <stddef.h>
+#include <setjmp.h>
 
 __CILKRTS_BEGIN_EXTERN_C
 
@@ -188,6 +189,11 @@ struct full_frame
      * [local]
      */
     int simulated_stolen;
+
+#ifdef CILK_IVARS
+    jmp_buf blocked_ctx;
+    int concurrent_cilk_flags;
+#endif
 
     /**
      * Caller of this full_frame
@@ -474,6 +480,9 @@ COMMON_PORTABLE void __cilkrts_frame_lock(__cilkrts_worker *w,
  */
 COMMON_PORTABLE void __cilkrts_frame_unlock(__cilkrts_worker *w,
                                             full_frame *ff);
+#ifdef CILK_IVARS
+void print_flags(full_frame *ff);
+#endif
 /** @} */
 
 __CILKRTS_END_EXTERN_C

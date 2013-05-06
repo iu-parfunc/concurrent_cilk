@@ -4,8 +4,15 @@
 
 #include "os.h"
 #include "cilk/concurrent_cilk.h"
-#include "concurrent_cilk_forwarding_array.h"
 #include "full_frame.h"
+
+#define BEGIN_WITH_WORKER_LOCK(w) __cilkrts_worker_lock(w); do
+#define END_WITH_WORKER_LOCK(w)   while (__cilkrts_worker_unlock(w), 0)
+#define BEGIN_WITH_FRAME_LOCK(w, ff)                                     \
+    do { full_frame *_locked_ff = ff; __cilkrts_frame_lock(w, _locked_ff); do
+
+#define END_WITH_FRAME_LOCK(w, ff)                       \
+    while (__cilkrts_frame_unlock(w, _locked_ff), 0); } while (0)
 // This can be any constant that is not in the range of addresses returned by malloc:
 // it is used as the flag value to check if an ivar is full or empty
 __CILKRTS_BEGIN_EXTERN_C
@@ -73,27 +80,53 @@ typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
 
  typedef struct __cilkrts_paused_stack {
 
-   volatile short ready;
+   /* Saved state fields */
+   //-----------------------------
+   __cilkrts_worker *w;
 
-    /// For this variant the new worker does not cache the *stalled* workers state, instead 
-    /// the stalled worker stays put and we have a fresh replacement worker:
-    __cilkrts_worker* replacement_worker;
+  full_frame *ff;
 
+  __cilkrts_worker *team;
 
-    /// And this is the original worker that got stalled, in its original location:
-    __cilkrts_worker* orig_worker;  // Should be NON-NULL
-    __cilkrts_ivar *iv;
+  int flags;
+
+  full_frame *paused_ff;
+
+  short is_blocked;
+
+  void *scheduler_stack;
+
+  __cilkrts_stack_frame *current_stack_frame;
+
+  jmp_buf env;
+  //-----------------------------
+
+  /* Paused stack internal record keeping */
+  //-----------------------------
+  __cilkrts_paused_stack *head;
+
+  __cilkrts_paused_stack *tail;
+
+  __cilkrts_paused_stack *next;
+
+  jmp_buf ctx;
+
+  int lock; 
+  //-----------------------------
+
 } __cilkrts_paused_stack;
 
-/*   Cilk IVars:  Types & API   */
+/* Lock API for paused stacks */
+int paused_stack_trylock(__cilkrts_paused_stack *pstk);
+void paused_stack_unlock(__cilkrts_paused_stack *pstk);
 
-//__cilkrts_paused_stack* make_paused_stack(__cilkrts_worker* w);
-//inline int make_paused_stack(__cilkrts_worker* w, __cilkrts_ivar *ivar);
-int paused_stack_lock(__cilkrts_worker *w, __cilkrts_paused_stack* stk);
-int paused_stack_unlock(__cilkrts_worker *w, __cilkrts_paused_stack* stk);
+/*   Cilk IVars:  Types & API   */
 void __cilkrts_concurrent_yield(__cilkrts_worker *w);
-__cilkrts_worker *pick_random_victim(__cilkrts_worker *w);
-void restore_paused_worker(__cilkrts_worker *ready_w);
+void thaw_frame(__cilkrts_paused_stack *pstk);
+
+
+void do_leave_paused_frame_child(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
+void do_return_from_self_steal(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
 
 __CILKRTS_END_EXTERN_C
 #endif

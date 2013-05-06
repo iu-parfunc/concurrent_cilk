@@ -23,22 +23,20 @@ __cilkrts_coroutine *new_coroutine(void (*f1), void* f1_args);
 typedef long __cilkrts_ivar;
 typedef long ivar_payload_t;
 
+typedef struct __cilkrts_paused_stack __cilkrts_paused_stack;
 CILK_API(ivar_payload_t) __cilkrts_ivar_read (__cilkrts_ivar*);
 CILK_API(void)           __cilkrts_ivar_write(__cilkrts_ivar*, ivar_payload_t);
 CILK_API(void)           __cilkrts_ivar_clear(__cilkrts_ivar*);
 
 typedef __cilkrts_ivar *PAUSED_FIBER;
-//CILK_API(void) __cilkrts_finalize_pause(__cilkrts_worker* w,  PAUSED_FIBER stk);
-CILK_API(__cilkrts_worker *) __cilkrts_finalize_pause(__cilkrts_worker* w);
-//CILK_API(void) __cilkrts_undo_pause    (__cilkrts_worker* w,  PAUSED_FIBER stk);
-CILK_API(void) __cilkrts_undo_pause    (__cilkrts_worker* w);
+CILK_API(void) __cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_stack *pstk);
 CILK_API(void) __cilkrts_wake_stack    (PAUSED_FIBER stk);
 CILK_API(void) __cilkrts_msleep(unsigned long millis);
 CILK_API(void) __cilkrts_usleep(unsigned long micros);
 int make_paused_stack(__cilkrts_worker* w, __cilkrts_ivar *ivar);
 // CSZ: it is necessary that pause be a macro because the longjump must return to a valid frame. 
 // you will experience erratic behavior if this is not the case
-#define __cilkrts_pause(w, ivar)  (CILK_SETJMP((w->ctx))) ?  0 : make_paused_stack(w, ivar)
+#define __cilkrts_pause(ctx)  (setjmp((ctx)))
 
 #define IVAR_SHIFT 0x4
 
@@ -52,6 +50,12 @@ int make_paused_stack(__cilkrts_worker* w, __cilkrts_ivar *ivar);
 #define TAG(iv)   (iv << IVAR_SHIFT)
 #define UNTAG(iv) (iv >> IVAR_SHIFT)
 
+
+//convenience aliases for a kinder use of ivars in C
+typedef __cilkrts_ivar ivar_t;
+#define read_iv  __cilkrts_ivar_read
+#define write_iv __cilkrts_ivar_write
+#define clear_iv __cilkrts_ivar_clear
 
 
 #ifdef IVAR_DBG
@@ -72,6 +76,7 @@ int make_paused_stack(__cilkrts_worker* w, __cilkrts_ivar *ivar);
  */
 #define IVAR_DBG_PRINT_(lvl, ...)   
 #endif
+
 
 __CILKRTS_END_EXTERN_C
 #endif

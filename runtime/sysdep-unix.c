@@ -345,8 +345,10 @@ NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *ff,
     w->current_stack_frame = sf;
     sf->worker = w;
     CILK_ASSERT(flags & CILK_FRAME_SUSPENDED);
+#ifndef CILK_IVARS
     CILK_ASSERT(!sf->call_parent);
     CILK_ASSERT(w->head == w->tail);
+#endif
 
     if (ff->simulated_stolen)
         /* We can't prevent __cilkrts_make_unrunnable_sysdep from discarding
@@ -355,10 +357,12 @@ NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *ff,
          * here. */
         SP(sf) = ff->sync_sp;
 
+    printf("about to resume with worker %d ff %p and sf %p\n",w->self, ff, sf);
     sp = SP(sf);
 
     /* Debugging: make sure stack is accessible. */
     ((volatile char *)sp)[-1];
+         
 
     __cilkrts_take_stack(ff, sp);
 
@@ -750,7 +754,10 @@ void __cilkrts_make_unrunnable_sysdep(__cilkrts_worker *w,
     if (state_valid && ff->frame_size == 0)
         ff->frame_size = __cilkrts_get_frame_size(sf);
 
+    //tmp: need this for paused stacks to try to resume....maybe there is a better solution
+#ifndef CILK_IVARS
     SP(sf) = 0;
+#endif
 }
 
 
