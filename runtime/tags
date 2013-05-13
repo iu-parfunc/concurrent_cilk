@@ -4,19 +4,19 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-ALIASED_NAME	cilk-abi.c	483;"	d	file:
+ALIASED_NAME	cilk-abi.c	471;"	d	file:
 ASSERT_WORKER_LOCK_OWNED	scheduler.c	92;"	d	file:
 ASSERT_WORKER_LOCK_OWNED	scheduler.c	98;"	d	file:
-BEGIN_WITH_FRAME_LOCK	concurrent_cilk.c	29;"	d	file:
+BEGIN_WITH_FRAME_LOCK	concurrent_cilk_internal.h	10;"	d
 BEGIN_WITH_FRAME_LOCK	scheduler.c	329;"	d	file:
-BEGIN_WITH_WORKER_LOCK	concurrent_cilk.c	27;"	d	file:
+BEGIN_WITH_WORKER_LOCK	concurrent_cilk_internal.h	8;"	d
 BEGIN_WITH_WORKER_LOCK	scheduler.c	311;"	d	file:
 BEGIN_WITH_WORKER_LOCK_OPTIONAL	scheduler.c	321;"	d	file:
 BEGIN_WITH_WORKER_LOCK_OPTIONAL	scheduler.c	324;"	d	file:
 BIND_PROVABLY_GOOD_STACK	global_state.h	61;"	d
 BIND_THREAD_RTN	cilk-abi.c	/^  ALIASED_NAME(BIND_THREAD_RTN);$/;"	v
 BIND_THREAD_RTN	cilk-abi.c	/^CILK_ABI_WORKER_PTR BIND_THREAD_RTN(void)$/;"	f
-BIND_THREAD_RTN	cilk-abi.c	76;"	d	file:
+BIND_THREAD_RTN	cilk-abi.c	80;"	d	file:
 BuildVersionString	component.h	38;"	d
 CILKRTS_OPTIMIZED	cilk-abi-cilk-for.cpp	44;"	d	file:
 CILKRTS_OPTIMIZED	cilk-abi-cilk-for.cpp	46;"	d	file:
@@ -56,13 +56,13 @@ DisableCilkscreen	reducer_impl.cpp	/^    DisableCilkscreen () { __cilkscreen_dis
 DisableCilkscreen	reducer_impl.cpp	/^struct DisableCilkscreen$/;"	s	file:
 ELEMENT_ZERO	concurrent_queue.c	/^static ELEMENT_TYPE ELEMENT_ZERO = 0x0UL;$/;"	v	file:
 ENABLE_NOTIFY_ZC_INTRINSIC	rts-common.h	95;"	d
-END_WITH_FRAME_LOCK	concurrent_cilk.c	32;"	d	file:
+END_WITH_FRAME_LOCK	concurrent_cilk_internal.h	13;"	d
 END_WITH_FRAME_LOCK	scheduler.c	332;"	d	file:
-END_WITH_WORKER_LOCK	concurrent_cilk.c	28;"	d	file:
+END_WITH_WORKER_LOCK	concurrent_cilk_internal.h	9;"	d
 END_WITH_WORKER_LOCK	scheduler.c	312;"	d	file:
 END_WITH_WORKER_LOCK_OPTIONAL	scheduler.c	322;"	d	file:
 END_WITH_WORKER_LOCK_OPTIONAL	scheduler.c	325;"	d	file:
-EXC_INFINITY	scheduler.c	482;"	d	file:
+EXC_INFINITY	scheduler.c	478;"	d	file:
 EnableCilkscreen	reducer_impl.cpp	/^    EnableCilkscreen () { __cilkscreen_enable_checking(); }$/;"	f	struct:EnableCilkscreen
 EnableCilkscreen	reducer_impl.cpp	/^struct EnableCilkscreen$/;"	s	file:
 FP	jmpbuf.h	52;"	d
@@ -81,7 +81,7 @@ GROUP_AFFINITY	os.h	/^typedef struct _GROUP_AFFINITY GROUP_AFFINITY;$/;"	t	typer
 HAS_MEMALIGN	cilk_malloc.c	34;"	d	file:
 HAVE_SYNC_INTRINSICS	os.h	128;"	d
 HEADER_FILL_CHAR	frame_malloc.c	47;"	d	file:
-HIGH	concurrent_cilk_internal.h	43;"	d
+HIGH	concurrent_cilk_internal.h	51;"	d
 HUGE_VALF	c_reducers.c	50;"	d	file:
 HUGE_VALL	c_reducers.c	55;"	d	file:
 INCLUDED_BUG_DOT_H	bug.h	36;"	d
@@ -152,16 +152,16 @@ ITT_SYNC_RELEASING	cilk-ittnotify.h	80;"	d
 ITT_SYNC_SET_NAME_AND_PREPARE	cilk-ittnotify.h	60;"	d
 ITT_SYNC_SET_NAME_AND_PREPARE	cilk-ittnotify.h	62;"	d
 ITT_SYNC_SET_NAME_AND_PREPARE	cilk-ittnotify.h	82;"	d
-LOW	concurrent_cilk_internal.h	41;"	d
+LOW	concurrent_cilk_internal.h	49;"	d
 MAP_ANONYMOUS	sysdep-unix.c	602;"	d	file:
 MAP_ANONYMOUS	sysdep-unix.c	75;"	d	file:
-MED	concurrent_cilk_internal.h	42;"	d
+MED	concurrent_cilk_internal.h	50;"	d
 MERGE_INTO_LEFT	reducer_impl.cpp	/^        MERGE_INTO_LEFT, \/\/\/< Merges the argument from the right into the left$/;"	e	enum:cilkred_map::merge_kind	file:
 MERGE_INTO_RIGHT	reducer_impl.cpp	/^        MERGE_INTO_RIGHT \/\/\/< Merges the argument from the left into the right$/;"	e	enum:cilkred_map::merge_kind	file:
 MERGE_UNORDERED	reducer_impl.cpp	/^        MERGE_UNORDERED, \/\/\/< Assertion fails$/;"	e	enum:cilkred_map::merge_kind	file:
 NOINLINE	rts-common.h	74;"	d
 NOINLINE	rts-common.h	76;"	d
-NONE	concurrent_cilk_internal.h	40;"	d
+NONE	concurrent_cilk_internal.h	48;"	d
 NON_COMMON	rts-common.h	55;"	d
 NORETURN	rts-common.h	68;"	d
 NORETURN	rts-common.h	70;"	d
@@ -179,8 +179,8 @@ PLACEHOLDER_STACK	global_state.h	53;"	d
 PREFERRED_ALIGNMENT	cilk_malloc.c	37;"	d	file:
 PROFILING_STACKS	sysdep-unix.c	639;"	d	file:
 Q	global_state.h	/^    int Q;         \/**< Number of user threads currently bound to workers *\/$/;"	m	struct:global_state_t
-READ_ONLY	concurrent_cilk_internal.h	35;"	d
-READ_WRITE	concurrent_cilk_internal.h	34;"	d
+READ_ONLY	concurrent_cilk_internal.h	43;"	d
+READ_WRITE	concurrent_cilk_internal.h	42;"	d
 REDPAR_DEBUG	scheduler.h	51;"	d
 RELEASE	worker_mutex.c	40;"	d	file:
 RELEASE	worker_mutex.c	42;"	d	file:
@@ -198,8 +198,8 @@ START_INTERVAL	stats.h	186;"	d
 START_INTERVAL	stats.h	191;"	d
 STOP_INTERVAL	stats.h	187;"	d
 STOP_INTERVAL	stats.h	193;"	d
-STRINGIFY	cilk-abi.c	482;"	d	file:
-TBB_INTEROP_DATA_DELAYED_UNTIL_BIND	cilk-abi.c	73;"	d	file:
+STRINGIFY	cilk-abi.c	470;"	d	file:
+TBB_INTEROP_DATA_DELAYED_UNTIL_BIND	cilk-abi.c	77;"	d	file:
 TRY_ACQUIRE	worker_mutex.c	35;"	d	file:
 WORKER_FREE	local_state.h	/^    WORKER_FREE,    \/\/\/< Unused worker - available to be bound to user threads$/;"	e	enum:cilk_worker_type
 WORKER_MAGIC_0	local_state.h	118;"	d
@@ -436,6 +436,7 @@ __cilkview_workspan_resume	metacall_impl.c	/^void __cilkview_workspan_resume() {
 __cilkview_workspan_start	metacall_impl.c	/^void __cilkview_workspan_start(void) {$/;"	f
 __cilkview_workspan_stop	metacall_impl.c	/^void __cilkview_workspan_stop(void) {$/;"	f
 __cilkview_workspan_suspend	metacall_impl.c	/^void __cilkview_workspan_suspend() {$/;"	f
+__concurrent_cilk_leave_frame_hook	concurrent_cilk.c	/^__concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *sf)$/;"	f
 __cxa_eh_globals	except-gcc.h	/^typedef struct __cxa_eh_globals {$/;"	s
 __cxa_eh_globals	except-gcc.h	/^} __cxa_eh_globals;$/;"	t	typeref:struct:__cxa_eh_globals
 __cxa_exception	except-gcc.h	/^struct __cxa_exception {$/;"	s
@@ -447,19 +448,18 @@ actionRecord	except-gcc.h	/^    const char *            actionRecord;$/;"	m	stru
 active	except-gcc.cpp	/^    _Unwind_Exception *active;$/;"	m	struct:pending_exception_info	file:
 addr_size	global_state.h	/^    int addr_size; \/**< Number of bytes for an address, used by debugger (fixed)*\/$/;"	m	struct:global_state_t
 adjustedPtr	except-gcc.h	/^    void *                  adjustedPtr;$/;"	m	struct:__cxa_exception
-align	concurrent_cilk_internal.h	28;"	d
+align	concurrent_cilk_internal.h	36;"	d
 alloc_bucket	reducer_impl.cpp	/^static bucket *alloc_bucket(__cilkrts_worker *w, size_t nmax)$/;"	f	file:
 allocate_batch	frame_malloc.c	/^static void allocate_batch(__cilkrts_worker *w, int bucket, size_t size)$/;"	f	file:
 allocated_from_global_pool	frame_malloc.h	/^    size_t allocated_from_global_pool;$/;"	m	struct:__cilkrts_frame_cache
 allocated_from_os	frame_malloc.h	/^    size_t allocated_from_os;$/;"	m	struct:__cilkrts_frame_cache
 always_force_reduce	global_state.cpp	/^bool always_force_reduce()$/;"	f	namespace:__anon2
-atomic_add	concurrent_cilk_internal.h	24;"	d
-atomic_release	concurrent_cilk_internal.h	27;"	d
-atomic_set	concurrent_cilk_internal.h	26;"	d
-atomic_sub	concurrent_cilk_internal.h	25;"	d
+atomic_add	concurrent_cilk_internal.h	32;"	d
+atomic_release	concurrent_cilk_internal.h	35;"	d
+atomic_set	concurrent_cilk_internal.h	34;"	d
+atomic_sub	concurrent_cilk_internal.h	33;"	d
 backtracking	concurrent_queue.c	/^static inline int backtracking(struct queue_t * q)$/;"	f	file:
 batch_size	frame_malloc.h	/^    size_t batch_size;$/;"	m	struct:__cilkrts_frame_cache
-blocked	full_frame.h	/^    int blocked;$/;"	m	struct:full_frame
 blocked_ctx	full_frame.h	/^    jmp_buf blocked_ctx;$/;"	m	struct:full_frame
 blocked_frame_finalize_child_for_call	scheduler.c	/^static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,$/;"	f	file:
 bucket	reducer_impl.cpp	/^struct bucket {$/;"	s	file:
@@ -474,8 +474,8 @@ call_cilk_for_loop_body	cilk-abi-cilk-for.cpp	/^void call_cilk_for_loop_body(cou
 call_stack	full_frame.h	/^    __cilkrts_stack_frame *call_stack;$/;"	m	struct:full_frame
 can_steal_from	scheduler.c	/^int can_steal_from(__cilkrts_worker *victim)$/;"	f
 capture_spawn_arg_stack_frame	cilk-abi-cilk-for.cpp	/^capture_spawn_arg_stack_frame(__cilkrts_stack_frame* &sf, __cilkrts_worker* w)$/;"	f
-cas	concurrent_cilk_internal.h	22;"	d
-casv	concurrent_cilk_internal.h	23;"	d
+cas	concurrent_cilk_internal.h	30;"	d
+casv	concurrent_cilk_internal.h	31;"	d
 catchTemp	except-gcc.h	/^    void *                  catchTemp;$/;"	m	struct:__cxa_exception
 caughtExceptions	except-gcc.h	/^    __cxa_exception *caughtExceptions;$/;"	m	struct:__cxa_eh_globals
 cdr	frame_malloc.c	/^    struct pool_cons *cdr;  \/**< Remainder of the list *\/$/;"	m	struct:pool_cons	typeref:struct:pool_cons::pool_cons	file:
@@ -522,6 +522,7 @@ cilkred_map	reducer_impl.cpp	/^struct cilkred_map {$/;"	s	file:
 cilkred_map	reducer_impl.h	/^typedef struct cilkred_map cilkred_map;$/;"	t	typeref:struct:cilkred_map
 compute_left_ptrs_for_spawn_return	scheduler.c	/^    splice_left_ptrs compute_left_ptrs_for_spawn_return(__cilkrts_worker *w,$/;"	f	file:
 compute_left_ptrs_for_sync	scheduler.c	/^    splice_left_ptrs compute_left_ptrs_for_sync(__cilkrts_worker *w,$/;"	f	file:
+concurrent_cilk_flags	full_frame.h	/^    int concurrent_cilk_flags;$/;"	m	struct:full_frame
 count	stats.h	/^    unsigned long long count[INTERVAL_N];$/;"	m	struct:statistics
 count_memory_in_global_list	frame_malloc.c	/^static size_t count_memory_in_global_list(global_state_t *g)$/;"	f	file:
 cpp_scheduler_t	global_state.cpp	/^    typedef void cpp_scheduler_t(__cilkrts_worker *w);$/;"	t	file:
@@ -590,6 +591,7 @@ free_bucket	reducer_impl.cpp	/^static void free_bucket(__cilkrts_worker *w, buck
 free_buckets	reducer_impl.cpp	/^static void free_buckets(__cilkrts_worker  *w, $/;"	f	file:
 free_list	frame_malloc.h	/^struct free_list {$/;"	s
 free_list	local_state.h	/^    struct free_list *free_list[FRAME_MALLOC_NBUCKETS];$/;"	m	struct:local_state	typeref:struct:local_state::free_list
+freeze_frame	concurrent_cilk.c	/^freeze_frame(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf)$/;"	f
 full_frame	full_frame.h	/^struct full_frame$/;"	s
 full_frame	full_frame.h	/^typedef struct full_frame full_frame;$/;"	t	typeref:struct:full_frame
 full_frame_magic_0	full_frame.h	/^    ff_magic_t full_frame_magic_0;$/;"	m	struct:full_frame
@@ -617,8 +619,9 @@ handlerCount	except-gcc.h	/^    int                     handlerCount;$/;"	m	stru
 handlerSwitchValue	except-gcc.h	/^    int                     handlerSwitchValue;$/;"	m	struct:__cxa_exception
 hashfun	reducer_impl.cpp	/^static inline size_t hashfun(const cilkred_map *h, void *key)$/;"	f	file:
 hb	reducer_impl.cpp	/^    __cilkrts_hyperobject_base *hb;  \/\/ Base of the hyperobject.$/;"	m	struct:elem	file:
-if_f	concurrent_cilk_internal.h	16;"	d
-if_t	concurrent_cilk_internal.h	15;"	d
+head	concurrent_cilk_internal.h	/^  __cilkrts_paused_stack *head;$/;"	m	struct:__cilkrts_paused_stack
+if_f	concurrent_cilk_internal.h	24;"	d
+if_t	concurrent_cilk_internal.h	23;"	d
 incjoin	scheduler.c	/^static void incjoin(full_frame *ff)$/;"	f	file:
 increment_E	scheduler.c	/^static void increment_E(__cilkrts_worker *victim)$/;"	f	file:
 init_once	os-unix.c	/^static void __attribute__((constructor)) init_once()$/;"	f	file:
@@ -648,6 +651,7 @@ load_pedigree_leaf_into_user_worker	pedigrees.c	/^void load_pedigree_leaf_into_u
 local_state	concurrent_cilk_internal.h	/^typedef struct local_state           local_state;$/;"	t	typeref:struct:local_state
 local_state	local_state.h	/^typedef struct local_state$/;"	s
 local_state	local_state.h	/^} local_state;$/;"	t	typeref:struct:local_state
+lock	concurrent_cilk_internal.h	/^  int lock; $/;"	m	struct:__cilkrts_paused_stack
 lock	frame_malloc.h	/^    struct mutex lock;$/;"	m	struct:__cilkrts_frame_cache	typeref:struct:__cilkrts_frame_cache::mutex
 lock	full_frame.h	/^    struct mutex lock;$/;"	m	struct:full_frame	typeref:struct:full_frame::mutex
 lock	global_state.h	/^    mutex             lock;$/;"	m	struct:__cilkrts_stack_cache
@@ -664,7 +668,7 @@ make_buckets	reducer_impl.cpp	/^void cilkred_map::make_buckets(__cilkrts_worker 
 make_child	scheduler.c	/^static full_frame *make_child(__cilkrts_worker *w, $/;"	f	file:
 make_runnable	scheduler.c	/^static void make_runnable(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:
 make_stack_queue	concurrent_queue.c	/^struct queue_t *make_stack_queue()$/;"	f
-make_unrunnable	scheduler.c	/^void make_unrunnable(__cilkrts_worker *w,$/;"	f	file:
+make_unrunnable	scheduler.c	/^static void make_unrunnable(__cilkrts_worker *w,$/;"	f	file:
 make_worker	scheduler.c	/^  __cilkrts_worker *make_worker(global_state_t *g,$/;"	f
 make_worker_system	scheduler.c	/^  static void make_worker_system(__cilkrts_worker *w) {$/;"	f	file:
 map_ptr	scheduler.c	/^        struct cilkred_map **map_ptr;$/;"	m	struct:__anon1	typeref:struct:__anon1::cilkred_map	file:
@@ -689,6 +693,7 @@ names	stats.c	/^static const char *names[] = {$/;"	v	file:
 nbuckets	reducer_impl.cpp	/^    size_t nbuckets;$/;"	m	struct:cilkred_map	file:
 need_rehash_p	reducer_impl.cpp	/^bool cilkred_map::need_rehash_p() const$/;"	f	class:cilkred_map
 nelem	reducer_impl.cpp	/^    size_t nelem;$/;"	m	struct:cilkred_map	file:
+next	concurrent_cilk_internal.h	/^  __cilkrts_paused_stack *next;$/;"	m	struct:__cilkrts_paused_stack
 nextException	except-gcc.h	/^    __cxa_exception *       nextException;$/;"	m	struct:__cxa_exception
 next_frame_ff	local_state.h	/^    struct full_frame *next_frame_ff;$/;"	m	struct:local_state	typeref:struct:local_state::full_frame
 nextsz	reducer_impl.cpp	/^static size_t nextsz(size_t nelem)$/;"	f	file:
@@ -708,6 +713,9 @@ owner	worker_mutex.h	/^    __cilkrts_worker *owner;$/;"	m	struct:mutex
 p	frame_malloc.c	/^    char *p;                \/**< This element of the list *\/$/;"	m	struct:pool_cons	file:
 p	symbol_test.c	/^void *volatile p;$/;"	v
 parent	full_frame.h	/^    full_frame *parent;$/;"	m	struct:full_frame
+paused_ff	concurrent_cilk_internal.h	/^  full_frame *paused_ff;$/;"	m	struct:__cilkrts_paused_stack
+paused_stack_trylock	concurrent_cilk.c	/^int paused_stack_trylock(__cilkrts_paused_stack *pstk) {$/;"	f
+paused_stack_unlock	concurrent_cilk.c	/^void paused_stack_unlock(__cilkrts_paused_stack *pstk) {$/;"	f
 pedigree	cilk_api.c	/^    const __cilkrts_pedigree *pedigree;$/;"	m	struct:pedigree_context_t	file:
 pedigree_context_t	cilk_api.c	/^typedef struct pedigree_context_t$/;"	s	file:
 pedigree_context_t	cilk_api.c	/^} pedigree_context_t;$/;"	t	typeref:struct:pedigree_context_t	file:
@@ -725,9 +733,11 @@ pop	stacks.c	/^static __cilkrts_stack *pop(__cilkrts_worker *w)$/;"	f	file:
 pop_next_frame	scheduler.c	/^static full_frame *pop_next_frame(__cilkrts_worker *w)$/;"	f	file:
 post_suspend	local_state.h	/^    scheduling_stack_fcn_t post_suspend;$/;"	m	struct:local_state
 potential_limit	frame_malloc.h	/^    size_t potential_limit;$/;"	m	struct:__cilkrts_frame_cache
-prefetch	concurrent_cilk_internal.h	48;"	d
-prefetch_r	concurrent_cilk_internal.h	50;"	d
-prefetch_rw	concurrent_cilk_internal.h	49;"	d
+prefetch	concurrent_cilk_internal.h	56;"	d
+prefetch_r	concurrent_cilk_internal.h	58;"	d
+prefetch_rw	concurrent_cilk_internal.h	57;"	d
+print_flags	full_frame.c	/^void print_flags(full_frame *ff) $/;"	f
+print_sf_flags	concurrent_cilk.c	/^void print_sf_flags(__cilkrts_stack_frame *sf) $/;"	f
 private_1	except-gcc.h	/^    unsigned long                private_1;$/;"	m	struct:_Unwind_Exception
 private_2	except-gcc.h	/^    unsigned long                private_2;$/;"	m	struct:_Unwind_Exception
 provably_good_steal	scheduler.c	/^static int provably_good_steal(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:
@@ -751,7 +761,6 @@ repeated_merge_reducer_maps	reducer_impl.cpp	/^repeated_merge_reducer_maps(__cil
 reset_THE_exception	scheduler.c	/^static void reset_THE_exception(__cilkrts_worker *w)$/;"	f	file:
 restore_fp_state	sysdep-unix.c	/^static inline void restore_fp_state (__cilkrts_stack_frame *sf) {$/;"	f	file:
 restore_frame_for_spawn_return_reduction	scheduler.c	/^    void restore_frame_for_spawn_return_reduction(__cilkrts_worker *w,$/;"	f	file:
-restore_paused_worker	concurrent_cilk.c	/^restore_paused_worker(__cilkrts_paused_stack *pstk) $/;"	f
 rethrow	except-gcc.cpp	/^    bool rethrow;$/;"	m	struct:pending_exception_info	file:
 right_pending_exception	full_frame.h	/^    struct pending_exception_info *right_pending_exception;$/;"	m	struct:full_frame	typeref:struct:full_frame::pending_exception_info
 right_reducer_map	full_frame.h	/^    struct cilkred_map *right_reducer_map;$/;"	m	struct:full_frame	typeref:struct:full_frame::cilkred_map
@@ -801,7 +810,7 @@ sizeof_bucket	reducer_impl.cpp	/^static size_t sizeof_bucket(size_t nmax)$/;"	f	
 sleep_runtime	scheduler.c	/^  static void sleep_runtime(global_state_t *g)$/;"	f	file:
 slow_path_reductions_for_spawn_return	scheduler.c	/^    slow_path_reductions_for_spawn_return(__cilkrts_worker *w,$/;"	f	file:
 slow_path_reductions_for_sync	scheduler.c	/^    slow_path_reductions_for_sync(__cilkrts_worker *w,$/;"	f	file:
-spin_pause	concurrent_cilk_internal.h	21;"	d
+spin_pause	concurrent_cilk_internal.h	29;"	d
 splice_exceptions_for_call	scheduler.c	/^static inline void splice_exceptions_for_call(__cilkrts_worker *w,$/;"	f	file:
 splice_exceptions_for_spawn	scheduler.c	/^void splice_exceptions_for_spawn(__cilkrts_worker *w,$/;"	f	file:
 splice_left_ptrs	scheduler.c	/^      } splice_left_ptrs;$/;"	t	typeref:struct:__anon1	file:
@@ -844,6 +853,7 @@ sysdep_destroy_user_stack	sysdep-unix.c	/^void sysdep_destroy_user_stack (__cilk
 sysdep_make_tiny_stack	sysdep-unix.c	/^void *sysdep_make_tiny_stack (__cilkrts_worker *w)$/;"	f
 sysdep_make_user_stack	sysdep-unix.c	/^__cilkrts_stack *sysdep_make_user_stack (__cilkrts_worker *w)$/;"	f
 system_workers	global_state.h	/^    int system_workers; \/**< Number of system workers (fixed) *\/$/;"	m	struct:global_state_t
+tail	concurrent_cilk_internal.h	/^  __cilkrts_paused_stack *tail;$/;"	m	struct:__cilkrts_paused_stack
 tbb_interop_free_stack_op_info	sysdep-unix.c	/^void tbb_interop_free_stack_op_info(void)$/;"	f
 tbb_interop_key	os-unix.c	/^static pthread_key_t worker_key, reducer_key, tbb_interop_key, pedigree_leaf_key;$/;"	v	file:
 tbb_interop_save_info_from_stack	sysdep-unix.c	/^void tbb_interop_save_info_from_stack(__cilkrts_stack *sd)$/;"	f
@@ -852,6 +862,7 @@ tbb_interop_use_saved_stack_op_info	sysdep-unix.c	/^void tbb_interop_use_saved_s
 team	concurrent_cilk_internal.h	/^  __cilkrts_worker *team;$/;"	m	struct:__cilkrts_paused_stack
 team	local_state.h	/^    __cilkrts_worker *team;$/;"	m	struct:local_state
 terminateHandler	except-gcc.h	/^    std::terminate_handler  terminateHandler;$/;"	m	struct:__cxa_exception
+thaw_frame	concurrent_cilk.c	/^thaw_frame(__cilkrts_paused_stack *pstk) $/;"	f
 threads	sysdep-unix.c	/^    pthread_t *threads;$/;"	m	struct:global_sysdep_state	file:
 threads_created	sysdep-unix.c	/^static int volatile threads_created = 0;$/;"	v	file:
 to_cxx	except-gcc.h	/^static inline __cxa_exception *to_cxx(_Unwind_Exception *e)$/;"	f
@@ -881,7 +892,6 @@ verify_current_wkr	scheduler.c	/^static inline void verify_current_wkr(__cilkrts
 w	concurrent_cilk_internal.h	/^   __cilkrts_worker *w;$/;"	m	struct:__cilkrts_paused_stack
 wait_on_cilk_semaphore	signal_node.c	/^static void wait_on_cilk_semaphore (cilk_semaphore_t *sem)$/;"	f	file:
 wait_ticks	concurrent_queue.c	/^inline void wait_ticks(uint64_t ticks)$/;"	f
-waitlist	concurrent_cilk_internal.h	/^  __cilkrts_paused_stack *waitlist;$/;"	m	struct:__cilkrts_paused_stack
 wake_runtime	scheduler.c	/^  static void wake_runtime(global_state_t *g)$/;"	f	file:
 wasted	frame_malloc.h	/^    size_t wasted;$/;"	m	struct:__cilkrts_frame_cache
 work_done	global_state.h	/^    volatile int work_done;$/;"	m	struct:global_state_t

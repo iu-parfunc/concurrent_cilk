@@ -180,60 +180,10 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
 CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
 {
   __cilkrts_worker *w = sf->worker;
-  printf("leaving frame: w %d sf %p\n", w->self, sf);
+
 #ifdef CILK_IVARS
-  printf("<<<< flags returning: ");
-  if(sf->flags & CILK_FRAME_BLOCKED_RETURNING)    printf("CILK_FRAME_BLOCKED_RETURNING ");
-  if(sf->flags & CILK_FRAME_BLOCKED)    printf("CILK_FRAME_BLOCKED ");
-  if(sf->flags & CILK_FRAME_SELF_STEAL) printf("CILK_FRAME_SELF_STEAL ");
-  if(sf->flags & CILK_FRAME_STOLEN)     printf("CILK_FRAME_STOLEN ");
-  if(sf->flags & CILK_FRAME_UNSYNCHED)  printf("CILK_FRAME_UNSYNCHED ");
-  if(sf->flags & CILK_FRAME_DETACHED)   printf("CILK_FRAME_DETACHED ");
-  if(sf->flags & CILK_FRAME_EXCEPTING)  printf("CILK_FRAME_EXCEPTING ");
-  if(sf->flags & CILK_FRAME_LAST)       printf("CILK_FRAME_LAST ");
-  if(sf->flags & CILK_FRAME_EXITING)    printf("CILK_FRAME_EXITING ");
-  if(sf->flags & CILK_FRAME_SUSPENDED)  printf("CILK_FRAME_SUSPENDED ");
-  if(sf->flags & CILK_FRAME_UNWINDING)  printf("CILK_FRAME_UNWINDING ");
-  printf("\n");
-
-
-
-
-  //there should never be a blocked frame returning...ever.
-  if_f(sf->flags & CILK_FRAME_BLOCKED) {
-    __cilkrts_bug("W%u: tried to run a blocked frame. Function exiting with invalid flags %x.\n",
-        w->self, sf->flags);
-  }
-
-  if_f(w->l->frame_ff->concurrent_cilk_flags & FULL_FRAME_BLOCKED_LAST) {
-    CILK_ASSERT(w->l->frame_ff == w->paused_ff);
-    w->paused_ff->concurrent_cilk_flags &= ~FULL_FRAME_BLOCKED_LAST;
-    longjmp(w->paused_ff->blocked_ctx, 1);
-  }
-
-  /** run on the return from a self stolen frame. Necessarily, this frame
-   * sits below a paused frame that must be popped before normal cilk execution can
-   * resume. 
-   */
-  if(sf->flags & CILK_FRAME_SELF_STEAL) {
-   // update_pedigree_on_leave_frame(w, sf);
-   if(sf == *w->head) {
-     if(! setjmp(w->paused_ff->blocked_ctx)) {
-       printf("marking sf %p as self steal unwinding\n", sf);
-       CILK_ASSERT(w->paused_ff->concurrent_cilk_flags & FULL_FRAME_BLOCKED_LAST);
-       self_steal_return(w);
-
-       //does this need to be atomic since sf == head?
-       sf->flags &= ~CILK_FRAME_SELF_STEAL;
-       longjmp_into_runtime(w, do_return_from_self, sf);
-     }
-   }
-
-    return;
-  }
-
+  __concurrent_cilk_leave_frame_hook(w, sf);
 #endif
-
 
 /*    DBGPRINTF("%d-%p __cilkrts_leave_frame - sf %p, flags: %x\n", w->self, GetWorkerFiber(w), sf, sf->flags); */
 
@@ -314,7 +264,6 @@ if (__builtin_expect(sf->flags & CILK_FRAME_LAST, 0))
 else if (sf->flags & CILK_FRAME_STOLEN)
   __cilkrts_return(w); /* does return */
 
-  /*    DBGPRINTF("%d-%p __cilkrts_leave_frame - returning, StackBase: %p\n", w->self, GetWorkerFiber(w)); */
   printf("sf %p returning\n", sf);
   }
 

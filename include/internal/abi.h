@@ -222,11 +222,9 @@ struct __cilkrts_worker {
 #endif  /* __CILKRTS_ABI_VERSION >= 1 */
 
 #ifdef CILK_IVARS
-    short is_blocked;
-
-    struct full_frame *paused_ff;
-
     struct queue_t *ready_queue;
+
+    jmp_buf unblocked_ctx;
 
 #endif
 };

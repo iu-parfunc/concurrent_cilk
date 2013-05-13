@@ -288,6 +288,26 @@ devlog april 29 2013: implementing the ivar waitlist inside paused stacks.
 devlog may 11 2013: implementing multiple ivar pauses on a single core. 
 
 
+devlog may 12 2013: refactoring ivar code in cilk-abi.c into hooks with the source code in concurrent_cilk.c
+  
+  The build is currently in an unstable state. I am trying a new way of restoring stacks
+  that do not require sf == *w->head to restore an ivar. The idea is that at any time we
+  could try to dequeue an ivar. 
+
+  Note: I think that dequeue calls an atomic op which is quite expensive. We should have a
+  check to first ping the number of outstanding ivars. if it is zero, we don't even try
+  the dequeue. That way we pay for an if, not an atomic op and an if. 
+
+  The idea is basically the same as before, but instead of heading back to the scheduler
+  for each ivar restore, we only head back to the scheduler potentially once. All of the
+  ivar restoration is done on a function return. 
+
+  The new function is now call __concurrent_cilk_leave_frame_hook and is conditionally
+  included in __cilkrts_leave_frame(). Eventually I intend to make all of cilk ivars
+  modular in that every code should be inserted via hooks into the scheduler rather than
+  inlined code. This should keep the ifdef rot from creeping up as the code base is
+  growing quickly for this version. 
+
 -------------------------------------------------------
 
 
