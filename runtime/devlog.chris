@@ -10,6 +10,65 @@ TODO List:
 -- 
 
 
+-------------------------------------------------------
+
+Theoretical Ideas and Stuff:
+-------------------------------------------------------
+
+  STATE MACHINE FOR THE RETURN FROM FRAME LOGIC ON CILK IVARS:
+  
+  In each case, the returning stack frame's (sf variable) flags are checked.
+  
+  case 0: NO ivar flags set on returning sf
+      ==> Do normal cilk return (existing logic stays)
+  
+  case 1: CILK_FRAME_BLOCKED
+      ==> Error. A frame is marked as blocked on entry into a paused state.
+          If a frame marked as blocked (paused) returns, the restore path has
+          not been followed. The restore path marks the frame as
+          CILK_FRAME_BLOCKED_RETURNING and clears the CILK_FRAME_BLOCKED flag.
+          The restore path must be followed because it restores the worker state
+          to the way it was when the paused was called. We maintain the invariant
+          that the paused state is restored in full to the way it was on pause when
+          the ivar is being returned. 
+          TODO: there could be an optimization opportunity here on spawned ivars 
+          that are not the *last* spawned ivar (see program flow logic below) the
+          state of a interior spawn will just be destroyed on the next ivar pop. 
+  
+  case 2: CILK_FRAME_SELF_STEAL (p.s. this is the most subtle case. read carefully)
+     ==>  case 2a. &sf <  w->head
+               ==> Do a C return. There is nothing to do as there is more work to do
+               on the current worker's dequeue. We only care about a self steal frame
+               if it will become the eventual exit point for all paused frames above it.
+          case 2b. &sf == w->head
+               ==> Save the state of the current stack frame as this stack frame will
+               become the exit point for the last ivar that became blocked while on this
+               worker's run out from the scheduler. If this frame is popped and returns
+               the C return will invalidate all stack variables. Therefore, the dequeue
+               must be truly clear (all ivars are in a resolved state) before this frame
+               is allowed to return. 
+
+               At the point of return, we iteratively dequeue each ivar from the ready_q
+               in the case where all ivars got written to during the execution of the
+               continuation, the dequeue can be declared clear and a longjump back to the 
+               head frame (the sf who we saved the state to above) and do the return. 
+
+               If the dequeue from the ready_q fails and there still are outstanding
+               blocked computations, the fiber returns to the scheduler for random work
+               stealing. the actual return will happen when the dequeue succeeds on the
+               the worker's ready_q in the scheduler. 
+
+ 
+
+        
+             
+  
+  
+  
+  
+  
+
+
 
 -------------------------------------------------------
 
@@ -225,7 +284,12 @@ devlog april 29 2013: implementing the ivar waitlist inside paused stacks.
   full_frame.c/h has received a printf_flags function that will print out all of the concurrent_cilk_flags in a human readable format. I think we should keep
   this around just until the debugging phase starts to wind down. 
 
+ 
+devlog may 11 2013: implementing multiple ivar pauses on a single core. 
+
+
 -------------------------------------------------------
+
 
 
 

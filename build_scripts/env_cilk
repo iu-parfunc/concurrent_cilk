@@ -4,8 +4,8 @@
 #the install for the library will be: CILK_ROOT/lib
 #header files will be located in CILK_ROOT/include
 
-# CILK_ROOT=/opt/cilkplus #<<<<< EDIT this variable to point to your desired install location
-CILK_ROOT=$HOME/opt/cilkplus #<<<<< EDIT this variable to point to your desired install location
+CILK_ROOT=/opt/cilkplus #<<<<< EDIT this variable to point to your desired install location
+#CILK_ROOT=$HOME/opt/cilkplus #<<<<< EDIT this variable to point to your desired install location
 
 
 #note, this file MUST be sourced from the top level cilkplus directory. 
@@ -14,7 +14,7 @@ CILK_SRC=$(pwd)
 echo $CILK_SRC
 
 #do not edit below this line
-LIB_PATH=$CILK_ROOT/lib:$CILK_ROOT/lib64:$CILK_ROOT/libexec:$CILK_ROOT/share
+LIB_PATH=$CILK_ROOT/lib
 BIN_PATH=$CILK_ROOT/bin
 
 #export the root for the cilk enabled gcc
@@ -27,8 +27,8 @@ export CILK_SRC
 export PATH=$BIN_PATH:$PATH
 
 #export header path
-export CPATH=$CILK_ROOT/include:$CILK_ROOT/include/cilk:$CPATH
-export C_INCLUDE_PATH=$CILK_ROOT/include:$CILK_ROOT/include/cilk:$C_INCLUDE_PATH
+export CPATH=$CILK_ROOT/include:$CPATH
+export C_INCLUDE_PATH=$CILK_ROOT/include:$C_INCLUDE_PATH
 export CPLUS_INCLUDE_PATH=$CILK_ROOT/include:$CPLUS_INCLUDE_PATH
 
 #export library path

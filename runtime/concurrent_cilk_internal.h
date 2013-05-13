@@ -123,9 +123,8 @@ void paused_stack_unlock(__cilkrts_paused_stack *pstk);
 void __cilkrts_concurrent_yield(__cilkrts_worker *w);
 void thaw_frame(__cilkrts_paused_stack *pstk);
 
-
-void do_leave_paused_frame_child(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
-void do_return_from_self_steal(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
+/** callback executed when a self steal returns. --currently a no op */
+void do_return_from_self (__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
 
 __CILKRTS_END_EXTERN_C
 #endif

@@ -196,13 +196,14 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
   if(sf->flags & CILK_FRAME_UNWINDING)  printf("CILK_FRAME_UNWINDING ");
   printf("\n");
 
+
+
+
   //there should never be a blocked frame returning...ever.
   if_f(sf->flags & CILK_FRAME_BLOCKED) {
     __cilkrts_bug("W%u: tried to run a blocked frame. Function exiting with invalid flags %x.\n",
         w->self, sf->flags);
   }
-
-    void do_return_from_self (__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
 
   if_f(w->l->frame_ff->concurrent_cilk_flags & FULL_FRAME_BLOCKED_LAST) {
     CILK_ASSERT(w->l->frame_ff == w->paused_ff);
@@ -210,9 +211,13 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
     longjmp(w->paused_ff->blocked_ctx, 1);
   }
 
+  /** run on the return from a self stolen frame. Necessarily, this frame
+   * sits below a paused frame that must be popped before normal cilk execution can
+   * resume. 
+   */
   if(sf->flags & CILK_FRAME_SELF_STEAL) {
    // update_pedigree_on_leave_frame(w, sf);
-   if(sf == *w->head)
+   if(sf == *w->head) {
      if(! setjmp(w->paused_ff->blocked_ctx)) {
        printf("marking sf %p as self steal unwinding\n", sf);
        CILK_ASSERT(w->paused_ff->concurrent_cilk_flags & FULL_FRAME_BLOCKED_LAST);
@@ -222,6 +227,8 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
        sf->flags &= ~CILK_FRAME_SELF_STEAL;
        longjmp_into_runtime(w, do_return_from_self, sf);
      }
+   }
+
     return;
   }
 

@@ -8,7 +8,7 @@ rm -rf build
 mkdir build 
 cd build 
 
-cmake \
+CC=gcc CXX=g++ cmake \
   -DCONCURRENT_CILK=ON \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
   -DCMAKE_INSTALL_PREFIX=$CILK_ROOT ..;
