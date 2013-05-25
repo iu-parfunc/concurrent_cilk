@@ -310,6 +310,10 @@ devlog may 12 2013: refactoring ivar code in cilk-abi.c into hooks with the sour
 
 -------------------------------------------------------
 
+devlog may 24 2013: fixed some longjmup bugs in the __cilkrts_leave_frame_hook. 
+Experiencing an error with a double code execution. from now on, this kind of issue will
+be abrreviated as DCE. The problem is duplicatable in spawnedrw.exe. 
+
 
 
 

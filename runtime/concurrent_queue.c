@@ -21,7 +21,7 @@
 
 
 
-#include <concurrent_queue.h>
+#include <cilk/concurrent_queue.h>
 #include "concurrent_cilk_internal.h"
 
 #include <malloc.h>

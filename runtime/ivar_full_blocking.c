@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "concurrent_cilk_internal.h"
-#include "concurrent_queue.h"
+#include <cilk/concurrent_queue.h>
 #include "cilk_malloc.h"
 #include <cilk/cilk_api.h>
 #include "scheduler.h"

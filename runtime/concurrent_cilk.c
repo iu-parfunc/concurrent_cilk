@@ -22,6 +22,8 @@
 #include "except.h"
 #include "cilk_malloc.h"
 #include "pedigrees.h"
+#include <cilk/concurrent_queue.h>
+#include <setjmp.h>
 
 //for nanosleep "declared implicity"...it should be in time.h but isn't?
 #pragma warning(disable: 266)
@@ -222,12 +224,13 @@ void print_sf_flags(__cilkrts_stack_frame *sf)
   printf("\n");
 }
 
+
 // Used in cilk-abi.c in return_frame
 //-------------------------------------
-inline void
+void
 __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
 {
-  __cilkrts_paused_stack *pstk;
+  __cilkrts_paused_stack *pstk = NULL;
   int is_longjmp = 0;
 
   printf("leaving frame: w %d sf %p\n", w->self, sf);
@@ -238,7 +241,6 @@ __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *s
         w->self, sf->flags);
   }
 
-  pstk = NULL;
   dequeue(w->ready_queue, (ELEMENT_TYPE *) &pstk);
 
   if(pstk) {
@@ -263,7 +265,7 @@ __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *s
   * point that was saved before the cycle of popping all ready ivars of the
   * queue was begun. After the longjmp, normal cilk operation resumes.
   */
-  if(sf->flags & CILK_FRAME_BLOCKED_RETURNING) {
+  if(sf->flags & CILK_FRAME_BLOCKED_RETURNING && w->unblocked_ctx->__jmpbuf[2]) {
     longjmp(w->unblocked_ctx, 1);
     CILK_ASSERT(0);
   }

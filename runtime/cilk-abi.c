@@ -53,10 +53,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#ifdef CILK_IVARS
-#include "concurrent_cilk_internal.h"
-#endif
-
 #ifdef _MSC_VER
 /* Some versions of icc don't support limits.h on Linux if
    gcc 4.3 or newer is installed. */
@@ -81,7 +77,7 @@ void * _ReturnAddress(void);
 
 #ifdef CILK_IVARS
 #include "concurrent_cilk_internal.h"
-#include "concurrent_queue.h"
+#include <cilk/concurrent_queue.h>
 #endif
 static inline
 void enter_frame_internal(__cilkrts_stack_frame *sf, uint32_t version)
@@ -245,6 +241,12 @@ if ((sf->flags & CILK_FRAME_DETACHED)) {
   }
 
   update_pedigree_on_leave_frame(w, sf);
+
+#ifdef CILK_IVARS
+  //self steal flags are ok here. we may not have 
+  if(sf->flags & CILK_FRAME_SELF_STEAL_MASK) return;
+#endif
+
   /* This path is taken when undo-detach wins the race with stealing.
      Otherwise this strand terminates and the caller will be resumed
      via setjmp at sync. */

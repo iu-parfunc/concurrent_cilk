@@ -59,7 +59,7 @@
 #ifdef CILK_IVARS
 #include <cilk/common.h>
 #include "concurrent_cilk_internal.h"
-#include "concurrent_queue.h"
+#include <cilk/concurrent_queue.h>
 #endif
 
 // ICL: Don't complain about conversion from pointer to same-sized integral

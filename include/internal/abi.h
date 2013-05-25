@@ -40,6 +40,7 @@
 #include <cilk/common.h>
 #ifdef CILK_IVARS
 #include <cilk/concurrent_cilk.h>
+#include <setjmp.h>
 #endif
 
 /**
@@ -222,6 +223,10 @@ struct __cilkrts_worker {
 #endif  /* __CILKRTS_ABI_VERSION >= 1 */
 
 #ifdef CILK_IVARS
+    int is_blocked;
+
+    struct full_frame *paused_ff;
+
     struct queue_t *ready_queue;
 
     jmp_buf unblocked_ctx;
@@ -375,6 +380,8 @@ struct __cilkrts_stack_frame
 #define CILK_FRAME_SELF_STEAL 0x200
 #define CILK_FRAME_BLOCKED 0x400
 #define CILK_FRAME_BLOCKED_RETURNING 0x800
+#define CILK_FRAME_SELF_STEAL_MASK 0xE00
+
 
 #define FULL_FRAME_BLOCKED      0x01
 #define FULL_FRAME_SELF_STEAL   0x02
