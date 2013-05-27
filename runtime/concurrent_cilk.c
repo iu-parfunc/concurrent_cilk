@@ -157,6 +157,7 @@ thaw_frame(__cilkrts_paused_stack *pstk)
   //the full frame is marked as being a self stolen so we know to take
   //the fast path in leave frame.
 
+  CILK_ASSERT(!(sf->flags & CILK_FRAME_BLOCKED_RETURNING));
   sf->flags &= ~CILK_FRAME_BLOCKED;
   sf->flags |=  CILK_FRAME_BLOCKED_RETURNING;
 
@@ -241,53 +242,52 @@ __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *s
         w->self, sf->flags);
   }
 
-  dequeue(w->ready_queue, (ELEMENT_TYPE *) &pstk);
-
-  if(pstk) {
-
-    //only save the context if we aren't in a ivar popping cycle
-    //there should only be one jump out of the cycle when the last
-    //ivar is popped
-    if(! w->unblocked_ctx)
-      is_longjmp = setjmp(w->unblocked_ctx);
-
-    if(! is_longjmp) {
-      thaw_frame(pstk);
-      CILK_ASSERT(0);
-    } else {
-      memset(&w->unblocked_ctx, 0, sizeof(jmp_buf));
-    }
-  } 
-  
-  /** if we are in this state, then we tried to dequeue from the ready_q
-  * and got nothing, if the frame is marked as a blocked frame now returning,
-  * we shouldn't do an actual return. instead, we should jump to the escape 
-  * point that was saved before the cycle of popping all ready ivars of the
-  * queue was begun. After the longjmp, normal cilk operation resumes.
-  */
-  if(sf->flags & CILK_FRAME_BLOCKED_RETURNING && w->unblocked_ctx->__jmpbuf[2]) {
+  /** if the frame is marked as a blocked frame now returning,
+   * we shouldn't do an actual return. instead, we should jump to the escape 
+   * point that was saved before the cycle of popping all ready ivars of the
+   * queue was begun. After the longjmp, normal cilk operation resumes.
+   */
+  if(sf->flags & CILK_FRAME_BLOCKED_RETURNING) {
+    CILK_ASSERT(w->unblocked_ctx->__jmpbuf[2]);
     longjmp(w->unblocked_ctx, 1);
     CILK_ASSERT(0);
   }
+
+  //whenever a non blocked frame returns, we check to see if it can perform a
+  //pop on some blocked work. The preference is to clear the worker's blocked
+  //queue as we are going to shred the cache, so we might as do all the disrputive
+  //operations at one shot. 
+  dequeue(w->ready_queue, (ELEMENT_TYPE *) &pstk);
+  while(pstk) {
+
+    if(! setjmp(w->unblocked_ctx)) {
+      thaw_frame(pstk);
+      CILK_ASSERT(0);
+    } else {
+      //segfault if the longjmp gets called twice
+      memset(&w->unblocked_ctx, 0, sizeof(jmp_buf));
+    }
+
+    pstk=NULL;
+    dequeue(w->ready_queue, (ELEMENT_TYPE *) &pstk);
+  }
+
 
   /** run on the return from a self stolen frame. Necessarily, this frame
    * sits below a paused frame that must be popped before normal cilk execution can
    * resume. 
    */
   if(sf->flags & CILK_FRAME_SELF_STEAL) {
-    // update_pedigree_on_leave_frame(w, sf);
     if(sf == *w->head) {
-      if(! setjmp(w->unblocked_ctx)) {
-        self_steal_return(w);
 
-        //does this need to be atomic since sf == head?
-        sf->flags &= ~CILK_FRAME_SELF_STEAL;
-        longjmp_into_runtime(w, do_return_from_self, sf);
-      }
+      self_steal_return(w);
+
+      //does this need to be atomic since sf == head?
+      sf->flags &= ~CILK_FRAME_SELF_STEAL;
+      longjmp_into_runtime(w, do_return_from_self, sf);
     }
-
-    return;
   }
 
+  return;
 }
 

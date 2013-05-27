@@ -1441,21 +1441,21 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     __cilkrts_stack *sd;
     char *sp;
 
-    if(!can_steal_from(w)) return;
+    if_f(!can_steal_from(w)) return;
 
     CILK_ASSERT(w->l->frame_ff == 0);
 
     sd = __cilkrts_get_stack(w);
-    if(NULL == sd) return;
+    if_f(NULL == sd) return;
 
     sf = __cilkrts_pop_tail(w);
-    if(NULL == sf) return;
+    if_f(NULL == sf) return;
 
     sf->flags |= CILK_FRAME_SF_PEDIGREE_UNSYNCHED;
     child_ff = __cilkrts_make_full_frame(w, sf);
     child_ff->parent = parent_ff;
     child_ff->stack_self = sd;
-    child_ff->sync_master = NULL;
+    child_ff->sync_master = w;
     child_ff->is_call_child = 0;
 
     parent_ff->call_stack->flags |= CILK_FRAME_STOLEN;

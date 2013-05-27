@@ -1,0 +1,68 @@
+STATES of an IVAR:
+
+1. UNITIALIAZED:
+  - value of ivar is undefined
+  runtime knows? - no
+
+2. INITIALIZED:
+  -value of ivar == 0
+  runtime knows? - no
+
+3. READY:
+  - value of ivar is set by user code. 
+  - all READS behave like normal variable references. 
+  runtime knows? - no
+
+4. PAUSED:
+  - value of ivar is a 4 bit LSB tag set to IVAR_PAUSED (0x2) and
+    MSB points to heap allocated location of a paused context shifted
+    4 bits left. 
+  runtime knows? - yes ==> sf->flags |= CILK_FRAME_BLOCKED
+
+5. RETURNING:
+   conditions:
+    a.) can only transition from PAUSED -> RETURNING - set by runtime. 
+    b.) a standard C return by leaving the frame is no longer permitted. 
+        The blocked section of code must complete and jump back to the
+        point before a BLOCKED RETURN was started. 
+        note - this happens in the hook exposed in __cilkrts_leave_frame()
+
+  - blocked code executes and immediately returns to the last unblocked context. 
+  - an IVAR may be READY and RETURNING at the same time. new references experience
+    READY behavior, old references experience RETURNING behavior. The difference
+    is the type of return executed. 
+  runtime knows? - yes ==> 
+   sf->flags &= ~CILK_FRAME_BLOCKED
+   sf->flags |= CILK_FRAME_BLOCKED_RETURNING
+
+   
+                                                             
+IVAR state diagram:
+||----------------------------------------------------------------------------
+||                                                                          ||
+||                                                        read()            ||
+||                                                      ||======||          ||
+||                                                      ||      ||          ||
+||                                                      ||      ||          ||
+||                                                      \/      ||          ||
+||                                            read()    ----------          ||
+||                                         ||=========> - PAUSED -          ||
+||                                         ||           ----------          ||
+|| -----------------    clear()    ---------------          ||              ||
+|| - UNINITIALIZED - ============> - INITIALIZED -          || write()      ||
+|| -----------------               ---------------          \/              ||
+||                                         ||           ----------          ||
+||                                         ||=========> -  READY -          ||
+||                                            write()   ----------          ||
+||                                                          ||              ||
+||                                                          || write()      ||
+||                                                          \/              ||
+||                                                       ---------          ||
+||                                                       - ERROR -          ||
+||                                                       ---------          ||
+||                                                                          ||
+||----------------------------------------------------------------------------
+
+
+
+

@@ -135,6 +135,19 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
     __cilkrts_worker *w = sf->worker;
     __cilkrts_stack_frame *volatile *t = w->tail;
 
+#ifdef CILK_IVARS
+    if(w->l->frame_ff->concurrent_cilk_flags & FULL_FRAME_SELF_STEAL) {
+
+#if defined __i386__ || defined __x86_64__
+    __sync_fetch_and_and(&sf->flags, ~CILK_FRAME_DETACHED);
+#else
+    __cilkrts_fence(); /* membar #StoreLoad */
+    sf->flags &= ~CILK_FRAME_DETACHED;
+#endif
+      return 0;
+    }
+#endif
+
 /*    DBGPRINTF("%d - __cilkrts_undo_detach - sf %p\n", w->self, sf); */
 
     --t;
@@ -150,26 +163,6 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
     sf->flags &= ~CILK_FRAME_DETACHED;
 #endif
 
-#ifdef CILK_IVARS
-    if(w->l->frame_ff->concurrent_cilk_flags & FULL_FRAME_SELF_STEAL) {
-
-      w->l->frame_ff->concurrent_cilk_flags &= ~FULL_FRAME_SELF_STEAL;
-      if(t < w->exc) {
-        //ugh...so much overhead for so little work.
-        //too bad we can't CAS the tail...
-        BEGIN_WITH_WORKER_LOCK(w) {
-
-          w->exc = w->head;
-          w->tail++;
-
-          //the deque should be cleared at this point
-          CILK_ASSERT(w->tail == w->head);
-
-        } END_WITH_WORKER_LOCK(w);
-      }
-      return 0;
-    }
-#endif
     return __builtin_expect(t < w->exc, 0);
 }
 
