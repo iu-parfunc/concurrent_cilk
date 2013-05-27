@@ -1480,25 +1480,14 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   {
     full_frame *ff;
 
+#ifdef CILK_IVARS
+      restore_ready_computations(w);
+#endif
+
     ff = pop_next_frame(w);
 
     // If there is no work on the queue, try to steal some.
     if (NULL == ff) {
-
-#ifdef CILK_IVARS
-
-      //each worker must "pay their way" by checking
-      //for a ready paused stack. Then they are free
-      //to restore their own paused stack if it is ready.
-      __cilkrts_paused_stack *pstk = NULL;
-
-      dequeue(w->ready_queue, (ELEMENT_TYPE *) &pstk);
-      if(pstk) {
-        printf("dequeueing ctx %p\n", pstk);
-        thaw_frame(pstk);
-        CILK_ASSERT(0);
-      }
-#endif
 
       START_INTERVAL(w, INTERVAL_STEALING) {
         if (w->l->type != WORKER_USER && w->l->team != NULL) {

@@ -126,6 +126,8 @@ void thaw_frame(__cilkrts_paused_stack *pstk);
 /** callback executed when a self steal returns. --currently a no op */
 void do_return_from_self (__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
 
+/** restore all paused computations from the ready queue of the worker*/
+void restore_ready_computations(__cilkrts_worker *w);
 
 /** the hook for concurrent cilk into leave frame in cilk-abi.c */
 void __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *sf);

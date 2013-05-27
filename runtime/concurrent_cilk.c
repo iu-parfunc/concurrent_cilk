@@ -225,34 +225,9 @@ void print_sf_flags(__cilkrts_stack_frame *sf)
   printf("\n");
 }
 
-
-// Used in cilk-abi.c in return_frame
-//-------------------------------------
-void
-__concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
+void restore_ready_computations(__cilkrts_worker *w) 
 {
   __cilkrts_paused_stack *pstk = NULL;
-  int is_longjmp = 0;
-
-  printf("leaving frame: w %d sf %p\n", w->self, sf);
-
-  //there should never be a blocked frame returning...ever.
-  if_f(sf->flags & CILK_FRAME_BLOCKED) {
-    __cilkrts_bug("W%u: tried to run a blocked frame. Function exiting with invalid flags %x.\n",
-        w->self, sf->flags);
-  }
-
-  /** if the frame is marked as a blocked frame now returning,
-   * we shouldn't do an actual return. instead, we should jump to the escape 
-   * point that was saved before the cycle of popping all ready ivars of the
-   * queue was begun. After the longjmp, normal cilk operation resumes.
-   */
-  if(sf->flags & CILK_FRAME_BLOCKED_RETURNING) {
-    CILK_ASSERT(w->unblocked_ctx->__jmpbuf[2]);
-    longjmp(w->unblocked_ctx, 1);
-    CILK_ASSERT(0);
-  }
-
   //whenever a non blocked frame returns, we check to see if it can perform a
   //pop on some blocked work. The preference is to clear the worker's blocked
   //queue as we are going to shred the cache, so we might as do all the disrputive
@@ -271,6 +246,32 @@ __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *s
     pstk=NULL;
     dequeue(w->ready_queue, (ELEMENT_TYPE *) &pstk);
   }
+}
+
+
+// Used in cilk-abi.c in return_frame
+//-------------------------------------
+void
+__concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
+{
+  //there should never be a blocked frame returning...ever.
+  if_f(sf->flags & CILK_FRAME_BLOCKED) {
+    __cilkrts_bug("W%u: tried to run a blocked frame. Function exiting with invalid flags %x.\n",
+        w->self, sf->flags);
+  }
+
+  /** if the frame is marked as a blocked frame now returning,
+   * we shouldn't do an actual return. instead, we should jump to the escape 
+   * point that was saved before the cycle of popping all ready ivars of the
+   * queue was begun. After the longjmp, normal cilk operation resumes.
+   */
+  if(sf->flags & CILK_FRAME_BLOCKED_RETURNING) {
+    CILK_ASSERT(w->unblocked_ctx->__jmpbuf[2]);
+    longjmp(w->unblocked_ctx, 1);
+    CILK_ASSERT(0);
+  }
+
+  restore_ready_computations(w);
 
   return;
 }
