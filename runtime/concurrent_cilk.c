@@ -272,22 +272,6 @@ __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *s
     dequeue(w->ready_queue, (ELEMENT_TYPE *) &pstk);
   }
 
-
-  /** run on the return from a self stolen frame. Necessarily, this frame
-   * sits below a paused frame that must be popped before normal cilk execution can
-   * resume. 
-   */
-  if(sf->flags & CILK_FRAME_SELF_STEAL) {
-    if(sf == *w->head) {
-
-      self_steal_return(w);
-
-      //does this need to be atomic since sf == head?
-      sf->flags &= ~CILK_FRAME_SELF_STEAL;
-      longjmp_into_runtime(w, do_return_from_self, sf);
-    }
-  }
-
   return;
 }
 

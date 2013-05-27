@@ -135,22 +135,24 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
     __cilkrts_worker *w = sf->worker;
     __cilkrts_stack_frame *volatile *t = w->tail;
 
-#ifdef CILK_IVARS
-    if(w->l->frame_ff->concurrent_cilk_flags & FULL_FRAME_SELF_STEAL) {
-
-#if defined __i386__ || defined __x86_64__
-    __sync_fetch_and_and(&sf->flags, ~CILK_FRAME_DETACHED);
-#else
-    __cilkrts_fence(); /* membar #StoreLoad */
-    sf->flags &= ~CILK_FRAME_DETACHED;
-#endif
-      return 0;
-    }
-#endif
 
 /*    DBGPRINTF("%d - __cilkrts_undo_detach - sf %p\n", w->self, sf); */
 
     --t;
+#ifdef CILK_IVARS
+    if(w->l->frame_ff->concurrent_cilk_flags & FULL_FRAME_SELF_STEAL) {
+
+      if_f(t < w->exc) {
+#if defined __i386__ || defined __x86_64__
+        __sync_fetch_and_and(&sf->flags, ~CILK_FRAME_DETACHED);
+#else
+        __cilkrts_fence(); /* membar #StoreLoad */
+        sf->flags &= ~CILK_FRAME_DETACHED;
+#endif
+        return 0;
+      }
+    }
+#endif
     w->tail = t;
     /* On x86 the __sync_fetch_and_<op> family includes a
        full memory barrier.  In theory the sequence in the
@@ -174,93 +176,93 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
   __concurrent_cilk_leave_frame_hook(w, sf);
 #endif
 
-/*    DBGPRINTF("%d-%p __cilkrts_leave_frame - sf %p, flags: %x\n", w->self, GetWorkerFiber(w), sf, sf->flags); */
+  /*    DBGPRINTF("%d-%p __cilkrts_leave_frame - sf %p, flags: %x\n", w->self, GetWorkerFiber(w), sf, sf->flags); */
 
 #ifdef _WIN32
-/* if leave frame was called from our unwind handler, leave_frame should
-   proceed no further. */
-if (sf->flags & CILK_FRAME_UNWINDING)
-{
-  /*        DBGPRINTF("%d - __cilkrts_leave_frame - aborting due to UNWINDING flag\n", w->self); */
-
-  // If this is the frame of a spawn helper (indicated by the
-  // CILK_FRAME_DETACHED flag) we must update the pedigree.  The pedigree
-  // points to nodes allocated on the stack.  Failing to update it will
-  // result in a accvio/segfault if the pedigree is walked.  This must happen
-  // for all spawn helper frames, even if we're processing an exception
-  if ((sf->flags & CILK_FRAME_DETACHED))
+  /* if leave frame was called from our unwind handler, leave_frame should
+     proceed no further. */
+  if (sf->flags & CILK_FRAME_UNWINDING)
   {
-    update_pedigree_on_leave_frame(w, sf);
-  }
-  return;
-}
-#endif
+    /*        DBGPRINTF("%d - __cilkrts_leave_frame - aborting due to UNWINDING flag\n", w->self); */
 
-#if CILK_LIB_DEBUG
-/* ensure the caller popped itself */
-CILK_ASSERT(w->current_stack_frame != sf);
-#endif
-
-/* The exiting function should have checked for zero flags,
-   so there is no check for flags == 0 here. */
-
-#if CILK_LIB_DEBUG
-if (__builtin_expect(sf->flags & (CILK_FRAME_EXITING|CILK_FRAME_UNSYNCHED), 0))
-  __cilkrts_bug("W%u: function exiting with invalid flags %02x\n",
-      w->self, sf->flags);
-#endif
-
-/* Must return normally if (1) the active function was called
-   and not spawned, or (2) the parent has never been stolen. */
-if ((sf->flags & CILK_FRAME_DETACHED)) {
-  /*        DBGPRINTF("%d - __cilkrts_leave_frame - CILK_FRAME_DETACHED\n", w->self); */
-
-#ifndef _WIN32
-  if (__builtin_expect(sf->flags & CILK_FRAME_EXCEPTING, 0)) {
-    update_pedigree_on_leave_frame(w, sf);
-    __cilkrts_return_exception(sf);
-    /* If return_exception returns the caller is attached.
-       leave_frame is called from a cleanup (destructor)
-       for the frame object.  The caller will reraise the
-       exception. */
+    // If this is the frame of a spawn helper (indicated by the
+    // CILK_FRAME_DETACHED flag) we must update the pedigree.  The pedigree
+    // points to nodes allocated on the stack.  Failing to update it will
+    // result in a accvio/segfault if the pedigree is walked.  This must happen
+    // for all spawn helper frames, even if we're processing an exception
+    if ((sf->flags & CILK_FRAME_DETACHED))
+    {
+      update_pedigree_on_leave_frame(w, sf);
+    }
     return;
   }
 #endif
-  if (__builtin_expect(__cilkrts_undo_detach(sf), 0)) {
-
-    // The update of pedigree for leaving the frame occurs
-    // inside this call if it does not return.
-    __cilkrts_c_THE_exception_check(w, sf);
-  }
-
-  update_pedigree_on_leave_frame(w, sf);
-
-#ifdef CILK_IVARS
-  //self steal flags are ok here. we may not have 
-  if(sf->flags & CILK_FRAME_SELF_STEAL_MASK) return;
-#endif
-
-  /* This path is taken when undo-detach wins the race with stealing.
-     Otherwise this strand terminates and the caller will be resumed
-     via setjmp at sync. */
-  if (__builtin_expect(sf->flags & CILK_FRAME_FLAGS_MASK, 0))
-    __cilkrts_bug("W%u: frame won undo-detach race with flags %02x\n",
-        w->self, sf->flags);
-
-  return;
-}
 
 #if CILK_LIB_DEBUG
-sf->flags |= CILK_FRAME_EXITING;
+  /* ensure the caller popped itself */
+  CILK_ASSERT(w->current_stack_frame != sf);
 #endif
 
-if (__builtin_expect(sf->flags & CILK_FRAME_LAST, 0))
-  __cilkrts_c_return_from_initial(w); /* does return */
-else if (sf->flags & CILK_FRAME_STOLEN)
-  __cilkrts_return(w); /* does return */
+  /* The exiting function should have checked for zero flags,
+     so there is no check for flags == 0 here. */
+
+#if CILK_LIB_DEBUG
+  if (__builtin_expect(sf->flags & (CILK_FRAME_EXITING|CILK_FRAME_UNSYNCHED), 0))
+    __cilkrts_bug("W%u: function exiting with invalid flags %02x\n",
+        w->self, sf->flags);
+#endif
+
+  /* Must return normally if (1) the active function was called
+     and not spawned, or (2) the parent has never been stolen. */
+  if ((sf->flags & CILK_FRAME_DETACHED)) {
+    /*        DBGPRINTF("%d - __cilkrts_leave_frame - CILK_FRAME_DETACHED\n", w->self); */
+
+#ifndef _WIN32
+    if (__builtin_expect(sf->flags & CILK_FRAME_EXCEPTING, 0)) {
+      update_pedigree_on_leave_frame(w, sf);
+      __cilkrts_return_exception(sf);
+      /* If return_exception returns the caller is attached.
+         leave_frame is called from a cleanup (destructor)
+         for the frame object.  The caller will reraise the
+         exception. */
+      return;
+    }
+#endif
+    if (__builtin_expect(__cilkrts_undo_detach(sf), 0)) {
+
+      // The update of pedigree for leaving the frame occurs
+      // inside this call if it does not return.
+      __cilkrts_c_THE_exception_check(w, sf);
+    }
+
+    update_pedigree_on_leave_frame(w, sf);
+
+#ifdef CILK_IVARS
+    //self steal flags are ok here. we may not have 
+    if(sf->flags & CILK_FRAME_SELF_STEAL_MASK) return;
+#endif
+
+    /* This path is taken when undo-detach wins the race with stealing.
+       Otherwise this strand terminates and the caller will be resumed
+       via setjmp at sync. */
+    if (__builtin_expect(sf->flags & CILK_FRAME_FLAGS_MASK, 0))
+      __cilkrts_bug("W%u: frame won undo-detach race with flags %02x\n",
+          w->self, sf->flags);
+
+    return;
+  }
+
+#if CILK_LIB_DEBUG
+  sf->flags |= CILK_FRAME_EXITING;
+#endif
+
+  if (__builtin_expect(sf->flags & CILK_FRAME_LAST, 0))
+    __cilkrts_c_return_from_initial(w); /* does return */
+  else if (sf->flags & CILK_FRAME_STOLEN)
+    __cilkrts_return(w); /* does return */
 
   printf("sf %p returning\n", sf);
-  }
+}
 
 /* Caller must have called setjmp. */
 CILK_ABI_VOID __cilkrts_sync(__cilkrts_stack_frame *sf)

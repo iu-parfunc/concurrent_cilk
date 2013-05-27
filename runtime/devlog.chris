@@ -314,7 +314,13 @@ devlog may 24 2013: fixed some longjmup bugs in the __cilkrts_leave_frame_hook.
 Experiencing an error with a double code execution. from now on, this kind of issue will
 be abrreviated as DCE. The problem is duplicatable in spawnedrw.exe. 
 
-
+devlog may 25/26 2013: Fixed the DCE above and simplified the code. The next error in the
+docket is the failing of a stack pointer assertion in my own function. This is likely to
+do with the problem of multiple ivars needing to return to the same return point. I will
+investigate more tomorrow. I think we are almost there on single core. Multi core
+shouldn't be too bad. The real challenge is going to be the syncs. We will have to know
+when the dependencies living above the ivars are clear and only than can we proceed past
+the sync barrier. 
 
 
 
