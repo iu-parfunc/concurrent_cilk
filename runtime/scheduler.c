@@ -1480,14 +1480,15 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   {
     full_frame *ff;
 
-#ifdef CILK_IVARS
-      restore_ready_computations(w);
-#endif
 
     ff = pop_next_frame(w);
 
     // If there is no work on the queue, try to steal some.
     if (NULL == ff) {
+
+#ifdef CILK_IVARS
+      restore_ready_computations(w);
+#endif
 
       START_INTERVAL(w, INTERVAL_STEALING) {
         if (w->l->type != WORKER_USER && w->l->team != NULL) {

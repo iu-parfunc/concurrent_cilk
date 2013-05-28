@@ -227,6 +227,7 @@ void print_sf_flags(__cilkrts_stack_frame *sf)
 
 void restore_ready_computations(__cilkrts_worker *w) 
 {
+  printf("restoring ready computation\n");
   __cilkrts_paused_stack *pstk = NULL;
   //whenever a non blocked frame returns, we check to see if it can perform a
   //pop on some blocked work. The preference is to clear the worker's blocked

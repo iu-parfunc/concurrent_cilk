@@ -322,6 +322,12 @@ shouldn't be too bad. The real challenge is going to be the syncs. We will have 
 when the dependencies living above the ivars are clear and only than can we proceed past
 the sync barrier. 
 
+devlog may 27: investigated the signal node error. The problem is that we spin forever in
+the scheduler. This eventually causes a signal node error. It appears that perhaps we
+aren't escaping the context correctly. Perhaps I need to review the order for restoration
+in the scheduler. I will work in this more later, but now it is time for bed. Diagnosis is
+complete anyways. Now to fix!
+
 
 
 
