@@ -10,7 +10,7 @@ DIR_BIN=.
 
 SCRIPT_DIR=$(CILK_SRC)/cilk_tests/scripts
 
-build:
+build: *.c
 	@echo ${DIR_ROOT}
 	@echo ${DIR_BIN}
 	cp $(SCRIPT_DIR)/build_directory.sh $(DIR_ROOT)

@@ -13,7 +13,6 @@ void bar(ivar_t *iv) {
   printf("reading i in bar: %d\n", val);
 }
 
-
 void fun() {
     ivar_t iv;
     clear_iv(&iv);

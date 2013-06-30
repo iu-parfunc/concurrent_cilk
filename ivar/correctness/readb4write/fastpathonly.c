@@ -7,6 +7,7 @@
 
 #define TEST_VAL 39
 
+
 void fun() {
     ivar_t iv;
     int i;
