@@ -31,6 +31,36 @@
 //for atomic_release
 #pragma warning(disable: 2206)
 
+#define VALIDATE_NOT_FLAG_CILK_FRAME_BLOCKED(w, sf) \
+  if (__builtin_expect(sf->flags & CILK_FRAME_BLOCKED, 0)) { \
+     __cilkrts_bug("W%u: tried to run a blocked frame. Function exiting with invalid cilk frame flags %x.\n", \
+        w->self, sf->flags); \
+  }
+
+#define VALIDATE_NOT_FLAG_WORKER_RESUMING(w) \
+  if(__builtin_expect(w->concurrent_worker_state & CILK_WORKER_RESTORING, 0)) { \
+     __cilkrts_bug("W%u: tried to block a worker while either restoring. " \
+         "Function exiting with invalid worker flags %x.\n", \
+        w->self, w->concurrent_worker_state); \
+  }
+
+void print_sf_flags(__cilkrts_stack_frame *sf) 
+{
+  printf("<<<< flags returning: ");
+  if(sf->flags & CILK_FRAME_BLOCKED_RETURNING) printf("CILK_FRAME_BLOCKED_RETURNING ");
+  if(sf->flags & CILK_FRAME_BLOCKED)           printf("CILK_FRAME_BLOCKED ");
+  if(sf->flags & CILK_FRAME_SELF_STEAL)        printf("CILK_FRAME_SELF_STEAL ");
+  if(sf->flags & CILK_FRAME_STOLEN)            printf("CILK_FRAME_STOLEN ");
+  if(sf->flags & CILK_FRAME_UNSYNCHED)         printf("CILK_FRAME_UNSYNCHED ");
+  if(sf->flags & CILK_FRAME_DETACHED)          printf("CILK_FRAME_DETACHED ");
+  if(sf->flags & CILK_FRAME_EXCEPTING)         printf("CILK_FRAME_EXCEPTING ");
+  if(sf->flags & CILK_FRAME_LAST)              printf("CILK_FRAME_LAST ");
+  if(sf->flags & CILK_FRAME_EXITING)           printf("CILK_FRAME_EXITING ");
+  if(sf->flags & CILK_FRAME_SUSPENDED)         printf("CILK_FRAME_SUSPENDED ");
+  if(sf->flags & CILK_FRAME_UNWINDING)         printf("CILK_FRAME_UNWINDING ");
+  printf("\n");
+}
+
 
 CILK_API(void) __cilkrts_msleep(unsigned long millis)
 {
@@ -106,24 +136,34 @@ freeze_frame(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf)
   CILK_ASSERT(ff);
   CILK_ASSERT(sf);
 
-  if(! w->is_blocked) {
+  if(w->concurrent_worker_state & CILK_WORKER_UNBLOCKED) {
     printf("recorded last blocked full frame as %p\n", ff);
     ff->concurrent_cilk_flags |= FULL_FRAME_BLOCKED_LAST;
     w->paused_ff  = ff;
   }
 
+  //It is not legal to block while internally restoring
+  //an unblocked context. This flag being set would mean
+  //that either a) we executed user code while restoring runtime state
+  //on this worker (bad) or we called an ivar internally in cilk runtime (very bad). 
+  VALIDATE_NOT_FLAG_WORKER_RESUMING(w);
+
   //worker is now marked as blocked
-  w->is_blocked = 1;
+  w->concurrent_worker_state |= CILK_WORKER_BLOCKED;
+
+ //setup the flags on the cilk stack frame as blocked and suspended
+ //the suspended is to maintain the contract with normal cilk. The
+ //blocked flag is for concurrent record keeping.
+  sf->flags |= CILK_FRAME_SUSPENDED | CILK_FRAME_BLOCKED;
+
+  //this full frame is now marked as a blocked frame
+  ff->concurrent_cilk_flags |= FULL_FRAME_BLOCKED;
 
   /* CALL_STACK becomes valid again */
   ff->call_stack = sf;
 
-  sf->flags |= CILK_FRAME_SUSPENDED | CILK_FRAME_BLOCKED;
-
   __cilkrts_put_stack(ff, sf);
 
-  //this full frame is now marked as a blocked frame
-  ff->concurrent_cilk_flags |= FULL_FRAME_BLOCKED;
 }
 
 //restore the context of a paused worker
@@ -143,26 +183,36 @@ thaw_frame(__cilkrts_paused_stack *pstk)
   //------------restore context------------
   w->l->team                    = pstk->team;
   w->l->frame_ff                = pstk->ff;
-  w->is_blocked                 = pstk->is_blocked;
+  w->concurrent_worker_state    = pstk->concurrent_worker_state;
   w->l->scheduler_stack         = pstk->scheduler_stack;
   w->current_stack_frame        = pstk->current_stack_frame;
   w->current_stack_frame->flags = pstk->flags;
   memcpy(&w->l->env, &pstk->env, sizeof(jmp_buf));
   //------------end restore context------------
 
-  //fixup the flags
-  //the full frame loses its blocked marking
-  //and the stack frame loses its blocked marking
-  //and gains a flag for a blocked frame that is now returning
-  //the full frame is marked as being a self stolen so we know to take
-  //the fast path in leave frame.
-
+  //fixup the flags:
+  //1. The stack frame loses its blocked marking
+  //and is marked as a blocked frame that is now returning.
+  //
+  //2. The full frame loses its blocked marking and is marked as
+  //being self stolen so we know to take the fast path in leave frame.
+  //
+  //3. The worker state gains the restoring flag. The worker should be marked
+  //as both blocked and restoring at the end of this function.
+  
+  //---------------fixup flags--------------
   CILK_ASSERT(!(sf->flags & CILK_FRAME_BLOCKED_RETURNING));
+  CILK_ASSERT(!(w->concurrent_worker_state & CILK_WORKER_UNBLOCKED));
+  CILK_ASSERT(ff->concurrent_cilk_flags & FULL_FRAME_BLOCKED);
+
   sf->flags &= ~CILK_FRAME_BLOCKED;
   sf->flags |=  CILK_FRAME_BLOCKED_RETURNING;
 
   ff->concurrent_cilk_flags &= ~FULL_FRAME_BLOCKED;
   ff->concurrent_cilk_flags |= FULL_FRAME_SELF_STEAL;
+
+  w->concurrent_worker_state |= CILK_WORKER_RESTORING;
+  //---------------end fixup flags--------------
 
   
   //TODO cache these suckers
@@ -176,14 +226,14 @@ thaw_frame(__cilkrts_paused_stack *pstk)
 __cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_stack *pstk) 
 {
   //-------------save context of the worker-------
-  pstk->w                   = w;
-  pstk->ff                  = w->l->frame_ff;
-  pstk->team                = w->l->team;
-  pstk->flags               = w->current_stack_frame->flags;
-  //pstk->paused_ff           = w->paused_ff;
-  pstk->is_blocked          = w->is_blocked;
-  pstk->scheduler_stack     = w->l->scheduler_stack;
-  pstk->current_stack_frame = w->current_stack_frame;
+  pstk->w                       = w;
+  pstk->ff                      = w->l->frame_ff;
+  pstk->team                    = w->l->team;
+  pstk->flags                   = w->current_stack_frame->flags;
+  //pstk->paused_ff             = w->paused_ff;
+  pstk->scheduler_stack         = w->l->scheduler_stack;
+  pstk->current_stack_frame     = w->current_stack_frame;
+  pstk->concurrent_worker_state = w->concurrent_worker_state;
   memcpy(&pstk->env, &w->l->env, sizeof(jmp_buf));
   //---------end save context of the worker-------
 
@@ -208,23 +258,6 @@ void paused_stack_unlock(__cilkrts_paused_stack *pstk) {
   atomic_release(&pstk->lock, 0);
 }
 
-void print_sf_flags(__cilkrts_stack_frame *sf) 
-{
-  printf("<<<< flags returning: ");
-  if(sf->flags & CILK_FRAME_BLOCKED_RETURNING) printf("CILK_FRAME_BLOCKED_RETURNING ");
-  if(sf->flags & CILK_FRAME_BLOCKED)           printf("CILK_FRAME_BLOCKED ");
-  if(sf->flags & CILK_FRAME_SELF_STEAL)        printf("CILK_FRAME_SELF_STEAL ");
-  if(sf->flags & CILK_FRAME_STOLEN)            printf("CILK_FRAME_STOLEN ");
-  if(sf->flags & CILK_FRAME_UNSYNCHED)         printf("CILK_FRAME_UNSYNCHED ");
-  if(sf->flags & CILK_FRAME_DETACHED)          printf("CILK_FRAME_DETACHED ");
-  if(sf->flags & CILK_FRAME_EXCEPTING)         printf("CILK_FRAME_EXCEPTING ");
-  if(sf->flags & CILK_FRAME_LAST)              printf("CILK_FRAME_LAST ");
-  if(sf->flags & CILK_FRAME_EXITING)           printf("CILK_FRAME_EXITING ");
-  if(sf->flags & CILK_FRAME_SUSPENDED)         printf("CILK_FRAME_SUSPENDED ");
-  if(sf->flags & CILK_FRAME_UNWINDING)         printf("CILK_FRAME_UNWINDING ");
-  printf("\n");
-}
-
 void restore_ready_computations(__cilkrts_worker *w) 
 {
   printf("restoring ready computation\n");
@@ -234,45 +267,61 @@ void restore_ready_computations(__cilkrts_worker *w)
   //queue as we are going to shred the cache, so we might as do all the disrputive
   //operations at one shot. 
   dequeue(w->ready_queue, (ELEMENT_TYPE *) &pstk);
-  while(pstk) {
 
-    if(! setjmp(w->unblocked_ctx)) {
-      thaw_frame(pstk);
-      CILK_ASSERT(0);
-    } else {
-      //segfault if the longjmp gets called twice
-      memset(&w->unblocked_ctx, 0, sizeof(jmp_buf));
-    }
-
-    pstk=NULL;
-    dequeue(w->ready_queue, (ELEMENT_TYPE *) &pstk);
+  if(! setjmp(w->unblocked_ctx)) {
+    thaw_frame(pstk);
+    CILK_ASSERT(0);
+  } else {
+    //segfault if the longjmp gets called twice
+    memset(&w->unblocked_ctx, 0, sizeof(jmp_buf));
   }
 }
 
-
 // Used in cilk-abi.c in return_frame
 //-------------------------------------
-void
+  void
 __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
 {
+  __cilkrts_paused_stack *pstk;
+  __cilkrts_paused_stack *escape;
+  uintptr_t ptr;
+
   //there should never be a blocked frame returning...ever.
-  if_f(sf->flags & CILK_FRAME_BLOCKED) {
-    __cilkrts_bug("W%u: tried to run a blocked frame. Function exiting with invalid flags %x.\n",
-        w->self, sf->flags);
-  }
+  VALIDATE_NOT_FLAG_CILK_FRAME_BLOCKED(w, sf);
 
   /** if the frame is marked as a blocked frame now returning,
    * we shouldn't do an actual return. instead, we should jump to the escape 
    * point that was saved before the cycle of popping all ready ivars of the
    * queue was begun. After the longjmp, normal cilk operation resumes.
    */
-  if(sf->flags & CILK_FRAME_BLOCKED_RETURNING) {
-    CILK_ASSERT(w->unblocked_ctx->__jmpbuf[2]);
-    longjmp(w->unblocked_ctx, 1);
-    CILK_ASSERT(0);
-  }
 
-  restore_ready_computations(w);
+  //whenever a non blocked frame returns, we check to see if it can perform a
+  //pop on some blocked work. The preference is to clear the worker's blocked
+  //queue.
+  dequeue(w->ready_queue, (ELEMENT_TYPE *) &pstk);
+
+  if (pstk != NULL) {
+    if (!sf->flags & CILK_FRAME_BLOCKED_RETURNING) {
+      /* If the flags are not set to blocked returning,
+       * this is not a cycle of popping blocked frames.
+       * We save the context here to escape the cycle
+       * when we have finally finished popping
+       * all the paused contexts. 
+       */
+
+      escape = __cilkrts_malloc(sizeof(__cilkrts_paused_stack));
+      memset(escape, 0, sizeof(__cilkrts_paused_stack));
+      ptr = (uintptr_t) __cilkrts_pause((escape->ctx));
+
+      if (!ptr) {
+        enqueue(w->ready_queue, (ELEMENT_TYPE) escape);
+        thaw_frame(pstk);
+        CILK_ASSERT(0);
+      } else {
+        printf("escaping context!\n");
+      }
+    }
+  }
 
   return;
 }

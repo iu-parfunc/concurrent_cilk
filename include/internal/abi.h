@@ -223,13 +223,13 @@ struct __cilkrts_worker {
 #endif  /* __CILKRTS_ABI_VERSION >= 1 */
 
 #ifdef CILK_IVARS
-    int is_blocked;
+    struct queue_t *ready_queue  __attribute__((aligned(64)));
 
-    struct full_frame *paused_ff;
+    jmp_buf unblocked_ctx        __attribute__((aligned(64)));
 
-    struct queue_t *ready_queue;
+    struct full_frame *paused_ff __attribute__((aligned(64)));
 
-    jmp_buf unblocked_ctx;
+    unsigned int concurrent_worker_state; 
 
 #endif
 };
@@ -377,15 +377,21 @@ struct __cilkrts_stack_frame
 #define CILK_FRAME_LAST	     0x80
 
 #ifdef CILK_IVARS
-#define CILK_FRAME_SELF_STEAL 0x200
-#define CILK_FRAME_BLOCKED 0x400
+#define CILK_FRAME_SELF_STEAL        0x200
+#define CILK_FRAME_BLOCKED           0x400
 #define CILK_FRAME_BLOCKED_RETURNING 0x800
-#define CILK_FRAME_SELF_STEAL_MASK 0xE00
+#define CILK_FRAME_SELF_STEAL_MASK   0xE00
 
 
+#define FULL_FRAME_UNBLOCKED    0x00
 #define FULL_FRAME_BLOCKED      0x01
 #define FULL_FRAME_SELF_STEAL   0x02
 #define FULL_FRAME_BLOCKED_LAST 0x04
+
+#define CILK_WORKER_UNBLOCKED   0x01 //set when no outstanding blocks exist
+#define CILK_WORKER_BLOCKED     0x02 //set when a blocked computation is outstanding
+#define CILK_WORKER_RESTORING   0x04 //set when unblocking blocked computations
+#define CILK_WORKER_RESUMING    0x08 //set when transitioning from the restoring to unblocked state
 #endif
 
 /**

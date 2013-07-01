@@ -1263,7 +1263,7 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   // We don't have a scheduling stack to switch to, so call the continuation
   // function directly.
 #ifdef CILK_IVARS
-  if (1 == w->g->P && !w->is_blocked) {
+  if (1 == w->g->P && w->concurrent_worker_state == CILK_WORKER_UNBLOCKED) {
 #else
     if (1 == w->g->P) {
 #endif
@@ -1486,9 +1486,11 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     // If there is no work on the queue, try to steal some.
     if (NULL == ff) {
 
+      /*
 #ifdef CILK_IVARS
       restore_ready_computations(w);
 #endif
+*/
 
       START_INTERVAL(w, INTERVAL_STEALING) {
         if (w->l->type != WORKER_USER && w->l->team != NULL) {
@@ -2280,8 +2282,10 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     reset_THE_exception(w);
 
 #ifdef CILK_IVARS
-    w->is_blocked  = 0;
-    w->ready_queue = (queue_t *) make_stack_queue();
+    w->concurrent_worker_state  = CILK_WORKER_UNBLOCKED;
+    w->ready_queue              = (queue_t *) make_stack_queue();
+    w->paused_ff                = NULL;
+    memset(&w->unblocked_ctx, 0, sizeof(jmp_buf));
 #endif
 
     return w;

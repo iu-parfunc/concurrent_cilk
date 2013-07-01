@@ -328,7 +328,32 @@ aren't escaping the context correctly. Perhaps I need to review the order for re
 in the scheduler. I will work in this more later, but now it is time for bed. Diagnosis is
 complete anyways. Now to fix!
 
+devlog june 30 2013: Getting back into things after a prolonged break due to a new job. 
+  Going to do another re-evaluation of the algorithm and plan. Ryan made some good
+  suggestions in our meeting that I would like to implement. 
 
+  Added a concurrent_worker_state field to the __cilkrts_worker_struct. Deleted the
+  is_blocked flag. There is now more fine grained tracking of the worker state as it
+  moves through blocked computations. The states that are valid for
+  concurrent_worker_state are as follows:
 
+      CILK_WORKER_UNBLOCKED   0x01 //set when no outstanding blocks exist
+      CILK_WORKER_BLOCKED     0x02 //set when a blocked computation is outstanding
+      CILK_WORKER_RESTORING   0x04 //set when unblocking blocked computations
+      CILK_WORKER_RESUMING    0x08 //set when transitioning from the restoring to unblocked state
+
+  Here is how a worker's state changes:
+
+            ==================================================================
+           ||                                                                ||
+           ||              _____                                             ||
+           ||             ||   ||                                            ||
+       ____\/_____       _||___\/___       ___________       ___________     ||
+      |           |     |           |     |           |     |           |    ||
+  ===>| UNBLOCKED |====>|  BLOCKED  |====>| RESTORING |====>|  RESUMING |====||
+      |___________|     |___________|     |___________|     |___________|
+                             /\                 ||
+                             ||                 ||
+                              ===================
 
   

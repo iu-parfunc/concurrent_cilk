@@ -91,7 +91,7 @@ typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
 
   full_frame *paused_ff;
 
-  short is_blocked;
+  unsigned int concurrent_worker_state;
 
   void *scheduler_stack;
 
