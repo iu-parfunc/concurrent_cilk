@@ -340,18 +340,17 @@ devlog june 30 2013: Getting back into things after a prolonged break due to a n
       CILK_WORKER_UNBLOCKED   0x01 //set when no outstanding blocks exist
       CILK_WORKER_BLOCKED     0x02 //set when a blocked computation is outstanding
       CILK_WORKER_RESTORING   0x04 //set when unblocking blocked computations
-      CILK_WORKER_RESUMING    0x08 //set when transitioning from the restoring to unblocked state
 
   Here is how a worker's state changes:
 
-            ==================================================================
-           ||                                                                ||
-           ||              _____                                             ||
-           ||             ||   ||                                            ||
-       ____\/_____       _||___\/___       ___________       ___________     ||
-      |           |     |           |     |           |     |           |    ||
-  ===>| UNBLOCKED |====>|  BLOCKED  |====>| RESTORING |====>|  RESUMING |====||
-      |___________|     |___________|     |___________|     |___________|
+            =================================================
+           ||                                               ||
+           ||              _____                            ||
+           ||             ||   ||                           ||
+       ____\/_____       _||___\/___       ___________      ||
+      |           |     |           |     |           |     ||
+  ===>| UNBLOCKED |====>|  BLOCKED  |====>| RESTORING |====>||
+      |___________|     |___________|     |___________| 
                              /\                 ||
                              ||                 ||
                               ===================

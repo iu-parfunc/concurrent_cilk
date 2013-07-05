@@ -391,7 +391,6 @@ struct __cilkrts_stack_frame
 #define CILK_WORKER_UNBLOCKED   0x01 //set when no outstanding blocks exist
 #define CILK_WORKER_BLOCKED     0x02 //set when a blocked computation is outstanding
 #define CILK_WORKER_RESTORING   0x04 //set when unblocking blocked computations
-#define CILK_WORKER_RESUMING    0x08 //set when transitioning from the restoring to unblocked state
 #endif
 
 /**

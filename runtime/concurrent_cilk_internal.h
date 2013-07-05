@@ -89,9 +89,9 @@ typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
 
   int flags;
 
-  full_frame *paused_ff;
-
   unsigned int concurrent_worker_state;
+
+  full_frame *paused_ff;
 
   void *scheduler_stack;
 
@@ -121,7 +121,7 @@ void paused_stack_unlock(__cilkrts_paused_stack *pstk);
 
 /*   Cilk IVars:  Types & API   */
 void __cilkrts_concurrent_yield(__cilkrts_worker *w);
-void thaw_frame(__cilkrts_paused_stack *pstk);
+void thaw_frame(__cilkrts_paused_stack *pstk, uint32_t wkr_flags);
 
 /** callback executed when a self steal returns. --currently a no op */
 void do_return_from_self (__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
@@ -132,6 +132,8 @@ void restore_ready_computations(__cilkrts_worker *w);
 /** the hook for concurrent cilk into leave frame in cilk-abi.c */
 void __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *sf);
 
+/** calls the __cilkrts_scheduler. This creates a new scheduler stack currently. */
+void __setup_replacement_stack_and_run(__cilkrts_worker *w);
 
 __CILKRTS_END_EXTERN_C
 #endif

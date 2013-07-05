@@ -22,6 +22,7 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)
   }
 
   pstk = __cilkrts_malloc(sizeof(__cilkrts_paused_stack));
+  //probably don't need to set the memory to null
   memset(pstk, 0, sizeof(__cilkrts_paused_stack));
 
   //slow path -- operation must block until a value is available
@@ -57,7 +58,6 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)
 
       }
 
-
       if(IVAR_READY(*ivar)) {
         // Well nevermind then... now it is full.
         return UNTAG(*ivar);
@@ -70,6 +70,7 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)
 
 
     __cilkrts_finalize_pause(w, pstk); 
+    __setup_replacement_stack_and_run(w);
     CILK_ASSERT(0); //no return. heads to scheduler.
   }
 
