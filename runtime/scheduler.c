@@ -1479,18 +1479,13 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   static void schedule_work(__cilkrts_worker *w)
   {
     full_frame *ff;
+    full_frame *placeholder_ff;
 
 
     ff = pop_next_frame(w);
 
     // If there is no work on the queue, try to steal some.
     if (NULL == ff) {
-
-      /*
-#ifdef CILK_IVARS
-      restore_ready_computations(w);
-#endif
-*/
 
       START_INTERVAL(w, INTERVAL_STEALING) {
         if (w->l->type != WORKER_USER && w->l->team != NULL) {
@@ -1503,9 +1498,17 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
         }
 
 #ifdef CILK_IVARS
-        if(can_steal_from(w)) {
+        if (can_steal_from(w)) {
           self_steal(w);
         } else {
+          if (w->concurrent_worker_state & CILK_WORKER_BLOCKED) {
+            if (!w->l->frame_ff) {
+              placeholder_ff = __cilkrts_make_full_frame(w, w->current_stack_frame);
+              w->l->frame_ff = placeholder_ff;
+            }
+            restore_ready_computations(w);
+            if (placeholder_ff)  __cilkrts_destroy_full_frame(w, ff);
+          }
           random_steal(w);
         }
 #else
@@ -1892,7 +1895,7 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     CILK_ASSERT(0);
   }
 
-   void do_return_from_spawn(__cilkrts_worker *w,
+  void do_return_from_spawn(__cilkrts_worker *w,
       full_frame *ff,
       __cilkrts_stack_frame *sf)
   {

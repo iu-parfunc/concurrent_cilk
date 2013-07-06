@@ -181,7 +181,7 @@ thaw_frame(__cilkrts_paused_stack *pstk, uint32_t wkr_flags)
   //------------restore context------------
   w->l->team                    = pstk->team;
   w->l->frame_ff                = pstk->ff;
-  w->l->scheduler_stack         = pstk->scheduler_stack;
+  //w->l->scheduler_stack         = pstk->scheduler_stack;
   w->current_stack_frame        = pstk->current_stack_frame;
   w->current_stack_frame->flags = pstk->flags;
   memcpy(&w->l->env, &pstk->env, sizeof(jmp_buf));
@@ -232,7 +232,7 @@ __cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_stack *pstk)
   pstk->team                    = w->l->team;
   pstk->flags                   = w->current_stack_frame->flags;
   //pstk->paused_ff             = w->paused_ff;
-  pstk->scheduler_stack         = w->l->scheduler_stack;
+  //pstk->scheduler_stack         = w->l->scheduler_stack;
   //pstk->concurrent_worker_state = w->concurrent_worker_state;
   pstk->current_stack_frame     = w->current_stack_frame;
   memcpy(&pstk->env, &w->l->env, sizeof(jmp_buf));
