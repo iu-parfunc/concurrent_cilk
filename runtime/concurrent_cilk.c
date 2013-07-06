@@ -198,12 +198,14 @@ thaw_frame(__cilkrts_paused_stack *pstk, uint32_t wkr_flags)
   //as both blocked and restoring at the end of this function.
   
   //---------------fixup flags--------------
+  //NOTE: if you comment this out, things will work better (july 6th. tofix)
   CILK_ASSERT(!(sf->flags & CILK_FRAME_BLOCKED_RETURNING));
 //  CILK_ASSERT(ff->concurrent_cilk_flags & FULL_FRAME_BLOCKED);
   //if the worker state is entering a resume cycle for the first time,
   //it will be set to BLOCKED if it is in the middle of a resume cycle
   //it will be set to RESUMING. Any other flag on the worker is invalid.
- // CILK_ASSERT(w->concurrent_worker_state & CILK_WORKER_BLOCKED);
+  CILK_ASSERT((w->concurrent_worker_state & CILK_WORKER_BLOCKED) ||
+      (w->concurrent_worker_state & CILK_WORKER_RESTORING));
 
   sf->flags &= ~CILK_FRAME_BLOCKED;
   sf->flags |=  CILK_FRAME_BLOCKED_RETURNING;
@@ -266,9 +268,6 @@ void restore_ready_computations(__cilkrts_worker *w)
   dequeue(w->ready_queue, (ELEMENT_TYPE *) &pstk);
 
   if (pstk != NULL) {
-    printf("state: 0x%x\n", w->concurrent_worker_state);
-    printf("is blocked: 0x%x \n", w->concurrent_worker_state & CILK_WORKER_BLOCKED);
-    printf("is restoring: 0x%x \n", w->concurrent_worker_state & CILK_WORKER_RESTORING);
     if ((w->concurrent_worker_state  & CILK_WORKER_BLOCKED) &&
         !(w->concurrent_worker_state & CILK_WORKER_RESTORING)) {
       printf("creating NEW placeholder stack\n");
@@ -279,33 +278,29 @@ void restore_ready_computations(__cilkrts_worker *w)
        */
 
       escape = __cilkrts_malloc(sizeof(__cilkrts_paused_stack));
-      //probably don't need to set the memory to null
-      memset(escape, 0, sizeof(__cilkrts_paused_stack));
-      ptr = (uintptr_t) __cilkrts_pause((escape->ctx));
-
+      ptr    = (uintptr_t) __cilkrts_pause((escape->ctx));
 
       if (!ptr) {
         printf("enqueueing escape context: %p\n", escape);
         __cilkrts_finalize_pause(w, escape); 
         enqueue(w->ready_queue, (ELEMENT_TYPE) escape);
-        thaw_frame(pstk, w->concurrent_worker_state | CILK_WORKER_RESTORING);
       } else {
         printf("escaping context!\n");
         //The worker has its paused dequeue cleared.
         //It can now resume normal work.
-        //restore the unblocked context that
-        //was previously paused
-        thaw_frame(escape, CILK_WORKER_UNBLOCKED);
+        w->concurrent_worker_state &= ~CILK_WORKER_RESTORING;
+        return;
       }
 
     } else {
       /* The only valid flag other than BLOCKED is RESTORING
        * if there is a paused stack to restore. 
        */
+      printf("state: 0x%x\n", w->concurrent_worker_state);
       CILK_ASSERT(w->concurrent_worker_state & CILK_WORKER_RESTORING);
-      thaw_frame(pstk, w->concurrent_worker_state | CILK_WORKER_RESTORING);
     }
 
+    thaw_frame(pstk, w->concurrent_worker_state | CILK_WORKER_RESTORING);
     CILK_ASSERT(0);
   }
 }
