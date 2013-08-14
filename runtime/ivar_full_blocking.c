@@ -1,33 +1,38 @@
 #include <stdlib.h>
 #include "concurrent_cilk_internal.h"
 #include <cilk/concurrent_queue.h>
-#include "cilk_malloc.h"
 #include <cilk/cilk_api.h>
+#include <cilk/concurrent_cilk.h>
 #include "scheduler.h"
 #include "bug.h"
-
-
 
 inline
 CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)
 {
+  //fast path -- already got a value
+  if(IVAR_READY(*ivar)) return UNTAG(*ivar);
+
+  //slow path -- ivar must wait for a value
+  return slow_path(ivar);
+}
+
+ivar_payload_t slow_path(__cilkrts_ivar *ivar)
+{
   __cilkrts_worker *w;
-  __cilkrts_paused_stack *pstk;
+  __cilkrts_paused_stack pstk = {0};
   __cilkrts_paused_stack *peek;
   __cilkrts_paused_stack *pstk_head;
   uintptr_t ptr;
-  //fast path -- already got a value
-  if(IVAR_READY(*ivar)) {
-    return UNTAG(*ivar);
-  }
-
-  pstk = __cilkrts_malloc(sizeof(__cilkrts_paused_stack));
-  //probably don't need to set the memory to null
-  memset(pstk, 0, sizeof(__cilkrts_paused_stack));
 
   //slow path -- operation must block until a value is available
   w = __cilkrts_get_tls_worker_fast();
-  ptr = (uintptr_t) __cilkrts_pause((pstk->ctx));
+
+  //before trying to pause a computation, clear the dequeue
+  //of the worker to see if blocked work will fill this ivar.
+  restore_ready_computations(w);
+  if(IVAR_READY(*ivar)) { return UNTAG(*ivar); }
+
+  ptr = (uintptr_t) __cilkrts_pause(((&pstk)->ctx));
 
   if(! ptr) {
 
@@ -35,7 +40,7 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)
     do {
 
       if(IVAR_PAUSED(*ivar)) {
-        printf("ivar read in paused state\n");
+       IVAR_DBG_PRINT(1,"ivar read in paused state\n");
 
         //pull out the reference to the root paused stack
         //all reads on a paused ivar compete for the lock on this
@@ -46,10 +51,10 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)
         while (! paused_stack_trylock(pstk_head)) spin_pause();
 
         //append the new paused stack to the waitlist 
-        pstk_head->tail->next = pstk; 
+        pstk_head->tail->next = &pstk; 
 
         //the new stack is the new tail
-        pstk_head->tail = pstk;
+        pstk_head->tail = &pstk;
 
         paused_stack_unlock(pstk_head);
 
@@ -63,20 +68,19 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)
         return UNTAG(*ivar);
       }
 
-      pstk->head = pstk;;
-      pstk->tail = pstk;
+      pstk.head = &pstk;;
+      pstk.tail = &pstk;
 
-    } while(! cas(ivar, 0, (((ivar_payload_t) pstk) << IVAR_SHIFT) | CILK_IVAR_PAUSED));
+    } while(! cas(ivar, 0, (((ivar_payload_t) &pstk) << IVAR_SHIFT) | CILK_IVAR_PAUSED));
 
-
-    __cilkrts_finalize_pause(w, pstk); 
+    __cilkrts_finalize_pause(w, &pstk); 
     __setup_replacement_stack_and_run(w);
     CILK_ASSERT(0); //no return. heads to scheduler.
   }
 
   // <-- We only jump back to here when the value is ready.
 
-  printf("ivar returning\n");
+ IVAR_DBG_PRINT(1,"ivar returning\n");
   return UNTAG(*ivar);
 }
 
@@ -91,7 +95,7 @@ __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
 
   if(IVAR_PAUSED(old_val)) {
     __cilkrts_paused_stack *pstk = (__cilkrts_paused_stack *) (old_val >> IVAR_SHIFT);
-    printf("enqueueing ctx %p\n", pstk->w->ready_queue);
+   IVAR_DBG_PRINT(1,"enqueueing ctx %p\n", pstk->w->ready_queue);
 
     //this is thread safe because any other reads of the ivar take the fast path.
     //Therefore the waitlist of paused stacks can only be referenced here.

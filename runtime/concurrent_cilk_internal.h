@@ -135,6 +135,15 @@ void __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_fra
 /** calls the __cilkrts_scheduler. This creates a new scheduler stack currently. */
 void __setup_replacement_stack_and_run(__cilkrts_worker *w);
 
+/** the slow path for an ivar read. the fast path is inlined in ivar_read */
+ivar_payload_t slow_path(__cilkrts_ivar *ivar);
+
+/** special scheduler for ivars */
+void __concurrent_cilk_sched(__cilkrts_worker *w);
+
+/** steal from the current worker's queue */
+void self_steal(__cilkrts_worker *w);
+
 __CILKRTS_END_EXTERN_C
 #endif
 

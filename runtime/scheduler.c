@@ -395,7 +395,7 @@ static full_frame *pop_next_frame(__cilkrts_worker *w)
 {
     full_frame *ff;
     ff = w->l->next_frame_ff;
-//    printf("%d popping full frame. new frame %p\n",w->self, ff);
+//   IVAR_DBG_PRINT(1,"%d popping full frame. new frame %p\n",w->self, ff);
     // Remove the frame from the next_frame field.
     //
     // If this is a user worker, then there is a chance that another worker
@@ -1419,7 +1419,7 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
        may be immediately executed by this worker after provably_good_steal.
 
        The active frame and call_stack may have changed since _resume.  */
-    printf("hey! my continuation got called. in longejumped after resume\n");
+   IVAR_DBG_PRINT(1,"hey! my continuation got called. in longejumped after resume\n");
     run_scheduling_stack_fcn(w);
 
     /* The worker borrowed the full frame's reducer map.
@@ -1441,35 +1441,42 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     __cilkrts_stack *sd;
     char *sp;
 
-    if_f(!can_steal_from(w)) return;
+    if (!can_steal_from(w)) return;
 
     CILK_ASSERT(w->l->frame_ff == 0);
 
-    sd = __cilkrts_get_stack(w);
-    if_f(NULL == sd) return;
+    if (__cilkrts_mutex_trylock(w, &w->l->steal_lock)) {
 
-    sf = __cilkrts_pop_tail(w);
-    if_f(NULL == sf) return;
+      sd = __cilkrts_get_stack(w);
+      if_f(NULL == sd) goto unlock;
 
-    sf->flags |= CILK_FRAME_SF_PEDIGREE_UNSYNCHED;
-    child_ff = __cilkrts_make_full_frame(w, sf);
-    child_ff->parent = parent_ff;
-    child_ff->stack_self = sd;
-    child_ff->sync_master = w;
-    child_ff->is_call_child = 0;
+      sf = __cilkrts_pop_tail(w);
+      if_f(NULL == sf) goto unlock;
 
-    parent_ff->call_stack->flags |= CILK_FRAME_STOLEN;
-    push_child(parent_ff, child_ff);
-    sp = __cilkrts_stack_to_pointer(sd, sf);
+      sf->flags |= CILK_FRAME_SF_PEDIGREE_UNSYNCHED;
+      child_ff = __cilkrts_make_full_frame(w, sf);
+      child_ff->parent = parent_ff;
+      child_ff->stack_self = sd;
+      child_ff->sync_master = w;
+      child_ff->is_call_child = 0;
 
-    //looks like the last two arguments are never used? wtf...
-    __cilkrts_bind_stack(child_ff, sp, NULL, NULL);
+      parent_ff->call_stack->flags |= CILK_FRAME_STOLEN;
+      push_child(parent_ff, child_ff);
+      sp = __cilkrts_stack_to_pointer(sd, sf);
 
-    sf->flags |= CILK_FRAME_SELF_STEAL;
-    sf->call_parent = parent_ff->call_stack;
-    make_unrunnable(w, child_ff, sf, 1, "self_steal");
-    sf->flags &= ~CILK_FRAME_STOLEN;
-    __cilkrts_push_next_frame(w,child_ff);
+      //looks like the last two arguments are never used? wtf...
+      __cilkrts_bind_stack(child_ff, sp, NULL, NULL);
+
+      sf->flags |= CILK_FRAME_SELF_STEAL;
+      sf->call_parent = parent_ff->call_stack;
+      make_unrunnable(w, child_ff, sf, 1, "self_steal");
+      sf->flags &= ~CILK_FRAME_STOLEN;
+      __cilkrts_push_next_frame(w,child_ff);
+unlock:
+      __cilkrts_mutex_unlock(w, &w->l->steal_lock);
+      return;
+    } 
+    IVAR_DBG_PRINT(1, "[self steal] could not get log on worker %d/%p\n", w->self, w);
   }
 #endif
 
@@ -1479,8 +1486,6 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   static void schedule_work(__cilkrts_worker *w)
   {
     full_frame *ff;
-    full_frame *placeholder_ff;
-
 
     ff = pop_next_frame(w);
 
@@ -1501,14 +1506,6 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
         if (can_steal_from(w)) {
           self_steal(w);
         } else {
-          if (w->concurrent_worker_state & CILK_WORKER_BLOCKED) {
-            if (!w->l->frame_ff) {
-              placeholder_ff = __cilkrts_make_full_frame(w, w->current_stack_frame);
-              w->l->frame_ff = placeholder_ff;
-            }
-            restore_ready_computations(w);
-            if (placeholder_ff)  __cilkrts_destroy_full_frame(w, ff);
-          }
           random_steal(w);
         }
 #else
@@ -2118,7 +2115,7 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     BEGIN_WITH_WORKER_LOCK_OPTIONAL(w) {
       full_frame *ff = w->l->frame_ff;
       CILK_ASSERT(ff);
-      printf("ff->join_counter %d\n", ff->join_counter);
+      IVAR_DBG_PRINT(1,"ff->join_counter %d\n", ff->join_counter);
       CILK_ASSERT(ff->join_counter == 1);
       w->l->frame_ff = 0;
 

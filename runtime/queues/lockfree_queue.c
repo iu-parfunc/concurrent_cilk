@@ -88,7 +88,7 @@ int enqueue(queue_t* q, ELEMENT_TYPE value)
 // Returns NULL if the queue appeared empty:
 int dequeue(queue_t* q, ELEMENT_TYPE * value)
 {
-  volatile __cilkrts_stack_pair *head; //this needs to be volatile, or it may have incorrect state
+  volatile __cilkrts_stack_pair *head; 
   __cilkrts_stack_pair *tail, *next;
 #ifdef QUEUE_DEBUG
   IVAR_DBG_PRINT_(4, " [concurrent-cilk,lockfree-Q] Begin dequeue from queue %p\n", q);
@@ -117,14 +117,23 @@ int dequeue(queue_t* q, ELEMENT_TYPE * value)
   return SUCCESS;
 }
 
-// This is shared across the three implementations below:
-void delete_stack_queue(queue_t* q) 
+int q_is_empty(queue_t *q) 
 {
-  // Remove any entries within the queue:
-  ELEMENT_TYPE hukarz;
-  while(dequeue(q, &hukarz)); 
-  // Finally, destroy the struct itself:
-  __cilkrts_free(q);
+  volatile queue_t *next, *head;
+  head = q->head;
+  next = head->next;
+  if (head->next == NULL) 
+    return QUEUE_EMPTY;
+  return SUCCESS;
 }
+
+  void delete_stack_queue(queue_t* q) 
+  {
+    // Remove any entries within the queue:
+    ELEMENT_TYPE hukarz;
+    while(dequeue(q, &hukarz)); 
+    // Finally, destroy the struct itself:
+    __cilkrts_free(q);
+  }
 
 

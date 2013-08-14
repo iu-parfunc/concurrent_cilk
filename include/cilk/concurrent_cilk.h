@@ -58,24 +58,18 @@ typedef __cilkrts_ivar ivar_t;
 #define clear_iv __cilkrts_ivar_clear
 
 
-#ifdef IVAR_DBG
-
 /**
  * print out the thread and a message when ivar debug is turned on
  */
-#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
+#ifndef IVAR_DBG
+#define IVAR_DBG 5
+#endif
+
+#define IVAR_DBG_PRINT(lvl, ...) if(IVAR_DBG >= lvl) {    \
   pthread_t id = pthread_self(); char buf[512];             \
   sprintf(buf, __VA_ARGS__);                                \
   volatile struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
   fprintf(stderr, "[tid/W %3d %2d/%p] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, tw, buf); }
-
-#else
-
-/**
- * do nothing at all if ivar debug isn't turned on. 
- */
-#define IVAR_DBG_PRINT_(lvl, ...)   
-#endif
 
 
 __CILKRTS_END_EXTERN_C

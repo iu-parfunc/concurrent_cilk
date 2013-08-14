@@ -357,7 +357,7 @@ NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *ff,
          * here. */
         SP(sf) = ff->sync_sp;
 
-    printf("about to resume with worker %d ff %p and sf %p\n",w->self, ff, sf);
+    IVAR_DBG_PRINT(1, "about to resume with worker %d ff %p and sf %p\n",w->self, ff, sf);
     sp = SP(sf);
 
     /* Debugging: make sure stack is accessible. */

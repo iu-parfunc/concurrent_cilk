@@ -8,8 +8,8 @@
 __CILKRTS_BEGIN_EXTERN_C
 
 #define ELEMENT_TYPE uint64_t
-#define SUCCESS 0
-#define QUEUE_EMPTY -1
+#define SUCCESS 1
+#define QUEUE_EMPTY 0
 
 // Consists of a pair type and a list/queue type.
 struct __cilkrts_stack_pair {
@@ -27,8 +27,9 @@ typedef struct queue_t queue_t;
 
 queue_t* make_stack_queue();
 void delete_stack_queue(queue_t* q);
-int enqueue(queue_t* q, ELEMENT_TYPE value);
-int dequeue(queue_t* q, ELEMENT_TYPE *value);
+int enqueue(queue_t *q, ELEMENT_TYPE value);
+int dequeue(queue_t *q, ELEMENT_TYPE *value);
+int q_is_empty(queue_t *q);
 
 __CILKRTS_END_EXTERN_C
 #endif

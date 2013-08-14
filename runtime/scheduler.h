@@ -338,6 +338,13 @@ void __cilkrts_leave_cilk(global_state_t *g);
 COMMON_PORTABLE
 void __cilkrts_dump_stats_to_stderr(global_state_t *g);
 
+#ifdef CILK_IVARS
+full_frame *pop_next_frame(__cilkrts_worker *w);
+void push_child(full_frame *parent_ff, full_frame *child_ff);
+void make_runnable(__cilkrts_worker *w, full_frame *ff);
+void make_unrunnable(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf, int state_valid, const char *why);
+void do_work(__cilkrts_worker *w, full_frame *ff);
+#endif
 
 __CILKRTS_END_EXTERN_C
 

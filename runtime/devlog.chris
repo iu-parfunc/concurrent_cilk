@@ -355,4 +355,26 @@ devlog june 30 2013: Getting back into things after a prolonged break due to a n
                              ||                 ||
                               ===================
 
+devlog July 13: I have actually been working on cilk between the last entry and now but
+  haven't written anything here. I haven't had anything to write as there is a quite
+  complex problem. What the problem boils down to is that because a worker invokes the
+  scheduler when there is still work to do. The scheduler is meant to either steal work,
+  or spin, but never return. When an ivar blocks in a serial computation, the worker
+  invokes the scheduler and tries to steal. if the only work left to be done is restore
+  a previously written ivar and return from this ivar, then the worker has no way to exit
+  the scheduler. What actually needs to happen is that the scheduler returns control to
+  the ivar that gets itself in this situation. The problem with that is that without
+  heroic analysis, there is no way to actually know this ivar is in this situation. 
+
+  I am considering if invoking the scheduler on the scheduler stack is actually the right
+  thing. There must be a better option than this. The scheduler is really there for a
+  different reason than what concurrent cilk uses it for on an ivar pause. We just
+  hijacked the function because it was convenient. I will try to write a custom function
+  that does exactly what a paused worker needs: get more work and return if the ivar is
+  ready.
+ 
+devlog Aug 13: Working on multithreaded cilk with ivars. 
+  I am playing around with putting back the old scheduler and directly calling
+  self_steal() from the ivar call in a loop. 
+  
   
