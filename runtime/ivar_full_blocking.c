@@ -48,18 +48,19 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
         pstk_head = (__cilkrts_paused_stack  *) (*ivar >> IVAR_SHIFT);
 
         //set the tail element to be the new paused stack
-        while (! paused_stack_trylock(pstk_head)) spin_pause();
+        if(paused_stack_trylock(pstk_head)) {
 
-        //append the new paused stack to the waitlist 
-        pstk_head->tail->next = &pstk; 
+          //append the new paused stack to the waitlist 
+          pstk_head->tail->next = &pstk; 
 
-        //the new stack is the new tail
-        pstk_head->tail = &pstk;
+          //the new stack is the new tail
+          pstk_head->tail = &pstk;
 
-        paused_stack_unlock(pstk_head);
+          paused_stack_unlock(pstk_head);
 
-        //go directly to finalize pause
-        break;
+          //go directly to finalize pause
+          break; //<<< at this point we commit to finalizing the pause.
+        }
 
       }
 
@@ -68,8 +69,14 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
         return UNTAG(*ivar);
       }
 
-      pstk.head = &pstk;;
-      pstk.tail = &pstk;
+      //do we need this lock?
+      //maybe it can be refactored into 1 lock with the above
+      if(paused_stack_trylock(pstk_head)) {
+        //queue must be empty, so our paused stack becomes the head and tail.
+        pstk.head = &pstk;
+        pstk.tail = &pstk;
+        paused_stack_unlock(pstk_head);
+      }
 
     } while(! cas(ivar, 0, (((ivar_payload_t) &pstk) << IVAR_SHIFT) | CILK_IVAR_PAUSED));
 
@@ -80,7 +87,7 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
 
   // <-- We only jump back to here when the value is ready.
 
- IVAR_DBG_PRINT(1,"ivar returning\n");
+  IVAR_DBG_PRINT(1,"ivar returning\n");
   return UNTAG(*ivar);
 }
 
@@ -95,7 +102,7 @@ __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
 
   if(IVAR_PAUSED(old_val)) {
     __cilkrts_paused_stack *pstk = (__cilkrts_paused_stack *) (old_val >> IVAR_SHIFT);
-   IVAR_DBG_PRINT(1,"enqueueing ctx %p\n", pstk->w->ready_queue);
+    IVAR_DBG_PRINT(1,"enqueueing ctx %p\n", pstk->w->ready_queue);
 
     //this is thread safe because any other reads of the ivar take the fast path.
     //Therefore the waitlist of paused stacks can only be referenced here.

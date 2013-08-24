@@ -46,6 +46,8 @@
 #include "cilk_malloc.h"
 #include "reducer_impl.h"
 #include "metacall_impl.h"
+#include "scheduler.h"
+#include "meta_schedulers.h"
 
 
 // contains notification macros for VTune.
@@ -133,7 +135,7 @@ static void internal_run_scheduler_with_exceptions(__cilkrts_worker *w)
     char var;
     __cilkrts_cilkscreen_establish_c_stack(&var - 1000000, &var);
 
-    __cilkrts_run_scheduler_with_exceptions(w);
+    __cilkrts_run_scheduler_with_exceptions(&random_work_steal_sched, w, NULL);
 }
 
 /*
@@ -1028,7 +1030,7 @@ void worker_user_scheduler()
 
     // Enter the scheduling loop on the user worker.  This function will
     // never return
-    __cilkrts_run_scheduler_with_exceptions(w);
+    __cilkrts_run_scheduler_with_exceptions(&random_work_steal_sched, w, NULL);
 
     // A WORKER_USER, at some point, will resume on the original stack and
     // leave Cilk.  Under no circumstances do we ever exit off of the bottom

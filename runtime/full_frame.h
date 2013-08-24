@@ -485,6 +485,16 @@ void print_flags(full_frame *ff);
 #endif
 /** @} */
 
+void double_link(full_frame *left_ff, full_frame *right_ff);
+void push_child(full_frame *parent_ff, full_frame *child_ff);
+void unlink_child(full_frame *parent_ff, full_frame *child_ff);
+
+/* Link PARENT and CHILD in the spawn tree */
+full_frame *make_child(__cilkrts_worker *w, full_frame *parent_ff, 
+    __cilkrts_stack_frame *child_sf, __cilkrts_stack *sd);
+
+void incjoin(full_frame *ff);
+int decjoin(full_frame *ff);
 __CILKRTS_END_EXTERN_C
 
 #endif // ! defined(INCLUDED_FULL_FRAME_DOT_H)

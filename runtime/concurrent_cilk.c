@@ -22,6 +22,8 @@
 #include "except.h"
 #include "cilk_malloc.h"
 #include "pedigrees.h"
+#include "cilk_util.h"
+
 #include <cilk/concurrent_queue.h>
 #include <setjmp.h>
 #include <cilk/concurrent_cilk.h>
@@ -81,7 +83,7 @@ static void worker_replacement_scheduler()
   // never return
   CILK_ASSERT(w->current_stack_frame);
 
-  __cilkrts_run_scheduler_with_exceptions((__cilkrts_worker *) w);
+  __cilkrts_run_scheduler_with_exceptions(&random_work_steal_sched, (__cilkrts_worker *) w, NULL);
 
   CILK_ASSERT(0);
 }

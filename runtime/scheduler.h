@@ -43,12 +43,54 @@
 #include "full_frame.h"
 #include "reducer_impl.h"
 #include "global_state.h"
+#include "meta_schedulers.h"
 
 __CILKRTS_BEGIN_EXTERN_C
+
+// TBD(jsukha): These are worker lock acquistions on
+// a worker whose deque is empty.  My conjecture is that we
+// do not need to hold the worker lock at these points.
+// I have left them in for now, however.
+//
+// #define REMOVE_POSSIBLY_OPTIONAL_LOCKS
+#ifdef REMOVE_POSSIBLY_OPTIONAL_LOCKS
+    #define BEGIN_WITH_WORKER_LOCK_OPTIONAL(w) do
+    #define END_WITH_WORKER_LOCK_OPTIONAL(w)   while (0)
+#else
+    #define BEGIN_WITH_WORKER_LOCK_OPTIONAL(w) __cilkrts_worker_lock(w); do
+    #define END_WITH_WORKER_LOCK_OPTIONAL(w)   while (__cilkrts_worker_unlock(w), 0)
+#endif
+
+
+#define BEGIN_WITH_FRAME_LOCK(w, ff)                                     \
+    do { full_frame *_locked_ff = ff; __cilkrts_frame_lock(w, _locked_ff); do
+
+#define END_WITH_FRAME_LOCK(w, ff)                       \
+    while (__cilkrts_frame_unlock(w, _locked_ff), 0); } while (0)
+
+//CSZ: not needed. legacy 
+//#ifndef _WIN32
+    // TBD: definition of max() for Linux.
+//#   define max(a, b) ((a) < (b) ? (b) : (a))
+//#endif
 
 // Set to 0 to allow parallel reductions.
 #define DISABLE_PARALLEL_REDUCERS 0
 #define REDPAR_DEBUG 0
+
+//TODO: move this to be environment controlled dynamically.
+//#define DEBUG_LOCKS 1
+#ifdef DEBUG_LOCKS
+// The currently executing worker must own this worker's lock
+#   define ASSERT_WORKER_LOCK_OWNED(w) \
+        { \
+            __cilkrts_worker *tls_worker = __cilkrts_get_tls_worker(); \
+            CILK_ASSERT((w)->l->lock.owner == tls_worker); \
+        }
+#else
+#   define ASSERT_WORKER_LOCK_OWNED(w)
+#endif // DEBUG_LOCKS
+
 
 #ifdef CILK_IVARS
 #include "local_state.h"
@@ -344,8 +386,31 @@ void push_child(full_frame *parent_ff, full_frame *child_ff);
 void make_runnable(__cilkrts_worker *w, full_frame *ff);
 void make_unrunnable(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf, int state_valid, const char *why);
 void do_work(__cilkrts_worker *w, full_frame *ff);
+void __cilkrts_push_next_frame(__cilkrts_worker *w, full_frame *ff);
+int can_steal_from(__cilkrts_worker *victim);
+
+/* Return true if the frame can be stolen, false otherwise */
+int dekker_protocol(__cilkrts_worker *victim);
+__cilkrts_stack_frame *__cilkrts_advance_frame(__cilkrts_stack_frame *sf);
 #endif
 
+//TODO: remove all these from here and into their own reduction module
+
+  /*************************************************************
+    Forward declarations for reduction protocol.
+   *************************************************************/
+
+   __cilkrts_worker*
+    execute_reductions_for_sync(__cilkrts_worker *w,
+        full_frame *ff,
+        __cilkrts_stack_frame *sf_at_sync);
+
+   __cilkrts_worker*
+    execute_reductions_for_spawn_return(__cilkrts_worker *w,
+        full_frame *ff,
+        __cilkrts_stack_frame *returning_sf);
+
+int provably_good_steal(__cilkrts_worker *w, full_frame *ff);
 __CILKRTS_END_EXTERN_C
 
 #endif // ! defined(INCLUDED_SCHEDULER_DOT_H)

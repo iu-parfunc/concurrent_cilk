@@ -42,6 +42,9 @@
 
 __CILKRTS_BEGIN_EXTERN_C
 
+#define BEGIN_WITH_WORKER_LOCK(w) __cilkrts_worker_lock(w); do
+#define END_WITH_WORKER_LOCK(w)   while (__cilkrts_worker_unlock(w), 0)
+
 // Forwarded declarations
 typedef struct __cilkrts_worker __cilkrts_worker;
 
@@ -111,8 +114,21 @@ void __cilkrts_mutex_unlock(__cilkrts_worker *w,
  * @param m Mutex to be deallocated.
  */
 COMMON_PORTABLE
-void __cilkrts_mutex_destroy(__cilkrts_worker *w,
-                             struct mutex *m);
+void __cilkrts_mutex_destroy(__cilkrts_worker *w, struct mutex *m);
+
+/* W grabs its own lock */
+COMMON_PORTABLE
+void __cilkrts_worker_lock(__cilkrts_worker *w);
+
+COMMON_PORTABLE
+void __cilkrts_worker_unlock(__cilkrts_worker *w);
+
+COMMON_PORTABLE
+void worker_unlock_other(__cilkrts_worker *w, __cilkrts_worker *other);
+
+/* try to acquire the lock of some *other* worker */
+COMMON_PORTABLE
+int worker_trylock_other(__cilkrts_worker *w, __cilkrts_worker *other);
 
 __CILKRTS_END_EXTERN_C
 

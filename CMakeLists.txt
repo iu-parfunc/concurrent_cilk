@@ -89,6 +89,10 @@ if(${CONCURRENT_CILK})
     runtime/global_state.cpp
     runtime/reducer_impl.cpp
     runtime/pedigrees.c
+    runtime/sync.c
+    runtime/cilk_util.c
+    runtime/random_scheduler.c
+    runtime/concurrent_scheduler.c
     )
 
   # Conditionally append concurrent cilk sources

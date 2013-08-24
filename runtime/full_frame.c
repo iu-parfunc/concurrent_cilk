@@ -33,6 +33,14 @@
 #include "bug.h"
 #include "jmpbuf.h"
 #include "frame_malloc.h"
+#include "global_state.h"
+#include "sysdep.h"
+
+#ifdef _WIN32
+#   pragma warning(disable:1786)   // disable warning: sprintf is deprecated
+#   include "sysdep-win.h"
+#endif  // _WIN32
+
 #ifdef CILK_IVARS
 #include "internal/abi.h" //for full_frame flags
 #endif
@@ -166,6 +174,98 @@ void __cilkrts_frame_lock(__cilkrts_worker *w, full_frame *ff)
 void __cilkrts_frame_unlock(__cilkrts_worker *w, full_frame *ff)
 {
     __cilkrts_mutex_unlock(w, &ff->lock);
+}
+
+void double_link(full_frame *left_ff, full_frame *right_ff)
+{
+    if (left_ff)
+        left_ff->right_sibling = right_ff;
+    if (right_ff)
+        right_ff->left_sibling = left_ff;
+}
+
+/* add CHILD to the right of all children of PARENT */
+void push_child(full_frame *parent_ff, full_frame *child_ff)
+{
+    double_link(parent_ff->rightmost_child, child_ff);
+    double_link(child_ff, 0);
+    parent_ff->rightmost_child = child_ff;
+}
+
+/* unlink CHILD from the list of all children of PARENT */
+void unlink_child(full_frame *parent_ff, full_frame *child_ff)
+{
+    double_link(child_ff->left_sibling, child_ff->right_sibling);
+
+    if (!child_ff->right_sibling) {
+        /* this is the rightmost child -- update parent link */
+        CILK_ASSERT(parent_ff->rightmost_child == child_ff);
+        parent_ff->rightmost_child = child_ff->left_sibling;
+    }
+    child_ff->left_sibling = child_ff->right_sibling = 0; /* paranoia */
+}
+
+void incjoin(full_frame *ff)
+{
+    ++ff->join_counter;
+}
+
+int decjoin(full_frame *ff)
+{
+    CILK_ASSERT(ff->join_counter > 0);
+    return (--ff->join_counter);
+}
+
+/* Link PARENT and CHILD in the spawn tree */
+full_frame *make_child(__cilkrts_worker *w, 
+                              full_frame *parent_ff,
+                              __cilkrts_stack_frame *child_sf,
+                              __cilkrts_stack *sd)
+{
+    full_frame *child_ff = __cilkrts_make_full_frame(w, child_sf);
+
+    child_ff->parent = parent_ff;
+    push_child(parent_ff, child_ff);
+
+    //DBGPRINTF("%d-          make_child - child_frame: %p, parent_frame: %p, child_sf: %p\n"
+    //    "            parent - parent: %p, left_sibling: %p, right_sibling: %p, rightmost_child: %p\n"
+    //    "            child  - parent: %p, left_sibling: %p, right_sibling: %p, rightmost_child: %p\n",
+    //          w->self, child, parent, child_sf,
+    //          parent->parent, parent->left_sibling, parent->right_sibling, parent->rightmost_child,
+    //          child->parent, child->left_sibling, child->right_sibling, child->rightmost_child);
+
+    CILK_ASSERT(parent_ff->call_stack);
+    child_ff->is_call_child = (sd == NULL);
+
+    /* PLACEHOLDER_STACK is used as non-null marker indicating that
+       child should be treated as a spawn child even though we have not
+       yet assigned a real stack to its parent. */
+    if (sd == PLACEHOLDER_STACK)
+        sd = NULL; /* Parent actually gets a null stack, for now */
+
+    /* perform any system-dependent actions, such as capturing
+       parameter passing information */
+    /*__cilkrts_make_child_sysdep(child, parent);*/
+
+    /* Child gets reducer map and stack of parent.
+       Parent gets a new map and new stack. */
+    child_ff->stack_self = parent_ff->stack_self;
+    child_ff->sync_master = NULL;
+
+    if (child_ff->is_call_child) {
+        /* Cause segfault on any attempted access.  The parent gets
+           the child map and stack when the child completes. */
+        parent_ff->stack_self = 0;
+    } else {
+        parent_ff->stack_self = sd;
+        __cilkrts_bind_stack(parent_ff,
+                             __cilkrts_stack_to_pointer(parent_ff->stack_self, child_sf),
+                             child_ff->stack_self,
+                             child_ff->sync_master);
+    }
+
+    incjoin(parent_ff);
+    return child_ff;
 }
 
 /* End full_frame.c */

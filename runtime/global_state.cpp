@@ -32,6 +32,7 @@
 #include "metacall_impl.h"
 #include "stats.h"
 #include "cilk/cilk_api.h"
+#include "scheduler.h" //for meta schedulers
 
 #include <algorithm>  // For max()
 #include <cstring>
@@ -532,10 +533,10 @@ int cilkg_set_param_w(const wchar_t* param, const wchar_t* value)
 
 extern "C++" {
     // C++ scheduler function (that may throw exceptions)
-    typedef void cpp_scheduler_t(__cilkrts_worker *w);
+    typedef void cpp_scheduler_t(__cilkrts_meta_sched meta_sched,  __cilkrts_worker *w, void *args);
 }
 
-void __cilkrts_run_scheduler_with_exceptions(__cilkrts_worker *w)
+void __cilkrts_run_scheduler_with_exceptions(__cilkrts_meta_sched meta_sched, __cilkrts_worker *w, void *args)
 {
     global_state_t* g = cilkg_get_global_state();
     CILK_ASSERT(g->scheduler);
@@ -543,7 +544,7 @@ void __cilkrts_run_scheduler_with_exceptions(__cilkrts_worker *w)
     cpp_scheduler_t* scheduler = (cpp_scheduler_t*) g->scheduler;
 
     try {
-        scheduler(w);
+        scheduler(meta_sched, w, args);
     } catch (...) {
         __cilkrts_bug("Exception escaped Cilk context");
     }

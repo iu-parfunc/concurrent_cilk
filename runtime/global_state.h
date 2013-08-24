@@ -101,6 +101,8 @@ typedef struct __cilkrts_stack_cache {
  * initialization and after deinitialization.
  */
 
+typedef void (*__cilkrts_meta_sched)(__cilkrts_worker *wkr, void *args);
+
 typedef /* COMMON_PORTABLE */ struct global_state_t {
 
     /* Fields described as "(fixed)" should not be changed after
@@ -217,7 +219,7 @@ typedef /* COMMON_PORTABLE */ struct global_state_t {
     unsigned int max_steal_failures;
 
     /** Pointer to scheduler entry point */
-    void (*scheduler)(__cilkrts_worker *w);
+    void (*scheduler)(__cilkrts_meta_sched sched, __cilkrts_worker *w, void *args);
 
     /**
      * Buffer to force P and Q to appear on a different cache line from the
@@ -397,7 +399,7 @@ size_t cilkg_get_stack_size(void)
  * @attention The scheduler field of the global state must be set before this
  * function is called.
  */
-void __cilkrts_run_scheduler_with_exceptions(__cilkrts_worker *w);
+void __cilkrts_run_scheduler_with_exceptions(__cilkrts_meta_sched meta_sched, __cilkrts_worker *w, void *args);
 
 __CILKRTS_END_EXTERN_C
 
