@@ -4,7 +4,7 @@
 #include <cilk/cilk_api.h>
 #include <cilk/concurrent_cilk.h>
 #include "scheduler.h"
-#include "bug.h"
+#include <bug/bug.h>
 
 inline
 CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)

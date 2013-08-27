@@ -65,13 +65,17 @@ if(${CONCURRENT_CILK})
 
   # Sources files
   set(cilk_runtime_sources
+    runtime/lib/malloc/cilk_malloc.c
+    runtime/lib/exception/except-gcc.cpp
+    runtime/lib/jmpbuf/jmpbuf.c
+    runtime/lib/bug/bug.cpp
+    runtime/lib/util/cilk_util.c
+
     runtime/cilk-abi.c
     runtime/cilk_api.c
-    runtime/cilk_malloc.c
     runtime/c_reducers.c
     runtime/frame_malloc.c
     runtime/full_frame.c
-    runtime/jmpbuf.c
     runtime/local_state.c
     runtime/metacall_impl.c
     runtime/os_mutex-unix.c
@@ -83,14 +87,11 @@ if(${CONCURRENT_CILK})
     runtime/symbol_test.c
     runtime/sysdep-unix.c
     runtime/worker_mutex.c
-    runtime/bug.cpp
     runtime/cilk-abi-cilk-for.cpp
-    runtime/except-gcc.cpp
     runtime/global_state.cpp
     runtime/reducer_impl.cpp
     runtime/pedigrees.c
     runtime/sync.c
-    runtime/cilk_util.c
     runtime/random_scheduler.c
     runtime/concurrent_scheduler.c
     )
@@ -129,6 +130,7 @@ if(${CONCURRENT_CILK})
 
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/runtime)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/runtime/lib)
 
 
     # As part of cmake, one can set the build type to be Release, Debug, Release with Debug, etc. 

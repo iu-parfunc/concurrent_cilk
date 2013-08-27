@@ -5,7 +5,7 @@
 #include "sysdep.h"
 #include "sync.h"
 
-#include "cilk-ittnotify.h"
+#include <ittnotify/cilk-ittnotify.h>
 
 // ICL: Don't complain about loss of precision in myrand
 // I tried restoring the warning after the function, but it didn't

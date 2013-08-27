@@ -38,12 +38,12 @@
 
 #include "sysdep.h"
 #include "os.h"
-#include "bug.h"
+#include <bug/bug.h>
 #include "local_state.h"
 #include "signal_node.h"
 #include "full_frame.h"
-#include "jmpbuf.h"
-#include "cilk_malloc.h"
+#include <jmpbuf/jmpbuf.h>
+#include <malloc/cilk_malloc.h>
 #include "reducer_impl.h"
 #include "metacall_impl.h"
 #include "scheduler.h"
@@ -51,7 +51,7 @@
 
 
 // contains notification macros for VTune.
-#include "cilk-ittnotify.h"
+#include <ittnotify/cilk-ittnotify.h>
 
 #include <stddef.h>
 

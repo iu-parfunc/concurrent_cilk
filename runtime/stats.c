@@ -27,7 +27,7 @@
  **************************************************************************/
 
 #include "stats.h"
-#include "bug.h"
+#include <bug/bug.h>
 #include "os.h"
 #include "local_state.h"
 

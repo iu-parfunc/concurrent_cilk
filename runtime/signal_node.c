@@ -46,8 +46,8 @@
     typedef sem_t cilk_semaphore_t;
 #endif // Linux/MIC
 
-#include "bug.h"
-#include "cilk_malloc.h"
+#include <bug/bug.h>
+#include <malloc/cilk_malloc.h>
 #include "signal_node.h"
 
 /**

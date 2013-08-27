@@ -40,14 +40,14 @@
 #include "global_state.h"
 #include "os.h"
 #include "os_mutex.h"
-#include "bug.h"
+#include <bug/bug.h>
 #include "local_state.h"
 #include "full_frame.h"
 #include "pedigrees.h"
 #include "scheduler.h"
 #include "sysdep.h"
 #include "except.h"
-#include "cilk_malloc.h"
+#include <malloc/cilk_malloc.h>
 
 #include <errno.h>
 #include <string.h>
@@ -67,7 +67,7 @@ void * _ReturnAddress(void);
 
 #include "metacall_impl.h"
 #include "reducer_impl.h"
-#include "cilk-ittnotify.h"
+#include <ittnotify/cilk-ittnotify.h>
 #include "cilk-tbb-interop.h"
 
 #define TBB_INTEROP_DATA_DELAYED_UNTIL_BIND (void *)-1

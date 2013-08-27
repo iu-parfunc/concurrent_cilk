@@ -30,8 +30,8 @@
 #include "full_frame.h"
 #include "stats.h"
 #include "os.h"
-#include "bug.h"
-#include "jmpbuf.h"
+#include <bug/bug.h>
+#include <jmpbuf/jmpbuf.h>
 #include "frame_malloc.h"
 #include "global_state.h"
 #include "sysdep.h"

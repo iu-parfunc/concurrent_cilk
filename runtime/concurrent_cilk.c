@@ -11,7 +11,7 @@
 #include "scheduler.h"
 #include <time.h>
 #include "concurrent_cilk_internal.h"
-#include "bug.h"
+#include <bug/bug.h>
 #include "os.h"
 #include "os_mutex.h"
 #include "local_state.h"
@@ -20,9 +20,9 @@
 #include "stacks.h"
 #include "sysdep.h"
 #include "except.h"
-#include "cilk_malloc.h"
+#include <malloc/cilk_malloc.h>
 #include "pedigrees.h"
-#include "cilk_util.h"
+#include <util/cilk_util.h>
 
 #include <cilk/concurrent_queue.h>
 #include <setjmp.h>

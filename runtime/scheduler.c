@@ -32,7 +32,7 @@
  */
 
 #include "scheduler.h"
-#include "bug.h"
+#include <bug/bug.h>
 #include "os.h"
 #include "os_mutex.h"
 #include "local_state.h"
@@ -41,10 +41,10 @@
 #include "stacks.h"
 #include "sysdep.h"
 #include "except.h"
-#include "cilk_malloc.h"
+#include <malloc/cilk_malloc.h>
 #include "pedigrees.h"
 #include "sync.h"
-#include "cilk_util.h"
+#include <util/cilk_util.h>
 
 #include <string.h> /* memcpy */
 #include <stdio.h>  // sprintf
@@ -75,7 +75,7 @@
 #include "metacall_impl.h"
 #include "reducer_impl.h"
 #include "cilk-tbb-interop.h"
-#include "cilk-ittnotify.h"
+#include <ittnotify/cilk-ittnotify.h>
 #include "stats.h"
 
 #ifndef _WIN32

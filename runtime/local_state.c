@@ -28,7 +28,7 @@
  **************************************************************************/
 
 #include "local_state.h"
-#include "bug.h"
+#include <bug/bug.h>
 #include "full_frame.h"
 
 void run_scheduling_stack_fcn(__cilkrts_worker *w)

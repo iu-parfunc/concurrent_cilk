@@ -27,14 +27,14 @@
  **************************************************************************/
 
 #include "os_mutex.h"
-#include "bug.h"
+#include <bug/bug.h>
 
 #include <stdlib.h>
 #include <errno.h>
 #include <pthread.h>
 
 // contains notification macros for VTune.
-#include "cilk-ittnotify.h"
+#include <ittnotify/cilk-ittnotify.h>
 
 /*
  * OS Mutex functions.

@@ -28,7 +28,7 @@
 
 #include "global_state.h"
 #include "os.h"
-#include "bug.h"
+#include <bug/bug.h>
 #include "metacall_impl.h"
 #include "stats.h"
 #include "cilk/cilk_api.h"

@@ -40,7 +40,7 @@
 
 #include "frame_malloc.h"
 #include "stats.h"
-#include "bug.h"
+#include <bug/bug.h>
 
 __CILKRTS_BEGIN_EXTERN_C
 
