@@ -7,11 +7,23 @@
 
 #define BEGIN_WITH_WORKER_LOCK(w) __cilkrts_worker_lock(w); do
 #define END_WITH_WORKER_LOCK(w)   while (__cilkrts_worker_unlock(w), 0)
-#define BEGIN_WITH_FRAME_LOCK(w, ff)                                     \
+
+#define BEGIN_WITH_FRAME_LOCK(w, ff) \
     do { full_frame *_locked_ff = ff; __cilkrts_frame_lock(w, _locked_ff); do
 
-#define END_WITH_FRAME_LOCK(w, ff)                       \
+#define END_WITH_FRAME_LOCK(w, ff) \
     while (__cilkrts_frame_unlock(w, _locked_ff), 0); } while (0)
+
+#define BEGIN_WITH_WORKER_AND_FRAME_LOCK(w, ff) \
+  do { \
+    __cilkrts_worker_lock(w); \
+    full_frame *_locked_ff = ff; \
+    __cilkrts_frame_lock(w, _locked_ff); do  
+
+#define END_WITH_WORKER_AND_FRAME_LOCK(w, ff) \
+    while (__cilkrts_frame_unlock(w, _locked_ff), 0); } \
+while (__cilkrts_worker_unlock(w), 0)
+
 // This can be any constant that is not in the range of addresses returned by malloc:
 // it is used as the flag value to check if an ivar is full or empty
 __CILKRTS_BEGIN_EXTERN_C
@@ -77,11 +89,11 @@ typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
 
 /*   Concurrent Cilk:  Types & API   */
 
- typedef struct __cilkrts_paused_stack {
+typedef struct __cilkrts_paused_stack {
 
-   /* Saved state fields */
-   //-----------------------------
-   __cilkrts_worker *w;
+  /* Saved state fields */
+  //-----------------------------
+  __cilkrts_worker *w;
 
   full_frame *ff;
 
@@ -121,7 +133,8 @@ void paused_stack_unlock(__cilkrts_paused_stack *pstk);
 
 /*   Cilk IVars:  Types & API   */
 void __cilkrts_concurrent_yield(__cilkrts_worker *w);
-void thaw_frame(__cilkrts_paused_stack *pstk, uint32_t wkr_flags);
+void thaw_frame(__cilkrts_worker *w, __cilkrts_paused_stack *pstk);
+void freeze_frame(__cilkrts_worker *w, __cilkrts_paused_stack *pstk);
 
 /** callback executed when a self steal returns. --currently a no op */
 void do_return_from_self (__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
@@ -143,6 +156,12 @@ void __concurrent_cilk_sched(__cilkrts_worker *w);
 
 /** steal from the current worker's queue */
 void self_steal(__cilkrts_worker *w);
+
+/** restore a blocked computation */
+void restore_ready_computation(__cilkrts_worker *w);
+
+/** steal the ready_queue from the victim and assign it to the thief's restore queue if possible */
+int steal_queue(__cilkrts_worker *thief, __cilkrts_worker *victim);
 
 __CILKRTS_END_EXTERN_C
 #endif

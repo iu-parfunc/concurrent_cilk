@@ -225,12 +225,9 @@ struct __cilkrts_worker {
 #ifdef CILK_IVARS
     struct queue_t *ready_queue  __attribute__((aligned(64)));
 
-    jmp_buf unblocked_ctx        __attribute__((aligned(64)));
+    struct queue_t *restore_queue;
 
-    struct full_frame *paused_ff __attribute__((aligned(64)));
-
-    unsigned int concurrent_worker_state; 
-
+    struct __cilkrts_paused_stack *escape;
 #endif
 };
 

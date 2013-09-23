@@ -71,6 +71,7 @@ struct queue_t{
 
 struct queue_t {
 	/* Mostly accessed by producer. */
+
 	volatile	uint32_t	head;
 
 	/* Mostly accessed by consumer. */
@@ -95,6 +96,7 @@ void queue_init(struct queue_t *q);
 int enqueue(struct queue_t *q, ELEMENT_TYPE value);
 int dequeue(struct queue_t *q, ELEMENT_TYPE *value);
 void delete_stack_queue(struct queue_t* q);
+int q_is_empty(struct queue_t *q);
 
 
 inline uint64_t read_tsc();

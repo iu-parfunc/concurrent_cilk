@@ -28,11 +28,15 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
   w = __cilkrts_get_tls_worker_fast();
 
   //before trying to pause a computation, clear the dequeue
-  //of the worker to see if blocked work will fill this ivar.
-  restore_ready_computations(w);
+  //of the worker to see if continuing blocked work will fill this ivar.
+#define CILK_RESTORATION_POINT_IVAR_BLOCK
+#ifdef CILK_RESTORATION_POINT_IVAR_BLOCK
+  restore_ready_computation(w);
+#endif
+
   if(IVAR_READY(*ivar)) { return UNTAG(*ivar); }
 
-  ptr = (uintptr_t) __cilkrts_pause(((&pstk)->ctx));
+  ptr = (uintptr_t) __cilkrts_pause(pstk.ctx);
 
   if(! ptr) {
 
@@ -64,10 +68,8 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
 
       }
 
-      if(IVAR_READY(*ivar)) {
-        // Well nevermind then... now it is full.
-        return UNTAG(*ivar);
-      }
+      // Well nevermind then... now it is full.
+      if(IVAR_READY(*ivar)) return UNTAG(*ivar);
 
       //do we need this lock?
       //maybe it can be refactored into 1 lock with the above
@@ -81,7 +83,6 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
     } while(! cas(ivar, 0, (((ivar_payload_t) &pstk) << IVAR_SHIFT) | CILK_IVAR_PAUSED));
 
     __cilkrts_finalize_pause(w, &pstk); 
-    __setup_replacement_stack_and_run(w);
     CILK_ASSERT(0); //no return. heads to scheduler.
   }
 
@@ -94,14 +95,15 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
   inline CILK_API(void)
 __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val) 
 {
+  ivar_payload_t new_val, old_val;
+  __cilkrts_paused_stack  *pstk;
+  
   //the new value is the actual value with the full ivar tag added to it
-  ivar_payload_t newval = (val << IVAR_SHIFT) | CILK_IVAR_FULL;
+  new_val = (val << IVAR_SHIFT) | CILK_IVAR_FULL;
+  old_val = (ivar_payload_t) atomic_set(ivar, new_val);
 
-  //write without checking for any checking. Either this succeeds or there is a bug
-  ivar_payload_t old_val = (ivar_payload_t) atomic_set(ivar, newval);
-
-  if(IVAR_PAUSED(old_val)) {
-    __cilkrts_paused_stack *pstk = (__cilkrts_paused_stack *) (old_val >> IVAR_SHIFT);
+  if (IVAR_PAUSED(old_val)) {
+    pstk = (__cilkrts_paused_stack *) (old_val >> IVAR_SHIFT);
     IVAR_DBG_PRINT(1,"enqueueing ctx %p\n", pstk->w->ready_queue);
 
     //this is thread safe because any other reads of the ivar take the fast path.
@@ -113,6 +115,6 @@ __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
 
   }
 
-  if(IVAR_READY(old_val)) 
+  if_f(IVAR_READY(old_val)) 
     __cilkrts_bug("Attempted multiple puts on Cilk IVar %p. Aborting program.\n", ivar);
 }

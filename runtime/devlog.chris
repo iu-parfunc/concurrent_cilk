@@ -377,4 +377,12 @@ devlog Aug 13: Working on multithreaded cilk with ivars.
   I am playing around with putting back the old scheduler and directly calling
   self_steal() from the ivar call in a loop. 
   
-  
+devlog Sept 21: Working on the meta scheduler branch. Things have been hectic at work, so I 
+  haven't hacked on cilk for awhile. Hopefully this break will give me a fresh perspective.
+  My current plan is the following: the meta scheduler branch needs to work with new user
+  defined schedulers before I can complete concurrent cilk. It is too complicated to keep
+  trying to force calls that really need to be part of the scheduling algorithm into the 
+  normal scheduler because IVars need to do non-standard cilk scheduler things, such as return
+  context to the calling thread, or switch schedulers mid run. This approach will also setup
+  the frame work for auto promotion to IO vars, and network vars. As I make cilk ready for
+  a service oriented architecture, this approach is key. 

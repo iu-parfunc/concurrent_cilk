@@ -140,8 +140,6 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
 
     --t;
 #ifdef CILK_IVARS
-    if(w->l->frame_ff->concurrent_cilk_flags & FULL_FRAME_SELF_STEAL) {
-
       if_f(t < w->exc) {
 #if defined __i386__ || defined __x86_64__
         __sync_fetch_and_and(&sf->flags, ~CILK_FRAME_DETACHED);
@@ -151,7 +149,6 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
 #endif
         return 0;
       }
-    }
 #endif
     w->tail = t;
     /* On x86 the __sync_fetch_and_<op> family includes a
@@ -237,15 +234,15 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
 
     update_pedigree_on_leave_frame(w, sf);
 
-#ifdef CILK_IVARS
-    //self steal flags are ok here. we may not have 
-    if(sf->flags & CILK_FRAME_SELF_STEAL_MASK) return;
-#endif
 
     /* This path is taken when undo-detach wins the race with stealing.
        Otherwise this strand terminates and the caller will be resumed
        via setjmp at sync. */
+#ifdef CILK_IVARS
+    if (__builtin_expect(sf->flags & (CILK_FRAME_FLAGS_MASK | CILK_FRAME_SELF_STEAL), 0))
+#else
     if (__builtin_expect(sf->flags & CILK_FRAME_FLAGS_MASK, 0))
+#endif
       __cilkrts_bug("W%u: frame won undo-detach race with flags %02x\n",
           w->self, sf->flags);
 

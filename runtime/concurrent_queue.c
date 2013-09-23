@@ -211,4 +211,11 @@ int dequeue(struct queue_t * q, ELEMENT_TYPE * value)
 	return SUCCESS;
 }
 
+int q_is_empty(queue_t *q) 
+{
+	if ( !q->data[q->tail] )
+		return 1;
+  return 0;
+}
+
 #endif
