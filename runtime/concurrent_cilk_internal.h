@@ -46,6 +46,9 @@ __CILKRTS_BEGIN_EXTERN_C
 #define atomic_set(ptr,val) __sync_lock_test_and_set(ptr,val)
 #define atomic_release(ptr, val) __sync_lock_release(ptr,val)
 #define align(n) __attribute__((aligned(n)))
+#define hotspot __attribute__ ((hot))
+#define coldspot __attribute__ ((cold))
+#define pure_func __attribute__ ((pure))
 //#define clear_cache(begin,end) __builtin___clear_cache(begin,end);
 
 /**
@@ -162,6 +165,9 @@ void restore_ready_computation(__cilkrts_worker *w);
 
 /** steal the ready_queue from the victim and assign it to the thief's restore queue if possible */
 int steal_queue(__cilkrts_worker *thief, __cilkrts_worker *victim);
+
+int setup_restore_queue(__cilkrts_worker *w, __cilkrts_worker *victim);
+void do_restoration(__cilkrts_worker *w);
 
 __CILKRTS_END_EXTERN_C
 #endif

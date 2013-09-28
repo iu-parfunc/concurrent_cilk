@@ -24,7 +24,7 @@
 #include <cilk/concurrent_queue.h>
 #include "concurrent_cilk_internal.h"
 
-#include <malloc.h>
+#include <malloc/cilk_malloc.h>
 #include <sched.h>
 
 
@@ -60,14 +60,14 @@ static ELEMENT_TYPE ELEMENT_ZERO = 0x0UL;
 
 struct queue_t *make_stack_queue()
 {
-  struct queue_t *q = (struct queue_t *) malloc(sizeof(struct queue_t));
+  struct queue_t *q = (struct queue_t *) __cilkrts_malloc(sizeof(struct queue_t));
   queue_init(q);
   return q;
 }
 
 void delete_stack_queue (struct queue_t *q)
 {
-  free(q);
+  __cilkrts_free(q);
 }
 
 /*************************************************/

@@ -34,23 +34,7 @@
 //for atomic_release
 #pragma warning(disable: 2206)
 
-
-void print_sf_flags(__cilkrts_stack_frame *sf) 
-{
-  printf("<<<< flags returning: ");
-  if(sf->flags & CILK_FRAME_SELF_STEAL)        printf("CILK_FRAME_SELF_STEAL ");
-  if(sf->flags & CILK_FRAME_STOLEN)            printf("CILK_FRAME_STOLEN ");
-  if(sf->flags & CILK_FRAME_UNSYNCHED)         printf("CILK_FRAME_UNSYNCHED ");
-  if(sf->flags & CILK_FRAME_DETACHED)          printf("CILK_FRAME_DETACHED ");
-  if(sf->flags & CILK_FRAME_EXCEPTING)         printf("CILK_FRAME_EXCEPTING ");
-  if(sf->flags & CILK_FRAME_LAST)              printf("CILK_FRAME_LAST ");
-  if(sf->flags & CILK_FRAME_EXITING)           printf("CILK_FRAME_EXITING ");
-  if(sf->flags & CILK_FRAME_SUSPENDED)         printf("CILK_FRAME_SUSPENDED ");
-  if(sf->flags & CILK_FRAME_UNWINDING)         printf("CILK_FRAME_UNWINDING ");
-  printf("\n");
-}
-
-
+coldspot
 CILK_API(void) __cilkrts_msleep(unsigned long millis)
 {
   struct timespec time;
@@ -59,6 +43,7 @@ CILK_API(void) __cilkrts_msleep(unsigned long millis)
   nanosleep(&time,NULL);
 }
 
+coldspot
 CILK_API(void) __cilkrts_usleep(unsigned long micros)
 {
   struct timespec time;
@@ -74,7 +59,7 @@ __cilkrts_ivar_clear(__cilkrts_ivar* ivar)
   *ivar = 0;
 }
 
-  inline static void 
+  inline hotspot static void 
 thaw_worker_state(__cilkrts_worker *w, __cilkrts_paused_stack *pstk)
 {
   CILK_ASSERT(w);
@@ -87,8 +72,8 @@ thaw_worker_state(__cilkrts_worker *w, __cilkrts_paused_stack *pstk)
   memcpy(&w->l->env, &pstk->env, sizeof(jmp_buf));
 }
 
-  inline static void
-freeze_worker_state(__cilkrts_worker *w, __cilkrts_paused_stack *pstk)
+  inline hotspot static
+void freeze_worker_state(__cilkrts_worker *w, __cilkrts_paused_stack *pstk)
 {
   pstk->w                       = w;
   pstk->ff                      = w->l->frame_ff;
@@ -101,7 +86,8 @@ freeze_worker_state(__cilkrts_worker *w, __cilkrts_paused_stack *pstk)
 /**
  * Restore the context of a paused worker. 
  */
-inline void thaw_frame(__cilkrts_worker *w, __cilkrts_paused_stack *pstk) 
+inline hotspot
+void thaw_frame(__cilkrts_worker *w, __cilkrts_paused_stack *pstk) 
 {
   IVAR_DBG_PRINT(1,"thawing pstk: %p\n", pstk);
 
@@ -112,7 +98,8 @@ inline void thaw_frame(__cilkrts_worker *w, __cilkrts_paused_stack *pstk)
 }
 
 //ASSERT: frame lock owned
-inline void freeze_frame(__cilkrts_worker *w, __cilkrts_paused_stack *pstk)
+inline hotspot
+void freeze_frame(__cilkrts_worker *w, __cilkrts_paused_stack *pstk)
 {
   full_frame *ff            = w->l->frame_ff;
   __cilkrts_stack_frame *sf = w->current_stack_frame;
@@ -137,9 +124,10 @@ inline void freeze_frame(__cilkrts_worker *w, __cilkrts_paused_stack *pstk)
  * 1. Copy the relevent state of the worker into a paused stack structure.
  *    This structure should contain all the state needed for another worker
  *    to pick up the current execution context once the IVar is full.
- * 2. Invoke the IVar scheduler. This will invoke the scheduling logic for IVars. 
- *    The scheduler can return if it so desires.
+ * 2. It is the responsibility of the caller to call the appropriate scheduler.
+ *    e.g.  __cilkrts_run_scheduler_with_exceptions(&concurrent_sched, w, NULL);
  */
+hotspot
 CILK_API(void) __cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_stack *pstk) 
 {
   full_frame *ff = w->l->frame_ff;
@@ -148,7 +136,7 @@ CILK_API(void) __cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_st
     freeze_frame(w, pstk);
   } END_WITH_WORKER_AND_FRAME_LOCK(w, ff);
 
-  __cilkrts_run_scheduler_with_exceptions(&concurrent_sched, w, NULL);
+  //don't forget to call the scheduler!
 }
 
 int paused_stack_trylock(__cilkrts_paused_stack *pstk) {
@@ -159,45 +147,66 @@ void paused_stack_unlock(__cilkrts_paused_stack *pstk) {
   atomic_release(&pstk->lock, 0);
 }
 
-
-inline void restore_ready_computation(__cilkrts_worker *w) 
+inline hotspot
+int setup_restore_queue(__cilkrts_worker *w, __cilkrts_worker *victim)
 {
-  int do_escape;
-  __cilkrts_paused_stack *tmp = NULL;
-  queue_t *restore_queue; 
+  uintptr_t ptr;
 
-  //if there is nothing to restore, don't continue
-  if (q_is_empty(w->ready_queue)) return;
-
-  IVAR_DBG_PRINT(1,"restoring ready computation\n");
-
-  //returns twice 0 on entry, 1 on longjmp exit from pause.
-  do_escape = steal_queue(w, w);
-
-  if (do_escape) {
-    return;
+  //verify that w is in a good state to receive a new restoration queue
+  //NOTE; The order here cannot be switched. a 0 return says "try to do_restoration"
+  //and anything else says "return immediately to calling context"
+  if (w->restore_queue) {
+    if (q_is_empty(w->restore_queue)) {
+      CILK_ASSERT(w->escape);
+      CILK_ASSERT(w->escape->w);
+      delete_stack_queue(w->restore_queue); //TODO: cache?
+      w->restore_queue = NULL;              //The restore queue is now invalid
+      thaw_frame(w, w->escape);             //Escape context restored
+      CILK_ASSERT(0);
+    } else {
+      return 0;
+    }
   }
 
-  restore_queue = w->restore_queue;
-  //if there is no restore queue, there is nothing to restore, or it was stolen.
-  if (! restore_queue) return;
+  if (q_is_empty(victim->ready_queue)) return -1;
 
-  //pop a paused context of the queue and restore it.
-  dequeue(restore_queue, (ELEMENT_TYPE *) &tmp); 
+  steal_queue(w, victim); //steal the ready_queue off the victim
 
-  //if nothing to restore, remove the queue, otherwise, restore context.
-  if (! tmp) {
-    w->restore_queue = NULL;
-    memset((w->escape), 0, sizeof(__cilkrts_paused_stack));
-    __cilkrts_free(restore_queue); //TODO: cache?
-    thaw_frame(w, w->escape);
-  } else {
-    thaw_frame(w, tmp);
-    CILK_ASSERT(0); //resumes tmp's context
-  }
+  //the pause must happen here because this is the last pointer the worker
+  //can view its original context before its restoration cycle starts.
+  ptr = __cilkrts_pause(w->escape->ctx);
+
+  //executes twice: ptr == 0 on pause, ptr == 1 on longjmp
+  if (! ptr) __cilkrts_finalize_pause(w, w->escape); 
+
+  return ptr;
 }
 
-inline queue_t *replace_queue(__cilkrts_worker *w)
+  inline hotspot
+void do_restoration(__cilkrts_worker *w)
+{
+  __cilkrts_paused_stack *tmp = NULL;
+  CILK_ASSERT(w->restore_queue);
+
+  dequeue(w->restore_queue, (ELEMENT_TYPE *) &tmp); 
+  CILK_ASSERT(tmp); 
+  thaw_frame(w, tmp);                     //resumes tmp's context
+  CILK_ASSERT(0);                          
+}
+
+
+  inline hotspot
+void restore_ready_computation(__cilkrts_worker *w) 
+{
+  queue_t *restore_queue; 
+
+  if (setup_restore_queue(w, w)) return;
+  IVAR_DBG_PRINT(1,"restoring ready computation\n");
+  do_restoration(w);
+}
+
+  inline 
+queue_t *replace_queue(__cilkrts_worker *w)
 {
   queue_t *fresh_queue = (queue_t *) make_stack_queue();
   queue_t *ready_queue = w->ready_queue;
@@ -213,7 +222,8 @@ inline queue_t *replace_queue(__cilkrts_worker *w)
  * the victim. The escape context has its pointer set here, but the
  * user can change the escape pointer whenever they wish. 
  */
-inline int steal_queue(__cilkrts_worker *thief, __cilkrts_worker *victim)
+  inline hotspot
+int steal_queue(__cilkrts_worker *thief, __cilkrts_worker *victim)
 {
   __cilkrts_paused_stack *escape = thief->escape;
   queue_t *q;
@@ -233,17 +243,8 @@ inline int steal_queue(__cilkrts_worker *thief, __cilkrts_worker *victim)
   //install the old ready_queue as the restor_queue
   thief->restore_queue = q;
 
-  //the pause must happen here because we want to save the escape
-  //at the initial entry point into the steal so we can get back out where
-  //we got in. If a worker already has a restore_queue, it's escape context
-  //should already be populated from the first time around. 
-
-  BEGIN_WITH_WORKER_AND_FRAME_LOCK(thief, ff) {
-    freeze_frame(thief, escape);
-  } END_WITH_WORKER_AND_FRAME_LOCK(thief, ff);
-  return __cilkrts_pause(escape->ctx);
+  return 1;
 }
-
 
 
 // Used in cilk-abi.c in return_frame
@@ -251,8 +252,8 @@ inline int steal_queue(__cilkrts_worker *thief, __cilkrts_worker *victim)
 //whenever a non blocked frame returns, we check to see if it can perform a
 //pop on some blocked work. The preference is to clear the worker's blocked
 //queue.
-  void
-__concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
+  inline hotspot
+void __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
 {
   //turn on restoration of full ivars on leave frame
 #define CILK_RESTORATION_POINT_LEAVE_FRAME

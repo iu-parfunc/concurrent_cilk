@@ -83,6 +83,7 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
     } while(! cas(ivar, 0, (((ivar_payload_t) &pstk) << IVAR_SHIFT) | CILK_IVAR_PAUSED));
 
     __cilkrts_finalize_pause(w, &pstk); 
+    __cilkrts_run_scheduler_with_exceptions(&concurrent_sched, w, NULL);
     CILK_ASSERT(0); //no return. heads to scheduler.
   }
 

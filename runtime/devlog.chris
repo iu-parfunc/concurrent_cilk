@@ -386,3 +386,12 @@ devlog Sept 21: Working on the meta scheduler branch. Things have been hectic at
   context to the calling thread, or switch schedulers mid run. This approach will also setup
   the frame work for auto promotion to IO vars, and network vars. As I make cilk ready for
   a service oriented architecture, this approach is key. 
+
+devlog Sept 28: scrapped the state machine last time. Life is much simpler with two queues: the ready_queue and the restore_queue. 
+  The advantage of the two queue mode is that now workers can steal the restore_queue, which is immutable, and the ready_queue is 
+  the full ivar accumulator. This is good because we also remove any data hazards from contention on the queue. The state machine
+  is now not necessary, because we can tell what state we are in by just checking if the ready_queue is populated or not. 
+  I am working on some correctness isssues in the ivar scheduler. I expect to have fixed the test regression hit from this modification
+  today.
+
+
