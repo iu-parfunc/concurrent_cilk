@@ -411,6 +411,7 @@ __cilkrts_stack_frame *__cilkrts_advance_frame(__cilkrts_stack_frame *sf);
         __cilkrts_stack_frame *returning_sf);
 
 int provably_good_steal(__cilkrts_worker *w, full_frame *ff);
+int fast_path_reductions_for_sync(__cilkrts_worker *w, full_frame *ff);
 __CILKRTS_END_EXTERN_C
 
 #endif // ! defined(INCLUDED_SCHEDULER_DOT_H)

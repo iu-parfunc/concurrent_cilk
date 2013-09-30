@@ -257,8 +257,6 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
     __cilkrts_c_return_from_initial(w); /* does return */
   else if (sf->flags & CILK_FRAME_STOLEN)
     __cilkrts_return(w); /* does return */
-
-  printf("sf %p returning\n", sf);
 }
 
 /* Caller must have called setjmp. */

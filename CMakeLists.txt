@@ -140,7 +140,14 @@ if(${CONCURRENT_CILK})
 
     # These flags are only add in Debug build type. 
     # Tell gdb we really want all the info.
-    set(EXTRA_DEBUG_FLAGS "-ggdb -g3 -fvar-tracking-assignments -DIVAR_DBG=1")
+    set(EXTRA_DEBUG_FLAGS "-ggdb -g3 -fvar-tracking-assignments -DIVAR_DBG_ON")
+
+    #set optimization level to max for release
+    #This must appear at the end of the flags, or the cmake defaults could override this option. From the gcc manpage:
+    #"you use multiple -O options, with or without level numbers, the last such option is the one that is effective."
+    #http://linux.die.net/man/1/gcc
+    set(EXTRA_RELEASE_C_FLAGS "-O2 -fno-omit-frame-pointer")
+    set(EXTRA_RELEASE_CXX_FLAGS "-O2 -fno-omit-frame-pointer")
 
     # base flags for C/C++ that are used irrespective of build type
     set(BASE_C_FLAGS "-Wall -std=c99")
@@ -149,15 +156,15 @@ if(${CONCURRENT_CILK})
 
     #C Additions
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${BASE_C_FLAGS}")
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${BASE_C_FLAGS}")
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${BASE_C_FLAGS}")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${BASE_C_FLAGS} ${EXTRA_RELEASE_C_FLAGS}")
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${BASE_C_FLAGS} ${EXTRA_RELEASE_C_FLAGS}")
     set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} ${BASE_C_FLAGS}")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${BASE_C_FLAGS} ${EXTRA_DEBUG_FLAGS}")
 
     #C++ Additions
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${BASE_CXX_FLAGS}")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${BASE_CXX_FLAGS}")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${BASE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${BASE_CXX_FLAGS} ${EXTRA_RELEASE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${BASE_CXX_FLAGS} ${EXTRA_RELEASE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${BASE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${BASE_CXX_FLAGS} ${EXTRA_DEBUG_FLAGS}")
 

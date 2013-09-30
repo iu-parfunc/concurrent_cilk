@@ -394,4 +394,7 @@ devlog Sept 28: scrapped the state machine last time. Life is much simpler with 
   I am working on some correctness isssues in the ivar scheduler. I expect to have fixed the test regression hit from this modification
   today.
 
+devlog Sept 29: everything works again on 1 core in -O0, and I made it work in -O1. -O2 is still problematic. -O1 was invoking -fomit-frame-pointer, 
+  which was causing the longjmp not to return correctly. in -O2, I believe it is some type of inlining that is causing the longjmp on restore to go
+  right to a CILK_ASSERT(0), instead of actually running the function it is supposed to. Will investigate more later.
 

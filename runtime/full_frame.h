@@ -190,11 +190,6 @@ struct full_frame
      */
     int simulated_stolen;
 
-#ifdef CILK_IVARS
-    jmp_buf blocked_ctx;
-    int concurrent_cilk_flags;
-#endif
-
     /**
      * Caller of this full_frame
      * [constant]
@@ -480,9 +475,6 @@ COMMON_PORTABLE void __cilkrts_frame_lock(__cilkrts_worker *w,
  */
 COMMON_PORTABLE void __cilkrts_frame_unlock(__cilkrts_worker *w,
                                             full_frame *ff);
-#ifdef CILK_IVARS
-void print_flags(full_frame *ff);
-#endif
 /** @} */
 
 void double_link(full_frame *left_ff, full_frame *right_ff);

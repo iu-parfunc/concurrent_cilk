@@ -6,7 +6,7 @@
 #include "scheduler.h"
 #include <bug/bug.h>
 
-inline
+NOINLINE
 CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)
 {
   //fast path -- already got a value
@@ -21,7 +21,7 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
   __cilkrts_worker *w;
   __cilkrts_paused_stack pstk = {0};
   __cilkrts_paused_stack *peek;
-  __cilkrts_paused_stack *pstk_head;
+  __cilkrts_paused_stack *pstk_head = NULL;
   uintptr_t ptr;
 
   //slow path -- operation must block until a value is available
@@ -43,6 +43,7 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
     // Register the continuation in the ivar's header.
     do {
 
+      //CASE 1: ivar exists in a paused state (pre-existing blocked reads)
       if(IVAR_PAUSED(*ivar)) {
        IVAR_DBG_PRINT(1,"ivar read in paused state\n");
 
@@ -50,6 +51,8 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
         //all reads on a paused ivar compete for the lock on this
         //paused stack
         pstk_head = (__cilkrts_paused_stack  *) (*ivar >> IVAR_SHIFT);
+        
+        CILK_ASSERT(IVAR_PAUSED(*ivar));
 
         //set the tail element to be the new paused stack
         if(paused_stack_trylock(pstk_head)) {
@@ -65,21 +68,15 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
           //go directly to finalize pause
           break; //<<< at this point we commit to finalizing the pause.
         }
-
       }
 
-      // Well nevermind then... now it is full.
+      //CASE 2: ivar was blocked, but another worker filled it. -abort pause
       if(IVAR_READY(*ivar)) return UNTAG(*ivar);
 
-      //do we need this lock?
-      //maybe it can be refactored into 1 lock with the above
-      if(paused_stack_trylock(pstk_head)) {
-        //queue must be empty, so our paused stack becomes the head and tail.
-        pstk.head = &pstk;
-        pstk.tail = &pstk;
-        paused_stack_unlock(pstk_head);
-      }
-
+      //CASE 3: no pre-existing blocked reads.  This paused stack becomes the head and tail.
+      //NOTE: actual installation of pstk done in cas below. This is local modification only.
+      pstk.head = &pstk;
+      pstk.tail = &pstk;
     } while(! cas(ivar, 0, (((ivar_payload_t) &pstk) << IVAR_SHIFT) | CILK_IVAR_PAUSED));
 
     __cilkrts_finalize_pause(w, &pstk); 
@@ -98,7 +95,7 @@ __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
 {
   ivar_payload_t new_val, old_val;
   __cilkrts_paused_stack  *pstk;
-  
+
   //the new value is the actual value with the full ivar tag added to it
   new_val = (val << IVAR_SHIFT) | CILK_IVAR_FULL;
   old_val = (ivar_payload_t) atomic_set(ivar, new_val);
