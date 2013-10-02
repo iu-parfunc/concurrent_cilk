@@ -88,11 +88,12 @@ void freeze_worker_state(__cilkrts_worker *w, __cilkrts_paused_stack *pstk)
  */
 void thaw_frame(__cilkrts_worker *w, __cilkrts_paused_stack *pstk) 
 {
+  jmp_buf *ctx = &(pstk->ctx);
   IVAR_DBG_PRINT(1,"thawing pstk: %p\n", pstk);
 
   thaw_worker_state(w, pstk);
 
-  longjmp(pstk->ctx, 1);
+  longjmp(*ctx, 1);
   CILK_ASSERT(0); //does not return
 }
 
@@ -144,7 +145,6 @@ void paused_stack_unlock(__cilkrts_paused_stack *pstk) {
   atomic_release(&(pstk->lock), 0);
 }
 
-NOINLINE
 int setup_restore_queue(__cilkrts_worker *w, __cilkrts_worker *victim)
 {
    uintptr_t ptr;
@@ -179,7 +179,6 @@ int setup_restore_queue(__cilkrts_worker *w, __cilkrts_worker *victim)
   return ptr;
 }
 
-NOINLINE
 void do_restoration(__cilkrts_worker *w)
 {
   __cilkrts_paused_stack *tmp = NULL;
@@ -191,11 +190,9 @@ void do_restoration(__cilkrts_worker *w)
   CILK_ASSERT(0);                          
 }
 
-
 void restore_ready_computation(__cilkrts_worker *w) 
 {
-  int res = setup_restore_queue(w, w);
-  if (res) return;
+  if (setup_restore_queue(w, w)) return;
   do_restoration(w);
 }
 

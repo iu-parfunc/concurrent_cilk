@@ -104,8 +104,6 @@ typedef struct __cilkrts_paused_stack {
 
   int flags;
 
-  unsigned int concurrent_worker_state;
-
   full_frame *paused_ff;
 
   void *scheduler_stack;
@@ -125,7 +123,7 @@ typedef struct __cilkrts_paused_stack {
 
   jmp_buf ctx;
 
-  int lock; 
+  volatile int lock; 
   //-----------------------------
 
 } __cilkrts_paused_stack;

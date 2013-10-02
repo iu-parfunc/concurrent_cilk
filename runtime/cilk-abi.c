@@ -165,9 +165,13 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
     return __builtin_expect(t < w->exc, 0);
 }
 
-CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
+/**
+ * CSZ: interesting fact, you need the *volatile for the lonjmp or the compiler
+ * *may* restore the varabile 
+ */
+CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *volatile sf)
 {
-  __cilkrts_worker *w = sf->worker;
+  __cilkrts_worker *volatile w = sf->worker;
 
 #ifdef CILK_IVARS
   __concurrent_cilk_leave_frame_hook(w, sf);
