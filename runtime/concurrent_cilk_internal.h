@@ -140,9 +140,6 @@ void freeze_frame(__cilkrts_worker *w, __cilkrts_paused_stack *pstk);
 /** callback executed when a self steal returns. --currently a no op */
 void do_return_from_self (__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
 
-/** restore all paused computations from the ready queue of the worker*/
-void restore_ready_computations(__cilkrts_worker *w);
-
 /** the hook for concurrent cilk into leave frame in cilk-abi.c */
 void __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *sf);
 
@@ -159,7 +156,7 @@ void __concurrent_cilk_sched(__cilkrts_worker *w);
 void self_steal(__cilkrts_worker *w);
 
 /** restore a blocked computation */
-void restore_ready_computation(__cilkrts_worker *w);
+void restore_ready_computation(__cilkrts_worker *w, __cilkrts_worker *victim);
 
 /** steal the ready_queue from the victim and assign it to the thief's restore queue if possible */
 int steal_queue(__cilkrts_worker *thief, __cilkrts_worker *victim);

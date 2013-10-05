@@ -31,7 +31,7 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
   //of the worker to see if continuing blocked work will fill this ivar.
 #define CILK_RESTORATION_POINT_IVAR_BLOCK
 #ifdef CILK_RESTORATION_POINT_IVAR_BLOCK
-  restore_ready_computation(w);
+  restore_ready_computation(w, w);
 #endif
 
   if(IVAR_READY(*ivar)) { return UNTAG(*ivar); }

@@ -145,55 +145,55 @@ void paused_stack_unlock(__cilkrts_paused_stack *pstk) {
   atomic_release(&(pstk->lock), 0);
 }
 
-int setup_restore_queue(__cilkrts_worker *w, __cilkrts_worker *victim)
+void restore_ready_computation(__cilkrts_worker *w, __cilkrts_worker *victim) 
 {
-   uintptr_t ptr;
+   uintptr_t ptr              = 0;
+  __cilkrts_paused_stack *tmp = NULL;
 
-  //verify that w is in a good state to receive a new restoration queue
-  //NOTE; The order here cannot be switched. a 0 return says "try to do_restoration"
-  //and anything else says "return immediately to calling context"
+  // Check if there exists a valid restoration
+  //------------------------------------------
   if (w->restore_queue) {
     if (q_is_empty(w->restore_queue)) {
+
       CILK_ASSERT(w->escape);
       CILK_ASSERT(w->escape->w);
       delete_stack_queue(w->restore_queue); //TODO: cache?
       w->restore_queue = NULL;              //The restore queue is now invalid
       thaw_frame(w, w->escape);             //Escape context restored
       CILK_ASSERT(0);
+
     } else {
-      return 0;
+
+      dequeue(w->restore_queue, (ELEMENT_TYPE *) &tmp); 
+      CILK_ASSERT(tmp); 
+      thaw_frame(w, tmp);                     //resumes tmp's context
+      CILK_ASSERT(0);                          
+
     }
   }
 
-  if (q_is_empty(victim->ready_queue)) return -1;
+  // No valid restoration - try to find one
+  //------------------------------------------
+  
+  if (q_is_empty(victim->ready_queue)) return; //no work found on victim's queue
 
-  steal_queue(w, victim); //steal the ready_queue off the victim
+  //error on a concurrent contention for now. TOFIX.
+  if(!steal_queue(w, victim)) CILK_ASSERT(0); //steal the ready_queue off the victim
 
-  //the pause must happen here because this is the last pointer the worker
-  //can view its original context before its restoration cycle starts.
+  //<<< Success! Set the escape point.
   ptr = __cilkrts_pause(w->escape->ctx);
 
   //executes twice: ptr == 0 on pause, ptr == 1 on longjmp
-  if (! ptr) __cilkrts_finalize_pause(w, w->escape); 
+  if (! ptr) {
+    __cilkrts_finalize_pause(w, w->escape); 
+      dequeue(w->restore_queue, (ELEMENT_TYPE *) &tmp); 
+      CILK_ASSERT(tmp); 
+      thaw_frame(w, tmp);                     //resumes tmp's context
+      CILK_ASSERT(0);                          
+  }
 
-  return ptr;
-}
-
-void do_restoration(__cilkrts_worker *w)
-{
-  __cilkrts_paused_stack *tmp = NULL;
-  CILK_ASSERT(w->restore_queue);
-
-  dequeue(w->restore_queue, (ELEMENT_TYPE *) &tmp); 
-  CILK_ASSERT(tmp); 
-  thaw_frame(w, tmp);                     //resumes tmp's context
-  CILK_ASSERT(0);                          
-}
-
-void restore_ready_computation(__cilkrts_worker *w) 
-{
-  if (setup_restore_queue(w, w)) return;
-  do_restoration(w);
+  //<<< returns here on longjmp
+  CILK_ASSERT(ptr == 1);
 }
 
 queue_t *replace_queue(__cilkrts_worker *w)
@@ -247,7 +247,7 @@ void __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_fra
 #define CILK_RESTORATION_POINT_LEAVE_FRAME
 #ifdef CILK_RESTORATION_POINT_LEAVE_FRAME
   //restore everything from the restore queue
-  restore_ready_computation(w);
+  restore_ready_computation(w, w);
 #endif
 
   return;

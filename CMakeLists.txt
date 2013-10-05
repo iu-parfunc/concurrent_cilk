@@ -146,8 +146,8 @@ if(${CONCURRENT_CILK})
     #This must appear at the end of the flags, or the cmake defaults could override this option. From the gcc manpage:
     #"you use multiple -O options, with or without level numbers, the last such option is the one that is effective."
     #http://linux.die.net/man/1/gcc
-    set(EXTRA_RELEASE_C_FLAGS "-O2 -fno-omit-frame-pointer")
-    set(EXTRA_RELEASE_CXX_FLAGS "-O2 -fno-omit-frame-pointer")
+    set(EXTRA_RELEASE_C_FLAGS "-O3") #hey you! segfaulting? first try: -fno-omit-frame-pointer
+    set(EXTRA_RELEASE_CXX_FLAGS "-O3")
 
     # base flags for C/C++ that are used irrespective of build type
     set(BASE_C_FLAGS "-Wall -std=c99")
