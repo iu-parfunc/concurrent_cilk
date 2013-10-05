@@ -398,5 +398,10 @@ devlog Sept 29: everything works again on 1 core in -O0, and I made it work in -
   which was causing the longjmp not to return correctly. in -O2, I believe it is some type of inlining that is causing the longjmp on restore to go
   right to a CILK_ASSERT(0), instead of actually running the function it is supposed to. Will investigate more later.
 
-devlog Oct 5: running some experiments to figure out why the return from long jump is wrong on -O2 optimization, but right on -O1. Intel is unfortunately opaque about what flags -O2 turns on. It will give you a list of optimizations done, but not what flags they map to. Boo hiss. 
+devlog Oct 5: running some experiments to figure out why the return from long jump is wrong on -O2 optimization, but right on -O1. 
+  Intel is unfortunately opaque about what flags -O2 turns on. It will give you a list of optimizations done, but not what flags they map to. Boo hiss. 
+
+  Alrighty, figured out the problem. returning twice from the function screws up the $rip and $rbp, and because the stack gets trashed, the return won't behave correctly.
+  Note to self: don't ever code a reentrant setjmp again. It is just asking for problems. In other good news, the making of the cilk stack frame and worker pointer volatile
+  in __cilkrts_leave_frame() fixed my -fno-omit-frame-pointer problem above. I can now run all tests on single core with -O3 straightup enabled. 
 
