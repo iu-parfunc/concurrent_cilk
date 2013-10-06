@@ -22,7 +22,6 @@ void self_steal(__cilkrts_worker *w)
   __cilkrts_stack *sd;
   char *sp;
 
-
   if (!can_steal_from(w)) return;
 
   if (__cilkrts_mutex_trylock(w, &w->l->steal_lock)) {
@@ -61,7 +60,7 @@ unlock:
     __cilkrts_mutex_unlock(w, &w->l->steal_lock);
     return;
   } 
-  cilk_dbg(1, "[self steal] could not get log on worker %d/%p\n", w->self, w);
+  cilk_dbg(1, "[self steal] could not get lock on worker %d/%p\n", w->self, w);
 }
 
 void concurrent_sched(__cilkrts_worker *w, void *args)

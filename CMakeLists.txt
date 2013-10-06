@@ -65,13 +65,17 @@ if(${CONCURRENT_CILK})
 
   # Sources files
   set(cilk_runtime_sources
+    runtime/cilk_malloc.c
+    runtime/except-gcc.cpp
+    runtime/jmpbuf.c
+    runtime/bug.cpp
+    runtime/cilk_util.c
+
     runtime/cilk-abi.c
     runtime/cilk_api.c
-    runtime/cilk_malloc.c
     runtime/c_reducers.c
     runtime/frame_malloc.c
     runtime/full_frame.c
-    runtime/jmpbuf.c
     runtime/local_state.c
     runtime/metacall_impl.c
     runtime/os_mutex-unix.c
@@ -83,14 +87,11 @@ if(${CONCURRENT_CILK})
     runtime/symbol_test.c
     runtime/sysdep-unix.c
     runtime/worker_mutex.c
-    runtime/bug.cpp
     runtime/cilk-abi-cilk-for.cpp
-    runtime/except-gcc.cpp
     runtime/global_state.cpp
     runtime/reducer_impl.cpp
     runtime/pedigrees.c
     runtime/sync.c
-    runtime/cilk_util.c
     runtime/random_scheduler.c
     runtime/concurrent_scheduler.c
     )
@@ -129,6 +130,7 @@ if(${CONCURRENT_CILK})
 
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/runtime)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/runtime/lib)
 
 
     # As part of cmake, one can set the build type to be Release, Debug, Release with Debug, etc. 
@@ -138,24 +140,31 @@ if(${CONCURRENT_CILK})
 
     # These flags are only add in Debug build type. 
     # Tell gdb we really want all the info.
-    set(EXTRA_DEBUG_FLAGS "-ggdb -g3 -fvar-tracking-assignments -DIVAR_DBG=1 -O0")
+    set(EXTRA_DEBUG_FLAGS "-ggdb -g3 -fvar-tracking-assignments -DIVAR_DBG_ON -DIVAR_DBG=1 -O0")
+
+    #set optimization level to max for release
+    #This must appear at the end of the flags, or the cmake defaults could override this option. From the gcc manpage:
+    #"you use multiple -O options, with or without level numbers, the last such option is the one that is effective."
+    #http://linux.die.net/man/1/gcc
+    set(EXTRA_RELEASE_C_FLAGS "-O3") #hey you! segfaulting? first try: -fno-omit-frame-pointer
+    set(EXTRA_RELEASE_CXX_FLAGS "-O3")
 
     # base flags for C/C++ that are used irrespective of build type
-    set(BASE_C_FLAGS "-Wall -std=c99 -O3")
-    set(BASE_CXX_FLAGS "-Wall -O3")
+    set(BASE_C_FLAGS "-Wall -std=c99")
+    set(BASE_CXX_FLAGS "-Wall")
 
 
     #C Additions
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${BASE_C_FLAGS}")
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${BASE_C_FLAGS}")
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${BASE_C_FLAGS}")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${BASE_C_FLAGS} ${EXTRA_RELEASE_C_FLAGS}")
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${BASE_C_FLAGS} ${EXTRA_RELEASE_C_FLAGS}")
     set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} ${BASE_C_FLAGS}")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${BASE_C_FLAGS} ${EXTRA_DEBUG_FLAGS}")
 
     #C++ Additions
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${BASE_CXX_FLAGS}")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${BASE_CXX_FLAGS}")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${BASE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${BASE_CXX_FLAGS} ${EXTRA_RELEASE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${BASE_CXX_FLAGS} ${EXTRA_RELEASE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${BASE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${BASE_CXX_FLAGS} ${EXTRA_DEBUG_FLAGS}")
 

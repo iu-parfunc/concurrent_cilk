@@ -20,6 +20,7 @@ cd build
 
 #-DCMAKE_BUILD_TYPE=Debug \
 #-DCMAKE_BUILD_TYPE=Release \
+#-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 cmake \
   -DCONCURRENT_CILK=ON \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \

@@ -12,6 +12,7 @@
 #include "concurrent_cilk_internal.h"
 #include <cilk/concurrent_queue.h>
 #include <cilk/concurrent_cilk.h>
+#include "concurrent_cilk_internal.h"
 
 //for atomic_release
 #pragma warning(disable: 2206)
@@ -29,6 +30,7 @@ CILK_API(void) __cilkrts_msleep(unsigned long millis)
   nanosleep(&time,NULL);
 }
 
+coldspot
 CILK_API(void) __cilkrts_usleep(unsigned long micros)
 {
   struct timespec time;
@@ -36,7 +38,6 @@ CILK_API(void) __cilkrts_usleep(unsigned long micros)
   time.tv_nsec = (micros % 1000) * 1000000ul;
   nanosleep(&time,NULL);
 }
-
 
   inline CILK_API(void)
 __cilkrts_ivar_clear(__cilkrts_ivar* ivar)
@@ -50,9 +51,6 @@ thaw_worker_state(__cilkrts_worker *w, __cilkrts_paused_stack *pstk)
 {
   CILK_ASSERT(w);
   CILK_ASSERT(pstk);
-
-  //TMP:
-  if (pstk->ff == NULL) cilk_dbg(IVAR, "[thaw_worker_state] full frame is null!\n");
 
   w->l->team                    = pstk->team;
   w->l->frame_ff                = pstk->ff;

@@ -1094,8 +1094,8 @@ void do_return_from_spawn(__cilkrts_worker *w,
  * been wrapped up, so all that remains is to longjmp() into the continuation,
  * sync, and re-raise it.
  */
-void __cilkrts_migrate_exception(__cilkrts_stack_frame *sf) {
-
+void __cilkrts_migrate_exception(__cilkrts_stack_frame *sf)
+{
   __cilkrts_worker *w = sf->worker;
   full_frame *ff;
 
@@ -1246,7 +1246,6 @@ static void __cilkrts_unbind_thread()
 }
 
 /* special return from the initial frame */
-
 void __cilkrts_c_return_from_initial(__cilkrts_worker *w)
 {
   struct cilkred_map *rm;

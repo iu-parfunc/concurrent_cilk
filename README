@@ -38,6 +38,12 @@ following commands to create the library:
 %c.
 %compile libcilkrts with ./build_libcilk.sh
 
+%d. 
+%initialize the cilk tests submodule
+%cd $CILK_SRC 
+%git submodule init
+%git submodule update
+
 
 #
 #  2. USING:

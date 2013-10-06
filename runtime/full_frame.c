@@ -41,10 +41,6 @@
 #   include "sysdep-win.h"
 #endif  // _WIN32
 
-#ifdef CILK_IVARS
-#include "internal/abi.h" //for full_frame flags
-#endif
-
 COMMON_PORTABLE
 full_frame *__cilkrts_make_full_frame(__cilkrts_worker *w,
                                       __cilkrts_stack_frame *sf)
@@ -81,10 +77,6 @@ full_frame *__cilkrts_make_full_frame(__cilkrts_worker *w,
         ff->stack_child = 0;
 
         ff->sync_master = 0;
-
-#ifdef CILK_IVARS
-        ff->concurrent_cilk_flags = 0;
-#endif
 
         /*__cilkrts_init_full_frame_sysdep(w, ff);*/
         ff->full_frame_magic_1 = FULL_FRAME_MAGIC_1;

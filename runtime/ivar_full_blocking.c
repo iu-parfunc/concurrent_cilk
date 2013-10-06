@@ -102,6 +102,7 @@ __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
 
   if (IVAR_PAUSED(old_val)) {
     pstk = (__cilkrts_paused_stack *) (old_val >> IVAR_SHIFT);
+
     cilk_dbg(1,"enqueueing ctx %p\n", pstk->w->ready_queue);
 
     //this is thread safe because any other reads of the ivar take the fast path.
