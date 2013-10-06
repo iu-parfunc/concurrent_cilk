@@ -23,7 +23,7 @@ cd build
 #-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 cmake \
   -DCONCURRENT_CILK=ON \
-  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_INSTALL_PREFIX=$CILK_ROOT ..;
 
 make && make install

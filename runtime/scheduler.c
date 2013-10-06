@@ -68,6 +68,7 @@
 #include "concurrent_cilk_internal.h"
 #include <cilk/concurrent_queue.h>
 #endif
+#include <cilk/concurrent_cilk.h>
 
 #ifndef _WIN32
 #   include <unistd.h>

@@ -44,6 +44,7 @@
 #include "global_state.h"
 #include "meta_schedulers.h"
 #include "reducer_impl.h"
+#include <cilk/concurrent_cilk.h>
 
 __CILKRTS_BEGIN_EXTERN_C
 

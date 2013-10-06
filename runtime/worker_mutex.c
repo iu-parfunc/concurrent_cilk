@@ -115,7 +115,7 @@ void __cilkrts_mutex_destroy(__cilkrts_worker *w, struct mutex *m)
 void __cilkrts_worker_lock(__cilkrts_worker *w)
 {
     validate_worker(w);
-    CILK_ASSERT(w->l->do_not_steal == 0);
+  //  CILK_ASSERT(w->l->do_not_steal == 0);
 
     /* tell thieves to stay out of the way */
     w->l->do_not_steal = 1;

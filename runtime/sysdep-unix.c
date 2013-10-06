@@ -54,6 +54,8 @@
 
 #include <stddef.h>
 
+#include <cilk/concurrent_cilk.h>
+
 #ifdef __CYGWIN__
 // On Cygwin, string.h doesnt declare strcasecmp if __STRICT_ANSI__ is defined
 #   undef __STRICT_ANSI__
@@ -334,8 +336,8 @@ static inline void restore_fp_state (__cilkrts_stack_frame *sf) {
    points into original stack (i.e., it is either the same as ff->sync_sp or a
    small offset from it caused by pushes and pops between the spawn and the
    sync).  */
-NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *ff,
-                          __cilkrts_stack_frame *sf)
+NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *volatile ff,
+                          __cilkrts_stack_frame *volatile sf)
 {
     // Assert: w is the only worker that knows about ff right now, no
     // lock is needed on ff.
