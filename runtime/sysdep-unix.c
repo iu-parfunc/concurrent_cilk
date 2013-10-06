@@ -36,19 +36,18 @@
 #   define _GNU_SOURCE
 #endif
 
+#include "bug.h"
+#include "jmpbuf.h"
 #include "sysdep.h"
 #include "os.h"
-#include "bug.h"
 #include "local_state.h"
 #include "signal_node.h"
 #include "full_frame.h"
-#include "jmpbuf.h"
-#include "cilk_malloc.h"
-#include "reducer_impl.h"
 #include "metacall_impl.h"
 #include "scheduler.h"
 #include "meta_schedulers.h"
-
+#include "cilk_malloc.h"
+#include "reducer_impl.h"
 
 // contains notification macros for VTune.
 #include "cilk-ittnotify.h"
@@ -359,7 +358,7 @@ NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *ff,
          * here. */
         SP(sf) = ff->sync_sp;
 
-    IVAR_DBG_PRINT(1, "about to resume with worker %d ff %p and sf %p\n",w->self, ff, sf);
+    cilk_dbg(1, "about to resume with worker %d ff %p and sf %p\n",w->self, ff, sf);
     sp = SP(sf);
 
     /* Debugging: make sure stack is accessible. */
@@ -916,7 +915,7 @@ static void write_version_file (global_state_t *g, int n)
     // Print system info.  E.g.,
     // System information
     // ==================
-    // Cilk runtime path: /opt/icc/64/lib/libcilkrts.so.5
+    // Cilk runtime path: /opt/icc/64/libcilkrts.so.5
     // System OS: Linux, release 2.6.28-19-generic
     // System architecture: x86_64
 

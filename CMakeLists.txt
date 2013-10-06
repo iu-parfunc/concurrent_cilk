@@ -138,11 +138,11 @@ if(${CONCURRENT_CILK})
 
     # These flags are only add in Debug build type. 
     # Tell gdb we really want all the info.
-    set(EXTRA_DEBUG_FLAGS "-ggdb -g3 -fvar-tracking-assignments -DIVAR_DBG=1")
+    set(EXTRA_DEBUG_FLAGS "-ggdb -g3 -fvar-tracking-assignments -DIVAR_DBG=1 -O0")
 
     # base flags for C/C++ that are used irrespective of build type
-    set(BASE_C_FLAGS "-Wall -std=c99")
-    set(BASE_CXX_FLAGS "-Wall")
+    set(BASE_C_FLAGS "-Wall -std=c99 -O3")
+    set(BASE_CXX_FLAGS "-Wall -O3")
 
 
     #C Additions

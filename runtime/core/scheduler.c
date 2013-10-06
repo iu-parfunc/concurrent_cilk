@@ -31,41 +31,41 @@
  * Cilk scheduler
  */
 
-#include "bug.h"
-#include "scheduler.h"
-#include "os.h"
-#include "os_mutex.h"
-#include "local_state.h"
-#include "signal_node.h"
-#include "full_frame.h"
-#include "stacks.h"
-#include "sysdep.h"
-#include "sync.h"
-#include "frame_malloc.h"
-#include "metacall_impl.h"
-#include "cilk-tbb-interop.h"
+#include <bug/bug.h>
+#include <core/scheduler.h>
+#include <core/os.h>
+#include <core/os_mutex.h>
+#include <core/local_state.h>
+#include <core/signal_node.h>
+#include <core/full_frame.h>
+#include <core/stacks.h>
+#include <core/sysdep.h>
+#include <core/sync.h>
+#include <core/frame_malloc.h>
+#include <core/metacall_impl.h>
+#include <core/cilk-tbb-interop.h>
 
-#include "except.h"
-#include "cilk_malloc.h"
-#include "cilk_util.h"
+#include <exception/except.h>
+#include <malloc/cilk_malloc.h>
+#include <util/cilk_util.h>
 
-#include "pedigrees.h"
-#include "stats.h"
-#include "reducer_impl.h"
+#include <pedigree/pedigrees.h>
+#include <stats/stats.h>
+#include <reducers/reducer_impl.h>
 
 #include <string.h> /* memcpy */
 #include <stdio.h>  // sprintf
 #include <stdlib.h> // malloc, free, abort
 
 #include <cilk/cilk_api.h>
-#include "cilk-ittnotify.h"
+#include <ittnotify/cilk-ittnotify.h>
 
 //concurrent cilk conditional includes
 //note: this must appear below "common.h" which contains
 //the definition for CILK_IVARS
 #ifdef CILK_IVARS
 #include <cilk/common.h>
-#include "concurrent_cilk_internal.h"
+#include <concurrent/concurrent_cilk_internal.h>
 #include <cilk/concurrent_queue.h>
 #endif
 

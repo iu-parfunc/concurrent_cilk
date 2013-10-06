@@ -57,19 +57,35 @@ typedef __cilkrts_ivar ivar_t;
 #define write_iv __cilkrts_ivar_write
 #define clear_iv __cilkrts_ivar_clear
 
+//debug levels
+#define OFF       0x00
+#define SCHED     0x01
+#define LOCK      0x02
+#define FRAME     0x04
+#define IVAR      0x08
+#define REDUCER   0x10
+#define PEDIGREE  0x20
+#define QUEUE     0x40
+
+#define DBG_MASK 0xff
+
 
 /**
  * print out the thread and a message when ivar debug is turned on
  */
 #ifndef IVAR_DBG
-#define IVAR_DBG 5
+#define IVAR_DBG 0 //off by default
 #endif
 
-#define IVAR_DBG_PRINT(lvl, ...) if(IVAR_DBG >= lvl) {    \
+#ifdef IVAR_DBG_ON
+#define cilk_dbg(lvl, ...) if (lvl & IVAR_DBG) {    \
   pthread_t id = pthread_self(); char buf[512];             \
   sprintf(buf, __VA_ARGS__);                                \
-  volatile struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
+  volatile struct __cilkrts_worker*volatile tw = __cilkrts_get_tls_worker(); \
   fprintf(stderr, "[tid/W %3d %2d/%p] %s", (int)(((int)id)%1000), tw ? tw->self : -999999, tw, buf); }
+#else
+#define cilk_dbg(lvl, ...) 
+#endif
 
 
 __CILKRTS_END_EXTERN_C

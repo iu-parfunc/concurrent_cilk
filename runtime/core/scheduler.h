@@ -39,11 +39,11 @@
 #include <cilk/common.h>
 #include <internal/abi.h>
 
-#include "rts-common.h"
-#include "full_frame.h"
-#include "global_state.h"
-#include "meta_schedulers.h"
-#include "reducer_impl.h"
+#include <core/rts-common.h>
+#include <core/full_frame.h>
+#include <core/global_state.h>
+#include <core/meta_schedulers.h>
+#include <reducers/reducer_impl.h>
 
 __CILKRTS_BEGIN_EXTERN_C
 
