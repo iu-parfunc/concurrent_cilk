@@ -238,7 +238,6 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *volatile sf)
 
     update_pedigree_on_leave_frame(w, sf);
 
-
     /* This path is taken when undo-detach wins the race with stealing.
        Otherwise this strand terminates and the caller will be resumed
        via setjmp at sync. */
