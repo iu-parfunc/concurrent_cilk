@@ -34,8 +34,8 @@
 #endif
 
 #include "os.h"
-#include <bug/bug.h>
-#include <malloc/cilk_malloc.h>
+#include "bug.h"
+#include "cilk_malloc.h"
 #include <internal/abi.h>
 
 #if defined __linux__

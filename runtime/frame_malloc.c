@@ -27,9 +27,9 @@
  **************************************************************************/
 
 #include "frame_malloc.h"
-#include <bug/bug.h>
+#include "bug.h"
 #include "local_state.h"
-#include <malloc/cilk_malloc.h>
+#include "cilk_malloc.h"
 
 #include <memory.h>
 

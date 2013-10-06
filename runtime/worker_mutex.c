@@ -27,10 +27,10 @@
  **************************************************************************/
 
 #include "worker_mutex.h"
-#include <bug/bug.h>
+#include "bug.h"
 #include "os.h"
 #include "stats.h"
-#include <util/cilk_util.h>
+#include "cilk_util.h"
 #include "scheduler.h"
 
 /* m->lock == 1 means that mutex M is locked */

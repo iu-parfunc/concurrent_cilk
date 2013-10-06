@@ -49,7 +49,7 @@
 
 #include "os.h"
 #include "os_mutex.h"
-#include <bug/bug.h>
+#include "bug.h"
 #include "global_state.h"
 #include "local_state.h"
 #include "scheduler.h"

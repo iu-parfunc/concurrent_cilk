@@ -5,7 +5,7 @@
 #include "sysdep.h"
 #include "sync.h"
 
-#include <ittnotify/cilk-ittnotify.h>
+#include "cilk-ittnotify.h"
 
 //concurrent cilk conditional includes
 //note: this must appear below "common.h" which contains

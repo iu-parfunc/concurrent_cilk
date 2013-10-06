@@ -65,11 +65,11 @@ if(${CONCURRENT_CILK})
 
   # Sources files
   set(cilk_runtime_sources
-    runtime/lib/malloc/cilk_malloc.c
-    runtime/lib/exception/except-gcc.cpp
-    runtime/lib/jmpbuf/jmpbuf.c
-    runtime/lib/bug/bug.cpp
-    runtime/lib/util/cilk_util.c
+    runtime/cilk_malloc.c
+    runtime/except-gcc.cpp
+    runtime/jmpbuf.c
+    runtime/bug.cpp
+    runtime/cilk_util.c
 
     runtime/cilk-abi.c
     runtime/cilk_api.c

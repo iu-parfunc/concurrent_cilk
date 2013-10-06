@@ -40,7 +40,7 @@
 
 #include "reducer_impl.h"
 #include "scheduler.h"
-#include <bug/bug.h>
+#include "bug.h"
 #include "global_state.h"
 #include "frame_malloc.h"
 

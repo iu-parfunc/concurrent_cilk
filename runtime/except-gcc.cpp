@@ -29,7 +29,7 @@
 #include "except-gcc.h"
 #include "except.h"
 #include "sysdep.h"
-#include <bug/bug.h>
+#include "bug.h"
 #include "local_state.h"
 #include "full_frame.h"
 #include "scheduler.h"

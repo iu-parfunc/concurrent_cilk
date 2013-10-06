@@ -24,7 +24,7 @@
 #include <cilk/concurrent_queue.h>
 #include "concurrent_cilk_internal.h"
 
-#include <malloc/cilk_malloc.h>
+#include "cilk_malloc.h"
 #include <sched.h>
 
 
