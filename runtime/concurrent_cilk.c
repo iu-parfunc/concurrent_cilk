@@ -134,7 +134,7 @@ void paused_stack_unlock(__cilkrts_paused_stack *pstk) {
   atomic_release(&(pstk->lock), 0);
 }
 
-void restore_ready_computation(__cilkrts_worker *w, __cilkrts_worker *victim) 
+void restore_ready_computation(__cilkrts_worker *volatile w, __cilkrts_worker *volatile victim) 
 {
    uintptr_t ptr              = 0;
   __cilkrts_paused_stack *tmp = NULL;
@@ -144,6 +144,8 @@ void restore_ready_computation(__cilkrts_worker *w, __cilkrts_worker *victim)
   if (w->restore_queue) {
     if (q_is_empty(w->restore_queue)) {
 
+      cilk_dbg(IVAR, "[restore_ready_computation] w %d/%p restoring its escape context %p\n",
+          w->self, w, w->escape);
       CILK_ASSERT(w->escape);
       CILK_ASSERT(w->escape->w);
       delete_stack_queue(w->restore_queue); //TODO: cache?
@@ -154,6 +156,8 @@ void restore_ready_computation(__cilkrts_worker *w, __cilkrts_worker *victim)
     } else {
 
       dequeue(w->restore_queue, (ELEMENT_TYPE *) &tmp); 
+      cilk_dbg(IVAR, "[restore_ready_computation] w %d/%p restoring its paused context %p\n",
+          w->self,w, tmp);
       CILK_ASSERT(tmp); 
       thaw_frame(w, tmp);                     //resumes tmp's context
       CILK_ASSERT(0);                          
@@ -207,6 +211,7 @@ int steal_queue(__cilkrts_worker *thief, __cilkrts_worker *victim)
   queue_t *q;
   full_frame *ff = thief->l->frame_ff;
 
+
   //short circuit if there is already a queue waiting to be restored.
   if (thief->restore_queue) return 0;
 
@@ -216,9 +221,12 @@ int steal_queue(__cilkrts_worker *thief, __cilkrts_worker *victim)
   //someone else got the queue...don't continue.
   if (! q) return 0;
 
+  cilk_dbg(SCHED|IVAR, "[steal_queue[ w %d/%p successfully stole queue %p from %d/%p\n",
+      thief->self, thief, q, victim->self, victim);
+
   CILK_ASSERT(thief->restore_queue == NULL);
 
-  //install the old ready_queue as the restor_queue
+  //install the old ready_queue as the restore_queue
   thief->restore_queue = q;
 
   return 1;

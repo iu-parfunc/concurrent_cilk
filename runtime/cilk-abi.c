@@ -139,18 +139,15 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
 /*    DBGPRINTF("%d - __cilkrts_undo_detach - sf %p\n", w->self, sf); */
 
     --t;
+    /* this makes ivars work, but it breaks concurrent cilk. need to fix TODO
 #ifdef CILK_IVARS
-      if_f(t < w->exc) {
-#if defined __i386__ || defined __x86_64__
-        __sync_fetch_and_and(&sf->flags, ~CILK_FRAME_DETACHED);
-#else
-        __cilkrts_fence(); /* membar #StoreLoad */
-        sf->flags &= ~CILK_FRAME_DETACHED;
+    //self stolen frames don't count, because they are as if the worker had executed
+    //the computation serially.
+    if(!sf->flags & CILK_FRAME_SELF_STEAL && t >= w->head) 
 #endif
-        return 0;
-      }
-#endif
-    w->tail = t;
+*/
+      w->tail = t;
+
     /* On x86 the __sync_fetch_and_<op> family includes a
        full memory barrier.  In theory the sequence in the
        second branch of the #if should be faster, but on

@@ -1,7 +1,6 @@
 
-/*
- *
- * Copyright (C) 2009-2011 , Intel Corporation
+/**
+ * Copyright (C) 2012-2014, Christopher Zakian
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -14,9 +13,6 @@
  *     notice, this list of conditions and the following disclaimer in
  *     the documentation and/or other materials provided with the
  *     distribution.
- *   * Neither the name of Intel Corporation nor the names of its
- *     contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
  * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -33,11 +29,11 @@
  *
  */
 
-#include "lockfree_queue.h"
 #include "../concurrent_cilk_internal.h"
 #include "../cilk_malloc.h"
+#include "lockfree_queue.h"
 
-//Michael & Scott Lockfree Queues
+//Michael & Scott Lockfree Queue
 
 queue_t* make_stack_queue() {
 
@@ -58,9 +54,7 @@ queue_t* make_stack_queue() {
 int enqueue(queue_t* q, ELEMENT_TYPE value) 
 {
   __cilkrts_stack_pair *tail, *next, *newp;
-#ifdef QUEUE_DEBUG
-  IVAR_DBG_PRINT_(3, " [concurrent-cilk,lockfree-Q] Begin enqueue of stack %p into queue %p\n", value, q);
-#endif
+  cilk_dbg(QUEUE, " [concurrent-cilk,lockfree-Q] Begin enqueue of stack %p into queue %p\n", value, q);
   newp        = (__cilkrts_stack_pair*)__cilkrts_malloc(sizeof(__cilkrts_stack_pair)); 
   newp->data  = value;
   newp->next  = NULL;
@@ -79,9 +73,7 @@ int enqueue(queue_t* q, ELEMENT_TYPE value)
   }
   // If we fail to swing the tail that is ok.  Whoever came in after us deserves it.
   __sync_bool_compare_and_swap( &q->tail, tail, newp );
-#ifdef QUEUE_DEBUG
-  IVAR_DBG_PRINT_(3, " [concurrent-cilk,lockfree-Q] Successfully enqueued stalled stack %p in queue %p\n", value, q);
-#endif
+  cilk_dbg(QUEUE, " [concurrent-cilk,lockfree-Q] Successfully enqueued stalled stack %p in queue %p\n", value, q);
   return SUCCESS;
 }
 
@@ -90,9 +82,7 @@ int dequeue(queue_t* q, ELEMENT_TYPE * value)
 {
   volatile __cilkrts_stack_pair *head; 
   __cilkrts_stack_pair *tail, *next;
-#ifdef QUEUE_DEBUG
-  IVAR_DBG_PRINT_(4, " [concurrent-cilk,lockfree-Q] Begin dequeue from queue %p\n", q);
-#endif
+  cilk_dbg(QUEUE, " [concurrent-cilk,lockfree-Q] Begin dequeue from queue %p\n", q);
   while(1) {
     head = q->head;
     tail = q->tail;
@@ -111,9 +101,7 @@ int dequeue(queue_t* q, ELEMENT_TYPE * value)
       }
   }
   __cilkrts_free((queue_t *) head);
-#ifdef QUEUE_DEBUG
-  IVAR_DBG_PRINT_(3, " [concurrent-cilk,lockfree-Q] Successfully dequeued stalled stack %p from queue %p\n", *value, q);
-#endif
+  cilk_dbg(QUEUE, " [concurrent-cilk,lockfree-Q] Successfully dequeued stalled stack %p from queue %p\n", *value, q);
   return SUCCESS;
 }
 

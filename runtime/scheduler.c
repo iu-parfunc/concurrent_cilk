@@ -955,7 +955,7 @@ void __cilkrts_promote_own_deque(__cilkrts_worker *w)
 void __cilkrts_c_THE_exception_check(__cilkrts_worker *w, 
     __cilkrts_stack_frame *returning_sf)
 {
-  full_frame *ff;
+  full_frame *volatile ff;
   int stolen_p;
   __cilkrts_stack_frame *saved_sf = NULL;
   START_INTERVAL(w, INTERVAL_THE_EXCEPTION_CHECK);
@@ -1041,7 +1041,7 @@ NORETURN __cilkrts_exception_from_spawn(__cilkrts_worker *w,
 }
 
 void do_return_from_spawn(__cilkrts_worker *w,
-    full_frame *ff,
+    full_frame *volatile ff,
     __cilkrts_stack_frame *sf)
 {
   full_frame *parent_ff;
