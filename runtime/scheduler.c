@@ -1127,12 +1127,20 @@ void __cilkrts_migrate_exception(__cilkrts_stack_frame *sf)
 __cilkrts_stack_frame *__cilkrts_pop_tail(__cilkrts_worker *w)
 {
   __cilkrts_stack_frame *sf;
+
   BEGIN_WITH_WORKER_LOCK(w) {
     __cilkrts_stack_frame *volatile *tail = w->tail;
+
+  cilk_dbg(FRAME, "[pop_tail] tail %p exc %p head %p\n", 
+      w->tail, w->exc, w->head);
+
     if (w->head < tail) {
       --tail;
       sf = *tail;
       w->tail = tail;
+
+      cilk_dbg(FRAME, "[pop_tail] popped! new tail %p\n", w->tail);
+
     } else {
       sf = 0;
     }
@@ -1262,7 +1270,9 @@ void __cilkrts_c_return_from_initial(__cilkrts_worker *w)
   BEGIN_WITH_WORKER_LOCK_OPTIONAL(w) {
     full_frame *ff = w->l->frame_ff;
     CILK_ASSERT(ff);
-    cilk_dbg(1,"ff->join_counter %d\n", ff->join_counter);
+
+    cilk_dbg(FRAME,"[c_return_from_initial] ff->join_counter %d\n", ff->join_counter);
+
     CILK_ASSERT(ff->join_counter == 1);
     w->l->frame_ff = 0;
 

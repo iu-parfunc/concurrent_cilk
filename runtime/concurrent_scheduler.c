@@ -15,7 +15,7 @@
 
 void self_steal(__cilkrts_worker *w)
 {
-  cilk_dbg(SCHED, "[self_steal] %d/%p\n", w->self, w);
+  cilk_dbg(SCHED, "[self_steal] entering w %d/%p\n", w->self, w);
 
   full_frame *child_ff, *parent_ff = w->l->frame_ff;
   __cilkrts_stack_frame *sf;
@@ -40,7 +40,8 @@ void self_steal(__cilkrts_worker *w)
     child_ff->sync_master = w;
     child_ff->is_call_child = 0;
 
-    cilk_dbg(FRAME, "[self_steal] w %d/%p sf %p parent %p child %p", w->self, w, sf, parent_ff, child_ff);
+    cilk_dbg(SCHED|FRAME, "[self_steal] w %d/%p sf %p parent %p child %p\n",
+        w->self, w, sf, parent_ff, child_ff);
 
     parent_ff->call_stack->flags |= CILK_FRAME_STOLEN;
     push_child(parent_ff, child_ff);
@@ -60,7 +61,7 @@ unlock:
     __cilkrts_mutex_unlock(w, &w->l->steal_lock);
     return;
   } 
-  cilk_dbg(1, "[self steal] could not get lock on worker %d/%p\n", w->self, w);
+  cilk_dbg(SCHED, "[self steal] could not get lock on worker %d/%p\n", w->self, w);
 }
 
 void concurrent_sched(__cilkrts_worker *w, void *args)

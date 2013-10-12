@@ -18,12 +18,13 @@ rm -rf build
 mkdir build 
 cd build 
 
+#levels of compilation (changes flags, etc.)
 #-DCMAKE_BUILD_TYPE=Debug \
 #-DCMAKE_BUILD_TYPE=Release \
 #-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 cmake \
   -DCONCURRENT_CILK=ON \
-  -DCMAKE_BUILD_TYPE=Debug \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
   -DCMAKE_INSTALL_PREFIX=$CILK_ROOT ..;
 
 make && make install

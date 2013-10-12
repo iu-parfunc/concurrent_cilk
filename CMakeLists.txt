@@ -140,7 +140,7 @@ if(${CONCURRENT_CILK})
 
     # These flags are only add in Debug build type. 
     # Tell gdb we really want all the info.
-    set(EXTRA_DEBUG_FLAGS "-ggdb -g3 -fvar-tracking-assignments -DIVAR_DBG_ON -DIVAR_DBG=1 -O0")
+    set(EXTRA_DEBUG_FLAGS "-ggdb -g3 -fvar-tracking-assignments -DIVAR_DBG_ON -DIVAR_DBG=0x5 -O0")
 
     #set optimization level to max for release
     #This must appear at the end of the flags, or the cmake defaults could override this option. From the gcc manpage:

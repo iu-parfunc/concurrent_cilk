@@ -349,9 +349,14 @@ NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *volatile ff,
     sf->worker = w;
     CILK_ASSERT(flags & CILK_FRAME_SUSPENDED);
 #ifndef CILK_IVARS
-    CILK_ASSERT(!sf->call_parent);
-    CILK_ASSERT(w->head == w->tail);
+    //a stack frame that is a self steal steals from
+    //the opposite (bottom) end of the dequeue, so it necessarily
+    //has a call parent.
+    if (! (sf->flags & CILK_FRAME_SELF_STEAL)) {
+      CILK_ASSERT(!sf->call_parent);
+    }
 #endif
+    CILK_ASSERT(w->head == w->tail);
 
     if (ff->simulated_stolen)
         /* We can't prevent __cilkrts_make_unrunnable_sysdep from discarding
@@ -360,7 +365,7 @@ NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *volatile ff,
          * here. */
         SP(sf) = ff->sync_sp;
 
-    cilk_dbg(1, "about to resume with worker %d ff %p and sf %p\n",w->self, ff, sf);
+    cilk_dbg(SCHED, "[resume] about to resume with worker %d ff %p and sf %p\n",w->self, ff, sf);
     sp = SP(sf);
 
     /* Debugging: make sure stack is accessible. */

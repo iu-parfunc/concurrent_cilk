@@ -139,14 +139,25 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
 /*    DBGPRINTF("%d - __cilkrts_undo_detach - sf %p\n", w->self, sf); */
 
     --t;
-    /* this makes ivars work, but it breaks concurrent cilk. need to fix TODO
+
+    cilk_dbg(SCHED, "[undo_detach]  w %d/%p tail %p exc %p head %p sf %p flags 0x%x\n",
+        w->self, w, w->tail, w->exc, w->head, sf, sf->flags);
+
 #ifdef CILK_IVARS
     //self stolen frames don't count, because they are as if the worker had executed
-    //the computation serially.
-    if(!sf->flags & CILK_FRAME_SELF_STEAL && t >= w->head) 
-#endif
-*/
+    //the computation serially. This effectively turns the pop_tail call in self_steal
+    //into a peek_tail. There must be two views: a thief sees a popped tail (i.e. can't double execute the stolen frame),
+    //but the worker who did the self steal must still know it exists.
+    if (sf->flags & CILK_FRAME_SELF_STEAL) {
+
+      cilk_dbg(SCHED, "[undo_detach] sf %p was a self steal, NOT decrementing tail (flags 0x%x)\n",
+          sf, sf->flags);
+
       w->tail = t;
+    }
+#else
+      w->tail = t;
+#endif
 
     /* On x86 the __sync_fetch_and_<op> family includes a
        full memory barrier.  In theory the sequence in the
@@ -164,7 +175,7 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
 
 /**
  * CSZ: interesting fact, you need the *volatile for the lonjmp or the compiler
- * *may* restore the varabile 
+ * *may* restore the varabile, but is not required to. 
  */
 CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *volatile sf)
 {

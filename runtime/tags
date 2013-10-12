@@ -8,7 +8,7 @@
 =======
 >>>>>>> meta_scheduler
 ADAPTIVE	/home/czakian/Research/concurrent_cilk/include/cilk/concurrent_queue.h	40;"	d
-ALIASED_NAME	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	463;"	d	file:
+ALIASED_NAME	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	474;"	d	file:
 ASSERT_WORKER_LOCK_OWNED	/home/czakian/Research/concurrent_cilk/runtime/scheduler.h	86;"	d
 BACKTRACKING	/home/czakian/Research/concurrent_cilk/include/cilk/concurrent_queue.h	39;"	d
 BATCH_INCREAMENT	/home/czakian/Research/concurrent_cilk/include/cilk/concurrent_queue.h	46;"	d
@@ -77,7 +77,6 @@ CILK_MIN_STACK_SIZE	./os-unix.c	465;"	d	file:
 CILK_MIN_STACK_SIZE	/home/czakian/Research/concurrent_cilk/runtime/os-unix.c	465;"	d	file:
 CILK_MIN_STACK_SIZE	os-unix.c	465;"	d	file:
 CILK_RESTORATION_POINT_IVAR_BLOCK	/home/czakian/Research/concurrent_cilk/runtime/ivar_full_blocking.c	32;"	d	file:
-CILK_RESTORATION_POINT_LEAVE_FRAME	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk.c	244;"	d	file:
 CILK_TBB_STACK_ADOPT	./cilk-tbb-interop.h	/^    CILK_TBB_STACK_ADOPT,$/;"	e	enum:__cilk_tbb_stack_op
 CILK_TBB_STACK_ADOPT	cilk-tbb-interop.h	/^    CILK_TBB_STACK_ADOPT,$/;"	e	enum:__cilk_tbb_stack_op
 CILK_TBB_STACK_ORPHAN	./cilk-tbb-interop.h	/^    CILK_TBB_STACK_ORPHAN,$/;"	e	enum:__cilk_tbb_stack_op
@@ -341,7 +340,7 @@ LOCK	/home/czakian/Research/concurrent_cilk/include/cilk/concurrent_cilk.h	63;"	
 LOW	./concurrent_cilk_internal.h	64;"	d
 LOW	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	64;"	d
 LOW	concurrent_cilk_internal.h	61;"	d
-MAP_ANONYMOUS	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	605;"	d	file:
+MAP_ANONYMOUS	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	610;"	d	file:
 MAP_ANONYMOUS	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	78;"	d	file:
 MED	./concurrent_cilk_internal.h	65;"	d
 MED	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	65;"	d
@@ -379,7 +378,7 @@ P	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int P;    
 P	global_state.h	/^    int P;         \/**< USER SETTING: number of system workers + 1 (fixed) *\/$/;"	m	struct:global_state_t
 PAGE	./os-unix.c	464;"	d	file:
 PAGE	/home/czakian/Research/concurrent_cilk/runtime/os-unix.c	464;"	d	file:
-PAGE	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	590;"	d	file:
+PAGE	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	595;"	d	file:
 PAGE	os-unix.c	464;"	d	file:
 PAUSED_FIBER	/home/czakian/Research/concurrent_cilk/include/cilk/concurrent_cilk.h	/^typedef __cilkrts_ivar *PAUSED_FIBER;$/;"	t
 PC	./jmpbuf.h	53;"	d
@@ -400,7 +399,7 @@ PLACEHOLDER_STACK	global_state.h	53;"	d
 PREFERRED_ALIGNMENT	./cilk_malloc.c	37;"	d	file:
 PREFERRED_ALIGNMENT	cilk_malloc.c	37;"	d	file:
 PROD_BATCH_SIZE	/home/czakian/Research/concurrent_cilk/include/cilk/concurrent_queue.h	45;"	d
-PROFILING_STACKS	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	642;"	d	file:
+PROFILING_STACKS	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	647;"	d	file:
 Q	./global_state.h	/^    int Q;         \/**< Number of user threads currently bound to workers *\/$/;"	m	struct:global_state_t
 Q	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int Q;         \/**< Number of user threads currently bound to workers *\/$/;"	m	struct:global_state_t	access:public
 Q	global_state.h	/^    int Q;         \/**< Number of user threads currently bound to workers *\/$/;"	m	struct:global_state_t
@@ -421,7 +420,7 @@ SCHED	/home/czakian/Research/concurrent_cilk/include/cilk/concurrent_cilk.h	62;"
 SCHEDULE_EXIT	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^                  SCHEDULE_EXIT };$/;"	e	enum:schedule_t	file:
 SCHEDULE_RUN	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^enum schedule_t { SCHEDULE_RUN,$/;"	e	enum:schedule_t	file:
 SCHEDULE_WAIT	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^                  SCHEDULE_WAIT,$/;"	e	enum:schedule_t	file:
-SMASK	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	574;"	d	file:
+SMASK	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	579;"	d	file:
 SP	./jmpbuf.h	51;"	d
 SP	./jmpbuf.h	55;"	d
 SP	./jmpbuf.h	60;"	d
@@ -438,7 +437,7 @@ STOP_INTERVAL	./stats.h	187;"	d
 STOP_INTERVAL	./stats.h	193;"	d
 STOP_INTERVAL	stats.h	187;"	d
 STOP_INTERVAL	stats.h	193;"	d
-STRINGIFY	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	462;"	d	file:
+STRINGIFY	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	473;"	d	file:
 SUCCESS	./queues/lockfree_queue.h	11;"	d
 SUCCESS	/home/czakian/Research/concurrent_cilk/include/cilk/concurrent_queue.h	90;"	d
 TAG	/home/czakian/Research/concurrent_cilk/include/cilk/concurrent_cilk.h	50;"	d

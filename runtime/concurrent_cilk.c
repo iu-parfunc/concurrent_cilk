@@ -221,7 +221,7 @@ int steal_queue(__cilkrts_worker *thief, __cilkrts_worker *victim)
   //someone else got the queue...don't continue.
   if (! q) return 0;
 
-  cilk_dbg(SCHED|IVAR, "[steal_queue[ w %d/%p successfully stole queue %p from %d/%p\n",
+  cilk_dbg(SCHED|IVAR, "[steal_queue] w %d/%p successfully stole queue %p from %d/%p\n",
       thief->self, thief, q, victim->self, victim);
 
   CILK_ASSERT(thief->restore_queue == NULL);
@@ -241,7 +241,7 @@ int steal_queue(__cilkrts_worker *thief, __cilkrts_worker *victim)
 void __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
 {
   //turn on restoration of full ivars on leave frame
-#define CILK_RESTORATION_POINT_LEAVE_FRAME
+//#define CILK_RESTORATION_POINT_LEAVE_FRAME
 #ifdef CILK_RESTORATION_POINT_LEAVE_FRAME
   //restore everything from the restore queue
   restore_ready_computation(w, w);
