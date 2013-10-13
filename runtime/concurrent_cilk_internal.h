@@ -164,6 +164,7 @@ int steal_queue(__cilkrts_worker *thief, __cilkrts_worker *victim);
 int setup_restore_queue(__cilkrts_worker *w, __cilkrts_worker *victim);
 queue_t *replace_queue(__cilkrts_worker *w);
 void do_restoration(__cilkrts_worker *w);
+void concurrent_sync(__cilkrts_worker *w);
 
 __CILKRTS_END_EXTERN_C
 #endif

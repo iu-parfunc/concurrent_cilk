@@ -405,3 +405,12 @@ devlog Oct 5: running some experiments to figure out why the return from long ju
   Note to self: don't ever code a reentrant setjmp again. It is just asking for problems. In other good news, the making of the cilk stack frame and worker pointer volatile
   in __cilkrts_leave_frame() fixed my -fno-omit-frame-pointer problem above. I can now run all tests on single core with -O3 straightup enabled. 
 
+devlog Oct 12: Got everything back working on non ivar programs, and on ivar programs on single core. I am trying out multicore.
+  There appears to be some sort of corruption going on in the compiled code. From what I can backward engineer, it appears that it is an inlined version of 
+  enter_frame_fast_internal(__cilkrts_stack_frame *sf, uint32_t version). on the long jump back for a restore run, the sf->worker field is null. I manually
+  set the variables to the correct pointers in gdb, and was able to progress to the second issue, which appears to be more weird corruption. In this case, 
+  the problem stems from the fact w->l->frame_ff is mysteriously nulled on the return to the calling function. This is a bit weird, since the worker is a heap 
+  allocated pointer. My suspicion is that there is some stack interaction with a random_steal and a self steal that is causing the problem. I'll see what I can fanagle tomorrow
+  on that. The good news is that at least single core is a basic proof of concept. I really hope the problem is in runtime and not the fact that automatic variables may or may not
+  be restored on a longjmp unless they are declared pointer volatiles. 
+  

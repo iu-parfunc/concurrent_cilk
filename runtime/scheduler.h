@@ -93,7 +93,7 @@ __CILKRTS_BEGIN_EXTERN_C
 #endif // DEBUG_LOCKS
 
 
-#ifdef CILK_IVARS
+//#ifdef CILK_IVARS
 #include "local_state.h"
 NORETURN longjmp_into_runtime(__cilkrts_worker *w, scheduling_stack_fcn_t fcn, __cilkrts_stack_frame *sf);
 void self_steal(__cilkrts_worker *w);
@@ -103,7 +103,7 @@ void make_unrunnable(__cilkrts_worker *w,
                             __cilkrts_stack_frame *sf,
                             int state_valid,
                             const char *why);
-#endif
+//#endif
 
 /**
  * Lock the worker mutex to allow exclusive access to the values in the
@@ -381,7 +381,7 @@ void __cilkrts_leave_cilk(global_state_t *g);
 COMMON_PORTABLE
 void __cilkrts_dump_stats_to_stderr(global_state_t *g);
 
-#ifdef CILK_IVARS
+//#ifdef CILK_IVARS
 full_frame *pop_next_frame(__cilkrts_worker *w);
 void push_child(full_frame *parent_ff, full_frame *child_ff);
 void make_runnable(__cilkrts_worker *w, full_frame *ff);
@@ -393,7 +393,7 @@ int can_steal_from(__cilkrts_worker *victim);
 /* Return true if the frame can be stolen, false otherwise */
 int dekker_protocol(__cilkrts_worker *victim);
 __cilkrts_stack_frame *__cilkrts_advance_frame(__cilkrts_stack_frame *sf);
-#endif
+//#endif
 
 //TODO: remove all these from here and into their own reduction module
 

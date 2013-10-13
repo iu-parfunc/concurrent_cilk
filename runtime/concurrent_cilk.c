@@ -241,7 +241,7 @@ int steal_queue(__cilkrts_worker *thief, __cilkrts_worker *victim)
 void __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
 {
   //turn on restoration of full ivars on leave frame
-//#define CILK_RESTORATION_POINT_LEAVE_FRAME
+#define CILK_RESTORATION_POINT_LEAVE_FRAME
 #ifdef CILK_RESTORATION_POINT_LEAVE_FRAME
   //restore everything from the restore queue
   restore_ready_computation(w, w);
@@ -250,4 +250,21 @@ void __concurrent_cilk_leave_frame_hook(__cilkrts_worker *w, __cilkrts_stack_fra
   return;
 }
 //------------------------------------------
+
+inline static int can_restore(__cilkrts_worker *w)
+{
+  return !q_is_empty(w->ready_queue) || 
+    (w->restore_queue && !q_is_empty(w->restore_queue));
+}
+
+void concurrent_sync(__cilkrts_worker *w) 
+{
+  if (w == NULL) {
+    w = __cilkrts_get_tls_worker();
+  }
+
+  while (can_restore(w)) {
+    restore_ready_computation(w, w);
+  }
+}
 

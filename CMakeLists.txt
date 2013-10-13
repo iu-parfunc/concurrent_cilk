@@ -24,7 +24,7 @@ set(CMAKE_CXX_COMPILER "icc")
 # -----------------------------------------
 
 #turn on concurrent cilk by default. (everything for CCC conditionally included on this variable)
-option(CONCURRENT_CILK ON)
+#option(CONCURRENT_CILK ON)
 
 # If there is an extra file that needs to get compiled, add it here. 
 # -----------------------------------------
@@ -93,7 +93,6 @@ if(${CONCURRENT_CILK})
     runtime/pedigrees.c
     runtime/sync.c
     runtime/random_scheduler.c
-    runtime/concurrent_scheduler.c
     )
 
   # Conditionally append concurrent cilk sources
@@ -103,6 +102,7 @@ if(${CONCURRENT_CILK})
       runtime/concurrent_cilk.c
       runtime/ivar_full_blocking.c
       runtime/concurrent_queue.c
+      runtime/concurrent_scheduler.c
       )
     endif()
 

@@ -249,14 +249,10 @@ typedef struct __cilkrts_pedigree
 // Set the default:
 
 #ifdef CONCURRENT_CILK
-#ifndef CILK_IVARS
-#define CILK_IVARS 1
-
-// what queue we want to use:
-#define LOCKFREE_QUEUE_VERSION 1
-//#define B_QUEUE_VERSION 1
-#endif //CILK_IVARS
-
+#  ifndef CILK_IVARS
+#    define CILK_IVARS 1
+#    define LOCKFREE_QUEUE_VERSION 1
+#  endif //CILK_IVARS
 #endif
 
 #endif /* INCLUDED_CILK_COMMON */

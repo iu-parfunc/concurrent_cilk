@@ -50,6 +50,11 @@ int make_paused_stack(__cilkrts_worker* w, __cilkrts_ivar *ivar);
 #define TAG(iv)   (iv << IVAR_SHIFT)
 #define UNTAG(iv) (iv >> IVAR_SHIFT)
 
+/**
+ * force this worker to restore all paused computations before proceeding
+ */
+#define sync_ivars concurrent_sync(NULL)
+
 
 //convenience aliases for a kinder use of ivars in C
 typedef __cilkrts_ivar ivar_t;

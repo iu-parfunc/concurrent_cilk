@@ -64,11 +64,12 @@
 //note: this must appear below "common.h" which contains
 //the definition for CILK_IVARS
 #ifdef CILK_IVARS
-#include <cilk/common.h>
-#include "concurrent_cilk_internal.h"
-#include <cilk/concurrent_queue.h>
+#  include <cilk/common.h>
+#  include "concurrent_cilk_internal.h"
+#  include <cilk/concurrent_queue.h>
+#  include <cilk/concurrent_cilk.h>
 #endif
-#include <cilk/concurrent_cilk.h>
+
 
 #ifndef _WIN32
 #   include <unistd.h>
@@ -506,6 +507,7 @@ static void setup_for_execution_reducers(__cilkrts_worker *w,
   //
   // First check whether ff is synched.
   __cilkrts_stack_frame *sf = ff->call_stack;
+
 #ifdef CILK_IVARS
   //in the ivars variant, a self steal should never require that the reduce map be passed
   if (!(sf->flags & CILK_FRAME_UNSYNCHED) && ! (sf->flags & CILK_FRAME_SELF_STEAL)) {
@@ -1131,15 +1133,10 @@ __cilkrts_stack_frame *__cilkrts_pop_tail(__cilkrts_worker *w)
   BEGIN_WITH_WORKER_LOCK(w) {
     __cilkrts_stack_frame *volatile *tail = w->tail;
 
-  cilk_dbg(FRAME, "[pop_tail] tail %p exc %p head %p\n", 
-      w->tail, w->exc, w->head);
-
     if (w->head < tail) {
       --tail;
       sf = *tail;
       w->tail = tail;
-
-      cilk_dbg(FRAME, "[pop_tail] popped! new tail %p\n", w->tail);
 
     } else {
       sf = 0;
@@ -1442,6 +1439,7 @@ __cilkrts_worker *make_worker(global_state_t *g,
   w->ready_queue   = (queue_t *) make_stack_queue();
   w->restore_queue = NULL;
   w->escape        = __cilkrts_malloc(sizeof(__cilkrts_paused_stack));
+  w->self_steal_offset = 0;
   memset(w->escape, 0, sizeof(__cilkrts_paused_stack));
 #endif
 

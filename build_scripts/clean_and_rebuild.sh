@@ -22,9 +22,13 @@ cd build
 #-DCMAKE_BUILD_TYPE=Debug \
 #-DCMAKE_BUILD_TYPE=Release \
 #-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+
+#toggle concurrent cilk on/off
+#-DCONCURRENT_CILK=ON \
+
 cmake \
   -DCONCURRENT_CILK=ON \
-  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_INSTALL_PREFIX=$CILK_ROOT ..;
 
 make && make install

@@ -417,7 +417,7 @@ void detach_for_steal(__cilkrts_worker *w,
 /*
  * Try to do work.  If there is none available, try to steal some and do it.
  */
-void random_work_steal_sched(__cilkrts_worker *w, void *args)
+void random_work_steal_sched(__cilkrts_worker *volatile w, void *args)
 {
   full_frame *ff;
 

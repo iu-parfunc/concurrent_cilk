@@ -52,6 +52,11 @@ NORETURN __cilkrts_c_sync(__cilkrts_worker *w, __cilkrts_stack_frame *sf_at_sync
   // and no one else can steal and change w->l->frame_ff.
 
   ff = w->l->frame_ff;
+
+  //CSZ: ff in null for some reason, is it the worker or is it something else?
+  //NOTE: should w be a pointer volatile up there?
+  printf("w %p ff %p sf_at_sync %p \n", w, ff, sf_at_sync);
+
 #ifdef _WIN32
   __cilkrts_save_exception_state(w, ff);
 #else

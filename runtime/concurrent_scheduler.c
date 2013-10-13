@@ -13,10 +13,27 @@
 #include "concurrent_cilk_internal.h"
 #include <cilk/concurrent_queue.h>
 
-void self_steal(__cilkrts_worker *w)
+/* Pop a call stack from TAIL.  Return the call stack, or NULL if the
+   queue is empty */
+inline static __cilkrts_stack_frame *pop_tail(__cilkrts_worker *w)
 {
-  cilk_dbg(SCHED, "[self_steal] entering w %d/%p\n", w->self, w);
+  //ASSERT <<< worker lock owned!
+  __cilkrts_stack_frame *sf;
+  __cilkrts_stack_frame *volatile *tail = w->tail;
 
+  if (w->head < tail) {
+    --tail;
+    sf = *tail;
+    w->tail = tail;
+
+  } else {
+    sf = 0;
+  }
+  return sf;
+}
+
+inline static void self_steal(__cilkrts_worker *w)
+{
   full_frame *child_ff, *parent_ff = w->l->frame_ff;
   __cilkrts_stack_frame *sf;
   __cilkrts_stack *sd;
@@ -24,49 +41,54 @@ void self_steal(__cilkrts_worker *w)
 
   if (!can_steal_from(w)) return;
 
-  if (__cilkrts_mutex_trylock(w, &w->l->steal_lock)) {
+  if(! __cilkrts_mutex_trylock(w, &w->l->lock)) return;
+  /* tell thieves to stay out of the way */
+  w->l->do_not_steal = 1;
+  __cilkrts_fence(); /* probably redundant */
 
+  sd = __cilkrts_get_stack(w);
+  if_f(NULL == sd) goto unlock;
 
-    sd = __cilkrts_get_stack(w);
-    if_f(NULL == sd) goto unlock;
+  sf = pop_tail(w);
+  if_f(NULL == sf) goto unlock;
 
-    sf = __cilkrts_pop_tail(w);
-    if_f(NULL == sf) goto unlock;
+  //do we want these unsynced?
+  sf->flags |= CILK_FRAME_SF_PEDIGREE_UNSYNCHED;
+  //this isn't a real unsyncing, we are stealing up our own task queue, like serial work.
+  //sf->flags |= CILK_FRAME_UNSYNCHED;
 
-    sf->flags |= CILK_FRAME_SF_PEDIGREE_UNSYNCHED;
-    child_ff = __cilkrts_make_full_frame(w, sf);
-    child_ff->parent = parent_ff;
-    child_ff->stack_self = sd;
-    child_ff->sync_master = w;
-    child_ff->is_call_child = 0;
+  child_ff = __cilkrts_make_full_frame(w, sf);
+  child_ff->parent = parent_ff;
+  child_ff->stack_self = sd;
+  child_ff->sync_master = w;
+  child_ff->is_call_child = 0;
 
-    cilk_dbg(SCHED|FRAME, "[self_steal] w %d/%p sf %p parent %p child %p\n",
-        w->self, w, sf, parent_ff, child_ff);
+  cilk_dbg(SCHED|FRAME, "[self_steal] w %d/%p sf %p parent %p child %p\n",
+      w->self, w, sf, parent_ff, child_ff);
 
-    parent_ff->call_stack->flags |= CILK_FRAME_STOLEN;
-    push_child(parent_ff, child_ff);
-    sp = __cilkrts_stack_to_pointer(sd, sf);
+  parent_ff->call_stack->flags |= CILK_FRAME_STOLEN;
+  push_child(parent_ff, child_ff);
+  sp = __cilkrts_stack_to_pointer(sd, sf);
 
-    //looks like the last two arguments are never used? wtf...
-    __cilkrts_bind_stack(child_ff, sp, NULL, NULL);
+  //looks like the last two arguments are never used? wtf...
+  __cilkrts_bind_stack(child_ff, sp, NULL, NULL);
 
-    sf->flags |= CILK_FRAME_SELF_STEAL;
-    sf->call_parent = parent_ff->call_stack;
-    make_unrunnable(w, child_ff, sf, 1, "self_steal");
-    sf->flags &= ~CILK_FRAME_STOLEN;
-    w->l->frame_ff = NULL; //needed for assertion in do_work
+  sf->flags |= CILK_FRAME_SELF_STEAL;
+  sf->call_parent = parent_ff->call_stack;
+  make_unrunnable(w, child_ff, sf, 1, "self_steal");
+  sf->flags &= ~CILK_FRAME_STOLEN;
+  w->l->frame_ff = NULL; //needed for assertion in do_work
 
-    __cilkrts_push_next_frame(w,child_ff);
+  __cilkrts_push_next_frame(w,child_ff);
+  w->self_steal_offset++; 
+
 unlock:
-    __cilkrts_mutex_unlock(w, &w->l->steal_lock);
-    return;
-  } 
-  cilk_dbg(SCHED, "[self steal] could not get lock on worker %d/%p\n", w->self, w);
+  __cilkrts_worker_unlock(w);
 }
 
 void concurrent_sched(__cilkrts_worker *w, void *args)
 {
-  
+
   full_frame *ff;
 
   ff = pop_next_frame(w);
@@ -87,6 +109,8 @@ void concurrent_sched(__cilkrts_worker *w, void *args)
       if (can_steal_from(w)){
         self_steal(w);
       } else {
+        //if there is nothing to steal, then we can rest the steal offset as THE will be reset.
+        w->self_steal_offset = 0;
         random_steal(w);
       }
 

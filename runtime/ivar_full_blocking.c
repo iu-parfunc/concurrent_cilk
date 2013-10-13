@@ -18,7 +18,7 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)
 
 ivar_payload_t slow_path(__cilkrts_ivar *ivar)
 {
-  __cilkrts_worker *w;
+  __cilkrts_worker *volatile w;
   __cilkrts_paused_stack pstk = {0};
   __cilkrts_paused_stack *peek;
   __cilkrts_paused_stack *pstk_head = NULL;
@@ -86,7 +86,7 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
 
   // <-- We only jump back to here when the value is ready.
 
-  cilk_dbg(1,"ivar returning\n");
+  cilk_dbg(IVAR,"ivar returning\n");
   return UNTAG(*ivar);
 }
 

@@ -134,30 +134,20 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
 {
     __cilkrts_worker *w = sf->worker;
     __cilkrts_stack_frame *volatile *t = w->tail;
+    __cilkrts_stack_frame *volatile *e = w->exc;
 
 
-/*    DBGPRINTF("%d - __cilkrts_undo_detach - sf %p\n", w->self, sf); */
-
-    --t;
-
-    cilk_dbg(SCHED, "[undo_detach]  w %d/%p tail %p exc %p head %p sf %p flags 0x%x\n",
-        w->self, w, w->tail, w->exc, w->head, sf, sf->flags);
+    cilk_dbg(SCHED, "[undo_detach]  w %d/%p tail %p exc %p head %p self_steal_offsetsf %ld sf %p flags 0x%x\n",
+        w->self, w, w->tail, w->exc, w->head, w->self_steal_offset, sf, sf->flags);
 
 #ifdef CILK_IVARS
-    //self stolen frames don't count, because they are as if the worker had executed
-    //the computation serially. This effectively turns the pop_tail call in self_steal
-    //into a peek_tail. There must be two views: a thief sees a popped tail (i.e. can't double execute the stolen frame),
-    //but the worker who did the self steal must still know it exists.
-    if (sf->flags & CILK_FRAME_SELF_STEAL) {
-
-      cilk_dbg(SCHED, "[undo_detach] sf %p was a self steal, NOT decrementing tail (flags 0x%x)\n",
-          sf, sf->flags);
-
-      w->tail = t;
-    }
-#else
-      w->tail = t;
+    //if ivars are being used, the e pointer must account for self steals. 
+    //if there are no self steals, this is additive identity.
+    e -= w->self_steal_offset;
 #endif
+
+    --t;
+    w->tail = t;
 
     /* On x86 the __sync_fetch_and_<op> family includes a
        full memory barrier.  In theory the sequence in the
@@ -170,7 +160,7 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
     sf->flags &= ~CILK_FRAME_DETACHED;
 #endif
 
-    return __builtin_expect(t < w->exc, 0);
+    return __builtin_expect(t < e, 0);
 }
 
 /**
@@ -249,13 +239,13 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *volatile sf)
     /* This path is taken when undo-detach wins the race with stealing.
        Otherwise this strand terminates and the caller will be resumed
        via setjmp at sync. */
-#ifdef CILK_IVARS
+#ifndef CILK_IVARS
     if (__builtin_expect(sf->flags & (CILK_FRAME_FLAGS_MASK | CILK_FRAME_SELF_STEAL), 0))
 #else
-    if (__builtin_expect(sf->flags & CILK_FRAME_FLAGS_MASK, 0))
+      if (__builtin_expect(sf->flags & CILK_FRAME_FLAGS_MASK, 0))
 #endif
-      __cilkrts_bug("W%u: frame won undo-detach race with flags %02x\n",
-          w->self, sf->flags);
+        __cilkrts_bug("W%u: frame won undo-detach race with flags %02x\n",
+            w->self, sf->flags);
 
     return;
   }
@@ -274,6 +264,11 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *volatile sf)
 CILK_ABI_VOID __cilkrts_sync(__cilkrts_stack_frame *sf)
 {
   __cilkrts_worker *w = sf->worker;
+
+#ifdef CILK_IVARS
+  concurrent_sync(w);
+#endif
+
   /*    DBGPRINTF("%d-%p __cilkrts_sync - sf %p\n", w->self, GetWorkerFiber(w), sf); */
   if (__builtin_expect(!(sf->flags & CILK_FRAME_UNSYNCHED), 0))
     __cilkrts_bug("W%u: double sync %p\n", w->self, sf);

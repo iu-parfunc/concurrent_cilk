@@ -228,6 +228,8 @@ struct __cilkrts_worker {
     struct queue_t *restore_queue;
 
     struct __cilkrts_paused_stack *escape;
+
+    long self_steal_offset;
 #endif
 };
 
@@ -375,19 +377,6 @@ struct __cilkrts_stack_frame
 
 #ifdef CILK_IVARS
 #define CILK_FRAME_SELF_STEAL        0x200
-//#define CILK_FRAME_BLOCKED           0x400
-//#define CILK_FRAME_BLOCKED_RETURNING 0x800
-#define CILK_FRAME_SELF_STEAL_MASK   0x200
-
-
-#define FULL_FRAME_UNBLOCKED    0x00
-#define FULL_FRAME_BLOCKED      0x01
-#define FULL_FRAME_SELF_STEAL   0x02
-#define FULL_FRAME_BLOCKED_LAST 0x04
-
-#define CILK_WORKER_UNBLOCKED   0x01 //set when no outstanding blocks exist
-#define CILK_WORKER_BLOCKED     0x02 //set when a blocked computation is outstanding
-#define CILK_WORKER_RESTORING   0x04 //set when unblocking blocked computations
 #endif
 
 /**
