@@ -247,7 +247,7 @@ NORETURN __cilkrts_c_sync_except (__cilkrts_worker *w, __cilkrts_stack_frame *sf
     __cxa_eh_globals *state = __cxa_get_globals();
     _Unwind_Exception *exc = (_Unwind_Exception *)sf->except_data;
 
-    CILK_ASSERT (sf->flags & (CILK_FRAME_UNSYNCHED|CILK_FRAME_EXCEPTING) == (CILK_FRAME_UNSYNCHED|CILK_FRAME_EXCEPTING));
+    CILK_ASSERT ((sf->flags & (CILK_FRAME_UNSYNCHED|CILK_FRAME_EXCEPTING)) == (CILK_FRAME_UNSYNCHED|CILK_FRAME_EXCEPTING));
     sf->flags &= ~CILK_FRAME_EXCEPTING;
 
 #if DEBUG_EXCEPTIONS

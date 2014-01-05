@@ -57,7 +57,9 @@
 
 // Disable warning about integer conversions losing significant bits.
 // The code is correct as is.
-#pragma warning(disable:2259)
+#ifdef __INTEL_COMPILER__ 
+#  pragma warning(disable:2259)
+#endif
 
 CILK_C_REDUCER_OPADD_IMP(char,char)
 CILK_C_REDUCER_OPADD_IMP(unsigned char,uchar)

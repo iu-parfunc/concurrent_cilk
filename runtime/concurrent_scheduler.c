@@ -32,7 +32,7 @@ inline static __cilkrts_stack_frame *pop_tail(__cilkrts_worker *w)
   return sf;
 }
 
-inline static void self_steal(__cilkrts_worker *w)
+inline void self_steal(__cilkrts_worker *w)
 {
   full_frame *child_ff, *parent_ff = w->l->frame_ff;
   __cilkrts_stack_frame *sf;
@@ -86,57 +86,72 @@ unlock:
   __cilkrts_worker_unlock(w);
 }
 
+typedef enum sched_state_t { STEALING, WORKING, EVENT_WAKEUP } sched_state_t;
+
+inline static void  reset_worker(__cilkrts_worker *w)
+{
+  if (w->l->type != WORKER_USER && w->l->team != NULL) {
+    BEGIN_WITH_WORKER_LOCK(w) {
+      w->l->team = NULL;
+    } END_WITH_WORKER_LOCK(w);
+  }
+}
+
+#define HAS_WORK 0x1
+#define CAN_WAKEUP_IVARS 0x2
+#define CAN_SELF_STEAL 0x4
+
+inline static sched_state_t build_sched_state(__cilkrts_worker *w)
+{
+  uint32_t state = 0;
+
+  full_frame *ff = pop_next_frame(w);
+
+  state |= (ff == NULL)               * HAS_WORK;
+  state |= can_steal_from(w)          * CAN_SELF_STEAL;
+  state |= q_is_empty(w->ready_queue) * CAN_WAKEUP_IVARS;
+
+  return state;
+}
+
 void concurrent_sched(__cilkrts_worker *w, void *args)
 {
 
   full_frame *ff;
+  uint32_t state = build_sched_state(w);
 
-  ff = pop_next_frame(w);
+  reset_worker(w);
 
-  // If there is no work on the queue, try to steal some.
-  if (NULL == ff) {
-
-    START_INTERVAL(w, INTERVAL_STEALING) {
-      if (w->l->type != WORKER_USER && w->l->team != NULL) {
-        // At this point, the worker knows for certain that it has run
-        // out of work.  Therefore, it loses its team affiliation.  User
-        // workers never change teams, of course.
-        __cilkrts_worker_lock(w);
-        w->l->team = NULL;
-        __cilkrts_worker_unlock(w);
-      }
-
-      if (can_steal_from(w)){
-        self_steal(w);
-      } else {
-        //if there is nothing to steal, then we can rest the steal offset as THE will be reset.
-        w->self_steal_offset = 0;
-        random_steal(w);
-      }
-
-    } STOP_INTERVAL(w, INTERVAL_STEALING);
-
-    // If the steal was successful, then the worker has populated its next
-    // frame with the work to resume.
-    ff = pop_next_frame(w);
-    if (NULL == ff) {
-      // Punish the worker for failing to steal.
-      // No quantum for you!
-      __cilkrts_yield();
-      w->l->steal_failure_count++;
-      return;
-    } else {
-      // Reset steal_failure_count since there is obviously still work to
-      // be done.
-      w->l->steal_failure_count = 0;
-    }
+  switch (state) {
+    case CAN_WAKEUP_IVARS:
+      restore_ready_computation(w); 
+      CILK_ASSERT(0); 
+    case HAS_WORK: 
+      break;
+    case CAN_SELF_STEAL:
+      self_steal(w); break;
+    default:
+      w->self_steal_offset = 0;
+      w->l->frame_ff = 0;
+      random_steal(w);
   }
 
-  CILK_ASSERT(ff);
 
-  // Do the work that was on the queue or was stolen.
-  START_INTERVAL(w, INTERVAL_WORKING) {
-    do_work(w, ff);
-    ITT_SYNC_SET_NAME_AND_PREPARE(w, w->l->sync_return_address);
-  } STOP_INTERVAL(w, INTERVAL_WORKING);
+  // If the steal was successful, then the worker has populated its next
+  // frame with the work to resume.
+  ff = pop_next_frame(w);
+  if (NULL == ff) {
+    // Punish the worker for failing to steal.
+    // No quantum for you!
+    __cilkrts_yield();
+    w->l->steal_failure_count++;
+    return;
+  } 
+
+  // Reset steal_failure_count since there is obviously still work to
+  // be done.
+  w->l->steal_failure_count = 0;
+  do_work(w, ff);
+  ITT_SYNC_SET_NAME_AND_PREPARE(w, w->l->sync_return_address);
 }
+

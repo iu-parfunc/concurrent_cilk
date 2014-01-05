@@ -10,16 +10,16 @@ cmake_minimum_required(VERSION 2.8.8)
 # -----------------------------------------
 
 # Set clang/clang++ as the compiler
-#set(CMAKE_C_COMPILER "clang")
-#set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_C_COMPILER "clang")
+set(CMAKE_CXX_COMPILER "clang++")
 
 # Set gcc as the compiler
 #set(CMAKE_C_COMPILER "gcc")
 #set(CMAKE_CXX_COMPILER "g++")
 
 # Set icc as the compiler
-set(CMAKE_C_COMPILER "icc")
-set(CMAKE_CXX_COMPILER "icc")
+#set(CMAKE_C_COMPILER "icc")
+#set(CMAKE_CXX_COMPILER "icc")
 
 # -----------------------------------------
 
@@ -140,7 +140,10 @@ if(${CONCURRENT_CILK})
 
     # These flags are only add in Debug build type. 
     # Tell gdb we really want all the info.
-    set(EXTRA_DEBUG_FLAGS "-ggdb -g3 -fvar-tracking-assignments -DIVAR_DBG_ON -DIVAR_DBG=0x5 -O0")
+    set(EXTRA_DEBUG_FLAGS "-ggdb -g3 -DIVAR_DBG_ON -DIVAR_DBG=0x5 -O0")
+    if (NOT ${CMAKE_C_COMPILER} MATCHES "clang")
+      set(EXTRA_DEBUG_FLAGS "-fvar-tracking-assignments ${EXTRA_DEBUG_FLAGS}")
+    endIf()
 
     #set optimization level to max for release
     #This must appear at the end of the flags, or the cmake defaults could override this option. From the gcc manpage:
@@ -150,8 +153,14 @@ if(${CONCURRENT_CILK})
     set(EXTRA_RELEASE_CXX_FLAGS "-O3")
 
     # base flags for C/C++ that are used irrespective of build type
-    set(BASE_C_FLAGS "-Wall -std=c99")
+    set(BASE_C_FLAGS "-Wall -std=c11")
     set(BASE_CXX_FLAGS "-Wall")
+
+    #clang needs -fcilkplus defined
+    if (${CMAKE_C_COMPILER} MATCHES "clang") 
+      set(BASE_C_FLAGS "${BASE_C_FLAGS} -Wno-unused-variable -Wno-unused-value -Wno-uninitialized -fcilkplus")
+      set(BASE_CXX_FLAGS "${BASE_CXX_FLAGS} -fcilkplus -Wno-unused-variable -Wno-unused-value -Wno-uninitialized")
+    endIf()
 
 
     #C Additions

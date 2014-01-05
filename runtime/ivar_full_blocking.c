@@ -6,7 +6,7 @@
 #include "scheduler.h"
 #include "bug.h"
 
-NOINLINE
+inline
 CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)
 {
   //fast path -- already got a value
@@ -26,13 +26,6 @@ ivar_payload_t slow_path(__cilkrts_ivar *ivar)
 
   //slow path -- operation must block until a value is available
   w = __cilkrts_get_tls_worker_fast();
-
-  //before trying to pause a computation, clear the dequeue
-  //of the worker to see if continuing blocked work will fill this ivar.
-#define CILK_RESTORATION_POINT_IVAR_BLOCK
-#ifdef CILK_RESTORATION_POINT_IVAR_BLOCK
-  restore_ready_computation(w, w);
-#endif
 
   if(IVAR_READY(*ivar)) { return UNTAG(*ivar); }
 
