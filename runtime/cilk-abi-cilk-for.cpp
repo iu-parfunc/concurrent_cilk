@@ -239,7 +239,7 @@ tail_recurse:
         // spawn detaches.  The only place we can do that is within the
         // argument list of the spawned function, hence the call to
         // capture_spawn_arg_stack_frame().
-        __cilkrts_stack_frame *sf;
+        __cilkrts_stack_frame *sf = NULL;
         _Cilk_spawn cilk_for_recursive(low, mid, body, data, grain,
                                        capture_spawn_arg_stack_frame(sf, w),
                                        loop_root_pedigree);

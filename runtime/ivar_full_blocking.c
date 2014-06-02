@@ -3,107 +3,112 @@
 #include "concurrent_queue.h"
 #include "cilk_malloc.h"
 #include <cilk/cilk_api.h>
+#include <cilk/concurrent_cilk.h>
 #include "scheduler.h"
 #include "bug.h"
-#include <string.h>
 
+/** 
+ * Clear an IVar.
+ *
+ * Sets the IVar's value to 0. 
+ */
+inline CILK_API(void)
+__cilkrts_ivar_clear(__cilkrts_ivar* ivar) { *ivar = 0; }
 
-
-inline
-CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)
+/**
+ * Read an IVar and obtain its value. An IVar can be in any one of three states:
+ *  CASE 1:IVar is full:
+ *          -- return the value.
+ *  CASE 2: IVar is already in a paused state:
+ *          -- register the continuation as waiting on the IVar's value.
+ *          -- pause the continuation and steal work.
+ *          -- once the IVar is full, the function will return the value.
+ *  CASE 3: IVar is empty:
+ *         -- atomically install this continuation's paused stack and set the tag to CILK_IVAR_PAUSED.
+ *         -- pause the continuation and steal work.
+ *         -- once the IVar is full, the function will return the value.
+ */
+inline CILK_API(ivar_payload_t)
+__cilkrts_ivar_read(__cilkrts_ivar *ivar)
 {
   __cilkrts_worker *w;
-  __cilkrts_paused_stack *pstk;
-  __cilkrts_paused_stack *peek;
-  __cilkrts_paused_stack *pstk_head;
-  uintptr_t ptr;
-  //fast path -- already got a value
-  if(IVAR_READY(*ivar)) {
-    return UNTAG(*ivar);
-  }
+  __cilkrts_paused_fiber *volatile pfiber_head;
+  __cilkrts_paused_fiber pfiber;
+  unsigned short exit = 0;
+  uintptr_t old_w;
 
-  pstk = __cilkrts_malloc(sizeof(__cilkrts_paused_stack));
-  memset(pstk, 0, sizeof(__cilkrts_paused_stack));
+  //fast path -- already got a value.
+  if(IVAR_READY(*ivar)) { return UNTAG(*ivar); }
 
-  //slow path -- operation must block until a value is available
-  w = __cilkrts_get_tls_worker_fast();
-  ptr = (uintptr_t) __cilkrts_pause((pstk->ctx));
+  //slow path -- operation must block until a value is available.
+  memset(&pfiber, 0, sizeof(__cilkrts_paused_fiber));
+  w     = __cilkrts_get_tls_worker_fast();
+  old_w = (uintptr_t) __cilkrts_pause_fiber(pfiber->ctx);
 
-  if(! ptr) {
+  if(! old_w) {
 
-    // Register the continuation in the ivar's header.
     do {
+      switch (*ivar & IVAR_MASK) {
+        case CILK_IVAR_EMPTY: 
+          pfiber.head = pfiber.tail = &pfiber;
+          //if the CAS operation succeeds, the ivar is now in the paused state,
+          //and this continuation is waiting on it. 
+          exit = cas(ivar, 0, (((ivar_payload_t) &pfiber) << IVAR_SHIFT) | CILK_IVAR_PAUSED); 
+          break;
+        case CILK_IVAR_PAUSED: 
+          //pull out the reference to the root paused stack
+          //all reads on a paused ivar compete for the lock on this
+          //paused stack
+          pfiber_head = (__cilkrts_paused_fiber  *) (*ivar >> IVAR_SHIFT);
 
-      if(IVAR_PAUSED(*ivar)) {
-        printf("ivar read in paused state\n");
-
-        //pull out the reference to the root paused stack
-        //all reads on a paused ivar compete for the lock on this
-        //paused stack
-        pstk_head = (__cilkrts_paused_stack  *) (*ivar >> IVAR_SHIFT);
-
-        //set the tail element to be the new paused stack
-        while (! paused_stack_trylock(pstk_head)) spin_pause();
-
-        //append the new paused stack to the waitlist 
-        pstk_head->tail->next = pstk; 
-
-        //the new stack is the new tail
-        pstk_head->tail = pstk;
-
-        paused_stack_unlock(pstk_head);
-
-        //go directly to finalize pause
-        break;
-
+          //set the tail element to be the new paused stack
+          while (! paused_fiber_trylock(pfiber_head)) spin_pause();
+          //append the new paused stack to the waitlist 
+          pfiber_head->tail->next = pfiber_head->tail = &pfiber;
+          paused_fiber_unlock(pfiber_head);
+          exit = 1;
+          break;
+        default: 
+          __cilkrts_bug("Cilk IVar %p in corrupted state. Aborting program.\n", ivar);
       }
+    } while(!exit);
 
-
-      if(IVAR_READY(*ivar)) {
-        // Well nevermind then... now it is full.
-        return UNTAG(*ivar);
-      }
-
-      pstk->head = pstk;;
-      pstk->tail = pstk;
-
-    } while(! cas(ivar, 0, (((ivar_payload_t) pstk) << IVAR_SHIFT) | CILK_IVAR_PAUSED));
-
-
-    __cilkrts_finalize_pause(w, pstk); 
+    __cilkrts_commit_pause(&pfiber); 
     CILK_ASSERT(0); //no return. heads to scheduler.
   }
 
-  memset(&wkr->ctx, 0, 5);
-  __cilkrts_mutex_unlock(wkr, &wkr->l->lock);
-  // <-- We only jump back to here when the value is ready.
-
-  printf("ivar returning\n");
   return UNTAG(*ivar);
 }
 
-  inline CILK_API(void)
+
+/**
+ * Write an Ivar with an opaque value. 
+ * Multiple writes are treated as a bug. 
+ */
+inline CILK_API(void)
 __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val) 
 {
+  __cilkrts_paused_fiber *pfiber;
   //the new value is the actual value with the full ivar tag added to it
-  ivar_payload_t newval = (val << IVAR_SHIFT) | CILK_IVAR_FULL;
+  ivar_payload_t new_val  = (val << IVAR_SHIFT) | CILK_IVAR_FULL;
+  ivar_payload_t old_val  = (ivar_payload_t) atomic_set(ivar, new_val);
 
-  //write without checking for any checking. Either this succeeds or there is a bug
-  ivar_payload_t old_val = (ivar_payload_t) atomic_set(ivar, newval);
-
-  if(IVAR_PAUSED(old_val)) {
-    __cilkrts_paused_stack *pstk = (__cilkrts_paused_stack *) (old_val >> IVAR_SHIFT);
-    printf("enqueueing ctx %p\n", pstk->w->ready_queue);
-
-    //this is thread safe because any other reads of the ivar take the fast path.
-    //Therefore the waitlist of paused stacks can only be referenced here.
-    do {
-      enqueue(pstk->w->ready_queue, (ELEMENT_TYPE) pstk);
-      pstk = pstk->next;
-    } while(pstk);
+  switch (old_val & IVAR_MASK) {
+    case CILK_IVAR_PAUSED:
+      pfiber = (__cilkrts_paused_fiber *) (old_val >> IVAR_SHIFT);
+      //this is thread safe because any other reads of the ivar take the fast path.
+      //Therefore the waitlist of paused stacks can only be referenced here.
+      do {
+        //TODO: no need to maintain one queue...probably more efficiecient to keep a ** array in the worker 
+        enqueue(pfiber->w->ready_queue, (ELEMENT_TYPE) pfiber);
+        pfiber = pfiber->next;
+      } while(pfiber);
+    case CILK_IVAR_EMPTY:
+      break;  //do nothing -- write already done.
+    case CILK_IVAR_FULL:
+      __cilkrts_bug("Attempted multiple puts on Cilk IVar %p. Aborting program.\n", ivar);
+    default:
+      __cilkrts_bug("Cilk IVar %p in corrupted state. Aborting program.\n", ivar);
 
   }
-
-  if(IVAR_READY(old_val)) 
-    __cilkrts_bug("Attempted multiple puts on Cilk IVar %p. Aborting program.\n", ivar);
 }

@@ -180,7 +180,6 @@ template <typename INT_T, typename CHAR_T>
 int store_int(INT_T *out, const CHAR_T *val, INT_T min, INT_T max)
 {
     errno = 0;
-    char *end = 0;
     long val_as_long = to_long(val);
     if (val_as_long == 0 && errno != 0)
         return __CILKRTS_SET_PARAM_INVALID;
@@ -439,8 +438,6 @@ global_state_t* cilkg_init_global_state()
     // Get partially-initialized global state.
     global_state_t* g = cilkg_get_user_settable_values();
 
-    int i, max_workers;
-
     if (g->max_stacks > 0) {
 
         // nstacks is currently honored on non-Windows systems only.
@@ -486,11 +483,6 @@ global_state_t* cilkg_init_global_state()
     g->stacks = 0;
     g->stack_size = cilkos_validate_stack_size(g->stack_size);
     g->failure_to_allocate_stack = 0;
-
-#ifdef CILK_IVARS
-    g->live_blocked_workers = 0;
-    g->only_waiting_on_blocked = 0;
-#endif
 
     return g;
 }

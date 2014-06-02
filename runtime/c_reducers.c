@@ -55,9 +55,11 @@
 # define HUGE_VALL (*((const long double *)__huge_vall))
 #endif
 
+#if defined(__ICC) || defined(__INTEL_COMPILER)
 // Disable warning about integer conversions losing significant bits.
 // The code is correct as is.
 #pragma warning(disable:2259)
+#endif
 
 CILK_C_REDUCER_OPADD_IMP(char,char)
 CILK_C_REDUCER_OPADD_IMP(unsigned char,uchar)

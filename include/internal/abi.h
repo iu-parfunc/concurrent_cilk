@@ -222,12 +222,8 @@ struct __cilkrts_worker {
 #endif  /* __CILKRTS_ABI_VERSION >= 1 */
 
 #ifdef CILK_IVARS
-    short is_blocked;
-
-    struct full_frame *paused_ff;
-
     struct queue_t *ready_queue;
-
+    //__cilkrts_worker *parent;
 #endif
 };
 
@@ -372,16 +368,6 @@ struct __cilkrts_stack_frame
 
 /** Is this the last (oldest) Cilk frame? */
 #define CILK_FRAME_LAST	     0x80
-
-#ifdef CILK_IVARS
-#define CILK_FRAME_SELF_STEAL 0x200
-#define CILK_FRAME_BLOCKED 0x400
-#define CILK_FRAME_BLOCKED_RETURNING 0x800
-
-#define FULL_FRAME_BLOCKED      0x01
-#define FULL_FRAME_SELF_STEAL   0x02
-#define FULL_FRAME_BLOCKED_LAST 0x04
-#endif
 
 /**
  * Is this frame in the epilogue, or more generally after the last

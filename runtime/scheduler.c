@@ -86,14 +86,6 @@
 #   include <unistd.h>
 #endif
 
-//concurrent cilk conditional includes
-//note: this must appear below "common.h" which contains
-//the definition for CILK_IVARS
-#ifdef CILK_IVARS
-#include "concurrent_cilk_internal.h"
-#include <concurrent_queue.h>
-#endif
-
 //#define DEBUG_LOCKS 1
 #ifdef DEBUG_LOCKS
 // The currently executing worker must own this worker's lock
@@ -1066,9 +1058,7 @@ static inline void splice_stacks_for_call(__cilkrts_worker *w,
   /* An attached parent has no self stack.  It may have
      accumulated child stacks or child owners, which should be
      ignored until sync. */
-#ifndef CILK_IVARS
   CILK_ASSERT(!parent_ff->stack_self);
-#endif
   parent_ff->stack_self = child_ff->stack_self;
   child_ff->stack_self = NULL;
 }
@@ -1151,12 +1141,7 @@ static void setup_for_execution_reducers(__cilkrts_worker *w,
   //
   // First check whether ff is synched.
   __cilkrts_stack_frame *sf = ff->call_stack;
-#ifdef CILK_IVARS
-  //in the ivars variant, a self steal should never require that the reduce map be passed
-  if (!(sf->flags & CILK_FRAME_UNSYNCHED) && ! (sf->flags & CILK_FRAME_SELF_STEAL)) {
-#else
   if (!(sf->flags & CILK_FRAME_UNSYNCHED)) {
-#endif
     // In this case, ff is synched. (Case 1).
       CILK_ASSERT(!ff->rightmost_child);
 
@@ -1270,11 +1255,7 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   // Assume that this is a steal or return from spawn in a force-reduce case.
   // We don't have a scheduling stack to switch to, so call the continuation
   // function directly.
-#ifdef CILK_IVARS
-  if (1 == w->g->P && !w->is_blocked) {
-#else
     if (1 == w->g->P) {
-#endif
       fcn(w, ff, sf);
 
       /* The call to function c() will have pushed ff as the next frame.  If
@@ -1373,15 +1354,9 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     notify_children(w, 1);
   }
 
-  //CSZ: experiencing stack corruption here. looks like the registers
-  //are trashed on return from a paused computation. the w, and ff are completely gone. 
-  //the actual frame is fine though, because if you make a volatile and copy the variables
-  //down, they appear to be fine. the registers, however, remain completely corrupted in both 
-  //cases. 
   static void do_work(__cilkrts_worker *w, full_frame *ff)
   {
     __cilkrts_stack_frame *sf;
-    volatile short regs_restored = 0;
 
 #ifndef _WIN32
     cilkbug_assert_no_uncaught_exception();
@@ -1391,9 +1366,7 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
       CILK_ASSERT(!w->l->frame_ff);
       BEGIN_WITH_FRAME_LOCK(w, ff) {
         sf = ff->call_stack;
-#ifndef CILK_IVARS
         CILK_ASSERT(sf && !sf->call_parent);
-#endif
         setup_for_execution(w, ff, 0);
       } END_WITH_FRAME_LOCK(w, ff);
     } END_WITH_WORKER_LOCK(w);
@@ -1440,46 +1413,6 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 #endif
   }
 
-#ifdef CILK_IVARS
-
-  void self_steal(__cilkrts_worker *w)
-  {
-    full_frame *child_ff, *parent_ff = w->paused_ff;
-    __cilkrts_stack_frame *sf;
-    __cilkrts_stack *sd;
-    char *sp;
-
-    if(!can_steal_from(w)) return;
-
-    CILK_ASSERT(w->l->frame_ff == 0);
-
-    sd = __cilkrts_get_stack(w);
-    if(NULL == sd) return;
-
-    sf = __cilkrts_pop_tail(w);
-    if(NULL == sf) return;
-
-    sf->flags |= CILK_FRAME_SF_PEDIGREE_UNSYNCHED;
-    child_ff = __cilkrts_make_full_frame(w, sf);
-    child_ff->parent = parent_ff;
-    child_ff->stack_self = sd;
-    child_ff->sync_master = NULL;
-    child_ff->is_call_child = 0;
-
-    parent_ff->call_stack->flags |= CILK_FRAME_STOLEN;
-    push_child(parent_ff, child_ff);
-    sp = __cilkrts_stack_to_pointer(sd, sf);
-
-    //looks like the last two arguments are never used? wtf...
-    __cilkrts_bind_stack(child_ff, sp, NULL, NULL);
-
-    sf->flags |= CILK_FRAME_SELF_STEAL;
-    sf->call_parent = parent_ff->call_stack;
-    make_unrunnable(w, child_ff, sf, 1, "self_steal");
-    sf->flags &= ~CILK_FRAME_STOLEN;
-    __cilkrts_push_next_frame(w,child_ff);
-  }
-#endif
 
   /*
    * Try to do work.  If there is none available, try to steal some and do it.
@@ -1493,20 +1426,6 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     // If there is no work on the queue, try to steal some.
     if (NULL == ff) {
 
-#ifdef CILK_IVARS
-
-      //each worker must "pay their way" by checking
-      //for a ready paused stack. Then they are free
-      //to restore their own paused stack if it is ready.
-      __cilkrts_paused_stack *pstk = NULL;
-
-      dequeue(w->ready_queue, (ELEMENT_TYPE *) &pstk);
-      if(pstk) {
-        printf("dequeueing ctx %p\n", pstk);
-        thaw_frame(pstk);
-        CILK_ASSERT(0);
-      }
-#endif
 
       START_INTERVAL(w, INTERVAL_STEALING) {
         if (w->l->type != WORKER_USER && w->l->team != NULL) {
@@ -1518,15 +1437,7 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
           __cilkrts_worker_unlock(w);
         }
 
-#ifdef CILK_IVARS
-        if(can_steal_from(w)) {
-          self_steal(w);
-        } else {
-          random_steal(w);
-        }
-#else
         random_steal(w);
-#endif
 
       } STOP_INTERVAL(w, INTERVAL_STEALING);
 
@@ -2008,117 +1919,6 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     return sf;
   }
 
-#ifdef CILK_IVARS
-
- void do_return_from_self (__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf)
- {
-   return;
- }
-
-static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
-    full_frame *parent_ff,
-    full_frame *child_ff)
-{
-  // ASSERT: we hold w->lock and parent_ff->lock
-
-  START_INTERVAL(w, INTERVAL_FINALIZE_CHILD) {
-    //TODO TMP: make runtime happy. This isn't necessarily true in this case. 
-    child_ff->is_call_child = 1;
-    CILK_ASSERT(child_ff->join_counter == 0);
-    CILK_ASSERT(!child_ff->rightmost_child);
-    CILK_ASSERT(child_ff == parent_ff->rightmost_child);
-
-    // CHILD is about to die. 
-    // Splicing out reducers is a no-op for a call since
-    // w->reducer_map should already store the correct 
-    // reducer map.
-
-    // ASSERT there are no maps left to reduce.
-    CILK_ASSERT(NULL == child_ff->children_reducer_map);
-    CILK_ASSERT(NULL == child_ff->right_reducer_map);
-
-    splice_exceptions_for_call(w, parent_ff, child_ff);
-
-    //we do not splice stacks. The child gets its own stack,
-    //and the parent's stack is frozen. We can now reuse the child stack.
-
-    CILK_ASSERT(child_ff->stack_self);
-    __cilkrts_release_stack(w, child_ff->stack_self);
-
-    /* remove CHILD from list of children of PARENT */
-    unlink_child(parent_ff, child_ff);
-
-    /* continue with the parent. */
-    unconditional_steal(w, parent_ff);
-    __cilkrts_destroy_full_frame(w, child_ff);
-  } STOP_INTERVAL(w, INTERVAL_FINALIZE_CHILD);
-}
-
-  void self_steal_return(__cilkrts_worker *w) {
-    full_frame *ff, *parent_ff;
-    START_INTERVAL(w, INTERVAL_RETURNING);
-
-    BEGIN_WITH_WORKER_LOCK_OPTIONAL(w) {
-      ff = w->l->frame_ff;
-      CILK_ASSERT(ff);
-      CILK_ASSERT(ff->join_counter == 1);
-
-      BEGIN_WITH_FRAME_LOCK(w, ff) {
-        // After this call, w->l->frame_ff != ff.
-        // Technically, w will "own" ff until ff is freed,
-        // however, because ff is a dying leaf full frame.
-        parent_ff = disown(w, ff, 0, "return");
-
-        decjoin(ff);
-
-#ifdef _WIN32
-        __cilkrts_save_exception_state(w, ff);
-#else
-        // Move the pending exceptions into the full frame
-        // This should always be NULL if this isn't a
-        // return with an exception
-        CILK_ASSERT(NULL == ff->pending_exception);
-        ff->pending_exception = w->l->pending_exception;
-        w->l->pending_exception = NULL;
-#endif  // _WIN32
-
-      } END_WITH_FRAME_LOCK(w, ff);
-
-      __cilkrts_fence(); /* redundant */
-
-      CILK_ASSERT(parent_ff);
-
-      BEGIN_WITH_FRAME_LOCK(w, parent_ff) {
-        w->l->frame_ff = 0;
-        if(parent_ff->call_stack->flags & CILK_FRAME_BLOCKED) {
-          blocked_frame_finalize_child_for_call(w, parent_ff, ff);
-        } else {
-          finalize_child_for_call(w, parent_ff, ff);
-        }
-      } END_WITH_FRAME_LOCK(w, parent_ff);
-
-      ff = pop_next_frame(w);
-      /* ff will be non-null except when the parent frame is owned
-         by another worker.
-         CILK_ASSERT(ff)
-         */
-      CILK_ASSERT(!w->l->frame_ff);
-      if (ff) {
-        BEGIN_WITH_FRAME_LOCK(w, ff) {
-          __cilkrts_stack_frame *sf = ff->call_stack;
-          CILK_ASSERT(sf && (!sf->call_parent || w->is_blocked));
-          //dirty little hack to workaround the reducer's view 
-          //of ivars doing a non nested return pattern.
-          sf->flags |=CILK_FRAME_SELF_STEAL;
-          setup_for_execution(w, ff, 1);
-          sf->flags &= ~CILK_FRAME_SELF_STEAL;
-        } END_WITH_FRAME_LOCK(w, ff);
-      }
-    } END_WITH_WORKER_LOCK_OPTIONAL(w);
-
-    STOP_INTERVAL(w, INTERVAL_RETURNING);
-  }
-#endif
 
   /* Return from a call, not a spawn. */
   void __cilkrts_return(__cilkrts_worker *w)
@@ -2410,21 +2210,7 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
     reset_THE_exception(w);
 
 #ifdef CILK_IVARS
-        if(w->self != -1)
-          w->worker_cache = (queue_t *) make_stack_queue();
-        w->is_replacement = 0;
-        w->ivar = NULL;
-        memset(w->ctx, 0, 5);
-
-        //register our own worker in the stealing array
-        //--------------------
-        w->forwarding_array = init_array();  /* If I have no work to steal, you can follow this link. */
-        BEGIN_WITH_FORWARDING_ARRAY_LOCK(w->forwarding_array) {
-          w->forwarding_array->ptrs[ARRAY_SIZE-1] = w;
-          w->forwarding_array->elems++;
-          w->forwarding_array->leftmost_idx = ARRAY_SIZE-1;
-        } END_WITH_FORWARDING_ARRAY_LOCK(w->forwarding_array);
-        //--------------------
+    w->ready_queue = (queue_t *) make_stack_queue();
 #endif
 
     return w;
@@ -2637,7 +2423,7 @@ static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,
 
   void __cilkrts_init_internal(int start)
   {
-    int i;
+    //int i;
     global_state_t *g = NULL;
 
     if (cilkg_is_published()) {
@@ -2969,7 +2755,7 @@ the spawn helper of g() is still the currently executing
         full_frame *ff)
     {
       // ASSERT: we hold ff->parent->lock.
-      full_frame *parent_ff = ff->parent;
+      //full_frame *parent_ff = ff->parent;
       splice_left_ptrs left_ptrs;
 
       CILK_ASSERT(NULL == w->l->pending_exception);

@@ -4,28 +4,29 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-ALIASED_NAME	cilk-abi.c	483;"	d	file:
-ASSERT_WORKER_LOCK_OWNED	scheduler.c	92;"	d	file:
-ASSERT_WORKER_LOCK_OWNED	scheduler.c	98;"	d	file:
-BEGIN_WITH_FRAME_LOCK	concurrent_cilk.c	29;"	d	file:
-BEGIN_WITH_FRAME_LOCK	scheduler.c	329;"	d	file:
-BEGIN_WITH_WORKER_LOCK	concurrent_cilk.c	27;"	d	file:
-BEGIN_WITH_WORKER_LOCK	scheduler.c	311;"	d	file:
-BEGIN_WITH_WORKER_LOCK_OPTIONAL	scheduler.c	321;"	d	file:
-BEGIN_WITH_WORKER_LOCK_OPTIONAL	scheduler.c	324;"	d	file:
-BIND_PROVABLY_GOOD_STACK	global_state.h	61;"	d
-BIND_THREAD_RTN	cilk-abi.c	/^  ALIASED_NAME(BIND_THREAD_RTN);$/;"	v
-BIND_THREAD_RTN	cilk-abi.c	/^CILK_ABI_WORKER_PTR BIND_THREAD_RTN(void)$/;"	f
-BIND_THREAD_RTN	cilk-abi.c	76;"	d	file:
+ALIASED_NAME	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	450;"	d	file:
+ASSERT_WORKER_LOCK_OWNED	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	92;"	d	file:
+ASSERT_WORKER_LOCK_OWNED	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	98;"	d	file:
+BEGIN_WITH_FRAME_LOCK	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	329;"	d	file:
+BEGIN_WITH_FRAME_LOCK	concurrent_cilk_internal.h	11;"	d
+BEGIN_WITH_WORKER_LOCK	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	311;"	d	file:
+BEGIN_WITH_WORKER_LOCK	concurrent_cilk_internal.h	9;"	d
+BEGIN_WITH_WORKER_LOCK_OPTIONAL	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	321;"	d	file:
+BEGIN_WITH_WORKER_LOCK_OPTIONAL	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	324;"	d	file:
+BIND_PROVABLY_GOOD_STACK	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	61;"	d
+BIND_THREAD_RTN	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^  ALIASED_NAME(BIND_THREAD_RTN);$/;"	v
+BIND_THREAD_RTN	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^CILK_ABI_WORKER_PTR BIND_THREAD_RTN(void)$/;"	f	signature:(void)
+BIND_THREAD_RTN	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	76;"	d	file:
+BLOCK_SIZE	queues/cache_aware_queue.c	63;"	d	file:
 BuildVersionString	component.h	38;"	d
-CILKRTS_OPTIMIZED	cilk-abi-cilk-for.cpp	44;"	d	file:
-CILKRTS_OPTIMIZED	cilk-abi-cilk-for.cpp	46;"	d	file:
-CILKRTS_OPTIMIZED	cilk-abi-cilk-for.cpp	50;"	d	file:
-CILKRTS_OPTIMIZED	cilk-abi-cilk-for.cpp	52;"	d	file:
+CILKRTS_OPTIMIZED	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi-cilk-for.cpp	44;"	d	file:
+CILKRTS_OPTIMIZED	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi-cilk-for.cpp	46;"	d	file:
+CILKRTS_OPTIMIZED	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi-cilk-for.cpp	50;"	d	file:
+CILKRTS_OPTIMIZED	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi-cilk-for.cpp	52;"	d	file:
 CILK_ABI_THROWS_VOID	rts-common.h	49;"	d
 CILK_ABI_VOID	rts-common.h	47;"	d
 CILK_ABI_WORKER_PTR	rts-common.h	48;"	d
-CILK_API	ivar_full_blocking.c	/^CILK_API(ivar_payload_t) __cilkrts_ivar_read(__cilkrts_ivar *ivar)$/;"	f
+CILK_API	/home/czakian/Research/concurrent_cilk/runtime/ivar_full_blocking.c	/^inline CILK_API(ivar_payload_t)$/;"	f
 CILK_API_INT	rts-common.h	38;"	d
 CILK_API_PEDIGREE	rts-common.h	41;"	d
 CILK_API_SIZET	rts-common.h	39;"	d
@@ -34,7 +35,7 @@ CILK_API_VOID	rts-common.h	36;"	d
 CILK_API_VOID_PTR	rts-common.h	37;"	d
 CILK_ASSERT	bug.h	62;"	d
 CILK_DEFAULT_STACK_SIZE	os-unix.c	467;"	d	file:
-CILK_INSPECTOR_ABI	cilk-abi.c	/^  CILK_INSPECTOR_ABI(__cilkrts_region_id)$/;"	f
+CILK_INSPECTOR_ABI	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^  CILK_INSPECTOR_ABI(__cilkrts_region_id)$/;"	f
 CILK_MIN_STACK_SIZE	os-unix.c	465;"	d	file:
 CILK_TBB_STACK_ADOPT	cilk-tbb-interop.h	/^    CILK_TBB_STACK_ADOPT,$/;"	e	enum:__cilk_tbb_stack_op
 CILK_TBB_STACK_ORPHAN	cilk-tbb-interop.h	/^    CILK_TBB_STACK_ORPHAN,$/;"	e	enum:__cilk_tbb_stack_op
@@ -50,20 +51,21 @@ DBG	reducer_impl.cpp	57;"	d	file:
 DBGPRINTF	bug.h	104;"	d
 DBGPRINTF	bug.h	97;"	d
 DBGPRINTF	bug.h	99;"	d
-DEBUG_EXCEPTIONS	except-gcc.cpp	41;"	d	file:
+DEBUG_EXCEPTIONS	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	41;"	d	file:
 DISABLE_PARALLEL_REDUCERS	scheduler.h	50;"	d
-DisableCilkscreen	reducer_impl.cpp	/^    DisableCilkscreen () { __cilkscreen_disable_checking(); }$/;"	f	struct:DisableCilkscreen
+DisableCilkscreen	reducer_impl.cpp	/^    DisableCilkscreen () { __cilkscreen_disable_checking(); }$/;"	f	struct:DisableCilkscreen	signature:()
 DisableCilkscreen	reducer_impl.cpp	/^struct DisableCilkscreen$/;"	s	file:
+ELEMENT_TYPE	queues/lockfree_queue.h	10;"	d
 ELEMENT_ZERO	concurrent_queue.c	/^static ELEMENT_TYPE ELEMENT_ZERO = 0x0UL;$/;"	v	file:
 ENABLE_NOTIFY_ZC_INTRINSIC	rts-common.h	95;"	d
-END_WITH_FRAME_LOCK	concurrent_cilk.c	32;"	d	file:
-END_WITH_FRAME_LOCK	scheduler.c	332;"	d	file:
-END_WITH_WORKER_LOCK	concurrent_cilk.c	28;"	d	file:
-END_WITH_WORKER_LOCK	scheduler.c	312;"	d	file:
-END_WITH_WORKER_LOCK_OPTIONAL	scheduler.c	322;"	d	file:
-END_WITH_WORKER_LOCK_OPTIONAL	scheduler.c	325;"	d	file:
-EXC_INFINITY	scheduler.c	482;"	d	file:
-EnableCilkscreen	reducer_impl.cpp	/^    EnableCilkscreen () { __cilkscreen_enable_checking(); }$/;"	f	struct:EnableCilkscreen
+END_WITH_FRAME_LOCK	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	332;"	d	file:
+END_WITH_FRAME_LOCK	concurrent_cilk_internal.h	14;"	d
+END_WITH_WORKER_LOCK	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	312;"	d	file:
+END_WITH_WORKER_LOCK	concurrent_cilk_internal.h	10;"	d
+END_WITH_WORKER_LOCK_OPTIONAL	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	322;"	d	file:
+END_WITH_WORKER_LOCK_OPTIONAL	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	325;"	d	file:
+EXC_INFINITY	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	478;"	d	file:
+EnableCilkscreen	reducer_impl.cpp	/^    EnableCilkscreen () { __cilkscreen_enable_checking(); }$/;"	f	struct:EnableCilkscreen	signature:()
 EnableCilkscreen	reducer_impl.cpp	/^struct EnableCilkscreen$/;"	s	file:
 FP	jmpbuf.h	52;"	d
 FP	jmpbuf.h	56;"	d
@@ -81,9 +83,9 @@ GROUP_AFFINITY	os.h	/^typedef struct _GROUP_AFFINITY GROUP_AFFINITY;$/;"	t	typer
 HAS_MEMALIGN	cilk_malloc.c	34;"	d	file:
 HAVE_SYNC_INTRINSICS	os.h	128;"	d
 HEADER_FILL_CHAR	frame_malloc.c	47;"	d	file:
-HIGH	concurrent_cilk_internal.h	43;"	d
-HUGE_VALF	c_reducers.c	50;"	d	file:
-HUGE_VALL	c_reducers.c	55;"	d	file:
+HIGH	concurrent_cilk_internal.h	52;"	d
+HUGE_VALF	/home/czakian/Research/concurrent_cilk/runtime/c_reducers.c	50;"	d	file:
+HUGE_VALL	/home/czakian/Research/concurrent_cilk/runtime/c_reducers.c	55;"	d	file:
 INCLUDED_BUG_DOT_H	bug.h	36;"	d
 INCLUDED_CILKRTS_METACALL_H	metacall_impl.h	41;"	d
 INCLUDED_CILK_ITTNOTIFY_DOT_H	cilk-ittnotify.h	30;"	d
@@ -94,7 +96,7 @@ INCLUDED_EXCEPT_DOT_H	except.h	37;"	d
 INCLUDED_EXCEPT_GCC_DOT_H	except-gcc.h	40;"	d
 INCLUDED_FRAME_MALLOC_DOT_H	frame_malloc.h	39;"	d
 INCLUDED_FULL_FRAME_DOT_H	full_frame.h	30;"	d
-INCLUDED_GLOBAL_STATE_DOT_H	global_state.h	37;"	d
+INCLUDED_GLOBAL_STATE_DOT_H	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	37;"	d
 INCLUDED_JMPBUF_DOT_H	jmpbuf.h	39;"	d
 INCLUDED_LOCAL_STATE_DOT_H	local_state.h	38;"	d
 INCLUDED_OS_DOT_H	os.h	37;"	d
@@ -152,44 +154,47 @@ ITT_SYNC_RELEASING	cilk-ittnotify.h	80;"	d
 ITT_SYNC_SET_NAME_AND_PREPARE	cilk-ittnotify.h	60;"	d
 ITT_SYNC_SET_NAME_AND_PREPARE	cilk-ittnotify.h	62;"	d
 ITT_SYNC_SET_NAME_AND_PREPARE	cilk-ittnotify.h	82;"	d
-LOW	concurrent_cilk_internal.h	41;"	d
-MAP_ANONYMOUS	sysdep-unix.c	602;"	d	file:
-MAP_ANONYMOUS	sysdep-unix.c	75;"	d	file:
-MED	concurrent_cilk_internal.h	42;"	d
+IVAR_DBG_PRINT_	queues/cache_aware_queue.c	36;"	d	file:
+LOW	concurrent_cilk_internal.h	50;"	d
+MAP_ANONYMOUS	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	597;"	d	file:
+MAP_ANONYMOUS	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	75;"	d	file:
+MED	concurrent_cilk_internal.h	51;"	d
 MERGE_INTO_LEFT	reducer_impl.cpp	/^        MERGE_INTO_LEFT, \/\/\/< Merges the argument from the right into the left$/;"	e	enum:cilkred_map::merge_kind	file:
 MERGE_INTO_RIGHT	reducer_impl.cpp	/^        MERGE_INTO_RIGHT \/\/\/< Merges the argument from the left into the right$/;"	e	enum:cilkred_map::merge_kind	file:
 MERGE_UNORDERED	reducer_impl.cpp	/^        MERGE_UNORDERED, \/\/\/< Assertion fails$/;"	e	enum:cilkred_map::merge_kind	file:
 NOINLINE	rts-common.h	74;"	d
 NOINLINE	rts-common.h	76;"	d
-NONE	concurrent_cilk_internal.h	40;"	d
+NONE	concurrent_cilk_internal.h	49;"	d
 NON_COMMON	rts-common.h	55;"	d
 NORETURN	rts-common.h	68;"	d
 NORETURN	rts-common.h	70;"	d
 NOTE_INTERVAL	stats.h	188;"	d
 NOTE_INTERVAL	stats.h	195;"	d
-P	global_state.h	/^    int P;         \/**< USER SETTING: number of system workers + 1 (fixed) *\/$/;"	m	struct:global_state_t
+NULL2	queues/cache_aware_queue.c	64;"	d	file:
+P	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int P;         \/**< USER SETTING: number of system workers + 1 (fixed) *\/$/;"	m	struct:global_state_t	access:public
+PAGE	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	583;"	d	file:
 PAGE	os-unix.c	464;"	d	file:
-PAGE	sysdep-unix.c	587;"	d	file:
 PC	jmpbuf.h	53;"	d
 PC	jmpbuf.h	57;"	d
 PC	jmpbuf.h	64;"	d
 PC	jmpbuf.h	70;"	d
 PEDIGREE_WALK_COMPLETE	cilk_api.c	175;"	d	file:
-PLACEHOLDER_STACK	global_state.h	53;"	d
+PLACEHOLDER_STACK	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	53;"	d
 PREFERRED_ALIGNMENT	cilk_malloc.c	37;"	d	file:
-PROFILING_STACKS	sysdep-unix.c	639;"	d	file:
-Q	global_state.h	/^    int Q;         \/**< Number of user threads currently bound to workers *\/$/;"	m	struct:global_state_t
-READ_ONLY	concurrent_cilk_internal.h	35;"	d
-READ_WRITE	concurrent_cilk_internal.h	34;"	d
+PROFILING_STACKS	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	634;"	d	file:
+Q	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int Q;         \/**< Number of user threads currently bound to workers *\/$/;"	m	struct:global_state_t	access:public
+QUEUE_EMPTY	queues/lockfree_queue.h	12;"	d
+READ_ONLY	concurrent_cilk_internal.h	44;"	d
+READ_WRITE	concurrent_cilk_internal.h	43;"	d
 REDPAR_DEBUG	scheduler.h	51;"	d
 RELEASE	worker_mutex.c	40;"	d	file:
 RELEASE	worker_mutex.c	42;"	d	file:
-RNGMOD	scheduler.c	/^static const unsigned RNGMOD = ((1ULL << 32) - 5);$/;"	v	file:
-RNGMUL	scheduler.c	/^static const unsigned RNGMUL = 69070U;$/;"	v	file:
-SCHEDULE_EXIT	scheduler.c	/^                  SCHEDULE_EXIT };$/;"	e	enum:schedule_t	file:
-SCHEDULE_RUN	scheduler.c	/^enum schedule_t { SCHEDULE_RUN,$/;"	e	enum:schedule_t	file:
-SCHEDULE_WAIT	scheduler.c	/^                  SCHEDULE_WAIT,$/;"	e	enum:schedule_t	file:
-SMASK	sysdep-unix.c	571;"	d	file:
+RNGMOD	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static const unsigned RNGMOD = ((1ULL << 32) - 5);$/;"	v	file:
+RNGMUL	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static const unsigned RNGMUL = 69070U;$/;"	v	file:
+SCHEDULE_EXIT	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^                  SCHEDULE_EXIT };$/;"	e	enum:schedule_t	file:
+SCHEDULE_RUN	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^enum schedule_t { SCHEDULE_RUN,$/;"	e	enum:schedule_t	file:
+SCHEDULE_WAIT	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^                  SCHEDULE_WAIT,$/;"	e	enum:schedule_t	file:
+SMASK	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	567;"	d	file:
 SP	jmpbuf.h	51;"	d
 SP	jmpbuf.h	55;"	d
 SP	jmpbuf.h	60;"	d
@@ -198,16 +203,18 @@ START_INTERVAL	stats.h	186;"	d
 START_INTERVAL	stats.h	191;"	d
 STOP_INTERVAL	stats.h	187;"	d
 STOP_INTERVAL	stats.h	193;"	d
-STRINGIFY	cilk-abi.c	482;"	d	file:
-TBB_INTEROP_DATA_DELAYED_UNTIL_BIND	cilk-abi.c	73;"	d	file:
+STRINGIFY	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	449;"	d	file:
+SUCCESS	queues/lockfree_queue.h	11;"	d
+TBB_INTEROP_DATA_DELAYED_UNTIL_BIND	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	73;"	d	file:
 TRY_ACQUIRE	worker_mutex.c	35;"	d	file:
 WORKER_FREE	local_state.h	/^    WORKER_FREE,    \/\/\/< Unused worker - available to be bound to user threads$/;"	e	enum:cilk_worker_type
 WORKER_MAGIC_0	local_state.h	118;"	d
 WORKER_MAGIC_1	local_state.h	378;"	d
 WORKER_SYSTEM	local_state.h	/^    WORKER_SYSTEM,  \/\/\/< Worker created by runtime - able to steal from any worker$/;"	e	enum:cilk_worker_type
 WORKER_USER	local_state.h	/^    WORKER_USER     \/\/\/< User thread - able to steal only from team members$/;"	e	enum:cilk_worker_type
+_GNU_SOURCE	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	36;"	d	file:
 _GNU_SOURCE	os-unix.c	33;"	d	file:
-_GNU_SOURCE	sysdep-unix.c	36;"	d	file:
+_ReturnAddress	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^void * _ReturnAddress(void);$/;"	p	file:	signature:(void)
 _URC_CONTINUE_UNWIND	except-gcc.h	/^    _URC_CONTINUE_UNWIND = 8$/;"	e	enum:_Unwind_Reason_Code
 _URC_END_OF_STACK	except-gcc.h	/^    _URC_END_OF_STACK = 5,$/;"	e	enum:_Unwind_Reason_Code
 _URC_FATAL_PHASE1_ERROR	except-gcc.h	/^    _URC_FATAL_PHASE1_ERROR = 3,$/;"	e	enum:_Unwind_Reason_Code
@@ -217,14 +224,34 @@ _URC_HANDLER_FOUND	except-gcc.h	/^    _URC_HANDLER_FOUND = 6,$/;"	e	enum:_Unwind
 _URC_INSTALL_CONTEXT	except-gcc.h	/^    _URC_INSTALL_CONTEXT = 7,$/;"	e	enum:_Unwind_Reason_Code
 _URC_NORMAL_STOP	except-gcc.h	/^    _URC_NORMAL_STOP = 4,$/;"	e	enum:_Unwind_Reason_Code
 _URC_NO_REASON	except-gcc.h	/^    _URC_NO_REASON = 0,$/;"	e	enum:_Unwind_Reason_Code
+_Unwind_DeleteException	except-gcc.h	/^void _Unwind_DeleteException(_Unwind_Exception *exception_object);$/;"	p	signature:(_Unwind_Exception *exception_object)
 _Unwind_Exception	except-gcc.h	/^struct _Unwind_Exception$/;"	s
 _Unwind_Exception	except-gcc.h	/^typedef struct _Unwind_Exception _Unwind_Exception;$/;"	t	typeref:struct:_Unwind_Exception
 _Unwind_Exception_Cleanup_Fn	except-gcc.h	/^typedef void (*_Unwind_Exception_Cleanup_Fn)(_Unwind_Reason_Code reason,$/;"	t
+_Unwind_RaiseException	except-gcc.h	/^_Unwind_RaiseException(_Unwind_Exception *exception_object);$/;"	p	signature:(_Unwind_Exception *exception_object)
 _Unwind_Reason_Code	except-gcc.h	/^typedef enum _Unwind_Reason_Code {$/;"	g
 _Unwind_Reason_Code	except-gcc.h	/^} _Unwind_Reason_Code;$/;"	t	typeref:enum:_Unwind_Reason_Code
+_Unwind_Resume	except-gcc.h	/^void _Unwind_Resume(_Unwind_Exception *exception_object);$/;"	p	signature:(_Unwind_Exception *exception_object)
 __CONCURRENT_CILK_INTERNAL_H	concurrent_cilk_internal.h	2;"	d
-__STRICT_ANSI__	sysdep-unix.c	58;"	d	file:
+__LOCKFREE_QUEUE_H	queues/lockfree_queue.h	3;"	d
+__STRICT_ANSI__	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	58;"	d	file:
 __USE_MISC	frame_malloc.c	38;"	d	file:
+__anon1::__cilkrts_global_state	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^    global_state_t *__cilkrts_global_state = &global_state_singleton;$/;"	v
+__anon1::always_force_reduce	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^bool always_force_reduce()$/;"	f	namespace:__anon1	signature:()
+__anon1::calc_max_user_workers	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^int calc_max_user_workers(global_state_t *g)$/;"	f	namespace:__anon1	signature:(global_state_t *g)
+__anon1::cilkg_singleton_ptr	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^    global_state_t *cilkg_singleton_ptr = NULL;$/;"	v
+__anon1::exception_ptr	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^        struct pending_exception_info **exception_ptr;$/;"	m	struct:__anon1	typeref:struct:__anon1::pending_exception_info	file:	access:public
+__anon1::global_state_singleton	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^global_state_t global_state_singleton =$/;"	m	namespace:__anon1	file:
+__anon1::map_ptr	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^        struct cilkred_map **map_ptr;$/;"	m	struct:__anon1	typeref:struct:__anon1::cilkred_map	file:	access:public
+__anon1::set_param_imp	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^int set_param_imp(global_state_t* g, const CHAR_T* param, const CHAR_T* value)$/;"	f	namespace:__anon1	signature:(global_state_t* g, const CHAR_T* param, const CHAR_T* value)
+__anon1::store_bool	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^int store_bool(INT_T *out, const CHAR_T *val)$/;"	f	namespace:__anon1	signature:(INT_T *out, const CHAR_T *val)
+__anon1::store_int	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^int store_int(INT_T *out, const CHAR_T *val, INT_T min, INT_T max)$/;"	f	namespace:__anon1	signature:(INT_T *out, const CHAR_T *val, INT_T min, INT_T max)
+__anon1::strmatch	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^bool strmatch(const char* a, const wchar_t* b)$/;"	f	namespace:__anon1	signature:(const char* a, const wchar_t* b)
+__anon1::strmatch	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^bool strmatch(const wchar_t* a, const char* b)$/;"	f	namespace:__anon1	signature:(const wchar_t* a, const char* b)
+__anon1::strmatch	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^inline bool strmatch(const char* a, const char* b)$/;"	f	namespace:__anon1	signature:(const char* a, const char* b)
+__anon1::strmatch	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^inline bool strmatch(const wchar_t* a, const wchar_t* b)$/;"	f	namespace:__anon1	signature:(const wchar_t* a, const wchar_t* b)
+__anon1::to_long	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^inline long to_long(const char* s)$/;"	f	namespace:__anon1	signature:(const char* s)
+__anon1::to_long	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^inline long to_long(const wchar_t* s)$/;"	f	namespace:__anon1	signature:(const wchar_t* s)
 __attribute__	rts-common.h	80;"	d
 __builtin_expect	rts-common.h	58;"	d
 __cilk_tbb_pfn_stack_op	cilk-tbb-interop.h	/^typedef __cilk_tbb_retcode (*__cilk_tbb_pfn_stack_op)(enum __cilk_tbb_stack_op op,$/;"	t
@@ -237,357 +264,508 @@ __cilk_tbb_stack_op_thunk	cilk-tbb-interop.h	/^} __cilk_tbb_stack_op_thunk;$/;"	
 __cilk_tbb_stack_op_thunk	os.h	/^typedef struct __cilk_tbb_stack_op_thunk __cilk_tbb_stack_op_thunk;$/;"	t	typeref:struct:__cilk_tbb_stack_op_thunk
 __cilk_tbb_unwatch_thunk	cilk-tbb-interop.h	/^typedef struct __cilk_tbb_unwatch_thunk {$/;"	s
 __cilk_tbb_unwatch_thunk	cilk-tbb-interop.h	/^} __cilk_tbb_unwatch_thunk;$/;"	t	typeref:struct:__cilk_tbb_unwatch_thunk
-__cilkometer_workspan_dump	metacall_impl.c	/^void __cilkometer_workspan_dump(const char *str) {$/;"	f
-__cilkometer_workspan_reset	metacall_impl.c	/^void __cilkometer_workspan_reset(void) {$/;"	f
-__cilkometer_workspan_start	metacall_impl.c	/^void __cilkometer_workspan_start(void) {$/;"	f
-__cilkometer_workspan_stop	metacall_impl.c	/^void __cilkometer_workspan_stop(void) {$/;"	f
-__cilkrts_accum_stats	stats.c	/^void __cilkrts_accum_stats(statistics *to, statistics *from)$/;"	f
-__cilkrts_advance_frame	scheduler.c	/^static inline __cilkrts_stack_frame *__cilkrts_advance_frame(__cilkrts_stack_frame *sf)$/;"	f	file:
+__cilkometer_workspan_dump	metacall_impl.c	/^void __cilkometer_workspan_dump(const char *str) {$/;"	f	signature:(const char *str)
+__cilkometer_workspan_reset	metacall_impl.c	/^void __cilkometer_workspan_reset(void) {$/;"	f	signature:(void)
+__cilkometer_workspan_start	metacall_impl.c	/^void __cilkometer_workspan_start(void) {$/;"	f	signature:(void)
+__cilkometer_workspan_stop	metacall_impl.c	/^void __cilkometer_workspan_stop(void) {$/;"	f	signature:(void)
+__cilkrts_accum_stats	stats.c	/^void __cilkrts_accum_stats(statistics *to, statistics *from)$/;"	f	signature:(statistics *to, statistics *from)
+__cilkrts_accum_stats	stats.h	/^void __cilkrts_accum_stats(statistics *to, statistics *from);$/;"	p	signature:(statistics *to, statistics *from)
+__cilkrts_advance_frame	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static inline __cilkrts_stack_frame *__cilkrts_advance_frame(__cilkrts_stack_frame *sf)$/;"	f	file:	signature:(__cilkrts_stack_frame *sf)
 __cilkrts_assertion_failed	bug.cpp	/^COMMON_PORTABLE const char *const __cilkrts_assertion_failed =$/;"	v
-__cilkrts_bind_stack	sysdep-unix.c	/^void __cilkrts_bind_stack(full_frame *ff, char *new_sp,$/;"	f
-__cilkrts_bind_thread	cilk-abi.c	/^CILK_ABI_WORKER_PTR __cilkrts_bind_thread (void) {$/;"	f
+__cilkrts_bind_stack	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_bind_stack(full_frame *ff, char *new_sp,$/;"	f	signature:(full_frame *ff, char *new_sp, __cilkrts_stack *parent_stack, __cilkrts_worker *owner)
+__cilkrts_bind_stack	sysdep.h	/^void __cilkrts_bind_stack(full_frame *ff,$/;"	p	signature:(full_frame *ff, char *new_sp, __cilkrts_stack *parent_stack, __cilkrts_worker *owner)
+__cilkrts_bind_thread	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^CILK_ABI_WORKER_PTR __cilkrts_bind_thread (void) {$/;"	f	signature:(void)
 __cilkrts_bucket_sizes	frame_malloc.c	/^const unsigned short __cilkrts_bucket_sizes[FRAME_MALLOC_NBUCKETS] =$/;"	v
-__cilkrts_bump_loop_rank_internal	cilk-abi.c	/^__cilkrts_bump_loop_rank_internal(__cilkrts_worker* w)$/;"	f
-__cilkrts_bump_worker_rank_internal	cilk_api.c	/^CILK_API_INT __cilkrts_bump_worker_rank_internal(__cilkrts_worker *w)$/;"	f
-__cilkrts_c_THE_exception_check	scheduler.c	/^  void __cilkrts_c_THE_exception_check(__cilkrts_worker *w, $/;"	f
-__cilkrts_c_return_from_initial	scheduler.c	/^  void __cilkrts_c_return_from_initial(__cilkrts_worker *w)$/;"	f
-__cilkrts_c_sync	scheduler.c	/^  NORETURN __cilkrts_c_sync(__cilkrts_worker *w,$/;"	f
-__cilkrts_c_sync_except	except-gcc.cpp	/^NORETURN __cilkrts_c_sync_except (__cilkrts_worker *w, __cilkrts_stack_frame *sf)$/;"	f
-__cilkrts_cilk_for_32	cilk-abi-cilk-for.cpp	/^CILK_ABI_THROWS_VOID __cilkrts_cilk_for_32(__cilk_abi_f32_t body, void *data,$/;"	f
-__cilkrts_cilk_for_64	cilk-abi-cilk-for.cpp	/^CILK_ABI_THROWS_VOID __cilkrts_cilk_for_64(__cilk_abi_f64_t body, void *data,$/;"	f
+__cilkrts_bump_loop_rank_internal	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^__cilkrts_bump_loop_rank_internal(__cilkrts_worker* w)$/;"	f	signature:(__cilkrts_worker* w)
+__cilkrts_bump_worker_rank_internal	cilk_api.c	/^CILK_API_INT __cilkrts_bump_worker_rank_internal(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_c_THE_exception_check	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  void __cilkrts_c_THE_exception_check(__cilkrts_worker *w, $/;"	f	signature:(__cilkrts_worker *w, __cilkrts_stack_frame *returning_sf)
+__cilkrts_c_THE_exception_check	scheduler.h	/^void __cilkrts_c_THE_exception_check(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, __cilkrts_stack_frame *returning_sf)
+__cilkrts_c_return_from_initial	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  void __cilkrts_c_return_from_initial(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_c_return_from_initial	scheduler.h	/^void __cilkrts_c_return_from_initial(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_c_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  NORETURN __cilkrts_c_sync(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, __cilkrts_stack_frame *sf_at_sync)
+__cilkrts_c_sync	scheduler.h	/^NORETURN __cilkrts_c_sync(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
+__cilkrts_c_sync_except	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^NORETURN __cilkrts_c_sync_except (__cilkrts_worker *w, __cilkrts_stack_frame *sf)$/;"	f	signature:(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
+__cilkrts_c_sync_except	except.h	/^NON_COMMON NORETURN __cilkrts_c_sync_except(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
+__cilkrts_cilk_for_32	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi-cilk-for.cpp	/^CILK_ABI_THROWS_VOID __cilkrts_cilk_for_32(__cilk_abi_f32_t body, void *data,$/;"	f	signature:(__cilk_abi_f32_t body, void *data, cilk32_t count, int grain)
+__cilkrts_cilk_for_64	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi-cilk-for.cpp	/^CILK_ABI_THROWS_VOID __cilkrts_cilk_for_64(__cilk_abi_f64_t body, void *data,$/;"	f	signature:(__cilk_abi_f64_t body, void *data, cilk64_t count, int grain)
 __cilkrts_cilkscreen_disable_instrumentation	metacall_impl.h	71;"	d
 __cilkrts_cilkscreen_enable_instrumentation	metacall_impl.h	77;"	d
-__cilkrts_cilkscreen_establish_c_stack	metacall_impl.c	/^void __cilkrts_cilkscreen_establish_c_stack(char *begin, char *end)$/;"	f
+__cilkrts_cilkscreen_establish_c_stack	metacall_impl.c	/^void __cilkrts_cilkscreen_establish_c_stack(char *begin, char *end)$/;"	f	signature:(char *begin, char *end)
+__cilkrts_cilkscreen_establish_c_stack	metacall_impl.h	/^void __cilkrts_cilkscreen_establish_c_stack(char *begin, char *end);$/;"	p	signature:(char *begin, char *end)
 __cilkrts_cilkscreen_establish_worker	metacall_impl.h	88;"	d
 __cilkrts_cilkscreen_ignore_block	metacall_impl.h	103;"	d
-__cilkrts_dbgprintf	bug.cpp	/^COMMON_SYSDEP void __cilkrts_dbgprintf(const char *fmt,...)$/;"	f
-__cilkrts_deinit_internal	scheduler.c	/^  void __cilkrts_deinit_internal(global_state_t *g)$/;"	f
-__cilkrts_destroy_full_frame	full_frame.c	/^void __cilkrts_destroy_full_frame(__cilkrts_worker *w, full_frame *ff)$/;"	f
-__cilkrts_destroy_global_sysdep	sysdep-unix.c	/^void __cilkrts_destroy_global_sysdep(global_state_t *g)$/;"	f
-__cilkrts_destroy_reducer_map	reducer_impl.cpp	/^void __cilkrts_destroy_reducer_map(__cilkrts_worker *w, cilkred_map *h)$/;"	f
-__cilkrts_destroy_stack_cache	stacks.c	/^void __cilkrts_destroy_stack_cache(__cilkrts_worker *w,$/;"	f
-__cilkrts_destroy_worker_sysdep	sysdep-unix.c	/^void __cilkrts_destroy_worker_sysdep(struct __cilkrts_worker *w)$/;"	f
-__cilkrts_disallow_stealing	scheduler.c	/^  __cilkrts_stack_frame *volatile *__cilkrts_disallow_stealing($/;"	f
-__cilkrts_dump_stats	cilk-abi.c	/^CILK_API_VOID __cilkrts_dump_stats(void)$/;"	f
-__cilkrts_dump_stats_to_stderr	scheduler.c	/^void __cilkrts_dump_stats_to_stderr(global_state_t *g)$/;"	f
-__cilkrts_end_cilk	cilk_api.c	/^CILK_API_VOID __cilkrts_end_cilk(void)$/;"	f
-__cilkrts_enter_cilk	scheduler.c	/^  void __cilkrts_enter_cilk(global_state_t *g)$/;"	f
-__cilkrts_enter_frame	cilk-abi.c	/^CILK_ABI_VOID __cilkrts_enter_frame(__cilkrts_stack_frame *sf)$/;"	f
-__cilkrts_enter_frame_1	cilk-abi.c	/^CILK_ABI_VOID __cilkrts_enter_frame_1(__cilkrts_stack_frame *sf)$/;"	f
-__cilkrts_enter_frame_fast	cilk-abi.c	/^CILK_ABI_VOID __cilkrts_enter_frame_fast(__cilkrts_stack_frame *sf)$/;"	f
-__cilkrts_enter_frame_fast_1	cilk-abi.c	/^CILK_ABI_VOID __cilkrts_enter_frame_fast_1(__cilkrts_stack_frame *sf)$/;"	f
-__cilkrts_establish_c_stack	sysdep-unix.c	/^void __cilkrts_establish_c_stack(void)$/;"	f
-__cilkrts_exception_from_spawn	scheduler.c	/^  NORETURN __cilkrts_exception_from_spawn(__cilkrts_worker *w,$/;"	f
+__cilkrts_cleanup_replacement_worker	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk.c	/^void __cilkrts_cleanup_replacement_worker(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_commit_pause	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk.c	/^__cilkrts_commit_pause(__cilkrts_paused_fiber *pfiber) $/;"	f	signature:(__cilkrts_paused_fiber *pfiber)
+__cilkrts_dbgprintf	bug.cpp	/^COMMON_SYSDEP void __cilkrts_dbgprintf(const char *fmt,...)$/;"	f	signature:(const char *fmt,...)
+__cilkrts_deinit_internal	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  void __cilkrts_deinit_internal(global_state_t *g)$/;"	f	signature:(global_state_t *g)
+__cilkrts_deinit_internal	scheduler.h	/^void __cilkrts_deinit_internal(global_state_t *g);$/;"	p	signature:(global_state_t *g)
+__cilkrts_destroy_full_frame	full_frame.c	/^void __cilkrts_destroy_full_frame(__cilkrts_worker *w, full_frame *ff)$/;"	f	signature:(__cilkrts_worker *w, full_frame *ff)
+__cilkrts_destroy_full_frame	full_frame.h	/^void __cilkrts_destroy_full_frame(__cilkrts_worker *w, full_frame *ff);$/;"	p	signature:(__cilkrts_worker *w, full_frame *ff)
+__cilkrts_destroy_global_sysdep	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_destroy_global_sysdep(global_state_t *g)$/;"	f	signature:(global_state_t *g)
+__cilkrts_destroy_global_sysdep	sysdep.h	/^void __cilkrts_destroy_global_sysdep(global_state_t *g);$/;"	p	signature:(global_state_t *g)
+__cilkrts_destroy_reducer_map	reducer_impl.cpp	/^void __cilkrts_destroy_reducer_map(__cilkrts_worker *w, cilkred_map *h)$/;"	f	signature:(__cilkrts_worker *w, cilkred_map *h)
+__cilkrts_destroy_reducer_map	reducer_impl.h	/^void __cilkrts_destroy_reducer_map(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, cilkred_map *h)
+__cilkrts_destroy_stack_cache	stacks.c	/^void __cilkrts_destroy_stack_cache(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, global_state_t *g, __cilkrts_stack_cache *c)
+__cilkrts_destroy_stack_cache	stacks.h	/^void __cilkrts_destroy_stack_cache(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, global_state_t *g, __cilkrts_stack_cache *c)
+__cilkrts_destroy_worker_sysdep	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_destroy_worker_sysdep(struct __cilkrts_worker *w)$/;"	f	signature:(struct __cilkrts_worker *w)
+__cilkrts_destroy_worker_sysdep	sysdep.h	/^void __cilkrts_destroy_worker_sysdep(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_disallow_stealing	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  __cilkrts_stack_frame *volatile *__cilkrts_disallow_stealing($/;"	f	signature:( __cilkrts_worker *w, __cilkrts_stack_frame *volatile *new_protected_tail)
+__cilkrts_disallow_stealing	scheduler.h	/^__cilkrts_stack_frame *volatile *__cilkrts_disallow_stealing($/;"	p	signature:( __cilkrts_worker *w, __cilkrts_stack_frame *volatile *new_protected_tail)
+__cilkrts_dump_stats	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^CILK_API_VOID __cilkrts_dump_stats(void)$/;"	f	signature:(void)
+__cilkrts_dump_stats_to_stderr	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^void __cilkrts_dump_stats_to_stderr(global_state_t *g)$/;"	f	signature:(global_state_t *g)
+__cilkrts_dump_stats_to_stderr	scheduler.h	/^void __cilkrts_dump_stats_to_stderr(global_state_t *g);$/;"	p	signature:(global_state_t *g)
+__cilkrts_end_cilk	cilk_api.c	/^CILK_API_VOID __cilkrts_end_cilk(void)$/;"	f	signature:(void)
+__cilkrts_enter_cilk	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  void __cilkrts_enter_cilk(global_state_t *g)$/;"	f	signature:(global_state_t *g)
+__cilkrts_enter_cilk	scheduler.h	/^void __cilkrts_enter_cilk(global_state_t *g);$/;"	p	signature:(global_state_t *g)
+__cilkrts_enter_frame	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^CILK_ABI_VOID __cilkrts_enter_frame(__cilkrts_stack_frame *sf)$/;"	f	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_enter_frame_1	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^CILK_ABI_VOID __cilkrts_enter_frame_1(__cilkrts_stack_frame *sf)$/;"	f	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_enter_frame_fast	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^CILK_ABI_VOID __cilkrts_enter_frame_fast(__cilkrts_stack_frame *sf)$/;"	f	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_enter_frame_fast_1	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^CILK_ABI_VOID __cilkrts_enter_frame_fast_1(__cilkrts_stack_frame *sf)$/;"	f	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_establish_c_stack	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_establish_c_stack(void)$/;"	f	signature:(void)
+__cilkrts_establish_c_stack	sysdep.h	/^void __cilkrts_establish_c_stack(void);$/;"	p	signature:(void)
+__cilkrts_exception_from_spawn	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  NORETURN __cilkrts_exception_from_spawn(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, __cilkrts_stack_frame *returning_sf)
+__cilkrts_exception_from_spawn	scheduler.h	/^NORETURN __cilkrts_exception_from_spawn(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, __cilkrts_stack_frame *returning_sf)
+__cilkrts_fence	os.h	/^COMMON_SYSDEP void __cilkrts_fence(void);$/;"	p	signature:(void)
 __cilkrts_fence	os.h	144;"	d
 __cilkrts_fence	os.h	151;"	d
-__cilkrts_finalize_pause	concurrent_cilk.c	/^__cilkrts_finalize_pause(__cilkrts_worker* w, __cilkrts_paused_stack *pstk) $/;"	f
-__cilkrts_forwarding_array	concurrent_cilk_internal.h	/^typedef struct __cilkrts_forwarding_array __cilkrts_forwarding_array;$/;"	t	typeref:struct:__cilkrts_forwarding_array
 __cilkrts_frame_cache	frame_malloc.h	/^struct __cilkrts_frame_cache$/;"	s
-__cilkrts_frame_free	frame_malloc.c	/^void __cilkrts_frame_free(__cilkrts_worker *w, void *p0, size_t size)$/;"	f
-__cilkrts_frame_lock	full_frame.c	/^void __cilkrts_frame_lock(__cilkrts_worker *w, full_frame *ff)$/;"	f
-__cilkrts_frame_malloc	frame_malloc.c	/^void *__cilkrts_frame_malloc(__cilkrts_worker *w, size_t size)$/;"	f
-__cilkrts_frame_malloc_global_cleanup	frame_malloc.c	/^void __cilkrts_frame_malloc_global_cleanup(global_state_t *g)$/;"	f
-__cilkrts_frame_malloc_global_init	frame_malloc.c	/^void __cilkrts_frame_malloc_global_init(global_state_t *g)$/;"	f
-__cilkrts_frame_malloc_per_worker_cleanup	frame_malloc.c	/^void __cilkrts_frame_malloc_per_worker_cleanup(__cilkrts_worker *w)$/;"	f
-__cilkrts_frame_malloc_per_worker_init	frame_malloc.c	/^void __cilkrts_frame_malloc_per_worker_init(__cilkrts_worker *w)$/;"	f
-__cilkrts_frame_malloc_roundup	frame_malloc.c	/^size_t __cilkrts_frame_malloc_roundup(size_t size)$/;"	f
-__cilkrts_frame_unlock	full_frame.c	/^void __cilkrts_frame_unlock(__cilkrts_worker *w, full_frame *ff)$/;"	f
-__cilkrts_free	cilk_malloc.c	/^void __cilkrts_free(void *ptr)$/;"	f
-__cilkrts_free_stack	sysdep-unix.c	/^void __cilkrts_free_stack(global_state_t *g,$/;"	f
-__cilkrts_gcc_rethrow	except-gcc.cpp	/^void __attribute__((nonnull)) __cilkrts_gcc_rethrow(__cilkrts_stack_frame *sf)$/;"	f
-__cilkrts_get_force_reduce	cilk_api.c	/^CILK_API_INT __cilkrts_get_force_reduce(void)$/;"	f
-__cilkrts_get_frame_size	jmpbuf.h	/^inline ptrdiff_t __cilkrts_get_frame_size(__cilkrts_stack_frame *sf)$/;"	f
+__cilkrts_frame_free	frame_malloc.c	/^void __cilkrts_frame_free(__cilkrts_worker *w, void *p0, size_t size)$/;"	f	signature:(__cilkrts_worker *w, void *p0, size_t size)
+__cilkrts_frame_lock	full_frame.c	/^void __cilkrts_frame_lock(__cilkrts_worker *w, full_frame *ff)$/;"	f	signature:(__cilkrts_worker *w, full_frame *ff)
+__cilkrts_frame_lock	full_frame.h	/^COMMON_PORTABLE void __cilkrts_frame_lock(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, full_frame *ff)
+__cilkrts_frame_malloc	frame_malloc.c	/^void *__cilkrts_frame_malloc(__cilkrts_worker *w, size_t size)$/;"	f	signature:(__cilkrts_worker *w, size_t size)
+__cilkrts_frame_malloc_global_cleanup	frame_malloc.c	/^void __cilkrts_frame_malloc_global_cleanup(global_state_t *g)$/;"	f	signature:(global_state_t *g)
+__cilkrts_frame_malloc_global_cleanup	frame_malloc.h	/^void __cilkrts_frame_malloc_global_cleanup(global_state_t *g);$/;"	p	signature:(global_state_t *g)
+__cilkrts_frame_malloc_global_init	frame_malloc.c	/^void __cilkrts_frame_malloc_global_init(global_state_t *g)$/;"	f	signature:(global_state_t *g)
+__cilkrts_frame_malloc_global_init	frame_malloc.h	/^void __cilkrts_frame_malloc_global_init(global_state_t *g);$/;"	p	signature:(global_state_t *g)
+__cilkrts_frame_malloc_per_worker_cleanup	frame_malloc.c	/^void __cilkrts_frame_malloc_per_worker_cleanup(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_frame_malloc_per_worker_cleanup	frame_malloc.h	/^void __cilkrts_frame_malloc_per_worker_cleanup(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_frame_malloc_per_worker_init	frame_malloc.c	/^void __cilkrts_frame_malloc_per_worker_init(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_frame_malloc_per_worker_init	frame_malloc.h	/^void __cilkrts_frame_malloc_per_worker_init(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_frame_malloc_roundup	frame_malloc.c	/^size_t __cilkrts_frame_malloc_roundup(size_t size)$/;"	f	signature:(size_t size)
+__cilkrts_frame_unlock	full_frame.c	/^void __cilkrts_frame_unlock(__cilkrts_worker *w, full_frame *ff)$/;"	f	signature:(__cilkrts_worker *w, full_frame *ff)
+__cilkrts_frame_unlock	full_frame.h	/^COMMON_PORTABLE void __cilkrts_frame_unlock(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, full_frame *ff)
+__cilkrts_free	cilk_malloc.c	/^void __cilkrts_free(void *ptr)$/;"	f	signature:(void *ptr)
+__cilkrts_free	cilk_malloc.h	/^COMMON_PORTABLE void __cilkrts_free(void *ptr);$/;"	p	signature:(void *ptr)
+__cilkrts_free_stack	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_free_stack(global_state_t *g,$/;"	f	signature:(global_state_t *g, __cilkrts_stack *sd)
+__cilkrts_free_stack	sysdep.h	/^void __cilkrts_free_stack(global_state_t *g, __cilkrts_stack *sd);$/;"	p	signature:(global_state_t *g, __cilkrts_stack *sd)
+__cilkrts_gcc_rethrow	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^void __attribute__((nonnull)) __cilkrts_gcc_rethrow(__cilkrts_stack_frame *sf)$/;"	f	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_gcc_rethrow	except.h	/^__cilkrts_gcc_rethrow(__cilkrts_stack_frame *sf);$/;"	p	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_get_force_reduce	cilk_api.c	/^CILK_API_INT __cilkrts_get_force_reduce(void)$/;"	f	signature:(void)
+__cilkrts_get_frame_size	jmpbuf.c	/^extern ptrdiff_t __cilkrts_get_frame_size(__cilkrts_stack_frame *sf);$/;"	p	file:	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_get_frame_size	jmpbuf.h	/^inline ptrdiff_t __cilkrts_get_frame_size(__cilkrts_stack_frame *sf)$/;"	f	signature:(__cilkrts_stack_frame *sf)
 __cilkrts_get_nworkers	cilk_api.c	/^__cilkrts_get_nworkers()$/;"	f
-__cilkrts_get_pedigree_info	cilk_api.c	/^__cilkrts_get_pedigree_info(__cilkrts_pedigree_context_t *external_context,$/;"	f
-__cilkrts_get_pedigree_internal	cilk_api.c	/^__cilkrts_get_pedigree_internal(__cilkrts_worker *w)$/;"	f
-__cilkrts_get_sf	cilk-abi.c	/^__cilkrts_get_sf(void)$/;"	f
-__cilkrts_get_sp	jmpbuf.h	/^inline char *__cilkrts_get_sp(__cilkrts_stack_frame *sf)$/;"	f
-__cilkrts_get_stack	stacks.c	/^__cilkrts_stack *__cilkrts_get_stack(__cilkrts_worker *w)$/;"	f
-__cilkrts_get_stack_region_properties	cilk-abi.c	/^__cilkrts_get_stack_region_properties(__cilkrts_region_id region_id,$/;"	f
-__cilkrts_get_stack_size	cilk-abi.c	/^  __cilkrts_get_stack_size(void) {$/;"	f
-__cilkrts_get_tls_pedigree_leaf	os-unix.c	/^__cilkrts_pedigree *__cilkrts_get_tls_pedigree_leaf(int create_new)$/;"	f
-__cilkrts_get_tls_reducer	os-unix.c	/^COMMON_SYSDEP struct cilkred_map *__cilkrts_get_tls_reducer(void)$/;"	f
-__cilkrts_get_tls_tbb_interop	os-unix.c	/^__cilk_tbb_stack_op_thunk *__cilkrts_get_tls_tbb_interop(void)$/;"	f
+__cilkrts_get_pedigree_info	cilk_api.c	/^__cilkrts_get_pedigree_info(__cilkrts_pedigree_context_t *external_context,$/;"	f	signature:(__cilkrts_pedigree_context_t *external_context, uint64_t *sf_birthrank)
+__cilkrts_get_pedigree_internal	cilk_api.c	/^__cilkrts_get_pedigree_internal(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_get_sf	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^__cilkrts_get_sf(void)$/;"	f	signature:(void)
+__cilkrts_get_sp	jmpbuf.c	/^extern char *__cilkrts_get_sp(__cilkrts_stack_frame *sf);$/;"	p	file:	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_get_sp	jmpbuf.h	/^inline char *__cilkrts_get_sp(__cilkrts_stack_frame *sf)$/;"	f	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_get_stack	stacks.c	/^__cilkrts_stack *__cilkrts_get_stack(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_get_stack	stacks.h	/^__cilkrts_stack *__cilkrts_get_stack(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_get_stack_region_properties	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^__cilkrts_get_stack_region_properties(__cilkrts_region_id region_id,$/;"	f	signature:(__cilkrts_region_id region_id, __cilkrts_region_properties *properties)
+__cilkrts_get_stack_size	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^  __cilkrts_get_stack_size(void) {$/;"	f	signature:(void)
+__cilkrts_get_tls_pedigree_leaf	os-unix.c	/^__cilkrts_pedigree *__cilkrts_get_tls_pedigree_leaf(int create_new)$/;"	f	signature:(int create_new)
+__cilkrts_get_tls_pedigree_leaf	os.h	/^__cilkrts_pedigree * __cilkrts_get_tls_pedigree_leaf(int create_new);$/;"	p	signature:(int create_new)
+__cilkrts_get_tls_reducer	os-unix.c	/^COMMON_SYSDEP struct cilkred_map *__cilkrts_get_tls_reducer(void)$/;"	f	signature:(void)
+__cilkrts_get_tls_tbb_interop	os-unix.c	/^__cilk_tbb_stack_op_thunk *__cilkrts_get_tls_tbb_interop(void)$/;"	f	signature:(void)
+__cilkrts_get_tls_tbb_interop	os.h	/^__cilk_tbb_stack_op_thunk *__cilkrts_get_tls_tbb_interop(void);$/;"	p	signature:(void)
 __cilkrts_get_tls_worker	os-unix.c	/^CILK_ABI_WORKER_PTR __cilkrts_get_tls_worker()$/;"	f
 __cilkrts_get_tls_worker_fast	os-unix.c	/^CILK_ABI_WORKER_PTR __cilkrts_get_tls_worker_fast()$/;"	f
 __cilkrts_get_total_workers	cilk_api.c	/^__cilkrts_get_total_workers()$/;"	f
-__cilkrts_get_worker_number	cilk_api.c	/^__cilkrts_get_worker_number(void)$/;"	f
-__cilkrts_getticks	os-unix.c	/^COMMON_SYSDEP unsigned long long __cilkrts_getticks(void)$/;"	f
+__cilkrts_get_worker_number	cilk_api.c	/^__cilkrts_get_worker_number(void)$/;"	f	signature:(void)
+__cilkrts_getticks	os-unix.c	/^COMMON_SYSDEP unsigned long long __cilkrts_getticks(void)$/;"	f	signature:(void)
+__cilkrts_getticks	os.h	/^COMMON_SYSDEP unsigned long long __cilkrts_getticks(void);$/;"	p	signature:(void)
 __cilkrts_global_pedigree_tls_counter	os-unix.c	/^static int __cilkrts_global_pedigree_tls_counter = -1;$/;"	v	file:
-__cilkrts_global_state	global_state.cpp	/^    global_state_t *__cilkrts_global_state = &global_state_singleton;$/;"	v
-__cilkrts_hardware_cpu_count	os-unix.c	/^COMMON_SYSDEP int __cilkrts_hardware_cpu_count(void)$/;"	f
-__cilkrts_hyper_create	reducer_impl.cpp	/^void __cilkrts_hyper_create(__cilkrts_hyperobject_base *hb)$/;"	f
-__cilkrts_hyper_destroy	reducer_impl.cpp	/^    __cilkrts_hyper_destroy(__cilkrts_hyperobject_base *hb))$/;"	f
-__cilkrts_hyper_lookup	reducer_impl.cpp	/^    __cilkrts_hyper_lookup(__cilkrts_hyperobject_base *hb))$/;"	f
-__cilkrts_hyperobject_alloc	reducer_impl.cpp	/^void* __cilkrts_hyperobject_alloc(void* ignore, std::size_t bytes)$/;"	f
-__cilkrts_hyperobject_dealloc	reducer_impl.cpp	/^void __cilkrts_hyperobject_dealloc(void* ignore, void* view)$/;"	f
-__cilkrts_hyperobject_noop_destroy	reducer_impl.cpp	/^void __cilkrts_hyperobject_noop_destroy(void* ignore, void* ignore2)$/;"	f
-__cilkrts_init	cilk_api.c	/^CILK_API_VOID __cilkrts_init(void)$/;"	f
-__cilkrts_init_global_sysdep	sysdep-unix.c	/^void __cilkrts_init_global_sysdep(global_state_t *g)$/;"	f
-__cilkrts_init_internal	scheduler.c	/^  void __cilkrts_init_internal(int start)$/;"	f
-__cilkrts_init_stack_cache	stacks.c	/^void __cilkrts_init_stack_cache(__cilkrts_worker *w,$/;"	f
-__cilkrts_init_stats	stats.c	/^void __cilkrts_init_stats(statistics *s)$/;"	f
-__cilkrts_init_tls_variables	os-unix.c	/^void __cilkrts_init_tls_variables(void)$/;"	f
-__cilkrts_init_worker_sysdep	sysdep-unix.c	/^void __cilkrts_init_worker_sysdep(struct __cilkrts_worker *w)$/;"	f
-__cilkrts_invoke_stack_op	sysdep-unix.c	/^void __cilkrts_invoke_stack_op(__cilkrts_worker *w,$/;"	f
-__cilkrts_ivar_clear	concurrent_cilk.c	/^__cilkrts_ivar_clear(__cilkrts_ivar* ivar)$/;"	f
-__cilkrts_ivar_waitlist	concurrent_cilk_internal.h	/^typedef struct __cilkrts_ivar_waitlist __cilkrts_ivar_waitlist;$/;"	t	typeref:struct:__cilkrts_ivar_waitlist
-__cilkrts_ivar_write	ivar_full_blocking.c	/^__cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val) $/;"	f
-__cilkrts_leave_cilk	scheduler.c	/^  void __cilkrts_leave_cilk(global_state_t *g)$/;"	f
-__cilkrts_leave_frame	cilk-abi.c	/^CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)$/;"	f
-__cilkrts_make_full_frame	full_frame.c	/^full_frame *__cilkrts_make_full_frame(__cilkrts_worker *w,$/;"	f
-__cilkrts_make_reducer_map	reducer_impl.cpp	/^cilkred_map *__cilkrts_make_reducer_map(__cilkrts_worker *w)$/;"	f
-__cilkrts_make_stack	sysdep-unix.c	/^__cilkrts_stack *__cilkrts_make_stack(__cilkrts_worker *w)$/;"	f
-__cilkrts_make_unrunnable_sysdep	sysdep-unix.c	/^void __cilkrts_make_unrunnable_sysdep(__cilkrts_worker *w,$/;"	f
-__cilkrts_malloc	cilk_malloc.c	/^void *__cilkrts_malloc(size_t size)$/;"	f
-__cilkrts_mark_synched	scheduler.c	/^static void __cilkrts_mark_synched(full_frame *ff)$/;"	f	file:
-__cilkrts_merge_pending_exceptions	except-gcc.cpp	/^__cilkrts_merge_pending_exceptions ($/;"	f
-__cilkrts_metacall	metacall_impl.c	/^__cilkrts_metacall(unsigned int tool, unsigned int code, void *data)$/;"	f
-__cilkrts_migrate_exception	scheduler.c	/^  void __cilkrts_migrate_exception(__cilkrts_stack_frame *sf) {$/;"	f
-__cilkrts_msleep	concurrent_cilk.c	/^CILK_API(void) __cilkrts_msleep(unsigned long millis)$/;"	f
-__cilkrts_mutex_destroy	worker_mutex.c	/^void __cilkrts_mutex_destroy(__cilkrts_worker *w, struct mutex *m)$/;"	f
-__cilkrts_mutex_init	worker_mutex.c	/^void __cilkrts_mutex_init(struct mutex *m)$/;"	f
-__cilkrts_mutex_lock	worker_mutex.c	/^void __cilkrts_mutex_lock(__cilkrts_worker *w, struct mutex *m)$/;"	f
-__cilkrts_mutex_trylock	worker_mutex.c	/^int __cilkrts_mutex_trylock(__cilkrts_worker *w, struct mutex *m)$/;"	f
-__cilkrts_mutex_unlock	worker_mutex.c	/^void __cilkrts_mutex_unlock(__cilkrts_worker *w, struct mutex *m)$/;"	f
-__cilkrts_note_interval	stats.c	/^void __cilkrts_note_interval(__cilkrts_worker *w, enum interval i)$/;"	f
-__cilkrts_os_mutex_create	os_mutex-unix.c	/^struct os_mutex *__cilkrts_os_mutex_create(void)$/;"	f
-__cilkrts_os_mutex_destroy	os_mutex-unix.c	/^void __cilkrts_os_mutex_destroy(struct os_mutex *p)$/;"	f
-__cilkrts_os_mutex_lock	os_mutex-unix.c	/^void __cilkrts_os_mutex_lock(struct os_mutex *p)$/;"	f
-__cilkrts_os_mutex_unlock	os_mutex-unix.c	/^void __cilkrts_os_mutex_unlock(struct os_mutex *p)$/;"	f
-__cilkrts_paused_stack	concurrent_cilk_internal.h	/^ typedef struct __cilkrts_paused_stack {$/;"	s
-__cilkrts_paused_stack	concurrent_cilk_internal.h	/^typedef struct __cilkrts_paused_stack __cilkrts_paused_stack;$/;"	t	typeref:struct:__cilkrts_paused_stack
-__cilkrts_paused_stack	concurrent_cilk_internal.h	/^} __cilkrts_paused_stack;$/;"	t	typeref:struct:__cilkrts_paused_stack
+__cilkrts_global_state	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^    global_state_t *__cilkrts_global_state = &global_state_singleton;$/;"	v
+__cilkrts_hardware_cpu_count	os-unix.c	/^COMMON_SYSDEP int __cilkrts_hardware_cpu_count(void)$/;"	f	signature:(void)
+__cilkrts_hardware_cpu_count	os.h	/^COMMON_SYSDEP int __cilkrts_hardware_cpu_count(void);$/;"	p	signature:(void)
+__cilkrts_hyper_create	reducer_impl.cpp	/^void __cilkrts_hyper_create(__cilkrts_hyperobject_base *hb)$/;"	f	signature:(__cilkrts_hyperobject_base *hb)
+__cilkrts_hyper_destroy	reducer_impl.cpp	/^    __cilkrts_hyper_destroy(__cilkrts_hyperobject_base *hb))$/;"	f	signature:(__cilkrts_hyperobject_base *hb)
+__cilkrts_hyper_lookup	reducer_impl.cpp	/^    __cilkrts_hyper_lookup(__cilkrts_hyperobject_base *hb))$/;"	f	signature:(__cilkrts_hyperobject_base *hb)
+__cilkrts_hyperobject_alloc	reducer_impl.cpp	/^void* __cilkrts_hyperobject_alloc(void* ignore, std::size_t bytes)$/;"	f	signature:(void* ignore, std::size_t bytes)
+__cilkrts_hyperobject_dealloc	reducer_impl.cpp	/^void __cilkrts_hyperobject_dealloc(void* ignore, void* view)$/;"	f	signature:(void* ignore, void* view)
+__cilkrts_hyperobject_noop_destroy	reducer_impl.cpp	/^void __cilkrts_hyperobject_noop_destroy(void* ignore, void* ignore2)$/;"	f	signature:(void* ignore, void* ignore2)
+__cilkrts_init	cilk_api.c	/^CILK_API_VOID __cilkrts_init(void)$/;"	f	signature:(void)
+__cilkrts_init_global_sysdep	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_init_global_sysdep(global_state_t *g)$/;"	f	signature:(global_state_t *g)
+__cilkrts_init_global_sysdep	sysdep.h	/^void __cilkrts_init_global_sysdep(global_state_t *g);$/;"	p	signature:(global_state_t *g)
+__cilkrts_init_internal	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  void __cilkrts_init_internal(int start)$/;"	f	signature:(int start)
+__cilkrts_init_internal	scheduler.h	/^void __cilkrts_init_internal(int start);$/;"	p	signature:(int start)
+__cilkrts_init_stack_cache	stacks.c	/^void __cilkrts_init_stack_cache(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, __cilkrts_stack_cache *c, unsigned int size)
+__cilkrts_init_stack_cache	stacks.h	/^void __cilkrts_init_stack_cache(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, __cilkrts_stack_cache *c, unsigned int size)
+__cilkrts_init_stats	stats.c	/^void __cilkrts_init_stats(statistics *s)$/;"	f	signature:(statistics *s)
+__cilkrts_init_stats	stats.h	/^COMMON_PORTABLE void __cilkrts_init_stats(statistics *s);$/;"	p	signature:(statistics *s)
+__cilkrts_init_stats	stats.h	/^void __cilkrts_init_stats(statistics *s);$/;"	p	signature:(statistics *s)
+__cilkrts_init_tls_variables	os-unix.c	/^void __cilkrts_init_tls_variables(void)$/;"	f	signature:(void)
+__cilkrts_init_tls_variables	os.h	/^COMMON_SYSDEP void __cilkrts_init_tls_variables(void);$/;"	p	signature:(void)
+__cilkrts_init_worker_sysdep	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_init_worker_sysdep(struct __cilkrts_worker *w)$/;"	f	signature:(struct __cilkrts_worker *w)
+__cilkrts_init_worker_sysdep	sysdep.h	/^void __cilkrts_init_worker_sysdep(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_invoke_stack_op	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_invoke_stack_op(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, enum __cilk_tbb_stack_op op, __cilkrts_stack *sd)
+__cilkrts_invoke_stack_op	sysdep.h	/^void __cilkrts_invoke_stack_op(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, enum __cilk_tbb_stack_op op, __cilkrts_stack *sd)
+__cilkrts_ivar_clear	/home/czakian/Research/concurrent_cilk/runtime/ivar_full_blocking.c	/^__cilkrts_ivar_clear(__cilkrts_ivar* ivar) { *ivar = 0; }$/;"	f	signature:(__cilkrts_ivar* ivar)
+__cilkrts_ivar_write	/home/czakian/Research/concurrent_cilk/runtime/ivar_full_blocking.c	/^__cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val) $/;"	f	signature:(__cilkrts_ivar* ivar, ivar_payload_t val)
+__cilkrts_leave_cilk	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  void __cilkrts_leave_cilk(global_state_t *g)$/;"	f	signature:(global_state_t *g)
+__cilkrts_leave_cilk	scheduler.h	/^void __cilkrts_leave_cilk(global_state_t *g);$/;"	p	signature:(global_state_t *g)
+__cilkrts_leave_frame	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)$/;"	f	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_make_full_frame	full_frame.c	/^full_frame *__cilkrts_make_full_frame(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
+__cilkrts_make_full_frame	full_frame.h	/^full_frame *__cilkrts_make_full_frame(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
+__cilkrts_make_reducer_map	reducer_impl.cpp	/^cilkred_map *__cilkrts_make_reducer_map(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_make_reducer_map	reducer_impl.h	/^cilkred_map *__cilkrts_make_reducer_map(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_make_stack	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^__cilkrts_stack *__cilkrts_make_stack(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_make_stack	sysdep.h	/^__cilkrts_stack *__cilkrts_make_stack(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_make_unrunnable_sysdep	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_make_unrunnable_sysdep(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf, int state_valid, const char *why)
+__cilkrts_make_unrunnable_sysdep	sysdep.h	/^void __cilkrts_make_unrunnable_sysdep(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf, int state_valid, const char *why)
+__cilkrts_malloc	cilk_malloc.c	/^void *__cilkrts_malloc(size_t size)$/;"	f	signature:(size_t size)
+__cilkrts_malloc	cilk_malloc.h	/^COMMON_PORTABLE void *__cilkrts_malloc(size_t size);$/;"	p	signature:(size_t size)
+__cilkrts_mark_synched	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void __cilkrts_mark_synched(full_frame *ff)$/;"	f	file:	signature:(full_frame *ff)
+__cilkrts_merge_pending_exceptions	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^__cilkrts_merge_pending_exceptions ($/;"	f	signature:( __cilkrts_worker *w, struct pending_exception_info *left, struct pending_exception_info *right)
+__cilkrts_merge_pending_exceptions	except.h	/^struct pending_exception_info *__cilkrts_merge_pending_exceptions($/;"	p	signature:( __cilkrts_worker *w, pending_exception_info *left_exception, pending_exception_info *right_exception)
+__cilkrts_metacall	metacall_impl.c	/^__cilkrts_metacall(unsigned int tool, unsigned int code, void *data)$/;"	f	signature:(unsigned int tool, unsigned int code, void *data)
+__cilkrts_metacall	metacall_impl.h	/^__cilkrts_metacall(unsigned int tool, unsigned int code, void *data);$/;"	p	signature:(unsigned int tool, unsigned int code, void *data)
+__cilkrts_migrate_exception	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  void __cilkrts_migrate_exception(__cilkrts_stack_frame *sf) {$/;"	f	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_migrate_exception	scheduler.h	/^void __cilkrts_migrate_exception (__cilkrts_stack_frame *sf);$/;"	p	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_mutex_destroy	worker_mutex.c	/^void __cilkrts_mutex_destroy(__cilkrts_worker *w, struct mutex *m)$/;"	f	signature:(__cilkrts_worker *w, struct mutex *m)
+__cilkrts_mutex_destroy	worker_mutex.h	/^void __cilkrts_mutex_destroy(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, struct mutex *m)
+__cilkrts_mutex_init	worker_mutex.c	/^void __cilkrts_mutex_init(struct mutex *m)$/;"	f	signature:(struct mutex *m)
+__cilkrts_mutex_init	worker_mutex.h	/^void __cilkrts_mutex_init(struct mutex *m);$/;"	p	signature:(struct mutex *m)
+__cilkrts_mutex_lock	worker_mutex.c	/^void __cilkrts_mutex_lock(__cilkrts_worker *w, struct mutex *m)$/;"	f	signature:(__cilkrts_worker *w, struct mutex *m)
+__cilkrts_mutex_lock	worker_mutex.h	/^void __cilkrts_mutex_lock(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, struct mutex *m)
+__cilkrts_mutex_trylock	worker_mutex.c	/^int __cilkrts_mutex_trylock(__cilkrts_worker *w, struct mutex *m)$/;"	f	signature:(__cilkrts_worker *w, struct mutex *m)
+__cilkrts_mutex_trylock	worker_mutex.h	/^int __cilkrts_mutex_trylock(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, struct mutex *m)
+__cilkrts_mutex_unlock	worker_mutex.c	/^void __cilkrts_mutex_unlock(__cilkrts_worker *w, struct mutex *m)$/;"	f	signature:(__cilkrts_worker *w, struct mutex *m)
+__cilkrts_mutex_unlock	worker_mutex.h	/^void __cilkrts_mutex_unlock(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, struct mutex *m)
+__cilkrts_note_interval	stats.c	/^void __cilkrts_note_interval(__cilkrts_worker *w, enum interval i)$/;"	f	signature:(__cilkrts_worker *w, enum interval i)
+__cilkrts_note_interval	stats.h	/^void __cilkrts_note_interval(__cilkrts_worker *w, enum interval i);$/;"	p	signature:(__cilkrts_worker *w, enum interval i)
+__cilkrts_os_mutex_create	os_mutex-unix.c	/^struct os_mutex *__cilkrts_os_mutex_create(void)$/;"	f	signature:(void)
+__cilkrts_os_mutex_create	os_mutex.h	/^COMMON_SYSDEP os_mutex* __cilkrts_os_mutex_create(void);$/;"	p	signature:(void)
+__cilkrts_os_mutex_destroy	os_mutex-unix.c	/^void __cilkrts_os_mutex_destroy(struct os_mutex *p)$/;"	f	signature:(struct os_mutex *p)
+__cilkrts_os_mutex_destroy	os_mutex.h	/^COMMON_SYSDEP void __cilkrts_os_mutex_destroy(os_mutex *m);$/;"	p	signature:(os_mutex *m)
+__cilkrts_os_mutex_lock	os_mutex-unix.c	/^void __cilkrts_os_mutex_lock(struct os_mutex *p)$/;"	f	signature:(struct os_mutex *p)
+__cilkrts_os_mutex_lock	os_mutex.h	/^COMMON_SYSDEP void __cilkrts_os_mutex_lock(os_mutex *m);$/;"	p	signature:(os_mutex *m)
+__cilkrts_os_mutex_unlock	os_mutex-unix.c	/^void __cilkrts_os_mutex_unlock(struct os_mutex *p)$/;"	f	signature:(struct os_mutex *p)
+__cilkrts_os_mutex_unlock	os_mutex.h	/^COMMON_SYSDEP void __cilkrts_os_mutex_unlock(os_mutex *m);$/;"	p	signature:(os_mutex *m)
+__cilkrts_paused_fiber	concurrent_cilk_internal.h	/^ typedef struct __cilkrts_paused_fiber {$/;"	s
+__cilkrts_paused_fiber	concurrent_cilk_internal.h	/^typedef struct __cilkrts_paused_fiber __cilkrts_paused_fiber;$/;"	t	typeref:struct:__cilkrts_paused_fiber
 __cilkrts_pedigree	os.h	/^typedef struct __cilkrts_pedigree __cilkrts_pedigree;$/;"	t	typeref:struct:__cilkrts_pedigree
-__cilkrts_pedigree_leaf_destructor	os-unix.c	/^static void __cilkrts_pedigree_leaf_destructor(void* pedigree_tls_ptr)$/;"	f	file:
-__cilkrts_pop_tail	scheduler.c	/^  __cilkrts_stack_frame *__cilkrts_pop_tail(__cilkrts_worker *w)$/;"	f
-__cilkrts_promote_own_deque	scheduler.c	/^  void __cilkrts_promote_own_deque(__cilkrts_worker *w)$/;"	f
-__cilkrts_push_next_frame	scheduler.c	/^void __cilkrts_push_next_frame(__cilkrts_worker *w, full_frame *ff)$/;"	f
-__cilkrts_put_stack	full_frame.c	/^COMMON_PORTABLE void __cilkrts_put_stack(full_frame *ff,$/;"	f
-__cilkrts_realloc	cilk_malloc.c	/^void *__cilkrts_realloc(void *ptr, size_t size)$/;"	f
+__cilkrts_pedigree_leaf_destructor	os-unix.c	/^static void __cilkrts_pedigree_leaf_destructor(void* pedigree_tls_ptr)$/;"	f	file:	signature:(void* pedigree_tls_ptr)
+__cilkrts_per_thread_tls_cleanup	os.h	/^void __cilkrts_per_thread_tls_cleanup(void);$/;"	p	signature:(void)
+__cilkrts_pop_tail	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  __cilkrts_stack_frame *__cilkrts_pop_tail(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_pop_tail	scheduler.h	/^__cilkrts_stack_frame *__cilkrts_pop_tail(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_promote_own_deque	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  void __cilkrts_promote_own_deque(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_promote_own_deque	scheduler.h	/^void __cilkrts_promote_own_deque(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_push_next_frame	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^void __cilkrts_push_next_frame(__cilkrts_worker *w, full_frame *ff)$/;"	f	signature:(__cilkrts_worker *w, full_frame *ff)
+__cilkrts_push_next_frame	scheduler.h	/^void __cilkrts_push_next_frame(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, full_frame *ff)
+__cilkrts_put_stack	full_frame.c	/^COMMON_PORTABLE void __cilkrts_put_stack(full_frame *ff,$/;"	f	signature:(full_frame *ff, __cilkrts_stack_frame *sf)
+__cilkrts_put_stack	full_frame.h	/^COMMON_PORTABLE void __cilkrts_put_stack(full_frame *ff,$/;"	p	signature:(full_frame *ff, __cilkrts_stack_frame *sf)
+__cilkrts_realloc	cilk_malloc.c	/^void *__cilkrts_realloc(void *ptr, size_t size)$/;"	f	signature:(void *ptr, size_t size)
+__cilkrts_realloc	cilk_malloc.h	/^COMMON_PORTABLE void *__cilkrts_realloc(void *ptr, size_t size);$/;"	p	signature:(void *ptr, size_t size)
 __cilkrts_region_properties	sysdep.h	/^typedef struct __cilkrts_region_properties __cilkrts_region_properties;$/;"	t	typeref:struct:__cilkrts_region_properties
-__cilkrts_release_stack	stacks.c	/^void __cilkrts_release_stack(__cilkrts_worker *w,$/;"	f
-__cilkrts_restore_stealing	scheduler.c	/^  void __cilkrts_restore_stealing($/;"	f
-__cilkrts_resume	sysdep-unix.c	/^NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *ff,$/;"	f
-__cilkrts_rethrow	cilk-abi.c	/^CILK_ABI_THROWS_VOID __cilkrts_rethrow(__cilkrts_stack_frame *sf)$/;"	f
-__cilkrts_return	scheduler.c	/^  void __cilkrts_return(__cilkrts_worker *w)$/;"	f
-__cilkrts_return_exception	except-gcc.cpp	/^__cilkrts_return_exception(__cilkrts_stack_frame *sf)$/;"	f
-__cilkrts_run_scheduler_with_exceptions	global_state.cpp	/^void __cilkrts_run_scheduler_with_exceptions(__cilkrts_worker *w)$/;"	f
-__cilkrts_running_under_sequential_ptool	metacall_impl.c	/^int __cilkrts_running_under_sequential_ptool(void)$/;"	f
-__cilkrts_save_exception_state	except-gcc.cpp	/^void __cilkrts_save_exception_state(__cilkrts_worker *w, full_frame *ff)$/;"	f
-__cilkrts_scheduler	scheduler.c	/^  static void __cilkrts_scheduler(__cilkrts_worker *w)$/;"	f	file:
-__cilkrts_set_leftmost_reducer_map	reducer_impl.cpp	/^void __cilkrts_set_leftmost_reducer_map(cilkred_map *h, int is_leftmost)$/;"	f
-__cilkrts_set_param	cilk_api.c	/^CILK_API_INT __cilkrts_set_param(const char* param, const char* value)$/;"	f
-__cilkrts_set_param_w	cilk_api.c	/^CILK_API_INT __cilkrts_set_param_w(const wchar_t* param, const wchar_t* value)$/;"	f
-__cilkrts_set_pedigree_leaf	pedigrees.c	/^void __cilkrts_set_pedigree_leaf(__cilkrts_pedigree *leaf)$/;"	f
-__cilkrts_set_stack_op	sysdep-unix.c	/^void __cilkrts_set_stack_op(__cilkrts_stack *sd,$/;"	f
-__cilkrts_set_tls_pedigree_leaf	os-unix.c	/^void __cilkrts_set_tls_pedigree_leaf(__cilkrts_pedigree* pedigree_leaf)$/;"	f
-__cilkrts_set_tls_reducer	os-unix.c	/^COMMON_SYSDEP void __cilkrts_set_tls_reducer(struct cilkred_map *r)$/;"	f
-__cilkrts_set_tls_tbb_interop	os-unix.c	/^void __cilkrts_set_tls_tbb_interop(__cilk_tbb_stack_op_thunk *t)$/;"	f
-__cilkrts_set_tls_worker	os-unix.c	/^void __cilkrts_set_tls_worker(__cilkrts_worker *w)$/;"	f
-__cilkrts_setup_for_execution_sysdep	except-gcc.cpp	/^void __cilkrts_setup_for_execution_sysdep(__cilkrts_worker *w, full_frame *ff)$/;"	f
-__cilkrts_short_pause	os-unix.c	/^COMMON_SYSDEP void __cilkrts_short_pause(void)$/;"	f
-__cilkrts_size_of_bucket	frame_malloc.c	/^size_t __cilkrts_size_of_bucket(int bucket)$/;"	f
-__cilkrts_sleep	os-unix.c	/^COMMON_SYSDEP void __cilkrts_sleep(void)$/;"	f
+__cilkrts_release_stack	stacks.c	/^void __cilkrts_release_stack(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, __cilkrts_stack *sd)
+__cilkrts_release_stack	stacks.h	/^void __cilkrts_release_stack(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, __cilkrts_stack *sd)
+__cilkrts_restore_stealing	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  void __cilkrts_restore_stealing($/;"	f	signature:( __cilkrts_worker *w, __cilkrts_stack_frame *volatile *saved_protected_tail)
+__cilkrts_restore_stealing	scheduler.h	/^void __cilkrts_restore_stealing($/;"	p	signature:( __cilkrts_worker *w, __cilkrts_stack_frame *volatile *saved_protected_tail)
+__cilkrts_resume	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *ff,$/;"	f	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf)
+__cilkrts_resume	sysdep.h	/^NORETURN __cilkrts_resume(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf)
+__cilkrts_resume_fiber	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk.c	/^  __cilkrts_resume_fiber(__cilkrts_paused_fiber *pfiber)$/;"	f	signature:(__cilkrts_paused_fiber *pfiber)
+__cilkrts_rethrow	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^CILK_ABI_THROWS_VOID __cilkrts_rethrow(__cilkrts_stack_frame *sf)$/;"	f	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_return	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  void __cilkrts_return(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_return	scheduler.h	/^void __cilkrts_return(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_return_exception	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^__cilkrts_return_exception(__cilkrts_stack_frame *sf)$/;"	f	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_run_scheduler_with_exceptions	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^void __cilkrts_run_scheduler_with_exceptions(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_run_scheduler_with_exceptions	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^void __cilkrts_run_scheduler_with_exceptions(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_running_under_sequential_ptool	metacall_impl.c	/^int __cilkrts_running_under_sequential_ptool(void)$/;"	f	signature:(void)
+__cilkrts_running_under_sequential_ptool	metacall_impl.h	/^int __cilkrts_running_under_sequential_ptool(void);$/;"	p	signature:(void)
+__cilkrts_save_exception_state	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^void __cilkrts_save_exception_state(__cilkrts_worker *w, full_frame *ff)$/;"	f	signature:(__cilkrts_worker *w, full_frame *ff)
+__cilkrts_save_exception_state	except.h	/^void __cilkrts_save_exception_state(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, full_frame *ff)
+__cilkrts_scheduler	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void __cilkrts_scheduler(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+__cilkrts_set_leftmost_reducer_map	reducer_impl.cpp	/^void __cilkrts_set_leftmost_reducer_map(cilkred_map *h, int is_leftmost)$/;"	f	signature:(cilkred_map *h, int is_leftmost)
+__cilkrts_set_leftmost_reducer_map	reducer_impl.h	/^void __cilkrts_set_leftmost_reducer_map(cilkred_map *h,$/;"	p	signature:(cilkred_map *h, int is_leftmost)
+__cilkrts_set_param	cilk_api.c	/^CILK_API_INT __cilkrts_set_param(const char* param, const char* value)$/;"	f	signature:(const char* param, const char* value)
+__cilkrts_set_param_w	cilk_api.c	/^CILK_API_INT __cilkrts_set_param_w(const wchar_t* param, const wchar_t* value)$/;"	f	signature:(const wchar_t* param, const wchar_t* value)
+__cilkrts_set_pedigree_leaf	pedigrees.c	/^void __cilkrts_set_pedigree_leaf(__cilkrts_pedigree *leaf)$/;"	f	signature:(__cilkrts_pedigree *leaf)
+__cilkrts_set_pedigree_leaf	pedigrees.h	/^void __cilkrts_set_pedigree_leaf(__cilkrts_pedigree* leaf);$/;"	p	signature:(__cilkrts_pedigree* leaf)
+__cilkrts_set_stack_op	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_set_stack_op(__cilkrts_stack *sd,$/;"	f	signature:(__cilkrts_stack *sd, __cilk_tbb_stack_op_thunk o)
+__cilkrts_set_stack_op	sysdep.h	/^void __cilkrts_set_stack_op(__cilkrts_stack *sd,$/;"	p	signature:(__cilkrts_stack *sd, __cilk_tbb_stack_op_thunk o)
+__cilkrts_set_tls_pedigree_leaf	os-unix.c	/^void __cilkrts_set_tls_pedigree_leaf(__cilkrts_pedigree* pedigree_leaf)$/;"	f	signature:(__cilkrts_pedigree* pedigree_leaf)
+__cilkrts_set_tls_pedigree_leaf	os.h	/^void __cilkrts_set_tls_pedigree_leaf(__cilkrts_pedigree* pedigree_leaf);$/;"	p	signature:(__cilkrts_pedigree* pedigree_leaf)
+__cilkrts_set_tls_reducer	os-unix.c	/^COMMON_SYSDEP void __cilkrts_set_tls_reducer(struct cilkred_map *r)$/;"	f	signature:(struct cilkred_map *r)
+__cilkrts_set_tls_tbb_interop	os-unix.c	/^void __cilkrts_set_tls_tbb_interop(__cilk_tbb_stack_op_thunk *t)$/;"	f	signature:(__cilk_tbb_stack_op_thunk *t)
+__cilkrts_set_tls_tbb_interop	os.h	/^void __cilkrts_set_tls_tbb_interop(__cilk_tbb_stack_op_thunk *t);$/;"	p	signature:(__cilk_tbb_stack_op_thunk *t)
+__cilkrts_set_tls_worker	os-unix.c	/^void __cilkrts_set_tls_worker(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_setup_for_execution_sysdep	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^void __cilkrts_setup_for_execution_sysdep(__cilkrts_worker *w, full_frame *ff)$/;"	f	signature:(__cilkrts_worker *w, full_frame *ff)
+__cilkrts_setup_for_execution_sysdep	sysdep.h	/^void __cilkrts_setup_for_execution_sysdep(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, full_frame *ff)
+__cilkrts_short_pause	os-unix.c	/^COMMON_SYSDEP void __cilkrts_short_pause(void)$/;"	f	signature:(void)
+__cilkrts_short_pause	os.h	/^COMMON_SYSDEP void __cilkrts_short_pause(void);$/;"	p	signature:(void)
+__cilkrts_size_of_bucket	frame_malloc.c	/^size_t __cilkrts_size_of_bucket(int bucket)$/;"	f	signature:(int bucket)
+__cilkrts_sleep	os-unix.c	/^COMMON_SYSDEP void __cilkrts_sleep(void)$/;"	f	signature:(void)
+__cilkrts_sleep	os.h	/^COMMON_SYSDEP void __cilkrts_sleep(void); \/* Sleep briefly *\/$/;"	p	signature:(void)
+__cilkrts_stack	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^typedef struct __cilkrts_stack __cilkrts_stack;$/;"	t	typeref:struct:__cilkrts_stack
+__cilkrts_stack	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^struct __cilkrts_stack$/;"	s	file:
 __cilkrts_stack	full_frame.h	/^typedef struct __cilkrts_stack __cilkrts_stack;$/;"	t	typeref:struct:__cilkrts_stack
-__cilkrts_stack	global_state.h	/^typedef struct __cilkrts_stack __cilkrts_stack;$/;"	t	typeref:struct:__cilkrts_stack
-__cilkrts_stack	sysdep-unix.c	/^struct __cilkrts_stack$/;"	s	file:
-__cilkrts_stack_cache	global_state.h	/^typedef struct __cilkrts_stack_cache {$/;"	s
-__cilkrts_stack_cache	global_state.h	/^} __cilkrts_stack_cache;$/;"	t	typeref:struct:__cilkrts_stack_cache
-__cilkrts_stack_frame	concurrent_cilk_internal.h	/^typedef struct __cilkrts_stack_frame __cilkrts_stack_frame;$/;"	t	typeref:struct:__cilkrts_stack_frame
+__cilkrts_stack::owner	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^    pthread_t owner;$/;"	m	struct:__cilkrts_stack	file:	access:public
+__cilkrts_stack::size	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^    size_t size;$/;"	m	struct:__cilkrts_stack	file:	access:public
+__cilkrts_stack::stack_op_data	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^    void *stack_op_data;$/;"	m	struct:__cilkrts_stack	file:	access:public
+__cilkrts_stack::stack_op_routine	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^    __cilk_tbb_pfn_stack_op stack_op_routine;$/;"	m	struct:__cilkrts_stack	file:	access:public
+__cilkrts_stack::top	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^    char *top;$/;"	m	struct:__cilkrts_stack	file:	access:public
+__cilkrts_stack_cache	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^typedef struct __cilkrts_stack_cache {$/;"	s
+__cilkrts_stack_cache	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^} __cilkrts_stack_cache;$/;"	t	typeref:struct:__cilkrts_stack_cache
+__cilkrts_stack_cache::lock	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    mutex             lock;$/;"	m	struct:__cilkrts_stack_cache	access:public
+__cilkrts_stack_cache::n	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    unsigned int      n;$/;"	m	struct:__cilkrts_stack_cache	access:public
+__cilkrts_stack_cache::size	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    unsigned int      size;$/;"	m	struct:__cilkrts_stack_cache	access:public
+__cilkrts_stack_cache::stacks	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    __cilkrts_stack **stacks;$/;"	m	struct:__cilkrts_stack_cache	access:public
 __cilkrts_stack_frame	full_frame.h	/^typedef struct __cilkrts_stack_frame __cilkrts_stack_frame;$/;"	t	typeref:struct:__cilkrts_stack_frame
-__cilkrts_stack_pair	concurrent_cilk_internal.h	/^typedef struct __cilkrts_stack_pair __cilkrts_stack_pair;$/;"	t	typeref:struct:__cilkrts_stack_pair
-__cilkrts_stack_to_pointer	sysdep-unix.c	/^char *__cilkrts_stack_to_pointer(__cilkrts_stack *s, __cilkrts_stack_frame *sf)$/;"	f
-__cilkrts_start_interval	stats.c	/^void __cilkrts_start_interval(__cilkrts_worker *w, enum interval i)$/;"	f
-__cilkrts_start_workers	sysdep-unix.c	/^void __cilkrts_start_workers(global_state_t *g, int n)$/;"	f
-__cilkrts_stop_interval	stats.c	/^void __cilkrts_stop_interval(__cilkrts_worker *w, enum interval i)$/;"	f
-__cilkrts_stop_workers	sysdep-unix.c	/^void __cilkrts_stop_workers(global_state_t *g)$/;"	f
-__cilkrts_sync	cilk-abi.c	/^CILK_ABI_VOID __cilkrts_sync(__cilkrts_stack_frame *sf)$/;"	f
-__cilkrts_synched	cilk-abi.c	/^CILK_API_INT __cilkrts_synched(void)$/;"	f
-__cilkrts_sysdep_bind_thread	sysdep-unix.c	/^int __cilkrts_sysdep_bind_thread(__cilkrts_worker *w)$/;"	f
-__cilkrts_sysdep_get_stack_region_properties	sysdep-unix.c	/^int __cilkrts_sysdep_get_stack_region_properties(__cilkrts_stack *sd,$/;"	f
-__cilkrts_sysdep_import_user_thread	sysdep-unix.c	/^void __cilkrts_sysdep_import_user_thread(__cilkrts_worker *w)$/;"	f
-__cilkrts_sysdep_is_worker_thread_id	sysdep-unix.c	/^int __cilkrts_sysdep_is_worker_thread_id(global_state_t *g,$/;"	f
-__cilkrts_sysdep_reset_stack	sysdep-unix.c	/^void __cilkrts_sysdep_reset_stack(__cilkrts_stack *sd)$/;"	f
-__cilkrts_sysdep_unbind_thread	sysdep-unix.c	/^void __cilkrts_sysdep_unbind_thread(__cilkrts_worker *w)$/;"	f
-__cilkrts_take_stack	full_frame.c	/^COMMON_PORTABLE void __cilkrts_take_stack(full_frame *ff, void *sp)$/;"	f
-__cilkrts_trim_stack_cache	stacks.c	/^void __cilkrts_trim_stack_cache(__cilkrts_worker *w)$/;"	f
-__cilkrts_unbind_thread	scheduler.c	/^  static void __cilkrts_unbind_thread()$/;"	f	file:
-__cilkrts_undo_detach	cilk-abi.c	/^static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)$/;"	f	file:
-__cilkrts_unwatch_stack	cilk-abi.c	/^static __cilk_tbb_retcode __cilkrts_unwatch_stack(void *data)$/;"	f	file:
-__cilkrts_usleep	concurrent_cilk.c	/^CILK_API(void) __cilkrts_usleep(unsigned long micros)$/;"	f
-__cilkrts_watch_stack	cilk-abi.c	/^__cilkrts_watch_stack(__cilk_tbb_unwatch_thunk *u,$/;"	f
+__cilkrts_stack_pair	queues/cache_aware_queue.c	/^struct __cilkrts_stack_pair {$/;"	s	file:
+__cilkrts_stack_pair	queues/lockfree_queue.h	/^struct __cilkrts_stack_pair {$/;"	s
+__cilkrts_stack_pair	queues/locking_queue.c	/^struct __cilkrts_stack_pair {$/;"	s	file:
+__cilkrts_stack_queue	queues/cache_aware_queue.c	/^typedef struct __cilkrts_stack_queue_struct __cilkrts_stack_queue;$/;"	t	typeref:struct:__cilkrts_stack_queue_struct	file:
+__cilkrts_stack_queue_struct	queues/cache_aware_queue.c	/^struct __cilkrts_stack_queue_struct {$/;"	s	file:
+__cilkrts_stack_to_pointer	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^char *__cilkrts_stack_to_pointer(__cilkrts_stack *s, __cilkrts_stack_frame *sf)$/;"	f	signature:(__cilkrts_stack *s, __cilkrts_stack_frame *sf)
+__cilkrts_stack_to_pointer	sysdep.h	/^char *__cilkrts_stack_to_pointer(__cilkrts_stack *sd,$/;"	p	signature:(__cilkrts_stack *sd, __cilkrts_stack_frame *sf)
+__cilkrts_start_interval	stats.c	/^void __cilkrts_start_interval(__cilkrts_worker *w, enum interval i)$/;"	f	signature:(__cilkrts_worker *w, enum interval i)
+__cilkrts_start_interval	stats.h	/^void __cilkrts_start_interval(__cilkrts_worker *w, enum interval i);$/;"	p	signature:(__cilkrts_worker *w, enum interval i)
+__cilkrts_start_workers	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_start_workers(global_state_t *g, int n)$/;"	f	signature:(global_state_t *g, int n)
+__cilkrts_start_workers	sysdep.h	/^void __cilkrts_start_workers(global_state_t *g, int n);$/;"	p	signature:(global_state_t *g, int n)
+__cilkrts_stop_interval	stats.c	/^void __cilkrts_stop_interval(__cilkrts_worker *w, enum interval i)$/;"	f	signature:(__cilkrts_worker *w, enum interval i)
+__cilkrts_stop_interval	stats.h	/^void __cilkrts_stop_interval(__cilkrts_worker *w, enum interval i);$/;"	p	signature:(__cilkrts_worker *w, enum interval i)
+__cilkrts_stop_workers	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_stop_workers(global_state_t *g)$/;"	f	signature:(global_state_t *g)
+__cilkrts_stop_workers	sysdep.h	/^void __cilkrts_stop_workers(global_state_t *g);$/;"	p	signature:(global_state_t *g)
+__cilkrts_sync	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^CILK_ABI_VOID __cilkrts_sync(__cilkrts_stack_frame *sf)$/;"	f	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_synched	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^CILK_API_INT __cilkrts_synched(void)$/;"	f	signature:(void)
+__cilkrts_sysdep_bind_thread	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^int __cilkrts_sysdep_bind_thread(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_sysdep_bind_thread	sysdep.h	/^int __cilkrts_sysdep_bind_thread(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_sysdep_get_stack_region_properties	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^int __cilkrts_sysdep_get_stack_region_properties(__cilkrts_stack *sd,$/;"	f	signature:(__cilkrts_stack *sd, struct __cilkrts_region_properties *props)
+__cilkrts_sysdep_get_stack_region_properties	sysdep.h	/^int __cilkrts_sysdep_get_stack_region_properties(__cilkrts_stack *sd,$/;"	p	signature:(__cilkrts_stack *sd, __cilkrts_region_properties *properties)
+__cilkrts_sysdep_import_user_thread	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_sysdep_import_user_thread(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_sysdep_import_user_thread	sysdep.h	/^void __cilkrts_sysdep_import_user_thread(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_sysdep_is_worker_thread_id	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^int __cilkrts_sysdep_is_worker_thread_id(global_state_t *g,$/;"	f	signature:(global_state_t *g, int i, void *thread_id)
+__cilkrts_sysdep_is_worker_thread_id	sysdep.h	/^int __cilkrts_sysdep_is_worker_thread_id(global_state_t *g,$/;"	p	signature:(global_state_t *g, int i, cilkos_thread_id_t thread_id)
+__cilkrts_sysdep_reset_stack	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_sysdep_reset_stack(__cilkrts_stack *sd)$/;"	f	signature:(__cilkrts_stack *sd)
+__cilkrts_sysdep_reset_stack	sysdep.h	/^void __cilkrts_sysdep_reset_stack(__cilkrts_stack *sd);$/;"	p	signature:(__cilkrts_stack *sd)
+__cilkrts_sysdep_unbind_thread	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void __cilkrts_sysdep_unbind_thread(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_sysdep_unbind_thread	sysdep.h	/^void __cilkrts_sysdep_unbind_thread(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_take_stack	full_frame.c	/^COMMON_PORTABLE void __cilkrts_take_stack(full_frame *ff, void *sp)$/;"	f	signature:(full_frame *ff, void *sp)
+__cilkrts_take_stack	full_frame.h	/^COMMON_PORTABLE void __cilkrts_take_stack(full_frame *ff, void *sp);$/;"	p	signature:(full_frame *ff, void *sp)
+__cilkrts_trim_stack_cache	stacks.c	/^void __cilkrts_trim_stack_cache(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_trim_stack_cache	stacks.h	/^void __cilkrts_trim_stack_cache(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_unbind_thread	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void __cilkrts_unbind_thread()$/;"	f	file:
+__cilkrts_undo_detach	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)$/;"	f	file:	signature:(__cilkrts_stack_frame *sf)
+__cilkrts_unwatch_stack	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^static __cilk_tbb_retcode __cilkrts_unwatch_stack(void *data)$/;"	f	file:	signature:(void *data)
+__cilkrts_watch_stack	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^__cilkrts_watch_stack(__cilk_tbb_unwatch_thunk *u,$/;"	f	signature:(__cilk_tbb_unwatch_thunk *u, __cilk_tbb_stack_op_thunk o)
+__cilkrts_watch_stack	cilk-tbb-interop.h	/^__cilk_tbb_retcode __cilkrts_watch_stack(__cilk_tbb_unwatch_thunk* u,$/;"	p	signature:(__cilk_tbb_unwatch_thunk* u, __cilk_tbb_stack_op_thunk o)
 __cilkrts_worker	concurrent_cilk_internal.h	/^typedef struct __cilkrts_worker      __cilkrts_worker;$/;"	t	typeref:struct:__cilkrts_worker
 __cilkrts_worker	os.h	/^typedef struct __cilkrts_worker __cilkrts_worker;$/;"	t	typeref:struct:__cilkrts_worker
 __cilkrts_worker	worker_mutex.h	/^typedef struct __cilkrts_worker __cilkrts_worker;$/;"	t	typeref:struct:__cilkrts_worker
-__cilkrts_worker_lock	scheduler.c	/^void __cilkrts_worker_lock(__cilkrts_worker *w)$/;"	f
-__cilkrts_worker_ptr	concurrent_cilk_internal.h	/^typedef struct __cilkrts_worker*     __cilkrts_worker_ptr;$/;"	t	typeref:struct:__cilkrts_worker
-__cilkrts_worker_stub	sysdep-unix.c	/^NON_COMMON void* __cilkrts_worker_stub(void *arg)$/;"	f
-__cilkrts_worker_sysdep_state	concurrent_cilk_internal.h	/^typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;$/;"	t	typeref:struct:__cilkrts_worker_sysdep_state
-__cilkrts_worker_unlock	scheduler.c	/^void __cilkrts_worker_unlock(__cilkrts_worker *w)$/;"	f
-__cilkrts_xchg	os-unix.c	/^COMMON_SYSDEP int __cilkrts_xchg(volatile int *ptr, int x)$/;"	f
-__cilkrts_yield	os-unix.c	/^COMMON_SYSDEP void __cilkrts_yield(void)$/;"	f
-__cilkview_get_workspan_data	metacall_impl.c	/^void __cilkview_get_workspan_data(unsigned long long *values, int size)$/;"	f
-__cilkview_use_default_grain	metacall_impl.c	/^void __cilkview_use_default_grain(void) {$/;"	f
-__cilkview_workspan_connected	metacall_impl.c	/^void __cilkview_workspan_connected (int *flag) {$/;"	f
-__cilkview_workspan_dump	metacall_impl.c	/^void __cilkview_workspan_dump(const char *str) {$/;"	f
-__cilkview_workspan_reset	metacall_impl.c	/^void __cilkview_workspan_reset(void) {$/;"	f
+__cilkrts_worker_lock	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^void __cilkrts_worker_lock(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_worker_lock	scheduler.h	/^void __cilkrts_worker_lock(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_worker_stub	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^NON_COMMON void* __cilkrts_worker_stub(void *arg)$/;"	f	signature:(void *arg)
+__cilkrts_worker_stub	sysdep.h	/^__cilkrts_worker_stub(void *arg);$/;"	p	signature:(void *arg)
+__cilkrts_worker_stub	sysdep.h	/^void* __CILKRTS_NOTHROW __cilkrts_worker_stub(void *arg);$/;"	p	signature:(void *arg)
+__cilkrts_worker_unlock	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^void __cilkrts_worker_unlock(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_worker_unlock	scheduler.h	/^void __cilkrts_worker_unlock(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+__cilkrts_xchg	os-unix.c	/^COMMON_SYSDEP int __cilkrts_xchg(volatile int *ptr, int x)$/;"	f	signature:(volatile int *ptr, int x)
+__cilkrts_xchg	os.h	/^COMMON_SYSDEP int __cilkrts_xchg(volatile int *ptr, int x);$/;"	p	signature:(volatile int *ptr, int x)
+__cilkrts_yield	os-unix.c	/^COMMON_SYSDEP void __cilkrts_yield(void)$/;"	f	signature:(void)
+__cilkrts_yield	os.h	/^COMMON_SYSDEP void __cilkrts_yield(void); \/* Yield quantum *\/$/;"	p	signature:(void)
+__cilkview_get_workspan_data	metacall_impl.c	/^void __cilkview_get_workspan_data(unsigned long long *values, int size)$/;"	f	signature:(unsigned long long *values, int size)
+__cilkview_use_default_grain	metacall_impl.c	/^void __cilkview_use_default_grain(void) {$/;"	f	signature:(void)
+__cilkview_workspan_connected	metacall_impl.c	/^void __cilkview_workspan_connected (int *flag) {$/;"	f	signature:(int *flag)
+__cilkview_workspan_dump	metacall_impl.c	/^void __cilkview_workspan_dump(const char *str) {$/;"	f	signature:(const char *str)
+__cilkview_workspan_reset	metacall_impl.c	/^void __cilkview_workspan_reset(void) {$/;"	f	signature:(void)
 __cilkview_workspan_resume	metacall_impl.c	/^void __cilkview_workspan_resume() {$/;"	f
-__cilkview_workspan_start	metacall_impl.c	/^void __cilkview_workspan_start(void) {$/;"	f
-__cilkview_workspan_stop	metacall_impl.c	/^void __cilkview_workspan_stop(void) {$/;"	f
+__cilkview_workspan_start	metacall_impl.c	/^void __cilkview_workspan_start(void) {$/;"	f	signature:(void)
+__cilkview_workspan_stop	metacall_impl.c	/^void __cilkview_workspan_stop(void) {$/;"	f	signature:(void)
 __cilkview_workspan_suspend	metacall_impl.c	/^void __cilkview_workspan_suspend() {$/;"	f
 __cxa_eh_globals	except-gcc.h	/^typedef struct __cxa_eh_globals {$/;"	s
 __cxa_eh_globals	except-gcc.h	/^} __cxa_eh_globals;$/;"	t	typeref:struct:__cxa_eh_globals
 __cxa_exception	except-gcc.h	/^struct __cxa_exception {$/;"	s
-__huge_valf	c_reducers.c	/^  static const unsigned int __huge_valf[] = {0x7f800000};$/;"	v	file:
-__huge_vall	c_reducers.c	/^  static const unsigned int __huge_vall[] = {0, 0, 0x00007f80, 0};$/;"	v	file:
-abort_because_rts_is_corrupted	bug.cpp	/^COMMON_SYSDEP void abort_because_rts_is_corrupted(void)$/;"	f
+__cxa_get_globals	except-gcc.h	/^__cxa_eh_globals*__cxa_get_globals(void) throw();$/;"	p	signature:(void)
+__huge_valf	/home/czakian/Research/concurrent_cilk/runtime/c_reducers.c	/^  static const unsigned int __huge_valf[] = {0x7f800000};$/;"	v	file:
+__huge_vall	/home/czakian/Research/concurrent_cilk/runtime/c_reducers.c	/^  static const unsigned int __huge_vall[] = {0, 0, 0x00007f80, 0};$/;"	v	file:
+abort_because_rts_is_corrupted	bug.cpp	/^COMMON_SYSDEP void abort_because_rts_is_corrupted(void)$/;"	f	signature:(void)
+abort_because_rts_is_corrupted	bug.h	/^COMMON_SYSDEP void abort_because_rts_is_corrupted(void);$/;"	p	signature:(void)
 accum	stats.h	/^    unsigned long long accum[INTERVAL_N];$/;"	m	struct:statistics
 actionRecord	except-gcc.h	/^    const char *            actionRecord;$/;"	m	struct:__cxa_exception
-active	except-gcc.cpp	/^    _Unwind_Exception *active;$/;"	m	struct:pending_exception_info	file:
-addr_size	global_state.h	/^    int addr_size; \/**< Number of bytes for an address, used by debugger (fixed)*\/$/;"	m	struct:global_state_t
+active	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^    _Unwind_Exception *active;$/;"	m	struct:pending_exception_info	file:	access:public
+addr_size	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int addr_size; \/**< Number of bytes for an address, used by debugger (fixed)*\/$/;"	m	struct:global_state_t	access:public
 adjustedPtr	except-gcc.h	/^    void *                  adjustedPtr;$/;"	m	struct:__cxa_exception
-align	concurrent_cilk_internal.h	28;"	d
-alloc_bucket	reducer_impl.cpp	/^static bucket *alloc_bucket(__cilkrts_worker *w, size_t nmax)$/;"	f	file:
-allocate_batch	frame_malloc.c	/^static void allocate_batch(__cilkrts_worker *w, int bucket, size_t size)$/;"	f	file:
+align	concurrent_cilk_internal.h	37;"	d
+alloc_bucket	reducer_impl.cpp	/^static bucket *alloc_bucket(__cilkrts_worker *w, size_t nmax)$/;"	f	file:	signature:(__cilkrts_worker *w, size_t nmax)
+allocate_batch	frame_malloc.c	/^static void allocate_batch(__cilkrts_worker *w, int bucket, size_t size)$/;"	f	file:	signature:(__cilkrts_worker *w, int bucket, size_t size)
+allocate_batch	frame_malloc.c	/^static void allocate_batch(__cilkrts_worker *w, int bucket, size_t size);$/;"	p	file:	signature:(__cilkrts_worker *w, int bucket, size_t size)
 allocated_from_global_pool	frame_malloc.h	/^    size_t allocated_from_global_pool;$/;"	m	struct:__cilkrts_frame_cache
 allocated_from_os	frame_malloc.h	/^    size_t allocated_from_os;$/;"	m	struct:__cilkrts_frame_cache
-always_force_reduce	global_state.cpp	/^bool always_force_reduce()$/;"	f	namespace:__anon2
-atomic_add	concurrent_cilk_internal.h	24;"	d
-atomic_release	concurrent_cilk_internal.h	27;"	d
-atomic_set	concurrent_cilk_internal.h	26;"	d
-atomic_sub	concurrent_cilk_internal.h	25;"	d
-backtracking	concurrent_queue.c	/^static inline int backtracking(struct queue_t * q)$/;"	f	file:
+always_force_reduce	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^bool always_force_reduce()$/;"	f	namespace:__anon1	signature:()
+atomic_add	concurrent_cilk_internal.h	33;"	d
+atomic_release	concurrent_cilk_internal.h	36;"	d
+atomic_set	concurrent_cilk_internal.h	35;"	d
+atomic_sub	concurrent_cilk_internal.h	34;"	d
+atomic_update	queues/cache_aware_queue.c	/^int atomic_update(block_t **ptr, block_t *val) {$/;"	f	signature:(block_t **ptr, block_t *val)
+backtracking	concurrent_queue.c	/^static inline int backtracking(struct queue_t * q)$/;"	f	file:	signature:(struct queue_t * q)
 batch_size	frame_malloc.h	/^    size_t batch_size;$/;"	m	struct:__cilkrts_frame_cache
-blocked	full_frame.h	/^    int blocked;$/;"	m	struct:full_frame
+block_t	queues/cache_aware_queue.c	/^struct block_t {$/;"	s	file:
+block_t	queues/cache_aware_queue.c	/^typedef struct block_t block_t;$/;"	t	typeref:struct:block_t	file:
 blocked_ctx	full_frame.h	/^    jmp_buf blocked_ctx;$/;"	m	struct:full_frame
-blocked_frame_finalize_child_for_call	scheduler.c	/^static void blocked_frame_finalize_child_for_call(__cilkrts_worker *w,$/;"	f	file:
 bucket	reducer_impl.cpp	/^struct bucket {$/;"	s	file:
-bucket_of_size	frame_malloc.c	/^static int bucket_of_size(size_t size)$/;"	f	file:
+bucket_of_size	frame_malloc.c	/^static int bucket_of_size(size_t size)$/;"	f	file:	signature:(size_t size)
 bucket_potential	local_state.h	/^    size_t bucket_potential[FRAME_MALLOC_NBUCKETS];$/;"	m	struct:local_state
 buckets	reducer_impl.cpp	/^    bucket **buckets;$/;"	m	struct:cilkred_map	file:
 buf	local_state.h	/^    char buf[64];$/;"	m	struct:local_state
-cache_buf	global_state.h	/^    char cache_buf[64];$/;"	m	struct:global_state_t
-cache_buf_2	global_state.h	/^    char cache_buf_2[64];$/;"	m	struct:global_state_t
-calc_max_user_workers	global_state.cpp	/^int calc_max_user_workers(global_state_t *g)$/;"	f	namespace:__anon2
-call_cilk_for_loop_body	cilk-abi-cilk-for.cpp	/^void call_cilk_for_loop_body(count_t low, count_t high,$/;"	f	file:
+cache_buf	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    char cache_buf[64];$/;"	m	struct:global_state_t	access:public
+cache_buf_2	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    char cache_buf_2[64];$/;"	m	struct:global_state_t	access:public
+calc_max_user_workers	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^int calc_max_user_workers(global_state_t *g)$/;"	f	namespace:__anon1	signature:(global_state_t *g)
+call_cilk_for_loop_body	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi-cilk-for.cpp	/^void call_cilk_for_loop_body(count_t low, count_t high,$/;"	f	file:	signature:(count_t low, count_t high, F body, void *data, __cilkrts_worker *w, __cilkrts_pedigree *loop_root_pedigree)
 call_stack	full_frame.h	/^    __cilkrts_stack_frame *call_stack;$/;"	m	struct:full_frame
-can_steal_from	scheduler.c	/^int can_steal_from(__cilkrts_worker *victim)$/;"	f
-capture_spawn_arg_stack_frame	cilk-abi-cilk-for.cpp	/^capture_spawn_arg_stack_frame(__cilkrts_stack_frame* &sf, __cilkrts_worker* w)$/;"	f
-cas	concurrent_cilk_internal.h	22;"	d
-casv	concurrent_cilk_internal.h	23;"	d
+can_steal_from	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^int can_steal_from(__cilkrts_worker *victim)$/;"	f	signature:(__cilkrts_worker *victim)
+capture_spawn_arg_stack_frame	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi-cilk-for.cpp	/^capture_spawn_arg_stack_frame(__cilkrts_stack_frame* &sf, __cilkrts_worker* w)$/;"	f	signature:(__cilkrts_stack_frame* &sf, __cilkrts_worker* w)
+cas	concurrent_cilk_internal.h	31;"	d
+casv	concurrent_cilk_internal.h	32;"	d
 catchTemp	except-gcc.h	/^    void *                  catchTemp;$/;"	m	struct:__cxa_exception
 caughtExceptions	except-gcc.h	/^    __cxa_exception *caughtExceptions;$/;"	m	struct:__cxa_eh_globals
 cdr	frame_malloc.c	/^    struct pool_cons *cdr;  \/**< Remainder of the list *\/$/;"	m	struct:pool_cons	typeref:struct:pool_cons::pool_cons	file:
 cdr	frame_malloc.h	/^     struct free_list *cdr;$/;"	m	struct:free_list	typeref:struct:free_list::free_list
-check	except-gcc.cpp	/^void pending_exception_info::check() const$/;"	f	class:pending_exception_info
-check	reducer_impl.cpp	/^void cilkred_map::check(bool allow_null_val)$/;"	f	class:cilkred_map
+check	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^    void check() const;$/;"	p	struct:pending_exception_info	file:	access:public	signature:() const
+check	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^void pending_exception_info::check() const$/;"	f	class:pending_exception_info	signature:() const
+check	reducer_impl.cpp	/^    void check(bool allow_null_val);$/;"	p	struct:cilkred_map	file:	signature:(bool allow_null_val)
+check	reducer_impl.cpp	/^void cilkred_map::check(bool allow_null_val)$/;"	f	class:cilkred_map	signature:(bool allow_null_val)
 check_for_leaks	frame_malloc.h	/^    int check_for_leaks;$/;"	m	struct:__cilkrts_frame_cache
 child_pending_exception	full_frame.h	/^    struct pending_exception_info *child_pending_exception;$/;"	m	struct:full_frame	typeref:struct:full_frame::pending_exception_info
 children_reducer_map	full_frame.h	/^    struct cilkred_map *children_reducer_map;$/;"	m	struct:full_frame	typeref:struct:full_frame::cilkred_map
-cilk_for_recursive	cilk-abi-cilk-for.cpp	/^void cilk_for_recursive(count_t low, count_t high,$/;"	f	file:
-cilk_for_root	cilk-abi-cilk-for.cpp	/^static void cilk_for_root(F body, void *data, count_t count, int grain)$/;"	f	file:
+cilk_for_recursive	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi-cilk-for.cpp	/^void cilk_for_recursive(count_t low, count_t high,$/;"	f	file:	signature:(count_t low, count_t high, F body, void *data, int grain, __cilkrts_worker *w, __cilkrts_pedigree *loop_root_pedigree)
+cilk_for_root	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi-cilk-for.cpp	/^static void cilk_for_root(F body, void *data, count_t count, int grain)$/;"	f	file:	signature:(F body, void *data, count_t count, int grain)
 cilk_keys_defined	os-unix.c	/^static int cilk_keys_defined;$/;"	v	file:
 cilk_nothrow	rts-common.h	62;"	d
 cilk_nothrow	rts-common.h	64;"	d
-cilk_semaphore_t	signal_node.c	/^    typedef HANDLE cilk_semaphore_t;$/;"	t	file:
-cilk_semaphore_t	signal_node.c	/^    typedef sem_t cilk_semaphore_t;$/;"	t	file:
-cilk_semaphore_t	signal_node.c	/^    typedef semaphore_t cilk_semaphore_t;$/;"	t	file:
+cilk_semaphore_t	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^    typedef HANDLE cilk_semaphore_t;$/;"	t	file:
+cilk_semaphore_t	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^    typedef sem_t cilk_semaphore_t;$/;"	t	file:
+cilk_semaphore_t	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^    typedef semaphore_t cilk_semaphore_t;$/;"	t	file:
 cilk_worker_type	local_state.h	/^typedef enum cilk_worker_type$/;"	g
 cilk_worker_type	local_state.h	/^} cilk_worker_type;$/;"	t	typeref:enum:cilk_worker_type
-cilkbug_assert_no_uncaught_exception	bug.cpp	/^COMMON_PORTABLE void cilkbug_assert_no_uncaught_exception(void)$/;"	f
-cilkg_calc_total_workers	global_state.cpp	/^int cilkg_calc_total_workers()$/;"	f
-cilkg_deinit_global_state	global_state.cpp	/^void cilkg_deinit_global_state()$/;"	f
-cilkg_get_force_reduce	global_state.h	/^int cilkg_get_force_reduce(void)$/;"	f
-cilkg_get_global_state	global_state.h	/^global_state_t* cilkg_get_global_state(void)$/;"	f
-cilkg_get_nworkers	global_state.h	/^int cilkg_get_nworkers(void)$/;"	f
-cilkg_get_stack_size	global_state.h	/^size_t cilkg_get_stack_size(void)$/;"	f
-cilkg_get_total_workers	global_state.h	/^int cilkg_get_total_workers(void)$/;"	f
-cilkg_get_user_settable_values	global_state.cpp	/^global_state_t* cilkg_get_user_settable_values()$/;"	f
-cilkg_init_global_state	global_state.cpp	/^global_state_t* cilkg_init_global_state()$/;"	f
-cilkg_is_published	global_state.cpp	/^int cilkg_is_published(void)$/;"	f
-cilkg_publish_global_state	global_state.cpp	/^void cilkg_publish_global_state(global_state_t* g) $/;"	f
-cilkg_set_param	global_state.cpp	/^int cilkg_set_param(const char* param, const char* value)$/;"	f
-cilkg_set_param_w	global_state.cpp	/^int cilkg_set_param_w(const wchar_t* param, const wchar_t* value)$/;"	f
-cilkg_singleton_ptr	global_state.cpp	/^    global_state_t *cilkg_singleton_ptr = NULL;$/;"	v
-cilkg_user_settable_values_initialized	global_state.cpp	/^int cilkg_user_settable_values_initialized = false;$/;"	v
-cilkos_error	os-unix.c	/^COMMON_SYSDEP void cilkos_error(const char *fmt, ...)$/;"	f
-cilkos_getenv	os-unix.c	/^COMMON_SYSDEP __STDNS size_t cilkos_getenv(char* value, __STDNS size_t vallen,$/;"	f
+cilkbug_assert_no_uncaught_exception	bug.cpp	/^COMMON_PORTABLE void cilkbug_assert_no_uncaught_exception(void)$/;"	f	signature:(void)
+cilkbug_assert_no_uncaught_exception	bug.h	/^COMMON_PORTABLE void cilkbug_assert_no_uncaught_exception(void);$/;"	p	signature:(void)
+cilkg_calc_total_workers	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^int cilkg_calc_total_workers()$/;"	f	signature:()
+cilkg_deinit_global_state	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^void cilkg_deinit_global_state()$/;"	f	signature:()
+cilkg_deinit_global_state	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^void cilkg_deinit_global_state(void);$/;"	p	signature:(void)
+cilkg_get_force_reduce	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^int cilkg_get_force_reduce(void)$/;"	f	signature:(void)
+cilkg_get_global_state	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^global_state_t* cilkg_get_global_state(void)$/;"	f	signature:(void)
+cilkg_get_nworkers	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^int cilkg_get_nworkers(void)$/;"	f	signature:(void)
+cilkg_get_stack_size	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^size_t cilkg_get_stack_size(void)$/;"	f	signature:(void)
+cilkg_get_total_workers	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^int cilkg_get_total_workers(void)$/;"	f	signature:(void)
+cilkg_get_user_settable_values	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^global_state_t* cilkg_get_user_settable_values()$/;"	f	signature:()
+cilkg_init_global_state	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^global_state_t* cilkg_init_global_state()$/;"	f	signature:()
+cilkg_init_global_state	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^global_state_t* cilkg_init_global_state();$/;"	p	signature:()
+cilkg_is_published	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^int cilkg_is_published(void)$/;"	f	signature:(void)
+cilkg_is_published	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^int cilkg_is_published(void);$/;"	p	signature:(void)
+cilkg_publish_global_state	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^void cilkg_publish_global_state(global_state_t* g) $/;"	f	signature:(global_state_t* g)
+cilkg_publish_global_state	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^void cilkg_publish_global_state(global_state_t* g);$/;"	p	signature:(global_state_t* g)
+cilkg_set_param	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^int cilkg_set_param(const char* param, const char* value)$/;"	f	signature:(const char* param, const char* value)
+cilkg_set_param	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^int cilkg_set_param(const char* param, const char* value);$/;"	p	signature:(const char* param, const char* value)
+cilkg_set_param_w	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^int cilkg_set_param_w(const wchar_t* param, const wchar_t* value)$/;"	f	signature:(const wchar_t* param, const wchar_t* value)
+cilkg_set_param_w	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^int cilkg_set_param_w(const wchar_t* param, const wchar_t* value);$/;"	p	signature:(const wchar_t* param, const wchar_t* value)
+cilkg_singleton_ptr	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^    global_state_t *cilkg_singleton_ptr = NULL;$/;"	v
+cilkg_user_settable_values_initialized	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^int cilkg_user_settable_values_initialized = false;$/;"	v
+cilkos_error	os-unix.c	/^COMMON_SYSDEP void cilkos_error(const char *fmt, ...)$/;"	f	signature:(const char *fmt, ...)
+cilkos_error	os.h	/^COMMON_SYSDEP void cilkos_error(const char *fmt, ...);$/;"	p	signature:(const char *fmt, ...)
+cilkos_getenv	os-unix.c	/^COMMON_SYSDEP __STDNS size_t cilkos_getenv(char* value, __STDNS size_t vallen,$/;"	f	signature:(char* value, __STDNS size_t vallen, const char* varname)
+cilkos_getenv	os.h	/^COMMON_SYSDEP __STDNS size_t cilkos_getenv(char* value, __STDNS size_t vallen,$/;"	p	signature:(char* value, __STDNS size_t vallen, const char* varname)
 cilkos_thread_id_t	os.h	/^typedef unsigned cilkos_thread_id_t;$/;"	t
-cilkos_validate_stack_size	os-unix.c	/^size_t cilkos_validate_stack_size(size_t specified_stack_size) {$/;"	f
-cilkos_warning	os-unix.c	/^COMMON_SYSDEP void cilkos_warning(const char *fmt, ...)$/;"	f
-cilkred_map	concurrent_cilk_internal.h	/^typedef struct cilkred_map           cilkred_map;$/;"	t	typeref:struct:cilkred_map
+cilkos_validate_stack_size	os-unix.c	/^size_t cilkos_validate_stack_size(size_t specified_stack_size) {$/;"	f	signature:(size_t specified_stack_size)
+cilkos_validate_stack_size	os.h	/^COMMON_SYSDEP size_t cilkos_validate_stack_size(size_t specified_stack_size);$/;"	p	signature:(size_t specified_stack_size)
+cilkos_warning	os-unix.c	/^COMMON_SYSDEP void cilkos_warning(const char *fmt, ...)$/;"	f	signature:(const char *fmt, ...)
+cilkos_warning	os.h	/^COMMON_SYSDEP void cilkos_warning(const char *fmt, ...);$/;"	p	signature:(const char *fmt, ...)
 cilkred_map	os.h	/^typedef struct cilkred_map cilkred_map;$/;"	t	typeref:struct:cilkred_map
 cilkred_map	reducer_impl.cpp	/^struct cilkred_map {$/;"	s	file:
 cilkred_map	reducer_impl.h	/^typedef struct cilkred_map cilkred_map;$/;"	t	typeref:struct:cilkred_map
-compute_left_ptrs_for_spawn_return	scheduler.c	/^    splice_left_ptrs compute_left_ptrs_for_spawn_return(__cilkrts_worker *w,$/;"	f	file:
-compute_left_ptrs_for_sync	scheduler.c	/^    splice_left_ptrs compute_left_ptrs_for_sync(__cilkrts_worker *w,$/;"	f	file:
+compute_left_ptrs_for_spawn_return	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    splice_left_ptrs compute_left_ptrs_for_spawn_return(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+compute_left_ptrs_for_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    splice_left_ptrs compute_left_ptrs_for_sync(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+concurrent_cilk_flags	full_frame.h	/^    int concurrent_cilk_flags;$/;"	m	struct:full_frame
 count	stats.h	/^    unsigned long long count[INTERVAL_N];$/;"	m	struct:statistics
-count_memory_in_global_list	frame_malloc.c	/^static size_t count_memory_in_global_list(global_state_t *g)$/;"	f	file:
-cpp_scheduler_t	global_state.cpp	/^    typedef void cpp_scheduler_t(__cilkrts_worker *w);$/;"	t	file:
-create_global_os_mutex	os_mutex-unix.c	/^static void create_global_os_mutex(void)$/;"	f	file:
-create_threads	sysdep-unix.c	/^static void create_threads(global_state_t *g, int base, int top)$/;"	f	file:
-create_threads_and_work	sysdep-unix.c	/^static void * create_threads_and_work (void * arg)$/;"	f	file:
-ctx	concurrent_cilk_internal.h	/^  jmp_buf ctx;$/;"	m	struct:__cilkrts_paused_stack
-current_stack_frame	concurrent_cilk_internal.h	/^  __cilkrts_stack_frame *current_stack_frame;$/;"	m	struct:__cilkrts_paused_stack
+count_memory_in_global_list	frame_malloc.c	/^static size_t count_memory_in_global_list(global_state_t *g)$/;"	f	file:	signature:(global_state_t *g)
+cpp_scheduler_t	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^    typedef void cpp_scheduler_t(__cilkrts_worker *w);$/;"	t	file:
+create_global_os_mutex	os_mutex-unix.c	/^static void create_global_os_mutex(void)$/;"	f	file:	signature:(void)
+create_threads	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^static void create_threads(global_state_t *g, int base, int top)$/;"	f	file:	signature:(global_state_t *g, int base, int top)
+create_threads_and_work	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^static void * create_threads_and_work (void * arg)$/;"	f	file:	signature:(void * arg)
+ctx	concurrent_cilk_internal.h	/^  jmp_buf ctx; \/\/TODO: can use cilk jmp_buf?$/;"	m	struct:__cilkrts_paused_fiber
 data	cilk-tbb-interop.h	/^    void* data;$/;"	m	struct:__cilk_tbb_stack_op_thunk
 data	cilk-tbb-interop.h	/^    void* data;$/;"	m	struct:__cilk_tbb_unwatch_thunk
-debug_map_merge	reducer_impl.cpp	/^void debug_map_merge(__cilkrts_worker *w,$/;"	f	file:
-decjoin	scheduler.c	/^static int decjoin(full_frame *ff)$/;"	f	file:
-decode_exceptions	except-gcc.cpp	/^decode_exceptions(char *out, size_t len, struct pending_exception_info *info)$/;"	f	file:
-decode_flags	except-gcc.cpp	/^static void decode_flags(int flags, char out[9])$/;"	f	file:
-decrement_E	scheduler.c	/^static void decrement_E(__cilkrts_worker *victim)$/;"	f	file:
-deinitialize_cilk_semaphore	signal_node.c	/^static void deinitialize_cilk_semaphore (cilk_semaphore_t *sem)$/;"	f	file:
-dekker_protocol	scheduler.c	/^static int dekker_protocol(__cilkrts_worker *victim)$/;"	f	file:
-delete_stack_queue	concurrent_queue.c	/^void delete_stack_queue (struct queue_t *q)$/;"	f
-dequeue	concurrent_queue.c	/^int dequeue(struct queue_t * q, ELEMENT_TYPE * value)$/;"	f
-destroy	reducer_impl.cpp	/^void elem::destroy()$/;"	f	class:elem
-destroy_worker	scheduler.c	/^  void destroy_worker(__cilkrts_worker *w)$/;"	f
-destruct	except-gcc.cpp	/^pending_exception_info::destruct()$/;"	f	class:pending_exception_info
-detach_for_steal	scheduler.c	/^static void detach_for_steal(__cilkrts_worker *w,$/;"	f	file:
-disown	scheduler.c	/^  static full_frame *disown(__cilkrts_worker *w,$/;"	f	file:
+data	queues/cache_aware_queue.c	/^  QUEUE_ELEMTY* data;$/;"	m	struct:__cilkrts_stack_pair	file:
+data	queues/lockfree_queue.h	/^  ELEMENT_TYPE data;$/;"	m	struct:__cilkrts_stack_pair
+data	queues/locking_queue.c	/^  QUEUE_ELEMTY* data;$/;"	m	struct:__cilkrts_stack_pair	file:
+debug_map_merge	reducer_impl.cpp	/^void debug_map_merge(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, cilkred_map *left_map, cilkred_map *right_map, __cilkrts_worker **final_wkr)
+decjoin	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static int decjoin(full_frame *ff)$/;"	f	file:	signature:(full_frame *ff)
+decode_exceptions	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^decode_exceptions(char *out, size_t len, struct pending_exception_info *info)$/;"	f	file:	signature:(char *out, size_t len, struct pending_exception_info *info)
+decode_flags	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^static void decode_flags(int flags, char out[9])$/;"	f	file:	signature:(int flags, char out[9])
+decrement_E	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void decrement_E(__cilkrts_worker *victim)$/;"	f	file:	signature:(__cilkrts_worker *victim)
+deinitialize_cilk_semaphore	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^static void deinitialize_cilk_semaphore (cilk_semaphore_t *sem)$/;"	f	file:	signature:(cilk_semaphore_t *sem)
+dekker_protocol	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static int dekker_protocol(__cilkrts_worker *victim)$/;"	f	file:	signature:(__cilkrts_worker *victim)
+delete_exception_obj	except.h	/^void delete_exception_obj (__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, struct pending_exception_info *pei, int delete_object)
+delete_stack_queue	concurrent_queue.c	/^void delete_stack_queue (struct queue_t *q)$/;"	f	signature:(struct queue_t *q)
+delete_stack_queue	queues/cache_aware_queue.c	/^void delete_stack_queue(struct __cilkrts_stack_queue* q) {$/;"	f	signature:(struct __cilkrts_stack_queue* q)
+delete_stack_queue	queues/lockfree_queue.c	/^void delete_stack_queue(queue_t* q) $/;"	f	signature:(queue_t* q)
+delete_stack_queue	queues/lockfree_queue.h	/^void delete_stack_queue(queue_t* q);$/;"	p	signature:(queue_t* q)
+delete_stack_queue	queues/locking_queue.c	/^void delete_stack_queue(struct __cilkrts_stack_queue* q) {$/;"	f	signature:(struct __cilkrts_stack_queue* q)
+deleted	queues/cache_aware_queue.c	/^  int deleted;$/;"	m	struct:block_t	file:
+dequeue	concurrent_queue.c	/^int dequeue(struct queue_t * q, ELEMENT_TYPE * value)$/;"	f	signature:(struct queue_t * q, ELEMENT_TYPE * value)
+dequeue	queues/lockfree_queue.c	/^int dequeue(queue_t* q, ELEMENT_TYPE * value)$/;"	f	signature:(queue_t* q, ELEMENT_TYPE * value)
+dequeue	queues/lockfree_queue.h	/^int dequeue(queue_t* q, ELEMENT_TYPE *value);$/;"	p	signature:(queue_t* q, ELEMENT_TYPE *value)
+dequeue_paused_stack	queues/cache_aware_queue.c	/^QUEUE_ELEMTY *dequeue_paused_stack(volatile __cilkrts_stack_queue *l) {$/;"	f	signature:(volatile __cilkrts_stack_queue *l)
+dequeue_paused_stack	queues/cache_aware_queue.c	/^QUEUE_ELEMTY* dequeue_paused_stack(volatile struct __cilkrts_stack_queue* q);$/;"	p	file:	signature:(volatile struct __cilkrts_stack_queue* q)
+dequeue_paused_stack	queues/locking_queue.c	/^QUEUE_ELEMTY* dequeue_paused_stack(volatile struct __cilkrts_stack_queue* q);$/;"	p	file:	signature:(volatile struct __cilkrts_stack_queue* q)
+deref_link	queues/cache_aware_queue.c	/^block_t *deref_link(block_t *volatile *link) {$/;"	f	signature:(block_t *volatile *link)
+deref_link	queues/cache_aware_queue.c	/^block_t *deref_link(block_t *volatile *link);$/;"	p	file:	signature:(block_t *volatile *link)
+destroy	reducer_impl.cpp	/^    void destroy();$/;"	p	struct:elem	file:	signature:()
+destroy	reducer_impl.cpp	/^void elem::destroy()$/;"	f	class:elem	signature:()
+destroy_worker	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  void destroy_worker(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+destroy_worker	scheduler.h	/^void destroy_worker (__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+destruct	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^    void destruct();$/;"	p	struct:pending_exception_info	file:	access:public	signature:()
+destruct	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^pending_exception_info::destruct()$/;"	f	class:pending_exception_info	signature:()
+detach_for_steal	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void detach_for_steal(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, __cilkrts_worker *victim, __cilkrts_stack *sd)
+disown	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static full_frame *disown(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf, const char *why)
 do_not_steal	local_state.h	/^    int do_not_steal;$/;"	m	struct:local_state
-do_return_from_self	scheduler.c	/^ void do_return_from_self (__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf)$/;"	f
-do_return_from_spawn	scheduler.c	/^   void do_return_from_spawn(__cilkrts_worker *w,$/;"	f
-do_sync	scheduler.c	/^  static void do_sync(__cilkrts_worker *w, full_frame *ff,$/;"	f	file:
-do_work	scheduler.c	/^  static void do_work(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:
-double_link	scheduler.c	/^static void double_link(full_frame *left_ff, full_frame *right_ff)$/;"	f	file:
-dummy_function	sysdep-unix.c	/^void dummy_function() { }$/;"	f
-dump_stats_to_file	stats.c	/^void dump_stats_to_file(FILE *stat_file, statistics *s)$/;"	f
+do_return_from_spawn	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^   void do_return_from_spawn(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf)
+do_return_from_spawn	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^ void do_return_from_spawn (__cilkrts_worker *w,$/;"	p	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf)
+do_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void do_sync(__cilkrts_worker *w, full_frame *ff,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf)
+do_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void do_sync (__cilkrts_worker *w,$/;"	p	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf)
+do_work	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void do_work(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+double_link	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void double_link(full_frame *left_ff, full_frame *right_ff)$/;"	f	file:	signature:(full_frame *left_ff, full_frame *right_ff)
+dummy_function	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void dummy_function() { }$/;"	f
+dump_stats_to_file	stats.c	/^void dump_stats_to_file(FILE *stat_file, statistics *s)$/;"	f	signature:(FILE *stat_file, statistics *s)
+dump_stats_to_file	stats.h	/^void dump_stats_to_file(FILE *stat_file, statistics *s);$/;"	p	signature:(FILE *stat_file, statistics *s)
 el	reducer_impl.cpp	/^    elem el[1];$/;"	m	struct:bucket	file:
 elem	reducer_impl.cpp	/^struct elem {$/;"	s	file:
-empty	except-gcc.cpp	/^pending_exception_info::empty() const$/;"	f	class:pending_exception_info
-enqueue	concurrent_queue.c	/^int enqueue(struct queue_t * q, ELEMENT_TYPE value)$/;"	f
-enter_frame_fast_internal	cilk-abi.c	/^void enter_frame_fast_internal(__cilkrts_stack_frame *sf, uint32_t version)$/;"	f	file:
-enter_frame_internal	cilk-abi.c	/^void enter_frame_internal(__cilkrts_stack_frame *sf, uint32_t version)$/;"	f	file:
-env	concurrent_cilk_internal.h	/^  jmp_buf env;$/;"	m	struct:__cilkrts_paused_stack
+empty	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^    bool empty() const;$/;"	p	struct:pending_exception_info	file:	access:public	signature:() const
+empty	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^pending_exception_info::empty() const$/;"	f	class:pending_exception_info	signature:() const
+enqueue	concurrent_queue.c	/^int enqueue(struct queue_t * q, ELEMENT_TYPE value)$/;"	f	signature:(struct queue_t * q, ELEMENT_TYPE value)
+enqueue	queues/lockfree_queue.c	/^int enqueue(queue_t* q, ELEMENT_TYPE value) $/;"	f	signature:(queue_t* q, ELEMENT_TYPE value)
+enqueue	queues/lockfree_queue.h	/^int enqueue(queue_t* q, ELEMENT_TYPE value);$/;"	p	signature:(queue_t* q, ELEMENT_TYPE value)
+enqueue_paused_stack	queues/cache_aware_queue.c	/^void enqueue_paused_stack(__cilkrts_stack_queue *l, QUEUE_ELEMTY *item) {$/;"	f	signature:(__cilkrts_stack_queue *l, QUEUE_ELEMTY *item)
+enter_frame_fast_internal	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^void enter_frame_fast_internal(__cilkrts_stack_frame *sf, uint32_t version)$/;"	f	file:	signature:(__cilkrts_stack_frame *sf, uint32_t version)
+enter_frame_internal	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^void enter_frame_internal(__cilkrts_stack_frame *sf, uint32_t version)$/;"	f	file:	signature:(__cilkrts_stack_frame *sf, uint32_t version)
 env	local_state.h	/^    jmp_buf env;$/;"	m	struct:local_state
 exceptionDestructor	except-gcc.h	/^    void (*exceptionDestructor)(void *); $/;"	m	struct:__cxa_exception
 exceptionType	except-gcc.h	/^    std::type_info *        exceptionType;$/;"	m	struct:__cxa_exception
 exception_class	except-gcc.h	/^    uint64_t                     exception_class;$/;"	m	struct:_Unwind_Exception
 exception_cleanup	except-gcc.h	/^    _Unwind_Exception_Cleanup_Fn exception_cleanup;$/;"	m	struct:_Unwind_Exception
-exception_ptr	scheduler.c	/^        struct pending_exception_info **exception_ptr;$/;"	m	struct:__anon1	typeref:struct:__anon1::pending_exception_info	file:
+exception_ptr	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^        struct pending_exception_info **exception_ptr;$/;"	m	struct:__anon1	typeref:struct:__anon1::pending_exception_info	file:	access:public
 exception_sp	full_frame.h	/^    char *exception_sp;$/;"	m	struct:full_frame
-execute_reductions_for_spawn_return	scheduler.c	/^    execute_reductions_for_spawn_return(__cilkrts_worker *w,$/;"	f	file:
-execute_reductions_for_sync	scheduler.c	/^    execute_reductions_for_sync(__cilkrts_worker *w,$/;"	f	file:
-extend_global_pool	frame_malloc.c	/^static void extend_global_pool(global_state_t *g)$/;"	f	file:
-failure_to_allocate_stack	global_state.h	/^    int failure_to_allocate_stack;$/;"	m	struct:global_state_t
-fast_path_reductions_for_spawn_return	scheduler.c	/^    fast_path_reductions_for_spawn_return(__cilkrts_worker *w,$/;"	f
-fast_path_reductions_for_sync	scheduler.c	/^    int fast_path_reductions_for_sync(__cilkrts_worker *w,$/;"	f	file:
-ff	concurrent_cilk_internal.h	/^  full_frame *ff;$/;"	m	struct:__cilkrts_paused_stack
+execute_reductions_for_spawn_return	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    execute_reductions_for_spawn_return(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *returning_sf)
+execute_reductions_for_spawn_return	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    execute_reductions_for_spawn_return(__cilkrts_worker *w,$/;"	p	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *returning_sf)
+execute_reductions_for_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    execute_reductions_for_sync(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf_at_sync)
+execute_reductions_for_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    execute_reductions_for_sync(__cilkrts_worker *w,$/;"	p	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf_at_sync)
+extend_global_pool	frame_malloc.c	/^static void extend_global_pool(global_state_t *g)$/;"	f	file:	signature:(global_state_t *g)
+failure_to_allocate_stack	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int failure_to_allocate_stack;$/;"	m	struct:global_state_t	access:public
+fast_path_reductions_for_spawn_return	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    fast_path_reductions_for_spawn_return(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, full_frame *ff)
+fast_path_reductions_for_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    int fast_path_reductions_for_sync(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
 ff_magic_t	full_frame.h	/^typedef unsigned long long ff_magic_t;$/;"	t
-finalize_child_for_call	scheduler.c	/^static void finalize_child_for_call(__cilkrts_worker *w,$/;"	f	file:
-find_free_worker	cilk-abi.c	/^static __cilkrts_worker *find_free_worker(global_state_t *g)$/;"	f	file:
-finish_spawn_return_on_user_stack	scheduler.c	/^    void finish_spawn_return_on_user_stack(__cilkrts_worker *w,$/;"	f	file:
-flags	concurrent_cilk_internal.h	/^  int flags;$/;"	m	struct:__cilkrts_paused_stack
-flush	stacks.c	/^static void flush(global_state_t *g,$/;"	f	file:
+finalize_child_for_call	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void finalize_child_for_call(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *parent_ff, full_frame *child_ff)
+find_free_worker	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^static __cilkrts_worker *find_free_worker(global_state_t *g)$/;"	f	file:	signature:(global_state_t *g)
+finish_spawn_return_on_user_stack	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    void finish_spawn_return_on_user_stack(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *parent_ff, full_frame *child_ff)
+flush	stacks.c	/^static void flush(global_state_t *g,$/;"	f	file:	signature:(global_state_t *g, __cilkrts_stack_cache *c)
 foo	symbol_test.c	/^void foo () { }$/;"	f
-force_reduce	global_state.h	/^    int force_reduce;     \/* USER SETTING *\/$/;"	m	struct:global_state_t
+force_reduce	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int force_reduce;     \/* USER SETTING *\/$/;"	m	struct:global_state_t	access:public
 frame_ff	local_state.h	/^    struct full_frame *frame_ff;$/;"	m	struct:local_state	typeref:struct:local_state::full_frame
-frame_malloc	global_state.h	/^    struct __cilkrts_frame_cache frame_malloc;$/;"	m	struct:global_state_t	typeref:struct:global_state_t::__cilkrts_frame_cache
+frame_malloc	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    struct __cilkrts_frame_cache frame_malloc;$/;"	m	struct:global_state_t	typeref:struct:global_state_t::__cilkrts_frame_cache	access:public
 frame_size	full_frame.h	/^    ptrdiff_t frame_size;$/;"	m	struct:full_frame
-free_bucket	reducer_impl.cpp	/^static void free_bucket(__cilkrts_worker *w, bucket **bp)$/;"	f	file:
-free_buckets	reducer_impl.cpp	/^static void free_buckets(__cilkrts_worker  *w, $/;"	f	file:
+freeList	queues/cache_aware_queue.c	/^block_t *volatile freeList;$/;"	v
+free_bucket	reducer_impl.cpp	/^static void free_bucket(__cilkrts_worker *w, bucket **bp)$/;"	f	file:	signature:(__cilkrts_worker *w, bucket **bp)
+free_buckets	reducer_impl.cpp	/^static void free_buckets(__cilkrts_worker  *w, $/;"	f	file:	signature:(__cilkrts_worker *w, bucket **buckets, size_t nbuckets)
 free_list	frame_malloc.h	/^struct free_list {$/;"	s
 free_list	local_state.h	/^    struct free_list *free_list[FRAME_MALLOC_NBUCKETS];$/;"	m	struct:local_state	typeref:struct:local_state::free_list
 full_frame	full_frame.h	/^struct full_frame$/;"	s
@@ -595,307 +773,419 @@ full_frame	full_frame.h	/^typedef struct full_frame full_frame;$/;"	t	typeref:st
 full_frame_magic_0	full_frame.h	/^    ff_magic_t full_frame_magic_0;$/;"	m	struct:full_frame
 full_frame_magic_1	full_frame.h	/^    ff_magic_t full_frame_magic_1;$/;"	m	struct:full_frame
 g	reducer_impl.cpp	/^    global_state_t *g;$/;"	m	struct:cilkred_map	file:
-gc_bucket	frame_malloc.c	/^static void gc_bucket(__cilkrts_worker *w, int bucket, size_t size)$/;"	f	file:
-get_leftmost_view	reducer_impl.cpp	/^static inline void* get_leftmost_view(__cilkrts_hyperobject_base *hb)$/;"	f	file:
-get_leftmost_view	reducer_impl.cpp	/^static inline void* get_leftmost_view(void *&key)$/;"	f	file:
-get_runtime_path	sysdep-unix.c	/^static const char *get_runtime_path ()$/;"	f	file:
-global_alloc	frame_malloc.c	/^static struct free_list *global_alloc(global_state_t *g, int bucket)$/;"	f	file:
-global_free	frame_malloc.c	/^static void global_free(global_state_t *g, void *mem, int bucket)$/;"	f	file:
+gc_bucket	frame_malloc.c	/^static void gc_bucket(__cilkrts_worker *w, int bucket, size_t size)$/;"	f	file:	signature:(__cilkrts_worker *w, int bucket, size_t size)
+get_leftmost_view	reducer_impl.cpp	/^static inline void* get_leftmost_view(__cilkrts_hyperobject_base *hb)$/;"	f	file:	signature:(__cilkrts_hyperobject_base *hb)
+get_leftmost_view	reducer_impl.cpp	/^static inline void* get_leftmost_view(void *&key)$/;"	f	file:	signature:(void *&key)
+get_runtime_path	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^static const char *get_runtime_path ()$/;"	f	file:
+globalHeadBlock	queues/cache_aware_queue.c	/^block_t *globalHeadBlock;$/;"	v
+globalTailBlock	queues/cache_aware_queue.c	/^block_t *globalTailBlock;$/;"	v
+global_alloc	frame_malloc.c	/^static struct free_list *global_alloc(global_state_t *g, int bucket)$/;"	f	file:	signature:(global_state_t *g, int bucket)
+global_free	frame_malloc.c	/^static void global_free(global_state_t *g, void *mem, int bucket)$/;"	f	file:	signature:(global_state_t *g, void *mem, int bucket)
 global_free_list	frame_malloc.h	/^    struct free_list *global_free_list[FRAME_MALLOC_NBUCKETS];$/;"	m	struct:__cilkrts_frame_cache	typeref:struct:__cilkrts_frame_cache::free_list
 global_os_mutex	os_mutex-unix.c	/^static struct os_mutex *global_os_mutex = NULL;$/;"	v	typeref:struct:os_mutex	file:
-global_os_mutex_lock	os_mutex-unix.c	/^void global_os_mutex_lock(void)$/;"	f
-global_os_mutex_unlock	os_mutex-unix.c	/^void global_os_mutex_unlock(void)$/;"	f
-global_stack_cache_size	global_state.h	/^    int global_stack_cache_size; \/* USER SETTING  *\/$/;"	m	struct:global_state_t
-global_state_singleton	global_state.cpp	/^global_state_t global_state_singleton =$/;"	m	namespace:__anon2	file:
-global_state_t	concurrent_cilk_internal.h	/^typedef struct global_state_t        global_state_t;$/;"	t	typeref:struct:global_state_t
-global_state_t	global_state.h	/^typedef \/* COMMON_PORTABLE *\/ struct global_state_t {$/;"	s
-global_state_t	global_state.h	/^} global_state_t;$/;"	t	typeref:struct:global_state_t
-global_sysdep_state	sysdep-unix.c	/^struct global_sysdep_state$/;"	s	file:
-grainsize	cilk-abi-cilk-for.cpp	/^static inline int grainsize(int req, count_t count)$/;"	f	file:
-grow	reducer_impl.cpp	/^elem *cilkred_map::grow(__cilkrts_worker *w, $/;"	f	class:cilkred_map
+global_os_mutex_create	os_mutex.h	/^NON_COMMON void global_os_mutex_create();$/;"	p	signature:()
+global_os_mutex_destroy	os_mutex.h	/^NON_COMMON void global_os_mutex_destroy();$/;"	p	signature:()
+global_os_mutex_lock	os_mutex-unix.c	/^void global_os_mutex_lock(void)$/;"	f	signature:(void)
+global_os_mutex_lock	os_mutex.h	/^COMMON_SYSDEP void global_os_mutex_lock();$/;"	p	signature:()
+global_os_mutex_unlock	os_mutex-unix.c	/^void global_os_mutex_unlock(void)$/;"	f	signature:(void)
+global_os_mutex_unlock	os_mutex.h	/^COMMON_SYSDEP void global_os_mutex_unlock();$/;"	p	signature:()
+global_stack_cache_size	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int global_stack_cache_size; \/* USER SETTING  *\/$/;"	m	struct:global_state_t	access:public
+global_state_singleton	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^global_state_t global_state_singleton =$/;"	m	namespace:__anon1	file:
+global_state_t	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^typedef \/* COMMON_PORTABLE *\/ struct global_state_t {$/;"	s
+global_state_t	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^} global_state_t;$/;"	t	typeref:struct:global_state_t
+global_state_t::P	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int P;         \/**< USER SETTING: number of system workers + 1 (fixed) *\/$/;"	m	struct:global_state_t	access:public
+global_state_t::Q	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int Q;         \/**< Number of user threads currently bound to workers *\/$/;"	m	struct:global_state_t	access:public
+global_state_t::addr_size	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int addr_size; \/**< Number of bytes for an address, used by debugger (fixed)*\/$/;"	m	struct:global_state_t	access:public
+global_state_t::cache_buf	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    char cache_buf[64];$/;"	m	struct:global_state_t	access:public
+global_state_t::cache_buf_2	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    char cache_buf_2[64];$/;"	m	struct:global_state_t	access:public
+global_state_t::failure_to_allocate_stack	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int failure_to_allocate_stack;$/;"	m	struct:global_state_t	access:public
+global_state_t::force_reduce	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int force_reduce;     \/* USER SETTING *\/$/;"	m	struct:global_state_t	access:public
+global_state_t::frame_malloc	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    struct __cilkrts_frame_cache frame_malloc;$/;"	m	struct:global_state_t	typeref:struct:global_state_t::__cilkrts_frame_cache	access:public
+global_state_t::global_stack_cache_size	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int global_stack_cache_size; \/* USER SETTING  *\/$/;"	m	struct:global_state_t	access:public
+global_state_t::ltqsize	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    __STDNS size_t ltqsize;$/;"	m	struct:global_state_t	access:public
+global_state_t::max_stacks	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    long max_stacks;  \/* USER SETTING *\/$/;"	m	struct:global_state_t	access:public
+global_state_t::max_steal_failures	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    unsigned int max_steal_failures;$/;"	m	struct:global_state_t	access:public
+global_state_t::max_user_workers	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int max_user_workers; \/* USER SETTING - max Q (fixed) *\/$/;"	m	struct:global_state_t	access:public
+global_state_t::scheduler	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    void (*scheduler)(__cilkrts_worker *w);$/;"	m	struct:global_state_t	access:public
+global_state_t::stack_cache	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    __cilkrts_stack_cache stack_cache;$/;"	m	struct:global_state_t	access:public
+global_state_t::stack_cache_size	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int stack_cache_size; \/* USER SETTING *\/$/;"	m	struct:global_state_t	access:public
+global_state_t::stack_size	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    size_t stack_size;$/;"	m	struct:global_state_t	access:public
+global_state_t::stacks	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    long stacks;$/;"	m	struct:global_state_t	access:public
+global_state_t::stats	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    statistics stats;    \/**< Statistics on use of runtime *\/$/;"	m	struct:global_state_t	access:public
+global_state_t::stealing_disabled	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int stealing_disabled;$/;"	m	struct:global_state_t	access:public
+global_state_t::sysdep	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    struct global_sysdep_state *sysdep;$/;"	m	struct:global_state_t	typeref:struct:global_state_t::global_sysdep_state	access:public
+global_state_t::system_workers	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int system_workers; \/**< Number of system workers (fixed) *\/$/;"	m	struct:global_state_t	access:public
+global_state_t::total_workers	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int total_workers;  \/**< Total number of worker threads allocated (fixed) *\/$/;"	m	struct:global_state_t	access:public
+global_state_t::under_ptool	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int under_ptool;     \/**< True when running under a serial PIN tool *\/$/;"	m	struct:global_state_t	access:public
+global_state_t::work_done	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    volatile int work_done;$/;"	m	struct:global_state_t	access:public
+global_state_t::workers	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    __cilkrts_worker **workers;$/;"	m	struct:global_state_t	access:public
+global_state_t::workers_running	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int workers_running; \/**< True when system workers have beens started *\/$/;"	m	struct:global_state_t	access:public
+global_sysdep_state	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^struct global_sysdep_state$/;"	s	file:
+global_sysdep_state::pthread_t_size	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^    size_t pthread_t_size; \/* for cilk_db *\/$/;"	m	struct:global_sysdep_state	file:	access:public
+global_sysdep_state::threads	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^    pthread_t *threads;$/;"	m	struct:global_sysdep_state	file:	access:public
+grainsize	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi-cilk-for.cpp	/^static inline int grainsize(int req, count_t count)$/;"	f	file:	signature:(int req, count_t count)
+grow	reducer_impl.cpp	/^    static elem *grow(__cilkrts_worker *w, bucket **bp);$/;"	p	struct:cilkred_map	file:	signature:(__cilkrts_worker *w, bucket **bp)
+grow	reducer_impl.cpp	/^elem *cilkred_map::grow(__cilkrts_worker *w, $/;"	f	class:cilkred_map	signature:(__cilkrts_worker *w, bucket **bp)
 handlerCount	except-gcc.h	/^    int                     handlerCount;$/;"	m	struct:__cxa_exception
 handlerSwitchValue	except-gcc.h	/^    int                     handlerSwitchValue;$/;"	m	struct:__cxa_exception
-hashfun	reducer_impl.cpp	/^static inline size_t hashfun(const cilkred_map *h, void *key)$/;"	f	file:
+hashfun	reducer_impl.cpp	/^static inline size_t hashfun(const cilkred_map *h, void *key)$/;"	f	file:	signature:(const cilkred_map *h, void *key)
 hb	reducer_impl.cpp	/^    __cilkrts_hyperobject_base *hb;  \/\/ Base of the hyperobject.$/;"	m	struct:elem	file:
-if_f	concurrent_cilk_internal.h	16;"	d
-if_t	concurrent_cilk_internal.h	15;"	d
-incjoin	scheduler.c	/^static void incjoin(full_frame *ff)$/;"	f	file:
-increment_E	scheduler.c	/^static void increment_E(__cilkrts_worker *victim)$/;"	f	file:
+head	concurrent_cilk_internal.h	/^  __cilkrts_paused_fiber *head;$/;"	m	struct:__cilkrts_paused_fiber
+head	queues/cache_aware_queue.c	/^  int head;$/;"	m	struct:block_t	file:
+head	queues/lockfree_queue.h	/^  struct __cilkrts_stack_pair* head;$/;"	m	struct:queue_t	typeref:struct:queue_t::__cilkrts_stack_pair
+head	queues/locking_queue.c	/^  struct __cilkrts_stack_pair* head;$/;"	v	typeref:struct:__cilkrts_stack_pair
+if_f	concurrent_cilk_internal.h	25;"	d
+if_t	concurrent_cilk_internal.h	24;"	d
+incjoin	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void incjoin(full_frame *ff)$/;"	f	file:	signature:(full_frame *ff)
+increment_E	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void increment_E(__cilkrts_worker *victim)$/;"	f	file:	signature:(__cilkrts_worker *victim)
 init_once	os-unix.c	/^static void __attribute__((constructor)) init_once()$/;"	f	file:
-init_workers	scheduler.c	/^  static void init_workers(global_state_t *g)$/;"	f	file:
-initialize_cilk_semaphore	signal_node.c	/^static void initialize_cilk_semaphore (cilk_semaphore_t *sem)$/;"	f	file:
+init_queue	queues/cache_aware_queue.c	/^void init_queue() {$/;"	f
+init_queue	queues/cache_aware_queue.c	/^void init_queue();$/;"	p	file:
+init_thread	queues/cache_aware_queue.c	/^__cilkrts_stack_queue *init_thread() {$/;"	f
+init_thread	queues/cache_aware_queue.c	/^__cilkrts_stack_queue *init_thread();$/;"	p	file:
+init_workers	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void init_workers(global_state_t *g)$/;"	f	file:	signature:(global_state_t *g)
+initialize_cilk_semaphore	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^static void initialize_cilk_semaphore (cilk_semaphore_t *sem)$/;"	f	file:	signature:(cilk_semaphore_t *sem)
 inline	rts-common.h	89;"	d
-insert_no_rehash	reducer_impl.cpp	/^elem *cilkred_map::insert_no_rehash(__cilkrts_worker           *w,$/;"	f	class:cilkred_map
-install_new_reducer_map	reducer_impl.cpp	/^static inline struct cilkred_map* install_new_reducer_map(__cilkrts_worker *w) {$/;"	f	file:
-internal_enforce_global_visibility	sysdep-unix.c	/^void internal_enforce_global_visibility()$/;"	f	file:
-internal_run_scheduler_with_exceptions	sysdep-unix.c	/^static void internal_run_scheduler_with_exceptions(__cilkrts_worker *w)$/;"	f	file:
+insert_no_rehash	reducer_impl.cpp	/^    elem *insert_no_rehash(__cilkrts_worker           *w,$/;"	p	struct:cilkred_map	file:	signature:(__cilkrts_worker *w, void *key, __cilkrts_hyperobject_base *hb, void *value)
+insert_no_rehash	reducer_impl.cpp	/^elem *cilkred_map::insert_no_rehash(__cilkrts_worker           *w,$/;"	f	class:cilkred_map	signature:(__cilkrts_worker *w, void *key, __cilkrts_hyperobject_base *hb, void *val)
+install_new_reducer_map	reducer_impl.cpp	/^static inline struct cilkred_map* install_new_reducer_map(__cilkrts_worker *w) {$/;"	f	file:	signature:(__cilkrts_worker *w)
+internal_enforce_global_visibility	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^static void internal_enforce_global_visibility();$/;"	p	file:
+internal_enforce_global_visibility	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void internal_enforce_global_visibility()$/;"	f	file:
+internal_run_scheduler_with_exceptions	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^static void internal_run_scheduler_with_exceptions(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
 interval	stats.h	/^enum interval$/;"	g
-is_blocked	concurrent_cilk_internal.h	/^  short is_blocked;$/;"	m	struct:__cilkrts_paused_stack
 is_call_child	full_frame.h	/^    int is_call_child;$/;"	m	struct:full_frame
-is_empty	reducer_impl.cpp	/^    bool is_empty() { return nelem == 0; }$/;"	f	struct:cilkred_map
+is_empty	reducer_impl.cpp	/^    bool is_empty() { return nelem == 0; }$/;"	f	struct:cilkred_map	signature:()
 is_leftmost	reducer_impl.cpp	/^    bool is_leftmost;$/;"	m	struct:cilkred_map	file:
-is_power_of_2	reducer_impl.cpp	/^static bool is_power_of_2(size_t n)$/;"	f	file:
+is_power_of_2	reducer_impl.cpp	/^static bool is_power_of_2(size_t n)$/;"	f	file:	signature:(size_t n)
 join_counter	full_frame.h	/^    int join_counter;$/;"	m	struct:full_frame
 key	reducer_impl.cpp	/^    void                       *key; \/\/ Shared key for this hyperobject$/;"	m	struct:elem	file:
 languageSpecificData	except-gcc.h	/^    const char *            languageSpecificData;$/;"	m	struct:__cxa_exception
 last_full_frame	local_state.h	/^    struct full_frame *last_full_frame;$/;"	m	struct:local_state	typeref:struct:local_state::full_frame
 left_sibling	full_frame.h	/^    full_frame *left_sibling;$/;"	m	struct:full_frame
-leqthan	concurrent_queue.c	/^inline int leqthan(volatile ELEMENT_TYPE point, volatile ELEMENT_TYPE batch_point)$/;"	f
-linux_get_affinity_count	os-unix.c	/^static int linux_get_affinity_count (int tid) $/;"	f	file:
-linux_gettid	os-unix.c	/^static pid_t linux_gettid(void)$/;"	f	file:
-live_blocked_workers	global_state.h	/^   volatile int live_blocked_workers;$/;"	m	struct:global_state_t
-load_pedigree_leaf_into_user_worker	pedigrees.c	/^void load_pedigree_leaf_into_user_worker(__cilkrts_worker *w)$/;"	f
-local_state	concurrent_cilk_internal.h	/^typedef struct local_state           local_state;$/;"	t	typeref:struct:local_state
+leqthan	concurrent_queue.c	/^inline int leqthan(volatile ELEMENT_TYPE point, volatile ELEMENT_TYPE batch_point)$/;"	f	signature:(volatile ELEMENT_TYPE point, volatile ELEMENT_TYPE batch_point)
+linux_get_affinity_count	os-unix.c	/^static int linux_get_affinity_count (int tid) $/;"	f	file:	signature:(int tid)
+linux_gettid	os-unix.c	/^static pid_t linux_gettid(void)$/;"	f	file:	signature:(void)
+load_pedigree_leaf_into_user_worker	pedigrees.c	/^void load_pedigree_leaf_into_user_worker(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+load_pedigree_leaf_into_user_worker	pedigrees.h	/^void load_pedigree_leaf_into_user_worker(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
 local_state	local_state.h	/^typedef struct local_state$/;"	s
 local_state	local_state.h	/^} local_state;$/;"	t	typeref:struct:local_state
+lock	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    mutex             lock;$/;"	m	struct:__cilkrts_stack_cache	access:public
+lock	concurrent_cilk_internal.h	/^  int lock; $/;"	m	struct:__cilkrts_paused_fiber
 lock	frame_malloc.h	/^    struct mutex lock;$/;"	m	struct:__cilkrts_frame_cache	typeref:struct:__cilkrts_frame_cache::mutex
 lock	full_frame.h	/^    struct mutex lock;$/;"	m	struct:full_frame	typeref:struct:full_frame::mutex
-lock	global_state.h	/^    mutex             lock;$/;"	m	struct:__cilkrts_stack_cache
 lock	local_state.h	/^    struct mutex lock;$/;"	m	struct:local_state	typeref:struct:local_state::mutex
 lock	worker_mutex.h	/^    volatile int lock;$/;"	m	struct:mutex
-longjmp_into_runtime	scheduler.c	/^NORETURN longjmp_into_runtime(__cilkrts_worker *w,$/;"	f
-lookup	reducer_impl.cpp	/^elem *cilkred_map::lookup(void *key)$/;"	f	class:cilkred_map
+longjmp_into_runtime	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^NORETURN longjmp_into_runtime(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, scheduling_stack_fcn_t fcn, __cilkrts_stack_frame *sf)
+lookup	reducer_impl.cpp	/^    elem *lookup(void *key);$/;"	p	struct:cilkred_map	file:	signature:(void *key)
+lookup	reducer_impl.cpp	/^elem *cilkred_map::lookup(void *key)$/;"	f	class:cilkred_map	signature:(void *key)
 ls_magic_t	local_state.h	/^typedef unsigned long long ls_magic_t;$/;"	t
 ltq	local_state.h	/^    __cilkrts_stack_frame **ltq;$/;"	m	struct:local_state
-ltqsize	global_state.h	/^    __STDNS size_t ltqsize;$/;"	m	struct:global_state_t
+ltqsize	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    __STDNS size_t ltqsize;$/;"	m	struct:global_state_t	access:public
 main	symbol_test.c	/^int main ()$/;"	f
-make	except-gcc.cpp	/^void pending_exception_info::make(__cxa_eh_globals *state_in,$/;"	f	class:pending_exception_info
-make_buckets	reducer_impl.cpp	/^void cilkred_map::make_buckets(__cilkrts_worker *w, $/;"	f	class:cilkred_map
-make_child	scheduler.c	/^static full_frame *make_child(__cilkrts_worker *w, $/;"	f	file:
-make_runnable	scheduler.c	/^static void make_runnable(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:
+make	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^    void make(__cxa_eh_globals *, _Unwind_Exception *, bool);$/;"	p	struct:pending_exception_info	file:	access:public	signature:(__cxa_eh_globals *, _Unwind_Exception *, bool)
+make	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^void pending_exception_info::make(__cxa_eh_globals *state_in,$/;"	f	class:pending_exception_info	signature:(__cxa_eh_globals *state_in, _Unwind_Exception *exc_in, bool rethrow_in)
+make_buckets	reducer_impl.cpp	/^    void make_buckets(__cilkrts_worker *w, size_t nbuckets);$/;"	p	struct:cilkred_map	file:	signature:(__cilkrts_worker *w, size_t nbuckets)
+make_buckets	reducer_impl.cpp	/^void cilkred_map::make_buckets(__cilkrts_worker *w, $/;"	f	class:cilkred_map	signature:(__cilkrts_worker *w, size_t new_nbuckets)
+make_child	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static full_frame *make_child(__cilkrts_worker *w, $/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *parent_ff, __cilkrts_stack_frame *child_sf, __cilkrts_stack *sd)
+make_runnable	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void make_runnable(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
 make_stack_queue	concurrent_queue.c	/^struct queue_t *make_stack_queue()$/;"	f
-make_unrunnable	scheduler.c	/^void make_unrunnable(__cilkrts_worker *w,$/;"	f	file:
-make_worker	scheduler.c	/^  __cilkrts_worker *make_worker(global_state_t *g,$/;"	f
-make_worker_system	scheduler.c	/^  static void make_worker_system(__cilkrts_worker *w) {$/;"	f	file:
-map_ptr	scheduler.c	/^        struct cilkred_map **map_ptr;$/;"	m	struct:__anon1	typeref:struct:__anon1::cilkred_map	file:
-max	scheduler.c	135;"	d	file:
-max_stacks	global_state.h	/^    long max_stacks;  \/* USER SETTING *\/$/;"	m	struct:global_state_t
-max_steal_failures	global_state.h	/^    unsigned int max_steal_failures;$/;"	m	struct:global_state_t
-max_user_workers	global_state.h	/^    int max_user_workers; \/* USER SETTING - max Q (fixed) *\/$/;"	m	struct:global_state_t
-merge	reducer_impl.cpp	/^__cilkrts_worker* cilkred_map::merge(__cilkrts_worker *w,$/;"	f	class:cilkred_map
+make_stack_queue	queues/cache_aware_queue.c	/^__cilkrts_stack_queue *make_stack_queue() {$/;"	f
+make_stack_queue	queues/cache_aware_queue.c	/^__cilkrts_stack_queue *make_stack_queue();$/;"	p	file:
+make_stack_queue	queues/lockfree_queue.c	/^queue_t* make_stack_queue() {$/;"	f
+make_stack_queue	queues/lockfree_queue.h	/^queue_t* make_stack_queue();$/;"	p	signature:()
+make_unrunnable	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void make_unrunnable(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf, int state_valid, const char *why)
+make_worker	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  __cilkrts_worker *make_worker(global_state_t *g,$/;"	f	signature:(global_state_t *g, int self, __cilkrts_worker *w)
+make_worker	scheduler.h	/^__cilkrts_worker *make_worker(global_state_t *g,$/;"	p	signature:(global_state_t *g, int self, __cilkrts_worker *w)
+make_worker_system	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void make_worker_system(__cilkrts_worker *w) {$/;"	f	file:	signature:(__cilkrts_worker *w)
+map_ptr	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^        struct cilkred_map **map_ptr;$/;"	m	struct:__anon1	typeref:struct:__anon1::cilkred_map	file:	access:public
+max	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	135;"	d	file:
+max_stacks	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    long max_stacks;  \/* USER SETTING *\/$/;"	m	struct:global_state_t	access:public
+max_steal_failures	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    unsigned int max_steal_failures;$/;"	m	struct:global_state_t	access:public
+max_user_workers	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int max_user_workers; \/* USER SETTING - max Q (fixed) *\/$/;"	m	struct:global_state_t	access:public
+merge	reducer_impl.cpp	/^    __cilkrts_worker* merge(__cilkrts_worker *current_wkr,$/;"	p	struct:cilkred_map	file:	signature:(__cilkrts_worker *current_wkr, cilkred_map *other_map, enum merge_kind kind)
+merge	reducer_impl.cpp	/^__cilkrts_worker* cilkred_map::merge(__cilkrts_worker *w,$/;"	f	class:cilkred_map	signature:(__cilkrts_worker *w, cilkred_map *other_map, enum merge_kind kind)
 merge_kind	reducer_impl.cpp	/^    enum merge_kind$/;"	g	struct:cilkred_map	file:
-merge_reducer_maps	reducer_impl.cpp	/^merge_reducer_maps(__cilkrts_worker **w_ptr,$/;"	f
+merge_reducer_maps	reducer_impl.cpp	/^merge_reducer_maps(__cilkrts_worker **w_ptr,$/;"	f	signature:(__cilkrts_worker **w_ptr, cilkred_map *left_map, cilkred_map *right_map)
+merge_reducer_maps	reducer_impl.h	/^cilkred_map *merge_reducer_maps(__cilkrts_worker **w_ptr,$/;"	p	signature:(__cilkrts_worker **w_ptr, cilkred_map *left_map, cilkred_map *right_map)
 merging	reducer_impl.cpp	/^    bool merging;$/;"	m	struct:cilkred_map	file:
-minsz	reducer_impl.cpp	/^static size_t minsz(size_t nelem)$/;"	f	file:
-move_bucket_to_global_free_list	frame_malloc.c	/^static void move_bucket_to_global_free_list(__cilkrts_worker *w,$/;"	f	file:
-move_to_global	stacks.c	/^static void move_to_global(__cilkrts_worker *w, unsigned int until)$/;"	f	file:
+minsz	reducer_impl.cpp	/^static size_t minsz(size_t nelem)$/;"	f	file:	signature:(size_t nelem)
+move_bucket_to_global_free_list	frame_malloc.c	/^static void move_bucket_to_global_free_list(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, int bucket)
+move_to_global	stacks.c	/^static void move_to_global(__cilkrts_worker *w, unsigned int until)$/;"	f	file:	signature:(__cilkrts_worker *w, unsigned int until)
+mut	queues/locking_queue.c	/^  pthread_mutex_t mut; $/;"	v
 mutex	os_mutex-unix.c	/^    pthread_mutex_t mutex;  \/\/\/< On Linux, os_mutex is implemented with a pthreads mutex$/;"	m	struct:os_mutex	file:
 mutex	worker_mutex.h	/^typedef struct mutex {$/;"	s
 mutex	worker_mutex.h	/^} mutex;$/;"	t	typeref:struct:mutex
-myrand	scheduler.c	/^static unsigned myrand(__cilkrts_worker *w)$/;"	f	file:
-mysrand	scheduler.c	/^static void mysrand(__cilkrts_worker *w, unsigned seed)$/;"	f	file:
-n	global_state.h	/^    unsigned int      n;$/;"	m	struct:__cilkrts_stack_cache
+myrand	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static unsigned myrand(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+mysrand	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void mysrand(__cilkrts_worker *w, unsigned seed)$/;"	f	file:	signature:(__cilkrts_worker *w, unsigned seed)
+n	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    unsigned int      n;$/;"	m	struct:__cilkrts_stack_cache	access:public
 names	stats.c	/^static const char *names[] = {$/;"	v	file:
 nbuckets	reducer_impl.cpp	/^    size_t nbuckets;$/;"	m	struct:cilkred_map	file:
-need_rehash_p	reducer_impl.cpp	/^bool cilkred_map::need_rehash_p() const$/;"	f	class:cilkred_map
+need_rehash_p	reducer_impl.cpp	/^    inline bool need_rehash_p() const;$/;"	p	struct:cilkred_map	file:	signature:() const
+need_rehash_p	reducer_impl.cpp	/^bool cilkred_map::need_rehash_p() const$/;"	f	class:cilkred_map	signature:() const
 nelem	reducer_impl.cpp	/^    size_t nelem;$/;"	m	struct:cilkred_map	file:
+new_block	queues/cache_aware_queue.c	/^block_t *new_block() {$/;"	f
+new_node	queues/cache_aware_queue.c	/^block_t *new_node() {$/;"	f
+new_node	queues/cache_aware_queue.c	/^block_t *new_node();$/;"	p	file:
+next	concurrent_cilk_internal.h	/^  __cilkrts_paused_fiber *next;$/;"	m	struct:__cilkrts_paused_fiber
+next	queues/cache_aware_queue.c	/^  struct __cilkrts_stack_pair* next;$/;"	m	struct:__cilkrts_stack_pair	typeref:struct:__cilkrts_stack_pair::__cilkrts_stack_pair	file:
+next	queues/cache_aware_queue.c	/^  struct block_t *next;$/;"	m	struct:block_t	typeref:struct:block_t::block_t	file:
+next	queues/lockfree_queue.h	/^  struct __cilkrts_stack_pair* next;$/;"	m	struct:__cilkrts_stack_pair	typeref:struct:__cilkrts_stack_pair::__cilkrts_stack_pair
+next	queues/locking_queue.c	/^  struct __cilkrts_stack_pair* next;$/;"	m	struct:__cilkrts_stack_pair	typeref:struct:__cilkrts_stack_pair::__cilkrts_stack_pair	file:
 nextException	except-gcc.h	/^    __cxa_exception *       nextException;$/;"	m	struct:__cxa_exception
 next_frame_ff	local_state.h	/^    struct full_frame *next_frame_ff;$/;"	m	struct:local_state	typeref:struct:local_state::full_frame
-nextsz	reducer_impl.cpp	/^static size_t nextsz(size_t nelem)$/;"	f	file:
+nextsz	reducer_impl.cpp	/^static size_t nextsz(size_t nelem)$/;"	f	file:	signature:(size_t nelem)
 nmax	reducer_impl.cpp	/^    size_t nmax;$/;"	m	struct:bucket	file:
-noop	cilk-abi-cilk-for.cpp	/^static void noop() { }$/;"	f	file:
-notify_children	scheduler.c	/^  static void notify_children(__cilkrts_worker *w, unsigned int msg)$/;"	f	file:
-notify_children_run	scheduler.c	/^  static void notify_children_run(__cilkrts_worker *w)$/;"	f	file:
-notify_children_wait	scheduler.c	/^  static void notify_children_wait(__cilkrts_worker *w)$/;"	f	file:
+nodes	queues/cache_aware_queue.c	/^  struct __cilkrts_stack_pair *nodes[BLOCK_SIZE];$/;"	m	struct:block_t	typeref:struct:block_t::__cilkrts_stack_pair	file:
+noop	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi-cilk-for.cpp	/^static void noop() { }$/;"	f	file:	signature:()
+notify_children	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void notify_children(__cilkrts_worker *w, unsigned int msg)$/;"	f	file:	signature:(__cilkrts_worker *w, unsigned int msg)
+notify_children_run	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void notify_children_run(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+notify_children_wait	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void notify_children_wait(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
 okay_to_release	stacks.c	100;"	d	file:
 okay_to_release	stacks.c	102;"	d	file:
-only_waiting_on_blocked	global_state.h	/^   volatile int only_waiting_on_blocked;$/;"	m	struct:global_state_t
 original_pedigree_leaf	local_state.h	/^    __cilkrts_pedigree* original_pedigree_leaf;$/;"	m	struct:local_state
 os_mutex	os_mutex-unix.c	/^struct os_mutex {$/;"	s	file:
 os_mutex	os_mutex.h	/^typedef struct os_mutex os_mutex;$/;"	t	typeref:struct:os_mutex
-owner	sysdep-unix.c	/^    pthread_t owner;$/;"	m	struct:__cilkrts_stack	file:
+owner	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^    pthread_t owner;$/;"	m	struct:__cilkrts_stack	file:	access:public
 owner	worker_mutex.h	/^    __cilkrts_worker *owner;$/;"	m	struct:mutex
 p	frame_malloc.c	/^    char *p;                \/**< This element of the list *\/$/;"	m	struct:pool_cons	file:
 p	symbol_test.c	/^void *volatile p;$/;"	v
 parent	full_frame.h	/^    full_frame *parent;$/;"	m	struct:full_frame
+paused_fiber_trylock	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk.c	/^int paused_fiber_trylock(__cilkrts_paused_fiber *pfiber) {$/;"	f	signature:(__cilkrts_paused_fiber *pfiber)
+paused_fiber_trylock	concurrent_cilk_internal.h	/^int paused_fiber_trylock(__cilkrts_paused_fiber *pfiber);$/;"	p	signature:(__cilkrts_paused_fiber *pfiber)
+paused_fiber_unlock	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk.c	/^void paused_fiber_unlock(__cilkrts_paused_fiber *pfiber) {$/;"	f	signature:(__cilkrts_paused_fiber *pfiber)
+paused_fiber_unlock	concurrent_cilk_internal.h	/^void paused_fiber_unlock(__cilkrts_paused_fiber *pfiber);$/;"	p	signature:(__cilkrts_paused_fiber *pfiber)
 pedigree	cilk_api.c	/^    const __cilkrts_pedigree *pedigree;$/;"	m	struct:pedigree_context_t	file:
 pedigree_context_t	cilk_api.c	/^typedef struct pedigree_context_t$/;"	s	file:
 pedigree_context_t	cilk_api.c	/^} pedigree_context_t;$/;"	t	typeref:struct:pedigree_context_t	file:
 pedigree_leaf_key	os-unix.c	/^static pthread_key_t worker_key, reducer_key, tbb_interop_key, pedigree_leaf_key;$/;"	v	file:
 pending_exception	full_frame.h	/^    struct pending_exception_info *pending_exception;$/;"	m	struct:full_frame	typeref:struct:full_frame::pending_exception_info
 pending_exception	local_state.h	/^    struct pending_exception_info *pending_exception;$/;"	m	struct:local_state	typeref:struct:local_state::pending_exception_info
-pending_exception_info	except-gcc.cpp	/^struct pending_exception_info$/;"	s	file:
+pending_exception_info	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^struct pending_exception_info$/;"	s	file:
 pending_exception_info	except.h	/^typedef struct pending_exception_info pending_exception_info;$/;"	t	typeref:struct:pending_exception_info
+pending_exception_info::active	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^    _Unwind_Exception *active;$/;"	m	struct:pending_exception_info	file:	access:public
+pending_exception_info::check	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^    void check() const;$/;"	p	struct:pending_exception_info	file:	access:public	signature:() const
+pending_exception_info::check	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^void pending_exception_info::check() const$/;"	f	class:pending_exception_info	signature:() const
+pending_exception_info::destruct	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^    void destruct();$/;"	p	struct:pending_exception_info	file:	access:public	signature:()
+pending_exception_info::destruct	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^pending_exception_info::destruct()$/;"	f	class:pending_exception_info	signature:()
+pending_exception_info::empty	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^    bool empty() const;$/;"	p	struct:pending_exception_info	file:	access:public	signature:() const
+pending_exception_info::empty	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^pending_exception_info::empty() const$/;"	f	class:pending_exception_info	signature:() const
+pending_exception_info::make	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^    void make(__cxa_eh_globals *, _Unwind_Exception *, bool);$/;"	p	struct:pending_exception_info	file:	access:public	signature:(__cxa_eh_globals *, _Unwind_Exception *, bool)
+pending_exception_info::make	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^void pending_exception_info::make(__cxa_eh_globals *state_in,$/;"	f	class:pending_exception_info	signature:(__cxa_eh_globals *state_in, _Unwind_Exception *exc_in, bool rethrow_in)
+pending_exception_info::rethrow	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^    bool rethrow;$/;"	m	struct:pending_exception_info	file:	access:public
+pending_exception_info::runtime_state	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^    struct __cxa_eh_globals runtime_state;$/;"	m	struct:pending_exception_info	typeref:struct:pending_exception_info::__cxa_eh_globals	file:	access:public
 pool_begin	frame_malloc.h	/^    char *pool_begin;$/;"	m	struct:__cilkrts_frame_cache
 pool_cons	frame_malloc.c	/^struct pool_cons {$/;"	s	file:
 pool_end	frame_malloc.h	/^    char *pool_end;$/;"	m	struct:__cilkrts_frame_cache
 pool_list	frame_malloc.h	/^    struct pool_cons *pool_list;$/;"	m	struct:__cilkrts_frame_cache	typeref:struct:__cilkrts_frame_cache::pool_cons
-pop	frame_malloc.c	/^static struct free_list *pop(struct free_list **b)$/;"	f	file:
-pop	stacks.c	/^static __cilkrts_stack *pop(__cilkrts_worker *w)$/;"	f	file:
-pop_next_frame	scheduler.c	/^static full_frame *pop_next_frame(__cilkrts_worker *w)$/;"	f	file:
+pop	frame_malloc.c	/^static struct free_list *pop(struct free_list **b)$/;"	f	file:	signature:(struct free_list **b)
+pop	stacks.c	/^static __cilkrts_stack *pop(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+pop_next_frame	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static full_frame *pop_next_frame(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
 post_suspend	local_state.h	/^    scheduling_stack_fcn_t post_suspend;$/;"	m	struct:local_state
 potential_limit	frame_malloc.h	/^    size_t potential_limit;$/;"	m	struct:__cilkrts_frame_cache
-prefetch	concurrent_cilk_internal.h	48;"	d
-prefetch_r	concurrent_cilk_internal.h	50;"	d
-prefetch_rw	concurrent_cilk_internal.h	49;"	d
+prefetch	concurrent_cilk_internal.h	57;"	d
+prefetch_r	concurrent_cilk_internal.h	59;"	d
+prefetch_rw	concurrent_cilk_internal.h	58;"	d
+print_flags	full_frame.h	/^void print_flags(full_frame *ff);$/;"	p	signature:(full_frame *ff)
 private_1	except-gcc.h	/^    unsigned long                private_1;$/;"	m	struct:_Unwind_Exception
 private_2	except-gcc.h	/^    unsigned long                private_2;$/;"	m	struct:_Unwind_Exception
-provably_good_steal	scheduler.c	/^static int provably_good_steal(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:
-provably_good_steal_exceptions	scheduler.c	/^static void provably_good_steal_exceptions(__cilkrts_worker *w, $/;"	f	file:
-provably_good_steal_reducers	scheduler.c	/^static inline void provably_good_steal_reducers(__cilkrts_worker *w,$/;"	f	file:
-provably_good_steal_stacks	scheduler.c	/^static void provably_good_steal_stacks(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:
-pthread_t_size	sysdep-unix.c	/^    size_t pthread_t_size; \/* for cilk_db *\/$/;"	m	struct:global_sysdep_state	file:
-push	frame_malloc.c	/^static void push(struct free_list **b, struct free_list *p)$/;"	f	file:
-push	stacks.c	/^static void push(__cilkrts_worker *w, __cilkrts_stack *sd)$/;"	f	file:
-push_child	scheduler.c	/^static void push_child(full_frame *parent_ff, full_frame *child_ff)$/;"	f	file:
-queue_init	concurrent_queue.c	/^void queue_init(struct queue_t *q)$/;"	f
+provably_good_steal	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static int provably_good_steal(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+provably_good_steal_exceptions	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void provably_good_steal_exceptions(__cilkrts_worker *w, $/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+provably_good_steal_reducers	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static inline void provably_good_steal_reducers(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+provably_good_steal_stacks	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void provably_good_steal_stacks(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+pthread_t_size	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^    size_t pthread_t_size; \/* for cilk_db *\/$/;"	m	struct:global_sysdep_state	file:	access:public
+push	frame_malloc.c	/^static void push(struct free_list **b, struct free_list *p)$/;"	f	file:	signature:(struct free_list **b, struct free_list *p)
+push	stacks.c	/^static void push(__cilkrts_worker *w, __cilkrts_stack *sd)$/;"	f	file:	signature:(__cilkrts_worker *w, __cilkrts_stack *sd)
+push_child	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void push_child(full_frame *parent_ff, full_frame *child_ff)$/;"	f	file:	signature:(full_frame *parent_ff, full_frame *child_ff)
+queue_init	concurrent_queue.c	/^void queue_init(struct queue_t *q)$/;"	f	signature:(struct queue_t *q)
 queue_t	concurrent_cilk_internal.h	/^typedef struct queue_t queue_t;$/;"	t	typeref:struct:queue_t
+queue_t	queues/lockfree_queue.h	/^struct queue_t {$/;"	s
+queue_t	queues/lockfree_queue.h	/^typedef struct queue_t queue_t;$/;"	t	typeref:struct:queue_t
 rand_seed	local_state.h	/^    unsigned rand_seed;$/;"	m	struct:local_state
-random_steal	scheduler.c	/^static void random_steal(__cilkrts_worker *w)$/;"	f	file:
+random_steal	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void random_steal(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
 read_tsc	concurrent_queue.c	/^inline uint64_t read_tsc()$/;"	f
 reducer_key	os-unix.c	/^static pthread_key_t worker_key, reducer_key, tbb_interop_key, pedigree_leaf_key;$/;"	v	file:
+refcount	queues/cache_aware_queue.c	/^  volatile int refcount;$/;"	m	struct:block_t	file:
 registration	full_frame.h	/^    unsigned long registration;$/;"	m	struct:full_frame
-rehash	reducer_impl.cpp	/^void cilkred_map::rehash(__cilkrts_worker *w)$/;"	f	class:cilkred_map
-rehash_and_insert	reducer_impl.cpp	/^elem *cilkred_map::rehash_and_insert(__cilkrts_worker           *w,$/;"	f	class:cilkred_map
-repeated_merge_reducer_maps	reducer_impl.cpp	/^repeated_merge_reducer_maps(__cilkrts_worker **w_ptr,$/;"	f
-reset_THE_exception	scheduler.c	/^static void reset_THE_exception(__cilkrts_worker *w)$/;"	f	file:
-restore_fp_state	sysdep-unix.c	/^static inline void restore_fp_state (__cilkrts_stack_frame *sf) {$/;"	f	file:
-restore_frame_for_spawn_return_reduction	scheduler.c	/^    void restore_frame_for_spawn_return_reduction(__cilkrts_worker *w,$/;"	f	file:
-restore_paused_worker	concurrent_cilk.c	/^restore_paused_worker(__cilkrts_paused_stack *pstk) $/;"	f
-rethrow	except-gcc.cpp	/^    bool rethrow;$/;"	m	struct:pending_exception_info	file:
+rehash	reducer_impl.cpp	/^    void rehash(__cilkrts_worker *);$/;"	p	struct:cilkred_map	file:	signature:(__cilkrts_worker *)
+rehash	reducer_impl.cpp	/^void cilkred_map::rehash(__cilkrts_worker *w)$/;"	f	class:cilkred_map	signature:(__cilkrts_worker *w)
+rehash_and_insert	reducer_impl.cpp	/^    inline elem *rehash_and_insert(__cilkrts_worker           *w,$/;"	p	struct:cilkred_map	file:	signature:(__cilkrts_worker *w, void *key, __cilkrts_hyperobject_base *hb, void *value)
+rehash_and_insert	reducer_impl.cpp	/^elem *cilkred_map::rehash_and_insert(__cilkrts_worker           *w,$/;"	f	class:cilkred_map	signature:(__cilkrts_worker *w, void *key, __cilkrts_hyperobject_base *hb, void *val)
+release_block	queues/cache_aware_queue.c	/^void release_block(block_t *node) {$/;"	f	signature:(block_t *node)
+repeated_merge_reducer_maps	reducer_impl.cpp	/^repeated_merge_reducer_maps(__cilkrts_worker **w_ptr,$/;"	f	signature:(__cilkrts_worker **w_ptr, cilkred_map *left_map, cilkred_map *right_map)
+repeated_merge_reducer_maps	reducer_impl.h	/^cilkred_map *repeated_merge_reducer_maps(__cilkrts_worker **w_ptr,$/;"	p	signature:(__cilkrts_worker **w_ptr, cilkred_map *left_map, cilkred_map *right_map)
+reset_THE_exception	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void reset_THE_exception(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+restore_fp_state	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^static inline void restore_fp_state (__cilkrts_stack_frame *sf) {$/;"	f	file:	signature:(__cilkrts_stack_frame *sf)
+restore_frame_for_spawn_return_reduction	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    void restore_frame_for_spawn_return_reduction(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *returning_sf)
+rethrow	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^    bool rethrow;$/;"	m	struct:pending_exception_info	file:	access:public
 right_pending_exception	full_frame.h	/^    struct pending_exception_info *right_pending_exception;$/;"	m	struct:full_frame	typeref:struct:full_frame::pending_exception_info
 right_reducer_map	full_frame.h	/^    struct cilkred_map *right_reducer_map;$/;"	m	struct:full_frame	typeref:struct:full_frame::cilkred_map
 right_sibling	full_frame.h	/^    full_frame *right_sibling;$/;"	m	struct:full_frame
 rightmost_child	full_frame.h	/^    full_frame *rightmost_child;$/;"	m	struct:full_frame
-roundup	reducer_impl.cpp	/^static size_t roundup(size_t nmax)$/;"	f	file:
+roundup	reducer_impl.cpp	/^static size_t roundup(size_t nmax)$/;"	f	file:	signature:(size_t nmax)
 routine	cilk-tbb-interop.h	/^    __cilk_tbb_pfn_stack_op routine;$/;"	m	struct:__cilk_tbb_stack_op_thunk
 routine	cilk-tbb-interop.h	/^    __cilk_tbb_pfn_unwatch_stacks routine;$/;"	m	struct:__cilk_tbb_unwatch_thunk
-run	signal_node.c	/^    volatile unsigned int run;$/;"	m	struct:signal_node_t	file:
-run_scheduling_stack_fcn	local_state.c	/^void run_scheduling_stack_fcn(__cilkrts_worker *w)$/;"	f
-runtime_state	except-gcc.cpp	/^    struct __cxa_eh_globals runtime_state;$/;"	m	struct:pending_exception_info	typeref:struct:pending_exception_info::__cxa_eh_globals	file:
-save_exception_info	except-gcc.cpp	/^save_exception_info(__cilkrts_worker *w,$/;"	f	file:
-save_pedigree_leaf_from_user_worker	pedigrees.c	/^void save_pedigree_leaf_from_user_worker(__cilkrts_worker *w)$/;"	f
-schedule_t	scheduler.c	/^enum schedule_t { SCHEDULE_RUN,$/;"	g	file:
-schedule_work	scheduler.c	/^  static void schedule_work(__cilkrts_worker *w)$/;"	f	file:
-scheduler	global_state.h	/^    void (*scheduler)(__cilkrts_worker *w);$/;"	m	struct:global_state_t
-scheduler_stack	concurrent_cilk_internal.h	/^  void *scheduler_stack;$/;"	m	struct:__cilkrts_paused_stack
+run	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^    volatile unsigned int run;$/;"	m	struct:signal_node_t	file:	access:public
+run_scheduling_stack_fcn	local_state.c	/^void run_scheduling_stack_fcn(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+run_scheduling_stack_fcn	local_state.h	/^void run_scheduling_stack_fcn(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+runtime_state	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^    struct __cxa_eh_globals runtime_state;$/;"	m	struct:pending_exception_info	typeref:struct:pending_exception_info::__cxa_eh_globals	file:	access:public
+save_exception_info	/home/czakian/Research/concurrent_cilk/runtime/except-gcc.cpp	/^save_exception_info(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, __cxa_eh_globals *state, _Unwind_Exception *exc, bool rethrow, const char *why)
+save_pedigree_leaf_from_user_worker	pedigrees.c	/^void save_pedigree_leaf_from_user_worker(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+save_pedigree_leaf_from_user_worker	pedigrees.h	/^void save_pedigree_leaf_from_user_worker(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+schedule_t	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^enum schedule_t { SCHEDULE_RUN,$/;"	g	file:
+schedule_work	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void schedule_work(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+scheduler	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    void (*scheduler)(__cilkrts_worker *w);$/;"	m	struct:global_state_t	access:public
 scheduler_stack	local_state.h	/^    void *scheduler_stack;$/;"	m	struct:local_state
 scheduling_stack_fcn_t	local_state.h	/^typedef void (*scheduling_stack_fcn_t) (__cilkrts_worker *w,$/;"	t
-self_steal	scheduler.c	/^  void self_steal(__cilkrts_worker *w)$/;"	f
-self_steal_return	scheduler.c	/^  void self_steal_return(__cilkrts_worker *w) {$/;"	f
-sem	signal_node.c	/^    cilk_semaphore_t sem;$/;"	m	struct:signal_node_t	file:
+sem	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^    cilk_semaphore_t sem;$/;"	m	struct:signal_node_t	file:	access:public
 serial_worker	os-unix.c	/^static void *serial_worker;$/;"	v	file:
-set_param_imp	global_state.cpp	/^int set_param_imp(global_state_t* g, const CHAR_T* param, const CHAR_T* value)$/;"	f	namespace:__anon2
-set_sync_master	scheduler.c	/^static void set_sync_master(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:
-setup_for_execution	scheduler.c	/^static void setup_for_execution(__cilkrts_worker *w, $/;"	f	file:
-setup_for_execution_exceptions	scheduler.c	/^static void setup_for_execution_exceptions(__cilkrts_worker *w, $/;"	f	file:
-setup_for_execution_pedigree	scheduler.c	/^static void setup_for_execution_pedigree(__cilkrts_worker *w)$/;"	f	file:
-setup_for_execution_reducers	scheduler.c	/^static void setup_for_execution_reducers(__cilkrts_worker *w,$/;"	f	file:
-setup_replacement_stack_and_run	concurrent_cilk.c	/^setup_replacement_stack_and_run(__cilkrts_worker *w)$/;"	f	file:
-signal_cilk_semaphore	signal_node.c	/^static void signal_cilk_semaphore (cilk_semaphore_t *sem)$/;"	f	file:
+set_param_imp	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^int set_param_imp(global_state_t* g, const CHAR_T* param, const CHAR_T* value)$/;"	f	namespace:__anon1	signature:(global_state_t* g, const CHAR_T* param, const CHAR_T* value)
+set_sync_master	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void set_sync_master(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+setup_for_execution	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void setup_for_execution(__cilkrts_worker *w, $/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, int is_return_from_call)
+setup_for_execution_exceptions	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void setup_for_execution_exceptions(__cilkrts_worker *w, $/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+setup_for_execution_pedigree	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void setup_for_execution_pedigree(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+setup_for_execution_reducers	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void setup_for_execution_reducers(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+signal_cilk_semaphore	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^static void signal_cilk_semaphore (cilk_semaphore_t *sem)$/;"	f	file:	signature:(cilk_semaphore_t *sem)
 signal_node	local_state.h	/^     signal_node_t *signal_node;$/;"	m	struct:local_state
-signal_node_create	signal_node.c	/^signal_node_t *signal_node_create(void)$/;"	f
-signal_node_destroy	signal_node.c	/^void signal_node_destroy(signal_node_t *node)$/;"	f
-signal_node_msg	signal_node.c	/^void signal_node_msg(signal_node_t *node, unsigned int msg)$/;"	f
-signal_node_should_wait	signal_node.c	/^unsigned int signal_node_should_wait(signal_node_t *node)$/;"	f
+signal_node_create	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^signal_node_t *signal_node_create(void)$/;"	f	signature:(void)
+signal_node_create	signal_node.h	/^signal_node_t *signal_node_create(void);$/;"	p	signature:(void)
+signal_node_destroy	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^void signal_node_destroy(signal_node_t *node)$/;"	f	signature:(signal_node_t *node)
+signal_node_destroy	signal_node.h	/^COMMON_SYSDEP void signal_node_destroy(signal_node_t *node);$/;"	p	signature:(signal_node_t *node)
+signal_node_msg	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^void signal_node_msg(signal_node_t *node, unsigned int msg)$/;"	f	signature:(signal_node_t *node, unsigned int msg)
+signal_node_msg	signal_node.h	/^void signal_node_msg(signal_node_t *node, unsigned int msg);$/;"	p	signature:(signal_node_t *node, unsigned int msg)
+signal_node_should_wait	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^unsigned int signal_node_should_wait(signal_node_t *node)$/;"	f	signature:(signal_node_t *node)
+signal_node_should_wait	signal_node.h	/^unsigned int signal_node_should_wait(signal_node_t *node);$/;"	p	signature:(signal_node_t *node)
+signal_node_t	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^typedef struct signal_node_t$/;"	s	file:
+signal_node_t	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^} signal_node_t;$/;"	t	typeref:struct:signal_node_t	file:
 signal_node_t	local_state.h	/^typedef struct signal_node_t signal_node_t;$/;"	t	typeref:struct:signal_node_t
-signal_node_t	signal_node.c	/^typedef struct signal_node_t$/;"	s	file:
-signal_node_t	signal_node.c	/^} signal_node_t;$/;"	t	typeref:struct:signal_node_t	file:
 signal_node_t	signal_node.h	/^typedef struct signal_node_t signal_node_t;$/;"	t	typeref:struct:signal_node_t
-signal_node_wait	signal_node.c	/^void signal_node_wait(signal_node_t *node)$/;"	f
+signal_node_t::run	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^    volatile unsigned int run;$/;"	m	struct:signal_node_t	file:	access:public
+signal_node_t::sem	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^    cilk_semaphore_t sem;$/;"	m	struct:signal_node_t	file:	access:public
+signal_node_wait	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^void signal_node_wait(signal_node_t *node)$/;"	f	signature:(signal_node_t *node)
+signal_node_wait	signal_node.h	/^void signal_node_wait(signal_node_t *node);$/;"	p	signature:(signal_node_t *node)
 simulated_stolen	full_frame.h	/^    int simulated_stolen;$/;"	m	struct:full_frame
+size	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    unsigned int      size;$/;"	m	struct:__cilkrts_stack_cache	access:public
+size	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^    size_t size;$/;"	m	struct:__cilkrts_stack	file:	access:public
 size	cilk_api.c	/^    size_t size;$/;"	m	struct:pedigree_context_t	file:
-size	global_state.h	/^    unsigned int      size;$/;"	m	struct:__cilkrts_stack_cache
-size	sysdep-unix.c	/^    size_t size;$/;"	m	struct:__cilkrts_stack	file:
-sizeof_bucket	reducer_impl.cpp	/^static size_t sizeof_bucket(size_t nmax)$/;"	f	file:
-sleep_runtime	scheduler.c	/^  static void sleep_runtime(global_state_t *g)$/;"	f	file:
-slow_path_reductions_for_spawn_return	scheduler.c	/^    slow_path_reductions_for_spawn_return(__cilkrts_worker *w,$/;"	f	file:
-slow_path_reductions_for_sync	scheduler.c	/^    slow_path_reductions_for_sync(__cilkrts_worker *w,$/;"	f	file:
-spin_pause	concurrent_cilk_internal.h	21;"	d
-splice_exceptions_for_call	scheduler.c	/^static inline void splice_exceptions_for_call(__cilkrts_worker *w,$/;"	f	file:
-splice_exceptions_for_spawn	scheduler.c	/^void splice_exceptions_for_spawn(__cilkrts_worker *w,$/;"	f	file:
-splice_left_ptrs	scheduler.c	/^      } splice_left_ptrs;$/;"	t	typeref:struct:__anon1	file:
-splice_stacks_for_call	scheduler.c	/^static inline void splice_stacks_for_call(__cilkrts_worker *w,$/;"	f	file:
-stack_cache	global_state.h	/^    __cilkrts_stack_cache stack_cache;$/;"	m	struct:global_state_t
+sizeof_bucket	reducer_impl.cpp	/^static size_t sizeof_bucket(size_t nmax)$/;"	f	file:	signature:(size_t nmax)
+sleep_runtime	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void sleep_runtime(global_state_t *g)$/;"	f	file:	signature:(global_state_t *g)
+slow_path_reductions_for_spawn_return	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    slow_path_reductions_for_spawn_return(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, struct cilkred_map **left_map_ptr)
+slow_path_reductions_for_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    slow_path_reductions_for_sync(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+spin_pause	concurrent_cilk_internal.h	30;"	d
+splice_exceptions_for_call	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static inline void splice_exceptions_for_call(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *parent_ff, full_frame *child_ff)
+splice_exceptions_for_spawn	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^void splice_exceptions_for_spawn(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, struct pending_exception_info **left_exception_ptr)
+splice_left_ptrs	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^      } splice_left_ptrs;$/;"	t	typeref:struct:__anon1	file:
+splice_stacks_for_call	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static inline void splice_stacks_for_call(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *parent_ff, full_frame *child_ff)
+stack_cache	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    __cilkrts_stack_cache stack_cache;$/;"	m	struct:global_state_t	access:public
 stack_cache	local_state.h	/^    __cilkrts_stack_cache stack_cache;$/;"	m	struct:local_state
-stack_cache_size	global_state.h	/^    int stack_cache_size; \/* USER SETTING *\/$/;"	m	struct:global_state_t
+stack_cache_size	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int stack_cache_size; \/* USER SETTING *\/$/;"	m	struct:global_state_t	access:public
 stack_child	full_frame.h	/^    __cilkrts_stack *stack_child;$/;"	m	struct:full_frame
 stack_hwm	stats.h	/^    long stack_hwm;$/;"	m	struct:statistics
-stack_op_data	sysdep-unix.c	/^    void *stack_op_data;$/;"	m	struct:__cilkrts_stack	file:
-stack_op_routine	sysdep-unix.c	/^    __cilk_tbb_pfn_stack_op stack_op_routine;$/;"	m	struct:__cilkrts_stack	file:
+stack_op_data	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^    void *stack_op_data;$/;"	m	struct:__cilkrts_stack	file:	access:public
+stack_op_routine	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^    __cilk_tbb_pfn_stack_op stack_op_routine;$/;"	m	struct:__cilkrts_stack	file:	access:public
 stack_self	full_frame.h	/^    __cilkrts_stack *stack_self;$/;"	m	struct:full_frame
-stack_size	global_state.h	/^    size_t stack_size;$/;"	m	struct:global_state_t
+stack_size	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    size_t stack_size;$/;"	m	struct:global_state_t	access:public
 stack_to_free	local_state.h	/^    __cilkrts_stack* stack_to_free;$/;"	m	struct:local_state
-stacks	global_state.h	/^    __cilkrts_stack **stacks;$/;"	m	struct:__cilkrts_stack_cache
-stacks	global_state.h	/^    long stacks;$/;"	m	struct:global_state_t
+stacks	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    __cilkrts_stack **stacks;$/;"	m	struct:__cilkrts_stack_cache	access:public
+stacks	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    long stacks;$/;"	m	struct:global_state_t	access:public
 start	stats.h	/^    unsigned long long start[INTERVAL_N];$/;"	m	struct:statistics
 static_mutex	os_mutex-unix.c	/^static struct os_mutex static_mutex;$/;"	v	typeref:struct:os_mutex	file:
 static_mutex_used	os_mutex-unix.c	/^static int static_mutex_used;$/;"	v	file:
 statistics	stats.h	/^typedef struct statistics$/;"	s
 statistics	stats.h	/^} statistics;$/;"	t	typeref:struct:statistics
-stats	global_state.h	/^    statistics stats;    \/**< Statistics on use of runtime *\/$/;"	m	struct:global_state_t
+stats	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    statistics stats;    \/**< Statistics on use of runtime *\/$/;"	m	struct:global_state_t	access:public
 stats	local_state.h	/^    statistics stats;$/;"	m	struct:local_state
 steal_failure_count	local_state.h	/^    unsigned int steal_failure_count;$/;"	m	struct:local_state
 steal_lock	local_state.h	/^    struct mutex steal_lock;$/;"	m	struct:local_state	typeref:struct:local_state::mutex
-stealing_disabled	global_state.h	/^    int stealing_disabled;$/;"	m	struct:global_state_t
-store_bool	global_state.cpp	/^int store_bool(INT_T *out, const CHAR_T *val)$/;"	f	namespace:__anon2
-store_int	global_state.cpp	/^int store_int(INT_T *out, const CHAR_T *val, INT_T min, INT_T max)$/;"	f	namespace:__anon2
-strmatch	global_state.cpp	/^bool strmatch(const char* a, const wchar_t* b)$/;"	f	namespace:__anon2
-strmatch	global_state.cpp	/^bool strmatch(const wchar_t* a, const char* b)$/;"	f	namespace:__anon2
-strmatch	global_state.cpp	/^inline bool strmatch(const char* a, const char* b)$/;"	f	namespace:__anon2
-strmatch	global_state.cpp	/^inline bool strmatch(const wchar_t* a, const wchar_t* b)$/;"	f	namespace:__anon2
+stealing_disabled	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int stealing_disabled;$/;"	m	struct:global_state_t	access:public
+store_bool	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^int store_bool(INT_T *out, const CHAR_T *val)$/;"	f	namespace:__anon1	signature:(INT_T *out, const CHAR_T *val)
+store_int	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^int store_int(INT_T *out, const CHAR_T *val, INT_T min, INT_T max)$/;"	f	namespace:__anon1	signature:(INT_T *out, const CHAR_T *val, INT_T min, INT_T max)
+strmatch	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^bool strmatch(const char* a, const wchar_t* b)$/;"	f	namespace:__anon1	signature:(const char* a, const wchar_t* b)
+strmatch	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^bool strmatch(const wchar_t* a, const char* b)$/;"	f	namespace:__anon1	signature:(const wchar_t* a, const char* b)
+strmatch	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^inline bool strmatch(const char* a, const char* b)$/;"	f	namespace:__anon1	signature:(const char* a, const char* b)
+strmatch	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^inline bool strmatch(const wchar_t* a, const wchar_t* b)$/;"	f	namespace:__anon1	signature:(const wchar_t* a, const wchar_t* b)
 suspended_stack	local_state.h	/^    __cilkrts_stack_frame *suspended_stack;$/;"	m	struct:local_state
 sync_master	full_frame.h	/^    __cilkrts_worker *sync_master;$/;"	m	struct:full_frame
 sync_return_address	local_state.h	/^    void *sync_return_address;$/;"	m	struct:local_state
 sync_sp	full_frame.h	/^    char *sync_sp;$/;"	m	struct:full_frame
-sysdep	global_state.h	/^    struct global_sysdep_state *sysdep;$/;"	m	struct:global_state_t	typeref:struct:global_state_t::global_sysdep_state
-sysdep_destroy_tiny_stack	sysdep-unix.c	/^void sysdep_destroy_tiny_stack (void *p)$/;"	f
-sysdep_destroy_user_stack	sysdep-unix.c	/^void sysdep_destroy_user_stack (__cilkrts_stack *sd)$/;"	f
-sysdep_make_tiny_stack	sysdep-unix.c	/^void *sysdep_make_tiny_stack (__cilkrts_worker *w)$/;"	f
-sysdep_make_user_stack	sysdep-unix.c	/^__cilkrts_stack *sysdep_make_user_stack (__cilkrts_worker *w)$/;"	f
-system_workers	global_state.h	/^    int system_workers; \/**< Number of system workers (fixed) *\/$/;"	m	struct:global_state_t
-tbb_interop_free_stack_op_info	sysdep-unix.c	/^void tbb_interop_free_stack_op_info(void)$/;"	f
+sysdep	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    struct global_sysdep_state *sysdep;$/;"	m	struct:global_state_t	typeref:struct:global_state_t::global_sysdep_state	access:public
+sysdep_destroy_tiny_stack	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void sysdep_destroy_tiny_stack (void *p)$/;"	f	signature:(void *p)
+sysdep_destroy_tiny_stack	sysdep.h	/^void sysdep_destroy_tiny_stack (void *sd);$/;"	p	signature:(void *sd)
+sysdep_destroy_user_stack	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void sysdep_destroy_user_stack (__cilkrts_stack *sd)$/;"	f	signature:(__cilkrts_stack *sd)
+sysdep_destroy_user_stack	sysdep.h	/^void sysdep_destroy_user_stack (__cilkrts_stack *sd);$/;"	p	signature:(__cilkrts_stack *sd)
+sysdep_make_tiny_stack	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void *sysdep_make_tiny_stack (__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+sysdep_make_tiny_stack	sysdep.h	/^void *sysdep_make_tiny_stack (__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+sysdep_make_user_stack	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^__cilkrts_stack *sysdep_make_user_stack (__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+sysdep_make_user_stack	sysdep.h	/^__cilkrts_stack *sysdep_make_user_stack (__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+system_workers	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int system_workers; \/**< Number of system workers (fixed) *\/$/;"	m	struct:global_state_t	access:public
+tail	concurrent_cilk_internal.h	/^  __cilkrts_paused_fiber *tail;$/;"	m	struct:__cilkrts_paused_fiber
+tail	queues/cache_aware_queue.c	/^  int tail;$/;"	m	struct:block_t	file:
+tail	queues/lockfree_queue.h	/^  struct __cilkrts_stack_pair* tail;        $/;"	m	struct:queue_t	typeref:struct:queue_t::__cilkrts_stack_pair
+tail	queues/locking_queue.c	/^  struct __cilkrts_stack_pair* tail;        $/;"	v	typeref:struct:__cilkrts_stack_pair
+tbb_interop_free_stack_op_info	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void tbb_interop_free_stack_op_info(void)$/;"	f	signature:(void)
+tbb_interop_free_stack_op_info	sysdep.h	/^void tbb_interop_free_stack_op_info(void);$/;"	p	signature:(void)
 tbb_interop_key	os-unix.c	/^static pthread_key_t worker_key, reducer_key, tbb_interop_key, pedigree_leaf_key;$/;"	v	file:
-tbb_interop_save_info_from_stack	sysdep-unix.c	/^void tbb_interop_save_info_from_stack(__cilkrts_stack *sd)$/;"	f
-tbb_interop_save_stack_op_info	sysdep-unix.c	/^void tbb_interop_save_stack_op_info(__cilk_tbb_stack_op_thunk o)$/;"	f
-tbb_interop_use_saved_stack_op_info	sysdep-unix.c	/^void tbb_interop_use_saved_stack_op_info(__cilkrts_worker *w,$/;"	f
-team	concurrent_cilk_internal.h	/^  __cilkrts_worker *team;$/;"	m	struct:__cilkrts_paused_stack
+tbb_interop_save_info_from_stack	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void tbb_interop_save_info_from_stack(__cilkrts_stack *sd)$/;"	f	signature:(__cilkrts_stack *sd)
+tbb_interop_save_info_from_stack	sysdep.h	/^void tbb_interop_save_info_from_stack(__cilkrts_stack *sd);$/;"	p	signature:(__cilkrts_stack *sd)
+tbb_interop_save_stack_op_info	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void tbb_interop_save_stack_op_info(__cilk_tbb_stack_op_thunk o)$/;"	f	signature:(__cilk_tbb_stack_op_thunk o)
+tbb_interop_save_stack_op_info	sysdep.h	/^void tbb_interop_save_stack_op_info(__cilk_tbb_stack_op_thunk o);$/;"	p	signature:(__cilk_tbb_stack_op_thunk o)
+tbb_interop_use_saved_stack_op_info	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void tbb_interop_use_saved_stack_op_info(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, __cilkrts_stack *sd)
+tbb_interop_use_saved_stack_op_info	sysdep.h	/^void tbb_interop_use_saved_stack_op_info(__cilkrts_worker *w,$/;"	p	signature:(__cilkrts_worker *w, __cilkrts_stack *sd)
 team	local_state.h	/^    __cilkrts_worker *team;$/;"	m	struct:local_state
 terminateHandler	except-gcc.h	/^    std::terminate_handler  terminateHandler;$/;"	m	struct:__cxa_exception
-threads	sysdep-unix.c	/^    pthread_t *threads;$/;"	m	struct:global_sysdep_state	file:
-threads_created	sysdep-unix.c	/^static int volatile threads_created = 0;$/;"	v	file:
-to_cxx	except-gcc.h	/^static inline __cxa_exception *to_cxx(_Unwind_Exception *e)$/;"	f
-to_long	global_state.cpp	/^inline long to_long(const char* s)$/;"	f	namespace:__anon2
-to_long	global_state.cpp	/^inline long to_long(const wchar_t* s)$/;"	f	namespace:__anon2
-top	sysdep-unix.c	/^    char *top;$/;"	m	struct:__cilkrts_stack	file:
-total_workers	global_state.h	/^    int total_workers;  \/**< Total number of worker threads allocated (fixed) *\/$/;"	m	struct:global_state_t
+threadHead	queues/cache_aware_queue.c	/^  int threadHead;$/;"	m	struct:__cilkrts_stack_queue_struct	file:
+threadHeadBlock	queues/cache_aware_queue.c	/^  struct block_t *threadHeadBlock;$/;"	m	struct:__cilkrts_stack_queue_struct	typeref:struct:__cilkrts_stack_queue_struct::block_t	file:
+threadTail	queues/cache_aware_queue.c	/^  int threadTail;$/;"	m	struct:__cilkrts_stack_queue_struct	file:
+threadTailBlock	queues/cache_aware_queue.c	/^  struct block_t *threadTailBlock;$/;"	m	struct:__cilkrts_stack_queue_struct	typeref:struct:__cilkrts_stack_queue_struct::block_t	file:
+threads	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^    pthread_t *threads;$/;"	m	struct:global_sysdep_state	file:	access:public
+threads_created	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^static int volatile threads_created = 0;$/;"	v	file:
+to_cxx	except-gcc.h	/^static inline __cxa_exception *to_cxx(_Unwind_Exception *e)$/;"	f	signature:(_Unwind_Exception *e)
+to_long	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^inline long to_long(const char* s)$/;"	f	namespace:__anon1	signature:(const char* s)
+to_long	/home/czakian/Research/concurrent_cilk/runtime/global_state.cpp	/^inline long to_long(const wchar_t* s)$/;"	f	namespace:__anon1	signature:(const wchar_t* s)
+top	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^    char *top;$/;"	m	struct:__cilkrts_stack	file:	access:public
+total_workers	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int total_workers;  \/**< Total number of worker threads allocated (fixed) *\/$/;"	m	struct:global_state_t	access:public
 trylevel	full_frame.h	/^    unsigned long trylevel;$/;"	m	struct:full_frame
 type	local_state.h	/^    cilk_worker_type type;$/;"	m	struct:local_state
 uncaughtExceptions	except-gcc.h	/^    unsigned int     uncaughtExceptions;$/;"	m	struct:__cxa_eh_globals
-unconditional_steal	scheduler.c	/^static void unconditional_steal(__cilkrts_worker *w,$/;"	f	file:
-under_ptool	global_state.h	/^    int under_ptool;     \/**< True when running under a serial PIN tool *\/$/;"	m	struct:global_state_t
+unconditional_steal	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void unconditional_steal(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+under_ptool	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int under_ptool;     \/**< True when running under a serial PIN tool *\/$/;"	m	struct:global_state_t	access:public
 unexpectedHandler	except-gcc.h	/^    std::unexpected_handler unexpectedHandler;$/;"	m	struct:__cxa_exception
-unlink_child	scheduler.c	/^static void unlink_child(full_frame *parent_ff, full_frame *child_ff)$/;"	f	file:
-unroll_call_stack	scheduler.c	/^static full_frame *unroll_call_stack(__cilkrts_worker *w, $/;"	f	file:
-unset_sync_master	scheduler.c	/^static void unset_sync_master(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:
+unlink_child	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void unlink_child(full_frame *parent_ff, full_frame *child_ff)$/;"	f	file:	signature:(full_frame *parent_ff, full_frame *child_ff)
+unroll_call_stack	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static full_frame *unroll_call_stack(__cilkrts_worker *w, $/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *const loot_sf)
+unset_sync_master	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void unset_sync_master(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
 unused1	cilk_api.c	/^    void *unused1;$/;"	m	struct:pedigree_context_t	file:
 unused2	cilk_api.c	/^    void *unused2;$/;"	m	struct:pedigree_context_t	file:
 unwindHeader	except-gcc.h	/^    _Unwind_Exception       unwindHeader;$/;"	m	struct:__cxa_exception
-update_pedigree_on_leave_frame	pedigrees.h	/^inline void update_pedigree_on_leave_frame(__cilkrts_worker *w,$/;"	f
+update_pedigree_on_leave_frame	pedigrees.c	/^extern void update_pedigree_on_leave_frame(__cilkrts_worker *w,$/;"	p	file:	signature:(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
+update_pedigree_on_leave_frame	pedigrees.h	/^inline void update_pedigree_on_leave_frame(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, __cilkrts_stack_frame *sf)
 user_thread_imported	local_state.h	/^    int user_thread_imported;$/;"	m	struct:local_state
 val	reducer_impl.cpp	/^    void                       *val; \/\/ Strand-private view of this hyperobject$/;"	m	struct:elem	file:
-validate_full_frame	full_frame.c	/^COMMON_PORTABLE void validate_full_frame(full_frame *ff)$/;"	f
-validate_worker	scheduler.c	/^static void validate_worker(__cilkrts_worker *w)$/;"	f	file:
-verify_current_wkr	reducer_impl.cpp	/^static inline void verify_current_wkr(__cilkrts_worker *w)$/;"	f	file:
-verify_current_wkr	scheduler.c	/^static inline void verify_current_wkr(__cilkrts_worker *w)$/;"	f	file:
-w	concurrent_cilk_internal.h	/^   __cilkrts_worker *w;$/;"	m	struct:__cilkrts_paused_stack
-wait_on_cilk_semaphore	signal_node.c	/^static void wait_on_cilk_semaphore (cilk_semaphore_t *sem)$/;"	f	file:
-wait_ticks	concurrent_queue.c	/^inline void wait_ticks(uint64_t ticks)$/;"	f
-waitlist	concurrent_cilk_internal.h	/^  __cilkrts_paused_stack *waitlist;$/;"	m	struct:__cilkrts_paused_stack
-wake_runtime	scheduler.c	/^  static void wake_runtime(global_state_t *g)$/;"	f	file:
+validate_full_frame	full_frame.c	/^COMMON_PORTABLE void validate_full_frame(full_frame *ff)$/;"	f	signature:(full_frame *ff)
+validate_full_frame	full_frame.h	/^COMMON_PORTABLE void validate_full_frame(full_frame *ff);$/;"	p	signature:(full_frame *ff)
+validate_worker	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void validate_worker(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+verify_current_wkr	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static inline void verify_current_wkr(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+verify_current_wkr	reducer_impl.cpp	/^static inline void verify_current_wkr(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+w	concurrent_cilk_internal.h	/^   __cilkrts_worker *w;$/;"	m	struct:__cilkrts_paused_fiber
+wait_on_cilk_semaphore	/home/czakian/Research/concurrent_cilk/runtime/signal_node.c	/^static void wait_on_cilk_semaphore (cilk_semaphore_t *sem)$/;"	f	file:	signature:(cilk_semaphore_t *sem)
+wait_ticks	concurrent_queue.c	/^inline void wait_ticks(uint64_t ticks)$/;"	f	signature:(uint64_t ticks)
+wake_runtime	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void wake_runtime(global_state_t *g)$/;"	f	file:	signature:(global_state_t *g)
 wasted	frame_malloc.h	/^    size_t wasted;$/;"	m	struct:__cilkrts_frame_cache
-work_done	global_state.h	/^    volatile int work_done;$/;"	m	struct:global_state_t
+win_get_active_processor_count	os.h	/^unsigned long win_get_active_processor_count(unsigned short GroupNumber);$/;"	p	signature:(unsigned short GroupNumber)
+win_get_active_processor_group_count	os.h	/^unsigned short win_get_active_processor_group_count(void);$/;"	p	signature:(void)
+win_init_processor_groups	os.h	/^void win_init_processor_groups(void);$/;"	p	signature:(void)
+win_set_thread_group_affinity	os.h	/^int win_set_thread_group_affinity(\/*HANDLE*\/ void* hThread,$/;"	p	signature:( void* hThread, const GROUP_AFFINITY *GroupAffinity, GROUP_AFFINITY* PreviousGroupAffinity)
+work_done	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    volatile int work_done;$/;"	m	struct:global_state_t	access:public
 work_stolen	local_state.h	/^    int work_stolen;$/;"	m	struct:local_state
 worker_key	os-unix.c	/^static pthread_key_t worker_key, reducer_key, tbb_interop_key, pedigree_leaf_key;$/;"	v	file:
 worker_magic_0	local_state.h	/^    ls_magic_t worker_magic_0;$/;"	m	struct:local_state
 worker_magic_1	local_state.h	/^    ls_magic_t worker_magic_1;$/;"	m	struct:local_state
-worker_replacement_scheduler	concurrent_cilk.c	/^static void worker_replacement_scheduler()$/;"	f	file:
-worker_runnable	scheduler.c	/^    static enum schedule_t worker_runnable(__cilkrts_worker *w)$/;"	f	file:
-worker_trylock_other	scheduler.c	/^static int worker_trylock_other(__cilkrts_worker *w,$/;"	f	file:
-worker_unlock_other	scheduler.c	/^static void worker_unlock_other(__cilkrts_worker *w,$/;"	f	file:
-worker_user_scheduler	sysdep-unix.c	/^void worker_user_scheduler()$/;"	f	file:
-workers	global_state.h	/^    __cilkrts_worker **workers;$/;"	m	struct:global_state_t
-workers_running	global_state.h	/^    int workers_running; \/**< True when system workers have beens started *\/$/;"	m	struct:global_state_t
-write_version_file	sysdep-unix.c	/^static void write_version_file (global_state_t *g, int n)$/;"	f	file:
-~DisableCilkscreen	reducer_impl.cpp	/^    ~DisableCilkscreen () { __cilkscreen_enable_checking(); }$/;"	f	struct:DisableCilkscreen
-~EnableCilkscreen	reducer_impl.cpp	/^    ~EnableCilkscreen () { __cilkscreen_disable_checking(); }$/;"	f	struct:EnableCilkscreen
+worker_runnable	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    static enum schedule_t worker_runnable(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+worker_runnable	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static enum schedule_t worker_runnable(__cilkrts_worker *w);$/;"	p	file:	signature:(__cilkrts_worker *w)
+worker_trylock_other	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static int worker_trylock_other(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, __cilkrts_worker *other)
+worker_unlock_other	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void worker_unlock_other(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, __cilkrts_worker *other)
+worker_user_scheduler	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^void worker_user_scheduler()$/;"	f	file:
+workers	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    __cilkrts_worker **workers;$/;"	m	struct:global_state_t	access:public
+workers_running	/home/czakian/Research/concurrent_cilk/runtime/global_state.h	/^    int workers_running; \/**< True when system workers have beens started *\/$/;"	m	struct:global_state_t	access:public
+write_version_file	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^static void write_version_file (global_state_t *, int);$/;"	p	file:	signature:(global_state_t *, int)
+write_version_file	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^static void write_version_file (global_state_t *g, int n)$/;"	f	file:	signature:(global_state_t *g, int n)
+~DisableCilkscreen	reducer_impl.cpp	/^    ~DisableCilkscreen () { __cilkscreen_enable_checking(); }$/;"	f	struct:DisableCilkscreen	signature:()
+~EnableCilkscreen	reducer_impl.cpp	/^    ~EnableCilkscreen () { __cilkscreen_disable_checking(); }$/;"	f	struct:EnableCilkscreen	signature:()

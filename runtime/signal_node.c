@@ -130,6 +130,13 @@ static void signal_cilk_semaphore (cilk_semaphore_t *sem)
     CILK_ASSERT (0 != result);
 }
 #else // Linux/MIC
+
+// clang doesn't seem to detect that status is used in the assert
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+
 static void initialize_cilk_semaphore (cilk_semaphore_t *sem)
 {
     int status = sem_init(sem, 0, 0);
@@ -140,6 +147,11 @@ static void deinitialize_cilk_semaphore (cilk_semaphore_t *sem)
     int status = sem_destroy(sem);
     assert(0 == status);
 }
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+
 static void wait_on_cilk_semaphore (cilk_semaphore_t *sem)
 {
     int status;

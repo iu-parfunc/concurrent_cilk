@@ -345,10 +345,8 @@ NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *ff,
     w->current_stack_frame = sf;
     sf->worker = w;
     CILK_ASSERT(flags & CILK_FRAME_SUSPENDED);
-#ifndef CILK_IVARS
     CILK_ASSERT(!sf->call_parent);
     CILK_ASSERT(w->head == w->tail);
-#endif
 
     if (ff->simulated_stolen)
         /* We can't prevent __cilkrts_make_unrunnable_sysdep from discarding
@@ -357,7 +355,6 @@ NORETURN __cilkrts_resume(__cilkrts_worker *w, full_frame *ff,
          * here. */
         SP(sf) = ff->sync_sp;
 
-    printf("about to resume with worker %d ff %p and sf %p\n",w->self, ff, sf);
     sp = SP(sf);
 
     /* Debugging: make sure stack is accessible. */
@@ -549,7 +546,6 @@ void __cilkrts_bind_stack(full_frame *ff, char *new_sp,
                           __cilkrts_worker *owner)
 {
     __cilkrts_stack_frame *sf = ff->call_stack;
-    __cilkrts_stack *sd = ff->stack_self;
     CILK_ASSERT(sizeof SP(sf) <= sizeof (size_t));
 
     SP(sf) = new_sp;
@@ -596,7 +592,6 @@ char *__cilkrts_stack_to_pointer(__cilkrts_stack *s, __cilkrts_stack_frame *sf)
 void *sysdep_make_tiny_stack (__cilkrts_worker *w)
 {
     char *p;
-    __cilkrts_stack *s;
 
 #ifndef MAP_ANONYMOUS
 #define MAP_ANONYMOUS MAP_ANON

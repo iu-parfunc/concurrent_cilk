@@ -61,72 +61,33 @@ __CILKRTS_BEGIN_EXTERN_C
 
 /* struct tags */
 typedef struct __cilkrts_worker      __cilkrts_worker;
-typedef struct __cilkrts_worker*     __cilkrts_worker_ptr;
-typedef struct __cilkrts_stack_frame __cilkrts_stack_frame;
-typedef struct __cilkrts_forwarding_array __cilkrts_forwarding_array;
-typedef struct __cilkrts_paused_stack __cilkrts_paused_stack;
+typedef struct __cilkrts_paused_fiber __cilkrts_paused_fiber;
 typedef struct queue_t queue_t;
-typedef struct __cilkrts_stack_pair __cilkrts_stack_pair;
-typedef struct __cilkrts_ivar_waitlist __cilkrts_ivar_waitlist;
-
-// Forwarded declarations
-typedef struct global_state_t        global_state_t;
-typedef struct local_state           local_state;
-typedef struct cilkred_map           cilkred_map;
-typedef struct __cilkrts_worker_sysdep_state __cilkrts_worker_sysdep_state;
-
 
 /*   Concurrent Cilk:  Types & API   */
 
- typedef struct __cilkrts_paused_stack {
+ typedef struct __cilkrts_paused_fiber {
 
-   /* Saved state fields */
-   //-----------------------------
    __cilkrts_worker *w;
-
-  full_frame *ff;
-
-  __cilkrts_worker *team;
-
-  int flags;
-
-  full_frame *paused_ff;
-
-  short is_blocked;
-
-  void *scheduler_stack;
-
-  __cilkrts_stack_frame *current_stack_frame;
-
-  jmp_buf env;
-  //-----------------------------
 
   /* Paused stack internal record keeping */
   //-----------------------------
-  __cilkrts_paused_stack *head;
+  __cilkrts_paused_fiber *head;
 
-  __cilkrts_paused_stack *tail;
+  __cilkrts_paused_fiber *tail;
 
-  __cilkrts_paused_stack *next;
+  __cilkrts_paused_fiber *next;
 
-  jmp_buf ctx;
+  jmp_buf ctx; //TODO: can use cilk jmp_buf?
 
   int lock; 
   //-----------------------------
 
-} __cilkrts_paused_stack;
+} align(64) __cilkrts_paused_fiber;
 
 /* Lock API for paused stacks */
-int paused_stack_trylock(__cilkrts_paused_stack *pstk);
-void paused_stack_unlock(__cilkrts_paused_stack *pstk);
-
-/*   Cilk IVars:  Types & API   */
-void __cilkrts_concurrent_yield(__cilkrts_worker *w);
-void thaw_frame(__cilkrts_paused_stack *pstk);
-
-
-void do_leave_paused_frame_child(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
-void do_return_from_self_steal(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf);
+int paused_fiber_trylock(__cilkrts_paused_fiber *pfiber);
+void paused_fiber_unlock(__cilkrts_paused_fiber *pfiber);
 
 __CILKRTS_END_EXTERN_C
 #endif
