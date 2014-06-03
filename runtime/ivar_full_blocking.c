@@ -38,9 +38,11 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
   uintptr_t old_w;
 
   //fast path -- already got a value.
+  //----------------------------------
   if(IVAR_READY(*ivar)) { return UNTAG(*ivar); }
 
   //slow path -- operation must block until a value is available.
+  //----------------------------------
   memset(&pfiber, 0, sizeof(__cilkrts_paused_fiber));
   w     = __cilkrts_get_tls_worker_fast();
   old_w = (uintptr_t) __cilkrts_pause_fiber(pfiber->ctx);
@@ -99,8 +101,7 @@ __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
       //this is thread safe because any other reads of the ivar take the fast path.
       //Therefore the waitlist of paused stacks can only be referenced here.
       do {
-        //TODO: no need to maintain one queue...probably more efficiecient to keep a ** array in the worker 
-        enqueue(pfiber->w->ready_queue, (ELEMENT_TYPE) pfiber);
+        pfiber->replacement->ready_fiber = pfiber;
         pfiber = pfiber->next;
       } while(pfiber);
     case CILK_IVAR_EMPTY:

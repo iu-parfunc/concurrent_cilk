@@ -395,7 +395,6 @@ static full_frame *pop_next_frame(__cilkrts_worker *w)
 {
     full_frame *ff;
     ff = w->l->next_frame_ff;
-//    printf("%d popping full frame. new frame %p\n",w->self, ff);
     // Remove the frame from the next_frame field.
     //
     // If this is a user worker, then there is a chance that another worker
@@ -811,6 +810,10 @@ static void random_steal(__cilkrts_worker *w)
 
     /* do not steal from self */
     CILK_ASSERT (victim != w);
+
+#ifdef CILK_IVARS
+    victim = find_concurrent_work(victim);
+#endif
 
     /* Execute a quick check before engaging in the THE protocol.
        Avoid grabbing locks if there is nothing to steal. */
@@ -1400,7 +1403,6 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
        may be immediately executed by this worker after provably_good_steal.
 
        The active frame and call_stack may have changed since _resume.  */
-    printf("hey! my continuation got called. in longejumped after resume\n");
     run_scheduling_stack_fcn(w);
 
     /* The worker borrowed the full frame's reducer map.
@@ -1425,6 +1427,13 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 
     // If there is no work on the queue, try to steal some.
     if (NULL == ff) {
+
+#ifdef CILK_IVARS
+      if (w->ready_fiber) {
+        __cilkrts_resume_fiber(w->ready_fiber);
+        CILK_ASSERT(0); //no return
+      }
+#endif
 
 
       START_INTERVAL(w, INTERVAL_STEALING) {
@@ -2043,7 +2052,6 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     BEGIN_WITH_WORKER_LOCK_OPTIONAL(w) {
       full_frame *ff = w->l->frame_ff;
       CILK_ASSERT(ff);
-      printf("ff->join_counter %d\n", ff->join_counter);
       CILK_ASSERT(ff->join_counter == 1);
       w->l->frame_ff = 0;
 
@@ -2210,7 +2218,8 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     reset_THE_exception(w);
 
 #ifdef CILK_IVARS
-    w->ready_queue = (queue_t *) make_stack_queue();
+    w->ready_fiber = NULL;
+    w->parent = NULL;
 #endif
 
     return w;

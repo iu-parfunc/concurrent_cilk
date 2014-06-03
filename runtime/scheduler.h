@@ -327,6 +327,10 @@ void __cilkrts_leave_cilk(global_state_t *g);
 COMMON_PORTABLE
 void __cilkrts_dump_stats_to_stderr(global_state_t *g);
 
+#ifdef CILK_IVARS
+int can_steal_from(__cilkrts_worker *victim);
+#endif
+
 
 __CILKRTS_END_EXTERN_C
 

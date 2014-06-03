@@ -68,7 +68,8 @@ typedef struct queue_t queue_t;
 
  typedef struct __cilkrts_paused_fiber {
 
-   __cilkrts_worker *w;
+   __cilkrts_worker *paused;
+   __cilkrts_worker *replacement;
 
   /* Paused stack internal record keeping */
   //-----------------------------
@@ -88,6 +89,9 @@ typedef struct queue_t queue_t;
 /* Lock API for paused stacks */
 int paused_fiber_trylock(__cilkrts_paused_fiber *pfiber);
 void paused_fiber_unlock(__cilkrts_paused_fiber *pfiber);
+
+/* Scheduler functions */
+__cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim);
 
 __CILKRTS_END_EXTERN_C
 #endif

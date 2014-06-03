@@ -222,8 +222,8 @@ struct __cilkrts_worker {
 #endif  /* __CILKRTS_ABI_VERSION >= 1 */
 
 #ifdef CILK_IVARS
-    struct queue_t *ready_queue;
-    //__cilkrts_worker *parent;
+    __cilkrts_paused_fiber *ready_fiber;
+    __cilkrts_worker *parent;
 #endif
 };
 
