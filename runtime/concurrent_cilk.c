@@ -29,10 +29,11 @@ __cilkrts_commit_pause(__cilkrts_paused_fiber *pfiber)
   //"push" the replacement worker on the top of the stealing stack.
   pfiber->replacement    = replacement;
   w->g->workers[w->self] = replacement;
-
-  //sets pthread TLS to replacement worker and invokes the scheduler.
-  __cilkrts_worker_stub((void *) replacement);
+  printf("COMMIT: pfiber %p, replacement %p\n", pfiber, pfiber->replacement);
+  //make sure you call the scheduler!
 }
+
+
 
 CILK_API(void)
   __cilkrts_resume_fiber(__cilkrts_paused_fiber *pfiber)

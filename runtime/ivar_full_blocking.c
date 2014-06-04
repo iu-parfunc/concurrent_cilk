@@ -48,6 +48,7 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
   old_w = (uintptr_t) __cilkrts_pause_fiber(pfiber->ctx);
 
   if(! old_w) {
+    __cilkrts_commit_pause(&pfiber); 
 
     do {
       switch (*ivar & IVAR_MASK) {
@@ -70,15 +71,21 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
           paused_fiber_unlock(pfiber_head);
           exit = 1;
           break;
+        case CILK_IVAR_FULL:
+          //nevermind...someone filled it. 
+          //TODO: clean up memory here
+          return UNTAG(*ivar);
         default: 
-          __cilkrts_bug("Cilk IVar %p in corrupted state. Aborting program.\n", ivar);
+          __cilkrts_bug("[read] Cilk IVar %p in corrupted state 0x%x. Aborting program.\n", ivar, *ivar&IVAR_MASK);
       }
     } while(!exit);
 
-    __cilkrts_commit_pause(&pfiber); 
+    //sets pthread TLS to replacement worker and invokes the scheduler.
+    __cilkrts_worker_stub((void *) pfiber.replacement);
     CILK_ASSERT(0); //no return. heads to scheduler.
   }
 
+  CILK_ASSERT(old_w == pfiber->replacement);
   return UNTAG(*ivar);
 }
 
@@ -101,6 +108,9 @@ __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
       //this is thread safe because any other reads of the ivar take the fast path.
       //Therefore the waitlist of paused stacks can only be referenced here.
       do {
+        printf("WRITER: pfiber %p, replacement %p\n", pfiber, pfiber->replacement);
+        CILK_ASSERT(pfiber);
+        CILK_ASSERT(pfiber->replacement);
         pfiber->replacement->ready_fiber = pfiber;
         pfiber = pfiber->next;
       } while(pfiber);
@@ -109,7 +119,7 @@ __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
     case CILK_IVAR_FULL:
       __cilkrts_bug("Attempted multiple puts on Cilk IVar %p. Aborting program.\n", ivar);
     default:
-      __cilkrts_bug("Cilk IVar %p in corrupted state. Aborting program.\n", ivar);
+      __cilkrts_bug("[write] Cilk IVar %p in corrupted state 0x%x. Aborting program.\n", ivar, *ivar&IVAR_MASK);
 
   }
 }

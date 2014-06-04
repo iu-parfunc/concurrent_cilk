@@ -152,7 +152,6 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
 CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
 {
   __cilkrts_worker *w = sf->worker;
-  printf("leaving frame: w %d sf %p\n", w->self, sf);
 
 
   /*    DBGPRINTF("%d-%p __cilkrts_leave_frame - sf %p, flags: %x\n", w->self, GetWorkerFiber(w), sf, sf->flags); */
@@ -235,7 +234,6 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
     __cilkrts_return(w); /* does return */
 
   /*    DBGPRINTF("%d-%p __cilkrts_leave_frame - returning, StackBase: %p\n", w->self, GetWorkerFiber(w)); */
-  printf("sf %p returning\n", sf);
 }
 
 /* Caller must have called setjmp. */
