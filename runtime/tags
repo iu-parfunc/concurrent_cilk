@@ -1101,6 +1101,7 @@ pthread_t_size	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^  
 push	frame_malloc.c	/^static void push(struct free_list **b, struct free_list *p)$/;"	f	file:	signature:(struct free_list **b, struct free_list *p)
 push	stacks.c	/^static void push(__cilkrts_worker *w, __cilkrts_stack *sd)$/;"	f	file:	signature:(__cilkrts_worker *w, __cilkrts_stack *sd)
 push_child	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void push_child(full_frame *parent_ff, full_frame *child_ff)$/;"	f	file:	signature:(full_frame *parent_ff, full_frame *child_ff)
+push_wait_list	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	61;"	d
 queue_init	concurrent_queue.c	/^void queue_init(struct queue_t *q)$/;"	f	signature:(struct queue_t *q)
 queue_t	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	/^typedef struct queue_t queue_t;$/;"	t	typeref:struct:queue_t
 queue_t	queues/lockfree_queue.h	/^struct queue_t {$/;"	s

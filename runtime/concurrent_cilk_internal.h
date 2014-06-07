@@ -58,6 +58,15 @@ __CILKRTS_BEGIN_EXTERN_C
 #define prefetch_rw(addr,locality) __builtin_prefetch(addr,READ_WRITE,locality)
 #define prefetch_r(addr,locality)  __builtin_prefetch(addr,READ_ONLY,locality)
 
+#define push_wait_list(head,pfiber) \
+  while (! paused_fiber_trylock(head)) spin_pause(); \
+  pfiber->head = head; \
+  pfiber->tail = pfiber; \
+  pfiber->next = NULL; \
+  head->tail->next = pfiber; \
+  head->tail = pfiber; \
+  paused_fiber_unlock(head);
+
 
 /* struct tags */
 typedef struct __cilkrts_worker      __cilkrts_worker;
