@@ -5,6 +5,7 @@
 #include <cilk/ivar.h>
 #include <unistd.h>
 #include <stdio.h>
+#include "timing.h"
 
 struct tup {
     int x,y,z,w;

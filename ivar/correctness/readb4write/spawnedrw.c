@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cilk/cilk.h>
+#include <internal/abi.h>
 #include <cilk/concurrent_cilk.h>
 
 #define TEST_VAL 39
@@ -30,13 +31,13 @@ void fun() {
     printf("read after write -fast path\n");
     cilk_spawn bar(&iv);
  
-  printf("returning from fun...this will pop the frame\n");
+    __cilkrts_worker *w = __cilkrts_get_tls_worker();
+  printf("returning from fun...this will pop the frame (w=%d)\n", w->self);
 }
 
 int main(int argc, char **argv) 
 {
   cilk_spawn fun();
-  cilk_sync;
   printf("test complete\n");
   return 0;
 }

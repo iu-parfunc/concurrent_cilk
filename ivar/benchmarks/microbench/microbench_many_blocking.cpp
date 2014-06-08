@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cilk/concurrent_cilk.h>
 #include <cilk/cilk.h>
 #include <cilk/ivar.h>
 

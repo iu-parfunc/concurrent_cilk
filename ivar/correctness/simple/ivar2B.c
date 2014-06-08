@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "timing.h"
 
 // TOGGLES:
 // #define DELAY_WRITER // Working [2011.07.19]

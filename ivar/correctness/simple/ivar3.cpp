@@ -5,6 +5,7 @@
 #include <cilk/ivar.h>
 #include <unistd.h>
 #include <stdio.h>
+#include "timing.h"
 
 void writer(ivar<int>& iv) {
     printf("     Inside spawned writer... sleeping for a bit\n");

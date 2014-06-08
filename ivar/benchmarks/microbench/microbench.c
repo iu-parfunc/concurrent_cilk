@@ -1,3 +1,4 @@
+#include <cilk/concurrent_cilk.h>
 #include <cilk/cilk.h>
 #include <cilk/cilk_api.h>
 #include <unistd.h>
@@ -8,8 +9,8 @@
 
 #define ALLOC_EMPTY_IVARS(size) calloc(size, sizeof(__cilkrts_ivar))
 
-void writer(__cilkrts_ivar *array, long num_fibers){
-
+void writer(__cilkrts_ivar *array, long num_fibers)
+{
   int i;
   //printf("inside spawned writer... WRITING\n");
   for(i = 0; i < num_fibers; i++){

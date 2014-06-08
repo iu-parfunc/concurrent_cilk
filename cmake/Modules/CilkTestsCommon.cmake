@@ -11,16 +11,16 @@ cmake_minimum_required(VERSION 2.8.8)
 # -----------------------------------------
 
 # Set clang/clang++ as the compiler
-#set(CMAKE_C_COMPILER "clang")
-#set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_C_COMPILER "clang")
+set(CMAKE_CXX_COMPILER "clang++")
 
 # Set gcc as the compiler
 #set(CMAKE_C_COMPILER "gcc")
 #set(CMAKE_CXX_COMPILER "g++")
 
 # Set icc as the compiler
-set(CMAKE_C_COMPILER "icc")
-set(CMAKE_CXX_COMPILER "icc")
+#set(CMAKE_C_COMPILER "icc")
+#set(CMAKE_CXX_COMPILER "icc")
 
 # -----------------------------------------
 
@@ -44,23 +44,34 @@ set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${LIB_SEARCH_PATH})
 
 # These flags are only add in Debug build type. 
 # Tell gdb we really want all the info.
-set(EXTRA_DEBUG_FLAGS "-ggdb -g3 -fvar-tracking-assignments")
+set(EXTRA_DEBUG_FLAGS "-ggdb -g3 -DIVAR_DBG_ON -DIVAR_DBG=0x5 -O0")
+if (NOT ${CMAKE_C_COMPILER} MATCHES "clang")
+  set(EXTRA_DEBUG_FLAGS "-fvar-tracking-assignments ${EXTRA_DEBUG_FLAGS}")
+endIf()
 
 # base flags for C/C++ that are used irrespective of build type
 set(BASE_C_FLAGS "-Wall -std=c99")
 set(BASE_CXX_FLAGS "-Wall")
 
+#clang needs -fcilkplus defined
+if (${CMAKE_C_COMPILER} MATCHES "clang") 
+  set(BASE_C_FLAGS "${BASE_C_FLAGS} -Wno-unused-variable -Wno-unused-value -Wno-uninitialized -fcilkplus")
+  set(BASE_CXX_FLAGS "${BASE_CXX_FLAGS} -fcilkplus -Wno-unused-variable -Wno-unused-value -Wno-uninitialized")
+endIf()
+
+set(EXTRA_RELEASE_C_FLAGS "-O3")
+set(EXTRA_RELEASE_CXX_FLAGS "-O3")
 
 #C Additions
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${BASE_C_FLAGS}")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${BASE_C_FLAGS}")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${BASE_C_FLAGS} ${EXTRA_DEBUG_FLAGS}")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${BASE_C_FLAGS} ${EXTRA_RELEASE_C_FLAGS}")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${BASE_C_FLAGS} ${EXTRA_RELEASE_C_FLAGS}")
 set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} ${BASE_C_FLAGS}")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${BASE_C_FLAGS} ${EXTRA_DEBUG_FLAGS}")
 
 #C++ Additions
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${BASE_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${BASE_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${BASE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${BASE_CXX_FLAGS} ${EXTRA_RELEASE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${BASE_CXX_FLAGS} ${EXTRA_RELEASE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${BASE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${BASE_CXX_FLAGS} ${EXTRA_DEBUG_FLAGS}")

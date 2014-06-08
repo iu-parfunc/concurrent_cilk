@@ -16,7 +16,7 @@ __cilkrts_ivar_clear(&iv3);
 __cilkrts_ivar_clear(&iv4);
 __cilkrts_ivar_clear(&iv5);
 
-int i1, i2, i3, i4, i5;
+int i1 = 0, i2 = 0, i3 = 0, i4 = 0, i5 = 0;
 
 printf("spawning reader1\n");
 i1 = cilk_spawn __cilkrts_ivar_read(&iv1);
@@ -45,15 +45,14 @@ cilk_spawn __cilkrts_ivar_write(&iv5, (ivar_payload_t) 5);
 printf("going for a sync now!\n");
 
 cilk_sync;
-
 if ((i1+i2+i3+i4+i5) == 15)
   printf("sum of ivars is corect! (15)\n");
 else 
-  printf("sum wrong!! \n");
+  printf("sum wrong!! (expected 15, got %d)\n", i1+i2+i3+i4+i5);
 
 }
 
 int main(int argc, char **argv) {
   printf("nested deadlock test\n");
-  cilk_spawn fun();
+  fun();
 }

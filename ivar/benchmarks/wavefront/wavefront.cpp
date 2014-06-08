@@ -18,97 +18,18 @@
 
 using namespace std;
 
-// Globals:
-int dim = 2;
-int tiledim = 2;
-int reps = 1; // An intensifying coefficient.
-char* version = "parfor2";
-
-static const int dbg = 0;
-
-//----------------------------------------
-
-class tile {
-  public: 
-    tile() : vec(tiledim*tiledim)
-  {
-    for(int i=0; i<tiledim*tiledim; i++)
-      vec[i] = 1;
-  }
-
-    vector<int> vec;
-};
-
-//----------------------------------------
-
-// Globals:
-vector< ivar<tile*> >* matrix;
-
-//----------------------------------------
-
-tile* matrix_get(int i, int j) {
-  if(dbg) printf("  matrix get: %d %d\n", i,j);
-  return (*matrix)[i * dim + j].get();
-}
-
-void matrix_put(int i, int j, tile* val) {
-  if(dbg) printf("  matrix put: %d %d\n", i,j);
-  return (*matrix)[i * dim + j].put(val);
-}
-
-void sum_tile(tile* dest, tile* src) {
-  for(int r=0; r<reps; r++) // An intensifying coefficient.
-    for(int i=0; i< tiledim * tiledim; i++) {
-      dest->vec[i] += src->vec[i];
-    }
-}
-
-// Serially sum up everything in the matrix:
-unsigned long long sum_matrix() 
-{
-  unsigned long long sum = 0;
-  for(int i=0; i< dim*dim; i++) {
-    tile* t = (*matrix)[i].get();
-    for(int j=0; j< tiledim * tiledim; j++) 
-      sum += t->vec[j];
-  }
-  return sum;
-}
-
-// Get the dependencies and do the tile computation.
-// If we add spawns here.......
-void do_tile(int i, int j) 
-{
-  if(dbg) printf("  do tile %d %d\n", i, j);
-  tile* t = new tile();
-  if(i>0 && j>0) { // i > 0, j > 0. A[i,j] = 
-    tile* dep1 = matrix_get(i-1,j-1);
-    sum_tile(t, dep1);
-  }
-  // i,j > 0      ==> A[i,j] = A[i-1,j-1] + A[i-1,j] + A[i,j-1] + [1] (??)
-  // j = 0, i > 0 ==> A[i,j] = A[i-1,j]  + [1]
-  // j > 0, i = 0 ==> A[i,j] = A[i,j-1] + [1]
-  if (i>0) { // i > 0
-    tile* dep2 = matrix_get(i-1,j);
-    sum_tile(t, dep2);
-  } 
-  if (j>0) { // j > 0
-    tile* dep3 = matrix_get(i,j-1);
-    sum_tile(t, dep3);
-  }
-
-  matrix_put(i,j, t);
-}
 
 // Version 1:
 // Walk over the matrix with naive traversal, spawning all jobs:
 void traverse1() 
 {
-  if(dbg) printf(" *** Begin parallel traversal to fill matrix: cilk_for | cilk_for | spawn\n");
-  cilk_for (int i=0; i < dim; i++) 
-    cilk_for (int j=0; j < dim; j++) 
-    cilk_spawn do_tile(i,j);
-  if(dbg) printf("Done with parallel traversal...\n");
+  if (dbg) printf(" *** Begin parallel traversal to fill matrix: cilk_for | cilk_for | spawn\n");
+  for (int i=0; i < dim; i++)  {
+    for (int j=0; j < dim; j++)  {
+      cilk_spawn do_tile(i,j);
+    }
+  }
+  if (dbg) printf("Done with parallel traversal...\n");
 }
 
 // Version 1B: Less spawning.

@@ -9,6 +9,7 @@
 #include <internal/abi.h>
 #include <cilk/cilk.h>
 #include <cilk/cilk_api.h>
+#include "timing.h"
 
 // TOGGLES:
 //#define DELAY_WRITER // Working [2011.07.19]
@@ -22,7 +23,7 @@
 void writer(__cilkrts_ivar* iv) {
     int val = 39;
     printf("     Inside spawned writer... (approx stack addr %p) sleeping for a bit\n", &val);
-    __cilkrts_usleep(750 * 1000); // microseconds   
+    // __cilkrts_usleep(750 * 1000); // microseconds   
     __cilkrts_ivar_write(iv, (ivar_payload_t)val);
     printf("     Inside spawned writer... WRITE OF %d DONE (ivar %p).\n", val, iv);
 

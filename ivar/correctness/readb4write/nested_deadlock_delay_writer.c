@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <cilk/cilk.h>
 #include <cilk/concurrent_cilk.h>
+#include "../simple/timing.h"
 
 #define DELAY (750*1000)
 

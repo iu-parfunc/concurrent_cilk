@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "timing.h"
 
 #define DELAY (250*1000)
 #define FIBINP 32
@@ -31,7 +32,7 @@ long long parfib(int n)
 void writer(__cilkrts_ivar* iv) 
 {
     int val = 39;
-    long long result;
+    long long result = 5;
 
     printf("     Inside spawned writer... spawn spurious work\n");
 
@@ -39,7 +40,7 @@ void writer(__cilkrts_ivar* iv)
 
     printf("   spurious work finished or parent stolen (w=%d)\n", __cilkrts_get_tls_worker()->self); 
 
-    //    __cilkrts_usleep(delay); // microseconds   
+    __cilkrts_usleep(delay); // microseconds   
     __cilkrts_ivar_write(iv, (ivar_payload_t)val);
     printf("     Inside spawned writer... WRITE OF %d DONE (w=%d).\n", val, __cilkrts_get_tls_worker()->self);
 
@@ -52,16 +53,11 @@ void fun() {
     __cilkrts_ivar_clear(&iv);
     printf("   Spawn to write ivar:\n");
     cilk_spawn writer(&iv);
-    //    printf("   After spawn, wrote or stolen successfully, now spawn spurious work:\n");
     printf("   After spawn, wrote or stolen successfully, now perform ivar read:\n");
 
     unsigned long val = (unsigned long)__cilkrts_ivar_read(&iv);
 
-    printf("   Ivar read successfully: %lu  w=%d\n", val, __cilkrts_get_tls_worker()->self);
-
-    // [2011.07.19] Presently I'm crashing on the sync:
-    struct __cilkrts_worker* w = __cilkrts_get_tls_worker();
-    printf("fun(): Going to attempt Sync.  Current Cilk worker = %d\n", w->self);
+    printf("   Ivar read successfully: %lu\n", val);
     cilk_sync;
     printf("   fun(): reached position AFTER cilk_sync\n");
     if (val != 39) { printf("TEST ERROR - BAD VALUE, %ld, EXPECTED 39 - ABORTING!\n", val); abort(); }
@@ -70,10 +66,7 @@ void fun() {
 int main(int argc, char **argv) 
 {
     printf("==== ivar5: simple test program...\n");
-
-    // cilk_spawn fun();
     fun();
-
     printf("==== ivar5: Finished.\n");
     return 0;
 }
