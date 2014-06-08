@@ -722,9 +722,6 @@ static void detach_for_steal(__cilkrts_worker *w,
            holding its lock. */
         loot_ff = unroll_call_stack(w, parent_ff, sf);
 
-        fprintf(stderr, "[W=%d, victim=%d, desc=detach, parent_ff=%p, loot=%p]\n",
-                w->self, victim->self,
-                parent_ff, loot_ff);
         #if REDPAR_DEBUG >= 3
         fprintf(stderr, "[W=%d, victim=%d, desc=detach, parent_ff=%p, loot=%p]\n",
                 w->self, victim->self,
@@ -1422,6 +1419,9 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   static void schedule_work(__cilkrts_worker *w)
   {
     full_frame *ff;
+#ifdef CILK_IVARS
+    __cilkrts_worker *ready_worker;
+#endif
 
     ff = pop_next_frame(w);
 
@@ -1454,6 +1454,15 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
       // frame with the work to resume.
       ff = pop_next_frame(w);
       if (NULL == ff) {
+#ifdef CILK_IVARS
+        ready_worker = find_ready_fiber(w);
+        if (ready_worker) {
+          printf("restoring worker OUT of order\n");
+          __cilkrts_set_tls_worker(ready_worker);
+          __cilkrts_resume_fiber(ready_worker->ready_fiber);
+          CILK_ASSERT(0);
+        }
+#endif 
         // Punish the worker for failing to steal.
         // No quantum for you!
         __cilkrts_yield();

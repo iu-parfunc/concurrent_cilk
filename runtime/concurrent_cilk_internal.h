@@ -58,15 +58,10 @@ __CILKRTS_BEGIN_EXTERN_C
 #define prefetch_rw(addr,locality) __builtin_prefetch(addr,READ_WRITE,locality)
 #define prefetch_r(addr,locality)  __builtin_prefetch(addr,READ_ONLY,locality)
 
-#define push_wait_list(head,pfiber) \
-  while (! paused_fiber_trylock(head)) spin_pause(); \
-  pfiber->head = head; \
-  pfiber->tail = pfiber; \
-  pfiber->next = NULL; \
-  head->tail->next = pfiber; \
-  head->tail = pfiber; \
-  paused_fiber_unlock(head);
-
+#define waitlock_atomic(lock) \
+  while(!__sync_bool_compare_and_swap(lock, 0, 1)) __asm__("pause")
+#define trylock_atomic(lock) __sync_bool_compare_and_swap(lock, 0, 1)
+#define unlock_atomic(lock)  __sync_bool_compare_and_swap(lock, 1, 0)
 
 /* struct tags */
 typedef struct __cilkrts_worker      __cilkrts_worker;
@@ -101,6 +96,7 @@ void paused_fiber_unlock(__cilkrts_paused_fiber *pfiber);
 
 /* Scheduler functions */
 __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim);
+__cilkrts_worker *find_ready_fiber(__cilkrts_worker *victim);
 
 __CILKRTS_END_EXTERN_C
 #endif

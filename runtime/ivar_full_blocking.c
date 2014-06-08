@@ -8,6 +8,10 @@
 #include "sysdep.h"
 #include "bug.h"
 
+unsigned long TOTAL_IVARS   = 0;
+unsigned long IVARS_PAUSED  = 0;
+unsigned long IVARS_WRITTEN = 0;
+
 /** 
  * Clear an IVar.
  *
@@ -82,11 +86,16 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
       }
     } while (!exit);
 
+    //TMP
+    atomic_add(&TOTAL_IVARS, 1);
+    atomic_add(&IVARS_PAUSED, 1 );
     //sets pthread TLS to replacement worker and invokes the scheduler.
     __cilkrts_worker_stub((void *) pfiber.replacement);
     CILK_ASSERT(0); //no return. heads to scheduler.
   }
 
+  //TMP
+  atomic_sub(&IVARS_PAUSED, 1);
   return UNTAG(*ivar);
 }
 
@@ -109,13 +118,17 @@ __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val)
       //this is thread safe because any other reads of the ivar take the fast path.
       //Therefore the waitlist of paused stacks can only be referenced here.
       do {
-        printf("WRITER: pfiber %p, replacement %p next %p\n", pfiber, pfiber->replacement, pfiber->next);
+        //printf("WRITER: pfiber %p, replacement %p next %p\n", pfiber, pfiber->replacement, pfiber->next);
         CILK_ASSERT(pfiber);
         CILK_ASSERT(pfiber->replacement);
         pfiber->replacement->ready_fiber = pfiber;
         pfiber = pfiber->next;
+        //TMP
+        atomic_add(&IVARS_WRITTEN, 1);
       } while(pfiber);
     case CILK_IVAR_EMPTY:
+      //TMP
+      atomic_add(&IVARS_WRITTEN, 1);
       break;  //do nothing -- write already done.
     case CILK_IVAR_FULL:
       __cilkrts_bug("Attempted multiple puts on Cilk IVar %p. Aborting program.\n", ivar);
