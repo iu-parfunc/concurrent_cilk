@@ -4,28 +4,26 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
+MATRIX_DIM	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	10;"	d	file:
+TILE_DIM	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	9;"	d	file:
 dimension	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^    int dimension;$/;"	m	class:tile	file:	access:public
-divide_and_conquer	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.cpp	/^void divide_and_conquer(int i, int j, int w, int h) $/;"	f	signature:(int i, int j, int w, int h)
-do_row	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.cpp	/^void do_row(int i) {$/;"	f	signature:(int i)
-isPowerOfTwo	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.cpp	/^int isPowerOfTwo (unsigned int x)$/;"	f	signature:(unsigned int x)
-lower_helper	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.cpp	/^void lower_helper(int decomp, int x0, int y0, int x1, int y1, int x2, int y2) {$/;"	f	signature:(int decomp, int x0, int y0, int x1, int y1, int x2, int y2)
-lowertri	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.cpp	/^void lowertri(int x0, int y0, int x1, int y1, int x2, int y2) $/;"	f	signature:(int x0, int y0, int x1, int y1, int x2, int y2)
-lowertri	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.cpp	/^void lowertri(int,int, int,int, int,int);$/;"	p	file:	signature:(int,int, int,int, int,int)
+do_tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^void do_tile(matrix *mat, int i, int j) $/;"	f	signature:(matrix *mat, int i, int j)
+init_matrix	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^void init_matrix(matrix *mat) { memset(mat, 0, MATRIX_DIM*MATRIX_DIM); } $/;"	f	signature:(matrix *mat)
+init_tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^void init_tile(tile *t)       { memset(t, 1, TILE_DIM*TILE_DIM); }$/;"	f	signature:(tile *t)
 main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/test.c	/^int main() {$/;"	f
-main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.cpp	/^int main(int argc, char** argv) $/;"	f	signature:(int argc, char** argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^int main(int argc, char **argv) {$/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront_par_rows.cpp	/^int main(int argc, char **argv) {$/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront_par_rows_and_columns.cpp	/^int main(int argc, char **argv) {$/;"	f	signature:(int argc, char **argv)
 matrix	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^class matrix<T> {$/;"	c	file:
+matrix	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^typedef ivar_t *matrix[MATRIX_DIM*MATRIX_DIM];$/;"	t	file:
 matrix_get	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^tile *matrix_get(int i, int j) {$/;"	f	signature:(int i, int j)
 matrix_put	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^void matrix_put(int i, int j, tile* val) {$/;"	f	signature:(int i, int j, tile* val)
-spawn_cones	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.cpp	/^void spawn_cones() $/;"	f	signature:()
-spawn_cones2	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.cpp	/^void spawn_cones2()$/;"	f	signature:()
+sum_tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^void sum_tile(tile *src, tile *dst) $/;"	f	signature:(tile *src, tile *dst)
 tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^    tile() : vec(tiledim*tiledim) {$/;"	f	class:tile	access:public	signature:()
 tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^class tile {$/;"	c	file:
+tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^typedef ivar_payload_t tile[TILE_DIM*TILE_DIM];$/;"	t	file:
 tile::dimension	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^    int dimension;$/;"	m	class:tile	file:	access:public
 tile::tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^    tile() : vec(tiledim*tiledim) {$/;"	f	class:tile	access:public	signature:()
 tile::vec	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^    vector<int> vec;$/;"	m	class:tile	file:	access:public
-traverse1	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.cpp	/^void traverse1() $/;"	f	signature:()
-traverse2	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.cpp	/^void traverse2() $/;"	f	signature:()
-upper_helper	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.cpp	/^void upper_helper(int decomp, int x0, int y0, int x1, int y1, int x2, int y2) {$/;"	f	signature:(int decomp, int x0, int y0, int x1, int y1, int x2, int y2)
-uppertri	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.cpp	/^void uppertri(int x0, int y0, int x1, int y1, int x2, int y2) $/;"	f	signature:(int x0, int y0, int x1, int y1, int x2, int y2)
-uppertri	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.cpp	/^void uppertri(int,int, int,int, int,int);$/;"	p	file:	signature:(int,int, int,int, int,int)
+traverse_by_par_row_and_column	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^void traverse_by_par_row_and_column(matrix *mat) {$/;"	f	signature:(matrix *mat)
 vec	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^    vector<int> vec;$/;"	m	class:tile	file:	access:public
