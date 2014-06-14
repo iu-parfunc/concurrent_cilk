@@ -42,6 +42,8 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
   unsigned short exit = 0;
   uintptr_t val;
 
+  CILK_ASSERT(ivar);
+
   //fast path -- already got a value.
   //----------------------------------
   if (IVAR_READY(*ivar)) { return UNTAG(*ivar); }
@@ -58,18 +60,21 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
     do {
       switch (*ivar & IVAR_MASK) {
         case CILK_IVAR_EMPTY: 
-          pfiber.head = pfiber.tail = &pfiber;
+          printf("READER: I found the ivar 0x%p first! waiting for someone to tell me what this all means\n", ivar);
+          pfiber.head = &pfiber;
+          pfiber.tail = &pfiber;
           //if the CAS operation succeeds, the ivar is now in the paused state,
           //and this continuation is waiting on it. 
           exit = cas(ivar, 0, (((ivar_payload_t) &pfiber) << IVAR_SHIFT) | CILK_IVAR_PAUSED); 
           break;
         case CILK_IVAR_PAUSED: 
+          printf("READER: I found the ivar 0x%p in a paused state. I'll go do something else now...\n", ivar);
           //pull out the reference to the root paused stack
           //all reads on a paused ivar compete for the lock on this
           //paused stack
           wait_list = (__cilkrts_paused_fiber  *) (*ivar >> IVAR_SHIFT);
           while (! paused_fiber_trylock(wait_list)) spin_pause(); 
-          pfiber.head      = wait_list; 
+          pfiber.head      = wait_list;
           pfiber.tail      = &pfiber; 
           pfiber.next      = NULL; 
           wait_list->tail->next = &pfiber; 
@@ -78,6 +83,7 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
           exit = 1;
           break;
         case CILK_IVAR_FULL:
+          printf("READER: thought the ivar 0x%p was paused, but I guess I was wrong. returning with my tail between my legs.\n", ivar);
           //nevermind...someone filled it. 
           //TODO: clean up memory here
           return UNTAG(*ivar);
@@ -86,14 +92,12 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
       }
     } while (!exit);
 
-    //TMP
-    atomic_add(&TOTAL_IVARS, 1);
-    atomic_add(&IVARS_PAUSED, 1 );
     //sets pthread TLS to replacement worker and invokes the scheduler.
     __cilkrts_worker_stub((void *) pfiber.replacement);
     CILK_ASSERT(0); //no return. heads to scheduler.
   }
 
+  printf("my ivar 0x%p was written to! hurrah, I can return now\n", ivar);
   //TMP
   atomic_sub(&IVARS_PAUSED, 1);
   return UNTAG(*ivar);
@@ -107,33 +111,48 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
   inline CILK_API(void)
 __cilkrts_ivar_write(__cilkrts_ivar* ivar, ivar_payload_t val) 
 {
+  unsigned short exit = 0;
   __cilkrts_paused_fiber *pfiber;
   //the new value is the actual value with the full ivar tag added to it
   ivar_payload_t new_val  = (val << IVAR_SHIFT) | CILK_IVAR_FULL;
-  ivar_payload_t old_val  = (ivar_payload_t) atomic_set(ivar, new_val);
+  ivar_payload_t old_val; 
+  ivar_payload_t peek; 
 
-  switch (old_val & IVAR_MASK) {
-    case CILK_IVAR_PAUSED:
-      pfiber = (__cilkrts_paused_fiber *) (old_val >> IVAR_SHIFT);
-      //this is thread safe because any other reads of the ivar take the fast path.
-      //Therefore the waitlist of paused stacks can only be referenced here.
-      do {
-        //printf("WRITER: pfiber %p, replacement %p next %p\n", pfiber, pfiber->replacement, pfiber->next);
-        CILK_ASSERT(pfiber);
-        CILK_ASSERT(pfiber->replacement);
-        pfiber->replacement->ready_fiber = pfiber;
-        pfiber = pfiber->next;
-        //TMP
-        atomic_add(&IVARS_WRITTEN, 1);
-      } while(pfiber);
-    case CILK_IVAR_EMPTY:
-      //TMP
-      atomic_add(&IVARS_WRITTEN, 1);
-      break;  //do nothing -- write already done.
-    case CILK_IVAR_FULL:
-      __cilkrts_bug("Attempted multiple puts on Cilk IVar %p. Aborting program.\n", ivar);
-    default:
-      __cilkrts_bug("[write] Cilk IVar %p in corrupted state 0x%x. Aborting program.\n", ivar, *ivar&IVAR_MASK);
-
-  }
+  CILK_ASSERT(ivar);
+  do {
+    peek = *ivar;
+    switch (peek & IVAR_MASK) {
+      case CILK_IVAR_PAUSED:
+        old_val = casv(ivar, peek, new_val);
+        CILK_ASSERT(old_val);
+        CILK_ASSERT(old_val == peek);
+        pfiber = (__cilkrts_paused_fiber *) (old_val >> IVAR_SHIFT);
+        //this is thread safe because any other reads of the ivar take the fast path.
+        //Therefore the waitlist of paused stacks can only be referenced here.
+        do {
+          printf("WRITER: ivar 0x%p pfiber %p, replacement %p next %p\n",
+              ivar, pfiber, pfiber->replacement, pfiber->next);
+          CILK_ASSERT(pfiber);
+          CILK_ASSERT(pfiber->replacement);
+          pfiber->replacement->ready_fiber = pfiber;
+          pfiber = pfiber->next;
+        } while(pfiber);
+        exit = 1;
+        break;
+      case CILK_IVAR_EMPTY:
+        old_val = casv(ivar, peek, new_val);
+        CILK_ASSERT(old_val == 0);
+        if ((*ivar & IVAR_MASK) == CILK_IVAR_FULL)  { exit = 1; }
+        printf("WRITER: pfiber %ld written to empty ivar %p\n", val, ivar);
+        break;  
+      case CILK_IVAR_FULL:
+        __cilkrts_bug("Attempted multiple puts on Cilk IVar %p. Aborting program.\n", ivar);
+      default:
+        __cilkrts_bug("[write] Cilk IVar %p in corrupted state 0x%x. Aborting program.\n",
+            ivar, *ivar&IVAR_MASK);
+    }
+    if(!exit) { 
+      printf("ivar %p state changed while trying to write. Re-trying!\n", ivar);
+    }
+  } while(!exit);
 }

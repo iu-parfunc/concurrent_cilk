@@ -69,6 +69,7 @@ class ivar
       return (const T*) __cilkrts_ivar_read(&iv);
     }
 
+    __cilkrts_ivar *get_underlying_ivar() { return &iv; }
   private:
     __cilkrts_ivar iv;
 
@@ -106,6 +107,8 @@ class ivar <int>
     }
 
     ivar<int>(const ivar<int>& d) { __cilkrts_ivar_clear(&iv); }
+
+    __cilkrts_ivar *get_underlying_ivar() { return &iv; }
   private:
     __cilkrts_ivar iv;
 };
@@ -131,6 +134,7 @@ class ivar <T*>
 
     ivar<T*>(const ivar<T*>& d) { __cilkrts_ivar_clear(&iv); }
 
+    __cilkrts_ivar *get_underlying_ivar() { return &iv; }
   private:
      __cilkrts_ivar iv;
 };

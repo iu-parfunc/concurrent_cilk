@@ -1795,7 +1795,6 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 
     STOP_INTERVAL(w, INTERVAL_THE_EXCEPTION_CHECK);
 
-
     if (stolen_p)
     {
       w = execute_reductions_for_spawn_return(w, ff, returning_sf);

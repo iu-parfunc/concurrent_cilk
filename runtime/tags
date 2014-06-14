@@ -52,6 +52,8 @@ CILK_FRAME_VERSION_MASK	/home/czakian/Research/concurrent_cilk/include/internal/
 CILK_FRAME_VERSION_VALUE	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	399;"	d
 CILK_INSPECTOR_ABI	/home/czakian/Research/concurrent_cilk/runtime/cilk-abi.c	/^  CILK_INSPECTOR_ABI(__cilkrts_region_id)$/;"	f
 CILK_INTERNAL_ABI_H	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	37;"	d
+CILK_IVAR_H_INCLUDED	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	24;"	d
+CILK_IVAR_TEMPLATE_SPECIALIZED	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	84;"	d
 CILK_LONGJMP	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	55;"	d
 CILK_LONGJMP	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	64;"	d
 CILK_MIN_STACK_SIZE	os-unix.c	465;"	d	file:
@@ -761,6 +763,7 @@ cilkred_map	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^type
 cilkred_map	os.h	/^typedef struct cilkred_map cilkred_map;$/;"	t	typeref:struct:cilkred_map
 cilkred_map	reducer_impl.cpp	/^struct cilkred_map {$/;"	s	file:
 cilkred_map	reducer_impl.h	/^typedef struct cilkred_map cilkred_map;$/;"	t	typeref:struct:cilkred_map
+clear	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    void clear() {$/;"	f	class:ivar	access:private	signature:()
 compute_left_ptrs_for_spawn_return	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    splice_left_ptrs compute_left_ptrs_for_spawn_return(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
 compute_left_ptrs_for_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    splice_left_ptrs compute_left_ptrs_for_sync(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
 concurrent_cilk_flags	full_frame.h	/^    int concurrent_cilk_flags;$/;"	m	struct:full_frame
@@ -873,9 +876,13 @@ full_frame_magic_1	full_frame.h	/^    ff_magic_t full_frame_magic_1;$/;"	m	struc
 g	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    global_state_t *g;$/;"	m	struct:__cilkrts_worker	access:public
 g	reducer_impl.cpp	/^    global_state_t *g;$/;"	m	struct:cilkred_map	file:
 gc_bucket	frame_malloc.c	/^static void gc_bucket(__cilkrts_worker *w, int bucket, size_t size)$/;"	f	file:	signature:(__cilkrts_worker *w, int bucket, size_t size)
+get	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    T* get() {$/;"	f	class:ivar	access:public	signature:()
+get	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    const T* get() $/;"	f	class:ivar	access:public	signature:()
+get	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    int get() {$/;"	f	class:ivar	access:public	signature:()
 get_leftmost_view	reducer_impl.cpp	/^static inline void* get_leftmost_view(__cilkrts_hyperobject_base *hb)$/;"	f	file:	signature:(__cilkrts_hyperobject_base *hb)
 get_leftmost_view	reducer_impl.cpp	/^static inline void* get_leftmost_view(void *&key)$/;"	f	file:	signature:(void *&key)
 get_runtime_path	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^static const char *get_runtime_path ()$/;"	f	file:
+get_underlying_ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    __cilkrts_ivar *get_underlying_ivar() { return &iv; }$/;"	f	class:ivar	access:public	signature:()
 globalHeadBlock	queues/cache_aware_queue.c	/^block_t *globalHeadBlock;$/;"	v
 globalTailBlock	queues/cache_aware_queue.c	/^block_t *globalTailBlock;$/;"	v
 global_alloc	frame_malloc.c	/^static struct free_list *global_alloc(global_state_t *g, int bucket)$/;"	f	file:	signature:(global_state_t *g, int bucket)
@@ -958,6 +965,30 @@ is_call_child	full_frame.h	/^    int is_call_child;$/;"	m	struct:full_frame
 is_empty	reducer_impl.cpp	/^    bool is_empty() { return nelem == 0; }$/;"	f	struct:cilkred_map	signature:()
 is_leftmost	reducer_impl.cpp	/^    bool is_leftmost;$/;"	m	struct:cilkred_map	file:
 is_power_of_2	reducer_impl.cpp	/^static bool is_power_of_2(size_t n)$/;"	f	file:	signature:(size_t n)
+iv	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^     __cilkrts_ivar iv;$/;"	m	class:ivar	access:private
+iv	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    __cilkrts_ivar iv;$/;"	m	class:ivar	access:private
+ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    ivar() { clear(); }$/;"	f	class:ivar	access:public	signature:()
+ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    ivar() {$/;"	f	class:ivar	access:public	signature:()
+ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    ivar<T*>(const ivar<T*>& d) { __cilkrts_ivar_clear(&iv); }$/;"	f	class:ivar	access:public	signature:(const ivar<T*>& d)
+ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    ivar<int>(const ivar<int>& d) { __cilkrts_ivar_clear(&iv); }$/;"	f	class:ivar	access:public	signature:(const ivar<int>& d)
+ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^class ivar <T*>$/;"	c
+ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^class ivar <int>$/;"	c
+ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^class ivar$/;"	c
+ivar::clear	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    void clear() {$/;"	f	class:ivar	access:private	signature:()
+ivar::get	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    T* get() {$/;"	f	class:ivar	access:public	signature:()
+ivar::get	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    const T* get() $/;"	f	class:ivar	access:public	signature:()
+ivar::get	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    int get() {$/;"	f	class:ivar	access:public	signature:()
+ivar::get_underlying_ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    __cilkrts_ivar *get_underlying_ivar() { return &iv; }$/;"	f	class:ivar	access:public	signature:()
+ivar::iv	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^     __cilkrts_ivar iv;$/;"	m	class:ivar	access:private
+ivar::iv	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    __cilkrts_ivar iv;$/;"	m	class:ivar	access:private
+ivar::ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    ivar() { clear(); }$/;"	f	class:ivar	access:public	signature:()
+ivar::ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    ivar() {$/;"	f	class:ivar	access:public	signature:()
+ivar::ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    ivar<T*>(const ivar<T*>& d) { __cilkrts_ivar_clear(&iv); }$/;"	f	class:ivar	access:public	signature:(const ivar<T*>& d)
+ivar::ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    ivar<int>(const ivar<int>& d) { __cilkrts_ivar_clear(&iv); }$/;"	f	class:ivar	access:public	signature:(const ivar<int>& d)
+ivar::put	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    void put(T* val) {$/;"	f	class:ivar	access:public	signature:(T* val)
+ivar::put	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    void put(const T& val) $/;"	f	class:ivar	access:public	signature:(const T& val)
+ivar::put	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    void put(const int val) {$/;"	f	class:ivar	access:public	signature:(const int val)
+ivar::~ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    ~ivar() {}$/;"	f	class:ivar	access:public	signature:()
 join_counter	full_frame.h	/^    int join_counter;$/;"	m	struct:full_frame
 key	reducer_impl.cpp	/^    void                       *key; \/\/ Shared key for this hyperobject$/;"	m	struct:elem	file:
 l	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    local_state *l;$/;"	m	struct:__cilkrts_worker	access:public
@@ -1107,6 +1138,9 @@ pthread_t_size	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^  
 push	frame_malloc.c	/^static void push(struct free_list **b, struct free_list *p)$/;"	f	file:	signature:(struct free_list **b, struct free_list *p)
 push	stacks.c	/^static void push(__cilkrts_worker *w, __cilkrts_stack *sd)$/;"	f	file:	signature:(__cilkrts_worker *w, __cilkrts_stack *sd)
 push_child	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void push_child(full_frame *parent_ff, full_frame *child_ff)$/;"	f	file:	signature:(full_frame *parent_ff, full_frame *child_ff)
+put	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    void put(T* val) {$/;"	f	class:ivar	access:public	signature:(T* val)
+put	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    void put(const T& val) $/;"	f	class:ivar	access:public	signature:(const T& val)
+put	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    void put(const int val) {$/;"	f	class:ivar	access:public	signature:(const int val)
 queue_init	concurrent_queue.c	/^void queue_init(struct queue_t *q)$/;"	f	signature:(struct queue_t *q)
 queue_t	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	/^typedef struct queue_t queue_t;$/;"	t	typeref:struct:queue_t
 queue_t	queues/lockfree_queue.h	/^struct queue_t {$/;"	s
@@ -1322,3 +1356,4 @@ write_version_file	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	
 write_version_file	/home/czakian/Research/concurrent_cilk/runtime/sysdep-unix.c	/^static void write_version_file (global_state_t *g, int n)$/;"	f	file:	signature:(global_state_t *g, int n)
 ~DisableCilkscreen	reducer_impl.cpp	/^    ~DisableCilkscreen () { __cilkscreen_enable_checking(); }$/;"	f	struct:DisableCilkscreen	signature:()
 ~EnableCilkscreen	reducer_impl.cpp	/^    ~EnableCilkscreen () { __cilkscreen_disable_checking(); }$/;"	f	struct:EnableCilkscreen	signature:()
+~ivar	/home/czakian/Research/concurrent_cilk/include/cilk/ivar.h	/^    ~ivar() {}$/;"	f	class:ivar	access:public	signature:()
