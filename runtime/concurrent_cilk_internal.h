@@ -24,6 +24,19 @@ __CILKRTS_BEGIN_EXTERN_C
 #define if_t(test) if (__builtin_expect(test,1)) 
 #define if_f(test) if (__builtin_expect(test,0)) 
 
+#define IVAR_DBG 1
+
+#ifdef IVAR_DBG
+
+#define dbgprint(lvl, ...) if (lvl >= IVAR_DBG) {\
+  fprintf(stderr, __VA_ARGS__); fflush(stderr); \
+}
+
+#else
+
+#define dbgprint(lvl, ...)
+#endif
+
 /**
  * syntactic sugar
  */
@@ -63,40 +76,28 @@ __CILKRTS_BEGIN_EXTERN_C
 #define trylock_atomic(lock) __sync_bool_compare_and_swap(lock, 0, 1)
 #define unlock_atomic(lock)  __sync_bool_compare_and_swap(lock, 1, 0)
 
-/* struct tags */
-typedef struct __cilkrts_worker      __cilkrts_worker;
-typedef struct __cilkrts_paused_fiber __cilkrts_paused_fiber;
-typedef struct queue_t queue_t;
+#define MAX_WORKERS_BLOCKED 4096
+
+
 
 /*   Concurrent Cilk:  Types & API   */
 
- typedef struct __cilkrts_paused_fiber {
+/* struct tags */
+typedef struct __cilkrts_worker      __cilkrts_worker;
 
-   __cilkrts_worker *paused;
-   __cilkrts_worker *replacement;
-
-  /* Paused stack internal record keeping */
-  //-----------------------------
-  __cilkrts_paused_fiber *head;
-
-  __cilkrts_paused_fiber *tail;
-
-  __cilkrts_paused_fiber *next;
-
-  jmp_buf ctx; //TODO: can use cilk jmp_buf?
-
-  int lock; 
-  //-----------------------------
-
-} align(64) __cilkrts_paused_fiber;
-
-/* Lock API for paused stacks */
-int paused_fiber_trylock(__cilkrts_paused_fiber *pfiber);
-void paused_fiber_unlock(__cilkrts_paused_fiber *pfiber);
 
 /* Scheduler functions */
 __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim);
 __cilkrts_worker *find_ready_fiber(__cilkrts_worker *victim);
+
+void push_waitlist(__cilkrts_worker *top, __cilkrts_worker *old_top);
+__cilkrts_worker *pop_waitlist(__cilkrts_worker *top); 
+void push_readylist(__cilkrts_worker **readylist, __cilkrts_worker *w);
+__cilkrts_worker *pop_readylist(__cilkrts_worker **readylist); 
+void traverse_readylist(__cilkrts_worker *w);
+inline __cilkrts_worker *find_replacement_worker(__cilkrts_worker *w);
+inline void remove_worker_from_stealing(__cilkrts_worker *w);
+void register_worker_for_stealing(__cilkrts_worker *w); 
 
 __CILKRTS_END_EXTERN_C
 #endif

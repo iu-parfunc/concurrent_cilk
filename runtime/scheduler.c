@@ -1428,13 +1428,6 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     // If there is no work on the queue, try to steal some.
     if (NULL == ff) {
 
-#ifdef CILK_IVARS
-      if (w->ready_fiber) {
-        __cilkrts_resume_fiber(w->ready_fiber);
-        CILK_ASSERT(0); //no return
-      }
-#endif
-
 
       START_INTERVAL(w, INTERVAL_STEALING) {
         if (w->l->type != WORKER_USER && w->l->team != NULL) {
@@ -1455,11 +1448,13 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
       ff = pop_next_frame(w);
       if (NULL == ff) {
 #ifdef CILK_IVARS
-        ready_worker = find_ready_fiber(w);
+        ready_worker = pop_readylist(w->readylist);
         if (ready_worker) {
-          printf("restoring worker OUT of order\n");
-          __cilkrts_set_tls_worker(ready_worker);
-          __cilkrts_resume_fiber(ready_worker->ready_fiber);
+          //if there was ever a blocked worker running, this
+          //means something has gone terribly wrong
+          CILK_ASSERT(ready_worker != w);
+          dbgprint(1, "restoring ready worker %p\n", ready_worker);
+          __cilkrts_resume_fiber(ready_worker);
           CILK_ASSERT(0);
         }
 #endif 
@@ -2226,8 +2221,10 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     reset_THE_exception(w);
 
 #ifdef CILK_IVARS
-    w->ready_fiber = NULL;
-    w->parent = NULL;
+    w->paused_ctx = NULL;
+    w->waitlist   = NULL;
+    w->readylist  = NULL;
+    w->fibers     = NULL;
 #endif
 
     return w;

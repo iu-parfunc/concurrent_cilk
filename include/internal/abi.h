@@ -40,6 +40,7 @@
 #include <cilk/common.h>
 #ifdef CILK_IVARS
 #include <cilk/concurrent_cilk.h>
+#include <setjmp.h>
 #endif
 
 /**
@@ -222,8 +223,17 @@ struct __cilkrts_worker {
 #endif  /* __CILKRTS_ABI_VERSION >= 1 */
 
 #ifdef CILK_IVARS
-    __cilkrts_paused_fiber *ready_fiber;
-    __cilkrts_worker *parent;
+    // hold a pointer to the jmp_buf returned by __cilkrts_pause()
+    jmp_buf *paused_ctx;
+
+    // a singly linked list of fibre on this thread which are waiting on a value.
+    __cilkrts_worker *waitlist;
+
+    // a singly linked list of fibers on this thread which are ready to be restored.
+    __cilkrts_worker **readylist;
+
+    // an array of blocked worker states available for stealing. 
+    __cilkrts_worker **fibers;
 #endif
 };
 

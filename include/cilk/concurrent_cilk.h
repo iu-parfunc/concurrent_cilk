@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <time.h>
+#include <setjmp.h>
 
 __CILKRTS_BEGIN_EXTERN_C
 
@@ -24,6 +25,7 @@ CILK_API(void)           __cilkrts_ivar_clear(__cilkrts_ivar*);
 #define CILK_IVAR_EMPTY  0x0
 #define CILK_IVAR_FULL   0x1
 #define CILK_IVAR_PAUSED 0x2
+#define CILK_IVAR_LOCKED 0x3
 
 #define IVAR_EMPTY(iv)  (iv == CILK_IVAR_EMPTY)
 #define IVAR_READY(iv)  ((iv & 0xf) == CILK_IVAR_FULL)
@@ -42,7 +44,7 @@ typedef __cilkrts_ivar ivar_t;
 /**
  * print out the thread and a message when ivar debug is turned on
  */
-#define IVAR_DBG_PRINT_(lvl, ...) if(IVAR_DBG >= lvl) {    \
+#define ivprintf(lvl, ...) if(IVAR_DBG >= lvl) {    \
   pthread_t id = pthread_self(); char buf[512];             \
   sprintf(buf, __VA_ARGS__);                                \
   volatile struct __cilkrts_worker* tw = __cilkrts_get_tls_worker(); \
@@ -60,12 +62,11 @@ typedef __cilkrts_ivar ivar_t;
 /** 
  * Concurrent Cilk API
  */
-typedef struct __cilkrts_paused_fiber __cilkrts_paused_fiber;
 // CSZ: it is necessary that pause be a macro because the longjump must return to a valid frame. 
 // you will experience erratic behavior if this is not the case
 #define __cilkrts_pause_fiber(ctx)  (setjmp((ctx)))
-CILK_API(void) __cilkrts_commit_pause(__cilkrts_paused_fiber *pfiber);
-CILK_API(void) __cilkrts_resume_fiber(__cilkrts_paused_fiber *pfiber);
+CILK_API(__cilkrts_worker *) __cilkrts_commit_pause(__cilkrts_worker *w);
+CILK_API(void) __cilkrts_resume_fiber(__cilkrts_worker *w);
 //--------------------------------------
 
 
