@@ -88,6 +88,7 @@ __cilkrts_commit_pause(__cilkrts_worker *w)
   //but only this thread may write to the array.
   replacement->fibers = w->fibers;
   replacement->readylist = w->readylist;
+  replacement->worker_depth = w->worker_depth+1;
 
   return replacement;
   // make sure you call the scheduler!
@@ -105,7 +106,7 @@ CILK_API(void)
   CILK_ASSERT(!can_steal_from(old_w));
   CILK_ASSERT(w->self == old_w->self);
 
-  printf("restoring worker %p current worker %p\n", w, old_w);
+  printf("restoring worker %p current worker %p depth %i\n", w, old_w, w->worker_depth);
   remove_worker_from_stealing(w);
   w->g->workers[w->self] = w;
   __cilkrts_set_tls_worker(w);

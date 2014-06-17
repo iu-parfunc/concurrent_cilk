@@ -234,6 +234,7 @@ struct __cilkrts_worker {
 
     // an array of blocked worker states available for stealing. 
     __cilkrts_worker **fibers;
+    int worker_depth;
 #endif
 };
 

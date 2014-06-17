@@ -15,6 +15,26 @@ BEGIN_WITH_WORKER_LOCK_OPTIONAL	/home/czakian/Research/concurrent_ci
 BEGIN_WITH_WORKER_LOCK_OPTIONAL	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	321;"	d	file:
 BEGIN_WITH_WORKER_LOCK_OPTIONAL	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	324;"	d	file:
 CILK_API	/home/czakian/Research/concurrent_cilk/runtime/ivar_full_blocking.c	/^inline CILK_API(ivar_payload_t)$/;"	f
+CILK_FRAME_DETACHED	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	363;"	d
+CILK_FRAME_EXCEPTING	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	372;"	d
+CILK_FRAME_EXCEPTION_PROBED	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	369;"	d
+CILK_FRAME_EXITING	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	387;"	d
+CILK_FRAME_FLAGS_MASK	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	407;"	d
+CILK_FRAME_LAST	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	381;"	d
+CILK_FRAME_MBZ	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	413;"	d
+CILK_FRAME_SF_PEDIGREE_UNSYNCHED	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	378;"	d
+CILK_FRAME_STOLEN	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	350;"	d
+CILK_FRAME_SUSPENDED	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	390;"	d
+CILK_FRAME_UNSYNCHED	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	357;"	d
+CILK_FRAME_UNWINDING	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	393;"	d
+CILK_FRAME_VERSION	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	401;"	d
+CILK_FRAME_VERSION_MASK	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	404;"	d
+CILK_FRAME_VERSION_VALUE	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	410;"	d
+CILK_INTERNAL_ABI_H	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	37;"	d
+CILK_LONGJMP	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	56;"	d
+CILK_LONGJMP	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	65;"	d
+CILK_SETJMP	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	54;"	d
+CILK_SETJMP	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	64;"	d
 END_WITH_FRAME_LOCK	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	14;"	d
 END_WITH_FRAME_LOCK	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	332;"	d	file:
 END_WITH_WORKER_LOCK	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	10;"	d
@@ -22,6 +42,12 @@ END_WITH_WORKER_LOCK	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	
 END_WITH_WORKER_LOCK_OPTIONAL	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	322;"	d	file:
 END_WITH_WORKER_LOCK_OPTIONAL	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	325;"	d	file:
 EXC_INFINITY	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	477;"	d	file:
+Ebp	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long Ebp;$/;"	m	struct:__anon1	access:public
+Ebx	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long Ebx;$/;"	m	struct:__anon1	access:public
+Edi	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long Edi;$/;"	m	struct:__anon1	access:public
+Eip	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long Eip;$/;"	m	struct:__anon1	access:public
+Esi	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long Esi;$/;"	m	struct:__anon1	access:public
+Esp	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long Esp;$/;"	m	struct:__anon1	access:public
 HIGH	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	65;"	d
 IVAR_DBG	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	27;"	d
 LOW	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	63;"	d
@@ -32,12 +58,27 @@ READ_ONLY	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_interna
 READ_WRITE	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	56;"	d
 RNGMOD	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static const unsigned RNGMOD = ((1ULL << 32) - 5);$/;"	v	file:
 RNGMUL	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static const unsigned RNGMUL = 69070U;$/;"	v	file:
+Registration	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long Registration;$/;"	m	struct:__anon1	access:public
 SCHEDULE_EXIT	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^                  SCHEDULE_EXIT };$/;"	e	enum:schedule_t	file:
 SCHEDULE_RUN	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^enum schedule_t { SCHEDULE_RUN,$/;"	e	enum:schedule_t	file:
 SCHEDULE_WAIT	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^                  SCHEDULE_WAIT,$/;"	e	enum:schedule_t	file:
+TryLevel	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long TryLevel;$/;"	m	struct:__anon1	access:public
+__CILK_JUMP_BUFFER	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^typedef jmp_buf __CILK_JUMP_BUFFER;$/;"	t
+__CILK_JUMP_BUFFER	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^typedef void *__CILK_JUMP_BUFFER[5];$/;"	t
+__CILK_JUMP_BUFFER	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^} __CILK_JUMP_BUFFER;$/;"	t	typeref:struct:__anon1
 __CONCURRENT_CILK_INTERNAL_H	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	2;"	d
+__anon1::Ebp	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long Ebp;$/;"	m	struct:__anon1	access:public
+__anon1::Ebx	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long Ebx;$/;"	m	struct:__anon1	access:public
+__anon1::Edi	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long Edi;$/;"	m	struct:__anon1	access:public
+__anon1::Eip	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long Eip;$/;"	m	struct:__anon1	access:public
+__anon1::Esi	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long Esi;$/;"	m	struct:__anon1	access:public
+__anon1::Esp	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long Esp;$/;"	m	struct:__anon1	access:public
+__anon1::Registration	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long Registration;$/;"	m	struct:__anon1	access:public
+__anon1::TryLevel	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    unsigned long TryLevel;$/;"	m	struct:__anon1	access:public
 __anon1::exception_ptr	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^        struct pending_exception_info **exception_ptr;$/;"	m	struct:__anon1	typeref:struct:__anon1::pending_exception_info	file:	access:public
 __anon1::map_ptr	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^        struct cilkred_map **map_ptr;$/;"	m	struct:__anon1	typeref:struct:__anon1::cilkred_map	file:	access:public
+__cilk_abi_f32_t	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^typedef void (*__cilk_abi_f32_t)(void *data, cilk32_t low, cilk32_t high);$/;"	t
+__cilk_abi_f64_t	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^typedef void (*__cilk_abi_f64_t)(void *data, cilk64_t low, cilk64_t high);$/;"	t
 __cilkrts_advance_frame	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static inline __cilkrts_stack_frame *__cilkrts_advance_frame(__cilkrts_stack_frame *sf)$/;"	f	file:	signature:(__cilkrts_stack_frame *sf)
 __cilkrts_c_THE_exception_check	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  void __cilkrts_c_THE_exception_check(__cilkrts_worker *w, $/;"	f	signature:(__cilkrts_worker *w, __cilkrts_stack_frame *returning_sf)
 __cilkrts_c_return_from_initial	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  void __cilkrts_c_return_from_initial(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
@@ -62,20 +103,61 @@ __cilkrts_restore_stealing	/home/czakian/Research/concurrent_cilk/runtime/schedu
 __cilkrts_resume_fiber	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk.c	/^  __cilkrts_resume_fiber(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
 __cilkrts_return	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  void __cilkrts_return(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
 __cilkrts_scheduler	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void __cilkrts_scheduler(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+__cilkrts_stack_frame	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^struct __cilkrts_stack_frame$/;"	s
+__cilkrts_stack_frame	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^typedef struct __cilkrts_stack_frame __cilkrts_stack_frame;$/;"	t	typeref:struct:__cilkrts_stack_frame
+__cilkrts_stack_frame::__anon2::parent_pedigree	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^        __cilkrts_pedigree parent_pedigree;       \/* Used in spawning funcs *\/$/;"	m	union:__cilkrts_stack_frame::__anon2	access:public
+__cilkrts_stack_frame::__anon2::spawn_helper_pedigree	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^        __cilkrts_pedigree spawn_helper_pedigree; \/* Used in spawn helpers *\/$/;"	m	union:__cilkrts_stack_frame::__anon2	access:public
+__cilkrts_stack_frame::call_parent	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_stack_frame *call_parent;$/;"	m	struct:__cilkrts_stack_frame	access:public
+__cilkrts_stack_frame::ctx	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __CILK_JUMP_BUFFER ctx;$/;"	m	struct:__cilkrts_stack_frame	access:public
+__cilkrts_stack_frame::except_data	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    void *except_data;$/;"	m	struct:__cilkrts_stack_frame	access:public
+__cilkrts_stack_frame::flags	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    uint32_t flags;$/;"	m	struct:__cilkrts_stack_frame	access:public
+__cilkrts_stack_frame::fpcsr	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    uint16_t fpcsr;         \/**< @copydoc mxcsr *\/$/;"	m	struct:__cilkrts_stack_frame	access:public
+__cilkrts_stack_frame::mxcsr	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    uint32_t mxcsr;$/;"	m	struct:__cilkrts_stack_frame	access:public
+__cilkrts_stack_frame::reserved	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    uint16_t reserved;$/;"	m	struct:__cilkrts_stack_frame	access:public
+__cilkrts_stack_frame::size	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    int32_t size;$/;"	m	struct:__cilkrts_stack_frame	access:public
+__cilkrts_stack_frame::worker	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_worker *worker;$/;"	m	struct:__cilkrts_stack_frame	access:public
 __cilkrts_unbind_thread	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void __cilkrts_unbind_thread()$/;"	f	file:
+__cilkrts_worker	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^struct __cilkrts_worker {$/;"	s
+__cilkrts_worker	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^typedef struct __cilkrts_worker      __cilkrts_worker;$/;"	t	typeref:struct:__cilkrts_worker
 __cilkrts_worker	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	/^typedef struct __cilkrts_worker      __cilkrts_worker;$/;"	t	typeref:struct:__cilkrts_worker
+__cilkrts_worker::current_stack_frame	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_stack_frame *current_stack_frame;$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::exc	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_stack_frame *volatile *volatile exc;   \/**< @copydoc tail *\/$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::fibers	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_worker **fibers;$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::g	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    global_state_t *g;$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::head	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_stack_frame *volatile *volatile head;  \/**< @copydoc tail *\/$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::l	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    local_state *l;$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::ltq_limit	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_stack_frame *volatile *ltq_limit;$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::paused_ctx	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    jmp_buf *paused_ctx;$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::pedigree	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_pedigree   pedigree;    $/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::protected_tail	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_stack_frame *volatile *volatile protected_tail;$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::readylist	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_worker **readylist;$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::reducer_map	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    cilkred_map *reducer_map;$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::reserved	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    void* reserved;$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::self	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    int32_t self;$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::sysdep	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_worker_sysdep_state *sysdep;$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::tail	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_stack_frame *volatile *volatile tail;$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::waitlist	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_worker *waitlist;$/;"	m	struct:__cilkrts_worker	access:public
+__cilkrts_worker::worker_depth	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    int worker_depth;$/;"	m	struct:__cilkrts_worker	access:public
 __cilkrts_worker_lock	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^void __cilkrts_worker_lock(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
+__cilkrts_worker_ptr	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^typedef struct __cilkrts_worker*     __cilkrts_worker_ptr;$/;"	t	typeref:struct:__cilkrts_worker
+__cilkrts_worker_sysdep_state	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^                                     __cilkrts_worker_sysdep_state;$/;"	t	typeref:struct:__cilkrts_worker_sysdep_state
 __cilkrts_worker_unlock	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^void __cilkrts_worker_unlock(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
 align	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	50;"	d
 atomic_add	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	46;"	d
 atomic_release	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	49;"	d
 atomic_set	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	48;"	d
 atomic_sub	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	47;"	d
+call_parent	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_stack_frame *call_parent;$/;"	m	struct:__cilkrts_stack_frame	access:public
 can_steal_from	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^int can_steal_from(__cilkrts_worker *victim)$/;"	f	signature:(__cilkrts_worker *victim)
 cas	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	44;"	d
 casv	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	45;"	d
+cilk32_t	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^typedef uint32_t cilk32_t;  \/**< 32-bit unsigned type for cilk_for loop indicies *\/$/;"	t
+cilk64_t	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^typedef uint64_t cilk64_t;  \/**< 64-bit unsigned type for cilk_for loop indicies *\/$/;"	t
+cilkred_map	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^typedef struct cilkred_map           cilkred_map;$/;"	t	typeref:struct:cilkred_map
 compute_left_ptrs_for_spawn_return	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    splice_left_ptrs compute_left_ptrs_for_spawn_return(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
 compute_left_ptrs_for_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    splice_left_ptrs compute_left_ptrs_for_sync(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+ctx	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __CILK_JUMP_BUFFER ctx;$/;"	m	struct:__cilkrts_stack_frame	access:public
+current_stack_frame	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_stack_frame *current_stack_frame;$/;"	m	struct:__cilkrts_worker	access:public
 dbgprint	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	31;"	d
 decjoin	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static int decjoin(full_frame *ff)$/;"	f	file:	signature:(full_frame *ff)
 decrement_E	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void decrement_E(__cilkrts_worker *victim)$/;"	f	file:	signature:(__cilkrts_worker *victim)
@@ -89,6 +171,8 @@ do_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static vo
 do_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void do_sync (__cilkrts_worker *w,$/;"	p	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf)
 do_work	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void do_work(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
 double_link	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void double_link(full_frame *left_ff, full_frame *right_ff)$/;"	f	file:	signature:(full_frame *left_ff, full_frame *right_ff)
+exc	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_stack_frame *volatile *volatile exc;   \/**< @copydoc tail *\/$/;"	m	struct:__cilkrts_worker	access:public
+except_data	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    void *except_data;$/;"	m	struct:__cilkrts_stack_frame	access:public
 exception_ptr	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^        struct pending_exception_info **exception_ptr;$/;"	m	struct:__anon1	typeref:struct:__anon1::pending_exception_info	file:	access:public
 execute_reductions_for_spawn_return	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    execute_reductions_for_spawn_return(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *returning_sf)
 execute_reductions_for_spawn_return	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    execute_reductions_for_spawn_return(__cilkrts_worker *w,$/;"	p	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *returning_sf)
@@ -96,6 +180,7 @@ execute_reductions_for_sync	/home/czakian/Research/concurrent_cilk/runtime/sched
 execute_reductions_for_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    execute_reductions_for_sync(__cilkrts_worker *w,$/;"	p	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf_at_sync)
 fast_path_reductions_for_spawn_return	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    fast_path_reductions_for_spawn_return(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, full_frame *ff)
 fast_path_reductions_for_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    int fast_path_reductions_for_sync(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+fibers	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_worker **fibers;$/;"	m	struct:__cilkrts_worker	access:public
 finalize_child_for_call	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void finalize_child_for_call(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *parent_ff, full_frame *child_ff)
 find_concurrent_work	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk.c	/^inline __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim)$/;"	f	signature:(__cilkrts_worker *victim)
 find_concurrent_work	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	/^__cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim);$/;"	p	signature:(__cilkrts_worker *victim)
@@ -103,12 +188,20 @@ find_ready_fiber	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_
 find_replacement_worker	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk.c	/^inline __cilkrts_worker *find_replacement_worker(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
 find_replacement_worker	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	/^inline __cilkrts_worker *find_replacement_worker(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
 finish_spawn_return_on_user_stack	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    void finish_spawn_return_on_user_stack(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *parent_ff, full_frame *child_ff)
+flags	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    uint32_t flags;$/;"	m	struct:__cilkrts_stack_frame	access:public
+fpcsr	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    uint16_t fpcsr;         \/**< @copydoc mxcsr *\/$/;"	m	struct:__cilkrts_stack_frame	access:public
+g	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    global_state_t *g;$/;"	m	struct:__cilkrts_worker	access:public
+global_state_t	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^typedef struct global_state_t        global_state_t;$/;"	t	typeref:struct:global_state_t
+head	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_stack_frame *volatile *volatile head;  \/**< @copydoc tail *\/$/;"	m	struct:__cilkrts_worker	access:public
 if_f	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	25;"	d
 if_t	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	24;"	d
 incjoin	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void incjoin(full_frame *ff)$/;"	f	file:	signature:(full_frame *ff)
 increment_E	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void increment_E(__cilkrts_worker *victim)$/;"	f	file:	signature:(__cilkrts_worker *victim)
 init_workers	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void init_workers(global_state_t *g)$/;"	f	file:	signature:(global_state_t *g)
+l	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    local_state *l;$/;"	m	struct:__cilkrts_worker	access:public
+local_state	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^typedef struct local_state           local_state;$/;"	t	typeref:struct:local_state
 longjmp_into_runtime	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^NORETURN longjmp_into_runtime(__cilkrts_worker *w,$/;"	f	signature:(__cilkrts_worker *w, scheduling_stack_fcn_t fcn, __cilkrts_stack_frame *sf)
+ltq_limit	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_stack_frame *volatile *ltq_limit;$/;"	m	struct:__cilkrts_worker	access:public
 make_child	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static full_frame *make_child(__cilkrts_worker *w, $/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *parent_ff, __cilkrts_stack_frame *child_sf, __cilkrts_stack *sd)
 make_runnable	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void make_runnable(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
 make_unrunnable	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void make_unrunnable(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *sf, int state_valid, const char *why)
@@ -116,11 +209,15 @@ make_worker	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  __cil
 make_worker_system	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void make_worker_system(__cilkrts_worker *w) {$/;"	f	file:	signature:(__cilkrts_worker *w)
 map_ptr	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^        struct cilkred_map **map_ptr;$/;"	m	struct:__anon1	typeref:struct:__anon1::cilkred_map	file:	access:public
 max	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	135;"	d	file:
+mxcsr	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    uint32_t mxcsr;$/;"	m	struct:__cilkrts_stack_frame	access:public
 myrand	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static unsigned myrand(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
 mysrand	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void mysrand(__cilkrts_worker *w, unsigned seed)$/;"	f	file:	signature:(__cilkrts_worker *w, unsigned seed)
 notify_children	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void notify_children(__cilkrts_worker *w, unsigned int msg)$/;"	f	file:	signature:(__cilkrts_worker *w, unsigned int msg)
 notify_children_run	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void notify_children_run(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
 notify_children_wait	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void notify_children_wait(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+parent_pedigree	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^        __cilkrts_pedigree parent_pedigree;       \/* Used in spawning funcs *\/$/;"	m	union:__cilkrts_stack_frame::__anon2	access:public
+paused_ctx	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    jmp_buf *paused_ctx;$/;"	m	struct:__cilkrts_worker	access:public
+pedigree	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_pedigree   pedigree;    $/;"	m	struct:__cilkrts_worker	access:public
 pop_next_frame	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static full_frame *pop_next_frame(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
 pop_readylist	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk.c	/^__cilkrts_worker *pop_readylist(__cilkrts_worker **readylist) $/;"	f	signature:(__cilkrts_worker **readylist)
 pop_readylist	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	/^__cilkrts_worker *pop_readylist(__cilkrts_worker **readylist); $/;"	p	signature:(__cilkrts_worker **readylist)
@@ -129,6 +226,7 @@ pop_waitlist	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_inte
 prefetch	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	70;"	d
 prefetch_r	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	72;"	d
 prefetch_rw	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	71;"	d
+protected_tail	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_stack_frame *volatile *volatile protected_tail;$/;"	m	struct:__cilkrts_worker	access:public
 provably_good_steal	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static int provably_good_steal(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
 provably_good_steal_exceptions	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void provably_good_steal_exceptions(__cilkrts_worker *w, $/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
 provably_good_steal_reducers	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static inline void provably_good_steal_reducers(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
@@ -139,27 +237,44 @@ push_readylist	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_in
 push_waitlist	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk.c	/^void push_waitlist(__cilkrts_worker *top, __cilkrts_worker *old_top) { top->waitlist = old_top; }$/;"	f	signature:(__cilkrts_worker *top, __cilkrts_worker *old_top)
 push_waitlist	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	/^void push_waitlist(__cilkrts_worker *top, __cilkrts_worker *old_top);$/;"	p	signature:(__cilkrts_worker *top, __cilkrts_worker *old_top)
 random_steal	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void random_steal(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+readylist	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_worker **readylist;$/;"	m	struct:__cilkrts_worker	access:public
+reducer_map	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    cilkred_map *reducer_map;$/;"	m	struct:__cilkrts_worker	access:public
 register_worker_for_stealing	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk.c	/^void register_worker_for_stealing(__cilkrts_worker *w) $/;"	f	signature:(__cilkrts_worker *w)
 register_worker_for_stealing	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	/^void register_worker_for_stealing(__cilkrts_worker *w); $/;"	p	signature:(__cilkrts_worker *w)
 remove_worker_from_stealing	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk.c	/^inline void remove_worker_from_stealing(__cilkrts_worker *w)$/;"	f	signature:(__cilkrts_worker *w)
 remove_worker_from_stealing	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	/^inline void remove_worker_from_stealing(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
+reserved	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    uint16_t reserved;$/;"	m	struct:__cilkrts_stack_frame	access:public
+reserved	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    void* reserved;$/;"	m	struct:__cilkrts_worker	access:public
 reset_THE_exception	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void reset_THE_exception(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
 restore_frame_for_spawn_return_reduction	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    void restore_frame_for_spawn_return_reduction(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, __cilkrts_stack_frame *returning_sf)
 schedule_t	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^enum schedule_t { SCHEDULE_RUN,$/;"	g	file:
 schedule_work	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void schedule_work(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+self	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    int32_t self;$/;"	m	struct:__cilkrts_worker	access:public
 set_sync_master	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void set_sync_master(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
 setup_for_execution	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void setup_for_execution(__cilkrts_worker *w, $/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, int is_return_from_call)
 setup_for_execution_exceptions	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void setup_for_execution_exceptions(__cilkrts_worker *w, $/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
 setup_for_execution_pedigree	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void setup_for_execution_pedigree(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
 setup_for_execution_reducers	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void setup_for_execution_reducers(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+sf	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_return_exception(__cilkrts_stack_frame *sf);$/;"	v
+sf	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^CILK_ABI(void) __cilkrts_enter_frame(__cilkrts_stack_frame* sf);$/;"	v
+sf	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^CILK_ABI(void) __cilkrts_enter_frame_1(__cilkrts_stack_frame* sf);$/;"	v
+sf	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^CILK_ABI(void) __cilkrts_enter_frame_fast(__cilkrts_stack_frame *sf);$/;"	v
+sf	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^CILK_ABI(void) __cilkrts_enter_frame_fast_1(__cilkrts_stack_frame *sf);$/;"	v
+sf	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^CILK_ABI(void) __cilkrts_leave_frame(__cilkrts_stack_frame *sf);$/;"	v
+sf	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^CILK_ABI(void) __cilkrts_sync(__cilkrts_stack_frame *sf);$/;"	v
+sf	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^CILK_ABI_THROWS(void) __cilkrts_rethrow(__cilkrts_stack_frame *sf);$/;"	v
+size	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    int32_t size;$/;"	m	struct:__cilkrts_stack_frame	access:public
 sleep_runtime	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void sleep_runtime(global_state_t *g)$/;"	f	file:	signature:(global_state_t *g)
 slow_path_reductions_for_spawn_return	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    slow_path_reductions_for_spawn_return(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, struct cilkred_map **left_map_ptr)
 slow_path_reductions_for_sync	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    slow_path_reductions_for_sync(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
+spawn_helper_pedigree	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^        __cilkrts_pedigree spawn_helper_pedigree; \/* Used in spawn helpers *\/$/;"	m	union:__cilkrts_stack_frame::__anon2	access:public
 spin_pause	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	43;"	d
 splice_exceptions_for_call	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static inline void splice_exceptions_for_call(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *parent_ff, full_frame *child_ff)
 splice_exceptions_for_spawn	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^void splice_exceptions_for_spawn(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff, struct pending_exception_info **left_exception_ptr)
 splice_left_ptrs	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^      } splice_left_ptrs;$/;"	t	typeref:struct:__anon1	file:
 splice_stacks_for_call	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static inline void splice_stacks_for_call(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *parent_ff, full_frame *child_ff)
+sysdep	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_worker_sysdep_state *sysdep;$/;"	m	struct:__cilkrts_worker	access:public
+tail	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_stack_frame *volatile *volatile tail;$/;"	m	struct:__cilkrts_worker	access:public
 traverse_readylist	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk.c	/^void traverse_readylist(__cilkrts_worker *w) {$/;"	f	signature:(__cilkrts_worker *w)
 traverse_readylist	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	/^void traverse_readylist(__cilkrts_worker *w);$/;"	p	signature:(__cilkrts_worker *w)
 trylock_atomic	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	76;"	d
@@ -170,8 +285,11 @@ unroll_call_stack	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^s
 unset_sync_master	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void unset_sync_master(__cilkrts_worker *w, full_frame *ff)$/;"	f	file:	signature:(__cilkrts_worker *w, full_frame *ff)
 validate_worker	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static void validate_worker(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
 verify_current_wkr	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static inline void verify_current_wkr(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
+waitlist	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_worker *waitlist;$/;"	m	struct:__cilkrts_worker	access:public
 waitlock_atomic	/home/czakian/Research/concurrent_cilk/runtime/concurrent_cilk_internal.h	74;"	d
 wake_runtime	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^  static void wake_runtime(global_state_t *g)$/;"	f	file:	signature:(global_state_t *g)
+worker	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    __cilkrts_worker *worker;$/;"	m	struct:__cilkrts_stack_frame	access:public
+worker_depth	/home/czakian/Research/concurrent_cilk/include/internal/abi.h	/^    int worker_depth;$/;"	m	struct:__cilkrts_worker	access:public
 worker_runnable	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^    static enum schedule_t worker_runnable(__cilkrts_worker *w)$/;"	f	file:	signature:(__cilkrts_worker *w)
 worker_runnable	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static enum schedule_t worker_runnable(__cilkrts_worker *w);$/;"	p	file:	signature:(__cilkrts_worker *w)
 worker_trylock_other	/home/czakian/Research/concurrent_cilk/runtime/scheduler.c	/^static int worker_trylock_other(__cilkrts_worker *w,$/;"	f	file:	signature:(__cilkrts_worker *w, __cilkrts_worker *other)

@@ -845,6 +845,7 @@ static void random_steal(__cilkrts_worker *w)
           START_INTERVAL(w, INTERVAL_STEAL_SUCCESS) {
             success = 1;
             detach_for_steal(w, victim, sd);
+            dbgprint(1, "Wkr %d stole from victim %d, sd = %p\n", w->self, victim->self, sd);
 #if REDPAR_DEBUG >= 1
             fprintf(stderr, "Wkr %d stole from victim %d, sd = %p\n",
                 w->self, victim->self, sd);
@@ -2225,6 +2226,7 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     w->waitlist   = NULL;
     w->readylist  = NULL;
     w->fibers     = NULL;
+    w->worker_depth = 0;
 #endif
 
     return w;
