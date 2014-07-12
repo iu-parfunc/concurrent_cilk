@@ -4,6 +4,7 @@
 #include "cilk_malloc.h"
 #include <cilk/cilk_api.h>
 #include <cilk/concurrent_cilk.h>
+#include <cilk/concurrent_queue.h>
 #include "scheduler.h"
 #include "sysdep.h"
 #include "bug.h"
@@ -34,15 +35,20 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
 {
   __cilkrts_worker *w, *replacement;
   unsigned short exit = 0;
-  uintptr_t val, peek;
-  jmp_buf ctx; //TODO: can use cilk jmp_buf?
-  ivar_payload_t payload, lock_owner;
+  uintptr_t val;
+  jmp_buf ctx; 
+  uintptr_t volatile peek;
+  ivar_payload_t payload;
+  queue_t *waitlist = NULL;
 
   CILK_ASSERT(ivar);
 
   //fast path -- already got a value.
   //----------------------------------
-  if (IVAR_READY(*ivar)) { return UNTAG(*ivar); }
+  if (IVAR_READY(*ivar)) {
+    dbgprint(IVAR, "ivar %p FULL -fast path\n", ivar);
+    return UNTAG(*ivar);
+  }
 
   //slow path -- operation must block until a value is available.
   //----------------------------------
@@ -51,39 +57,50 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
   if (! val) {
     w = __cilkrts_get_tls_worker_fast();
     w->paused_ctx  = &ctx;
+    CILK_ASSERT(w->current_stack_frame);
     replacement = __cilkrts_commit_pause(w); 
-    payload    = (((ivar_payload_t) w) << IVAR_SHIFT) | CILK_IVAR_PAUSED;
-    lock_owner = (((ivar_payload_t) w) << IVAR_SHIFT) | CILK_IVAR_LOCKED;
 
     do {
-      switch (*ivar & IVAR_MASK) {
+      peek = *ivar;
+      switch (peek & IVAR_MASK) {
         case CILK_IVAR_EMPTY: 
+          waitlist = make_stack_queue();
+          payload  = (((ivar_payload_t) waitlist) << IVAR_SHIFT) | CILK_IVAR_PAUSED;
+          enqueue(waitlist, (ELEMENT_TYPE) w);
           exit = cas(ivar, 0, payload); 
-          dbgprint(1, "ivar %p empty. Filled with replacement %p\n", ivar, replacement);
+          if (! exit) { 
+            delete_stack_queue(waitlist);
+            waitlist = NULL; 
+            dbgprint(IVAR, "ivar %p failed cas on EMPTY ivar - going around again\n", ivar);
+          } else {
+            dbgprint(IVAR, "ivar %p EMPTY. Filled with replacement %p\n", ivar, replacement);
+          }
           break;
         case CILK_IVAR_PAUSED:
-          peek = *ivar;
-          if (! cas(ivar, peek, lock_owner)) { break; } //obtains lock
-          // the old head of the waitlist is superceded by the new head.
-          dbgprint(1, "pushing replacement %p on waitlist of paused ivar %p. new head %p\n", 
-              replacement, (void *) (peek >> IVAR_SHIFT), ivar);
-          push_waitlist(replacement, (__cilkrts_worker *) (peek >> IVAR_SHIFT));
-          if (! cas(ivar, lock_owner, payload)) {
-            __cilkrts_bug("The impossible happened: failed CAS when we held the lock. Aborting program\n");
-          } //releases lock
-          exit = 1;
-          break;
+          waitlist = (queue_t *)(*ivar >> IVAR_SHIFT);
+          CILK_ASSERT(waitlist);
+          exit = cas(ivar, peek, (((ivar_payload_t) waitlist) << IVAR_SHIFT) | CILK_IVAR_LOCKED);
+          if (exit) {
+            enqueue(waitlist, (ELEMENT_TYPE) w);
+            //no cas needed, we hold the lock, which is now released. 
+            *ivar = (((ivar_payload_t) waitlist) << IVAR_SHIFT) | CILK_IVAR_PAUSED;
+            dbgprint(IVAR,"ivar %p PAUSED. adding worker %p to waitlist %p\n",ivar,w,waitlist);
+            break;
+          } 
         case CILK_IVAR_FULL:
+          dbgprint(IVAR, "ivar %p FILLED while reading\n", ivar);
           //nevermind...someone filled it. 
           //__cilkrts_free(replacement); //TODO: cache
           return UNTAG(*ivar);
+          break; //go around again
         case CILK_IVAR_LOCKED:
-          spin_pause();
           break; //go around again
         default: 
           __cilkrts_bug("[read] Cilk IVar %p in corrupted state 0x%x. Aborting program.\n", ivar, *ivar&IVAR_MASK);
       }
     } while (!exit);
+
+    //thread local array operation, no lock needed
     register_worker_for_stealing(w);
 
     //sets pthread TLS to replacement worker and invokes the scheduler.
@@ -108,38 +125,38 @@ __cilkrts_ivar_write(__cilkrts_ivar *ivar, ivar_payload_t val)
   ivar_payload_t new_val  = (val << IVAR_SHIFT) | CILK_IVAR_FULL;
   ivar_payload_t old_val; 
   ivar_payload_t volatile peek; 
+  queue_t *waitlist = NULL; 
 
   CILK_ASSERT(ivar);
   do {
     peek = *ivar;
     switch (peek & IVAR_MASK) {
       case CILK_IVAR_PAUSED:
-        dbgprint(1, "filling paused ivar %p\n", ivar);
+        dbgprint(IVAR, "filling paused ivar %p\n", ivar);
         old_val = casv(ivar, peek, new_val);
-        CILK_ASSERT(old_val);
+        if (old_val != peek) { break; }
+
+
         CILK_ASSERT(old_val == peek);
-        w = (__cilkrts_worker *) (old_val >> IVAR_SHIFT);
-        CILK_ASSERT(w);
-        //this is thread safe because any other reads of the ivar take the fast path.
-        //Therefore the waitlist of paused stacks can only be referenced here.
-        while(w) {
-          dbgprint(1, "pushing %p on readylist %p\n", w, w->readylist);
-          push_readylist(w->readylist, w);
-          w = pop_waitlist(w);
+        waitlist = (queue_t *) (old_val >> IVAR_SHIFT);
+        CILK_ASSERT(waitlist);
+        while (! dequeue(waitlist, (ELEMENT_TYPE *) &w)) {
+          dbgprint(IVAR, "enqueuing %p on readylist %p sf %p\n",
+              w, w->readylist, w->current_stack_frame);
+          enqueue(w->readylist, (ELEMENT_TYPE) w);
         }
         exit = 1;
         break;
       case CILK_IVAR_EMPTY:
-        dbgprint(1, "filling empty ivar %p\n", ivar);
+        dbgprint(IVAR, "filling empty ivar %p\n", ivar);
         old_val = casv(ivar, peek, new_val);
-        CILK_ASSERT(old_val == 0);
+        printf("old_val 0x%lx flags 0x%lx\n", ((uintptr_t) old_val >> IVAR_SHIFT), old_val & IVAR_MASK);
         if ((*ivar & IVAR_MASK) == CILK_IVAR_FULL)  { exit = 1; }
         break;  
+      case CILK_IVAR_LOCKED:
+        break; //go around again
       case CILK_IVAR_FULL:
         __cilkrts_bug("Attempted multiple puts on Cilk IVar %p. Aborting program.\n", ivar);
-      case CILK_IVAR_LOCKED:
-        spin_pause();
-        break; //go around again
       default:
         __cilkrts_bug("[write] Cilk IVar %p in corrupted state 0x%x. Aborting program.\n",
             ivar, *ivar&IVAR_MASK);

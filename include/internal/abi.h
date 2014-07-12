@@ -40,6 +40,7 @@
 #include <cilk/common.h>
 #ifdef CILK_IVARS
 #include <cilk/concurrent_cilk.h>
+#include <cilk/concurrent_queue.h>
 #include <setjmp.h>
 #endif
 
@@ -226,15 +227,13 @@ struct __cilkrts_worker {
     // hold a pointer to the jmp_buf returned by __cilkrts_pause()
     jmp_buf *paused_ctx;
 
-    // a singly linked list of fibre on this thread which are waiting on a value.
-    __cilkrts_worker *waitlist;
-
     // a singly linked list of fibers on this thread which are ready to be restored.
-    __cilkrts_worker **readylist;
+    struct queue_t *readylist;
 
     // an array of blocked worker states available for stealing. 
     __cilkrts_worker **fibers;
     int worker_depth;
+    int *volatile ref_count;
 #endif
 };
 

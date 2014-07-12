@@ -49,6 +49,7 @@ __CILKRTS_BEGIN_EXTERN_C
 
 #if defined(CONS_BATCH) || defined(PROD_BATCH)
 
+
 struct queue_t{
 	/* Mostly accessed by producer. */
 	volatile	uint32_t	head;
@@ -90,6 +91,7 @@ struct queue_t {
 #define BUFFER_FULL -1
 #define BUFFER_EMPTY -2
 
+typedef struct queue_t queue_t;
 struct queue_t* make_stack_queue();
 void queue_init(struct queue_t *q);
 int enqueue(struct queue_t *q, ELEMENT_TYPE value);

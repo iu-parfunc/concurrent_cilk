@@ -845,7 +845,7 @@ static void random_steal(__cilkrts_worker *w)
           START_INTERVAL(w, INTERVAL_STEAL_SUCCESS) {
             success = 1;
             detach_for_steal(w, victim, sd);
-            dbgprint(1, "Wkr %d stole from victim %d, sd = %p\n", w->self, victim->self, sd);
+            dbgprint(CONCURRENT, "Wkr %d stole from victim %d, sd = %p\n", w->self, victim->self, sd);
 #if REDPAR_DEBUG >= 1
             fprintf(stderr, "Wkr %d stole from victim %d, sd = %p\n",
                 w->self, victim->self, sd);
@@ -1449,12 +1449,11 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
       ff = pop_next_frame(w);
       if (NULL == ff) {
 #ifdef CILK_IVARS
-        ready_worker = pop_readylist(w->readylist);
-        if (ready_worker) {
+        if (w->readylist && (! dequeue(w->readylist, (ELEMENT_TYPE *) &ready_worker))) {
           //if there was ever a blocked worker running, this
           //means something has gone terribly wrong
           CILK_ASSERT(ready_worker != w);
-          dbgprint(1, "restoring ready worker %p\n", ready_worker);
+          dbgprint(CONCURRENT, "restoring ready worker %p\n", ready_worker);
           __cilkrts_resume_fiber(ready_worker);
           CILK_ASSERT(0);
         }
@@ -1807,6 +1806,7 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
 #endif // defined ENABLE_NOTIFY_ZC_INTRINSIC
 
       DBGPRINTF ("%d-%p: longjmp_into_runtime from __cilkrts_c_THE_exception_check\n", w->self, GetWorkerFiber(w));
+      dbgprint(CONCURRENT, "%d/%p longjumping into runtime from frame detached\n", w->self, w);
       longjmp_into_runtime(w, do_return_from_spawn, 0);
       DBGPRINTF ("%d-%p: returned from longjmp_into_runtime from __cilkrts_c_THE_exception_check?!\n", w->self, GetWorkerFiber(w));
     }
@@ -2045,6 +2045,8 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
   {
     struct cilkred_map *rm;
 
+    dbgprint(FRAME, "IN CILK_FRAME_LAST <<<<<<<<<<<<<<<<<<<<<<\n");
+
     /* This is only called on a user thread worker. */
     CILK_ASSERT(w->l->type == WORKER_USER);
 
@@ -2222,10 +2224,10 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
     reset_THE_exception(w);
 
 #ifdef CILK_IVARS
-    w->paused_ctx = NULL;
-    w->waitlist   = NULL;
-    w->readylist  = NULL;
-    w->fibers     = NULL;
+    w->paused_ctx   = NULL;
+    w->readylist    = NULL;
+    w->fibers       = NULL;
+    w->ref_count    = 0;
     w->worker_depth = 0;
 #endif
 

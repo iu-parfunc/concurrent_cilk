@@ -11,49 +11,6 @@
 #include "concurrent_queue.h"
 
 
-void push_waitlist(__cilkrts_worker *top, __cilkrts_worker *old_top) { top->waitlist = old_top; }
-
-__cilkrts_worker *pop_waitlist(__cilkrts_worker *top) 
-{
-  __cilkrts_worker *tmp = top->waitlist;
-  if (top->waitlist == top) { top->waitlist = NULL; }
-  return tmp;
-}
-
-void push_readylist(__cilkrts_worker **readylist, __cilkrts_worker *w) {
-  int i;
-  CILK_ASSERT(w);
-  CILK_ASSERT(readylist);
-  for (i = 0; i < MAX_WORKERS_BLOCKED; i++ ) {
-    if (NULL == readylist[i]) {
-      dbgprint(1, "pushing ready worker %p at index %i\n", w, i);
-      readylist[i] = w;
-      return;
-    }
-  }
-  __cilkrts_bug("readylist array overflow. Aborting Program\n");
-}
-
-__cilkrts_worker *pop_readylist(__cilkrts_worker **readylist) 
-{
-  int i;
-  __cilkrts_worker *tmp;
-
-  if (! readylist) { return NULL; }
-  for (i = 0; i < MAX_WORKERS_BLOCKED; i++ ) {
-    if (readylist[i]) {
-      tmp = readylist[i];
-      readylist[i] = NULL;
-      dbgprint(1, "popping ready worker %p at index %i\n", tmp, i);
-      return tmp;
-    }
-  }
-  return NULL;
-}
-
-void traverse_readylist(__cilkrts_worker *w) {
-  
-}
 
 CILK_API(__cilkrts_worker *)
 __cilkrts_commit_pause(__cilkrts_worker *w) 
@@ -79,21 +36,25 @@ __cilkrts_commit_pause(__cilkrts_worker *w)
   }
 
   //lazily allocate a slot for the readylist.
-  if (! w->readylist) {
-    w->readylist = (__cilkrts_worker **) __cilkrts_malloc(sizeof(__cilkrts_worker *) * MAX_WORKERS_BLOCKED);
-    memset(w->readylist, 0, sizeof(__cilkrts_worker *) * MAX_WORKERS_BLOCKED);
+  if (! w->readylist) { w->readylist = make_stack_queue(); }
+
+  //lazily allocate a pointer for the ref_count. 
+  if (! w->ref_count) { w->ref_count = __cilkrts_malloc(sizeof(int)); *w->ref_count = 0; }
+  if (0 == *w->ref_count) {
+    atomic_add(&(w->g->workers_blocked), 1);
   }
 
   //the fibers pointer is shared across all replacements on the same thread,
   //but only this thread may write to the array.
-  replacement->fibers = w->fibers;
-  replacement->readylist = w->readylist;
+  replacement->fibers       = w->fibers;
+  replacement->readylist    = w->readylist;
   replacement->worker_depth = w->worker_depth+1;
+  replacement->ref_count    = w->ref_count;
+  *replacement->ref_count += 1;
 
   return replacement;
   // make sure you call the scheduler!
 }
-
 
 
 CILK_API(void)
@@ -106,10 +67,14 @@ CILK_API(void)
   CILK_ASSERT(!can_steal_from(old_w));
   CILK_ASSERT(w->self == old_w->self);
 
-  printf("restoring worker %p current worker %p depth %i\n", w, old_w, w->worker_depth);
+  dbgprint(CONCURRENT, "restoring worker %p current worker %p depth %i sf %p\n", w, old_w, w->worker_depth, w->current_stack_frame);
   remove_worker_from_stealing(w);
   w->g->workers[w->self] = w;
   __cilkrts_set_tls_worker(w);
+  if (1 == *w->ref_count) {
+    atomic_sub(&(w->g->workers_blocked), 1);
+  }
+  *w->ref_count -= 1;
   longjmp((struct __jmp_buf_tag *) w->paused_ctx, 1);
   CILK_ASSERT(0); // no return
 }
@@ -128,6 +93,7 @@ void register_worker_for_stealing(__cilkrts_worker *w)
   int i;
   for (i = 0; i < MAX_WORKERS_BLOCKED; i++) {
     if (w->fibers[i] == NULL) {
+      dbgprint(CONCURRENT, "registered worker %d/%p for stealing at idx %i\n", w->self, w, i);
       w->fibers[i] = w;
       return;
     }
@@ -136,11 +102,18 @@ void register_worker_for_stealing(__cilkrts_worker *w)
   if (i >= MAX_WORKERS_BLOCKED) { __cilkrts_bug("BLOCKED WORKER OVERFLOW - aborting"); }
 }
 
+inline void is_last_paused_worker(__cilkrts_worker *w)
+{
+  CILK_ASSERT(w);
+
+}
+
 inline void remove_worker_from_stealing(__cilkrts_worker *w)
 {
   int i;
   for (i = 0; i < MAX_WORKERS_BLOCKED; i++) { 
     if (w->fibers[i] == w) {
+      dbgprint(CONCURRENT, "removed worker %d/%p from stealing at idx %i\n", w->self, w, i);
       w->fibers[i] = NULL;
       return;
     }
@@ -176,6 +149,8 @@ inline __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim)
 
   for (i = 0; i < MAX_WORKERS_BLOCKED; i++) {
     if(victim->fibers[i] && can_steal_from(victim->fibers[i])) {
+      dbgprint(CONCURRENT, "found victim %d/%p for stealing at idx %i\n",
+          victim->fibers[i]->self, victim->fibers[i], i);
       return victim->fibers[i];
     }
   }

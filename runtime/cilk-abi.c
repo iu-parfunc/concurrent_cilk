@@ -70,6 +70,10 @@ void * _ReturnAddress(void);
 #include "cilk-ittnotify.h"
 #include "cilk-tbb-interop.h"
 
+#ifdef CILK_IVARS
+#include "concurrent_cilk_internal.h" //for dbgprint
+#endif
+
 #define TBB_INTEROP_DATA_DELAYED_UNTIL_BIND (void *)-1
 
 // ABI version
@@ -91,6 +95,7 @@ void enter_frame_internal(__cilkrts_stack_frame *sf, uint32_t version)
   sf->call_parent = w->current_stack_frame;
   sf->worker = w;
   w->current_stack_frame = sf;
+  dbgprint(FRAME, "ENTER_FRAME %p flags 0x%x\n", sf, sf->flags);
 }
 
 CILK_ABI_VOID __cilkrts_enter_frame(__cilkrts_stack_frame *sf)
@@ -112,6 +117,7 @@ void enter_frame_fast_internal(__cilkrts_stack_frame *sf, uint32_t version)
   sf->call_parent = w->current_stack_frame;
   sf->worker = w;
   w->current_stack_frame = sf;
+  dbgprint(FRAME, "ENTER_FRAME %p flags 0x%x\n", sf, sf->flags);
 }
 
 CILK_ABI_VOID __cilkrts_enter_frame_fast(__cilkrts_stack_frame *sf)
@@ -152,6 +158,11 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
 CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
 {
   __cilkrts_worker *w = sf->worker;
+  dbgprint(FRAME, "LEAVE FRAME %p flags 0x%x\n", sf, sf->flags);
+
+
+//#include "concurrent_cilk_internal.h"
+//  dbgprint(1, "[leave_frame] %d/%p sf %p flags 0x%x w->sf %p w->sf->flags 0x%x\n", w->self, w, sf, sf->flags, w->current_stack_frame, w->current_stack_frame->flags);
 
 
   /*    DBGPRINTF("%d-%p __cilkrts_leave_frame - sf %p, flags: %x\n", w->self, GetWorkerFiber(w), sf, sf->flags); */

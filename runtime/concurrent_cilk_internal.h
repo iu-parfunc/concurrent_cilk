@@ -24,17 +24,24 @@ __CILKRTS_BEGIN_EXTERN_C
 #define if_t(test) if (__builtin_expect(test,1)) 
 #define if_f(test) if (__builtin_expect(test,0)) 
 
-#define IVAR_DBG 1
+#define IVAR 0x1
+#define CONCURRENT 0x2
+#define FRAME 0x4
 
+#ifdef CILK_IVARS
 #ifdef IVAR_DBG
 
-#define dbgprint(lvl, ...) if (lvl >= IVAR_DBG) {\
+#define dbgprint(lvl, ...) if (lvl & IVAR_DBG) {\
+  pthread_t   tid;\
+  tid = pthread_self();\
+  fprintf(stderr, "[tid:%4d] ", (int)(((int)tid)%10000)); fflush(stderr);\
   fprintf(stderr, __VA_ARGS__); fflush(stderr); \
 }
 
 #else
 
 #define dbgprint(lvl, ...)
+#endif
 #endif
 
 /**
@@ -90,11 +97,6 @@ typedef struct __cilkrts_worker      __cilkrts_worker;
 __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim);
 __cilkrts_worker *find_ready_fiber(__cilkrts_worker *victim);
 
-void push_waitlist(__cilkrts_worker *top, __cilkrts_worker *old_top);
-__cilkrts_worker *pop_waitlist(__cilkrts_worker *top); 
-void push_readylist(__cilkrts_worker **readylist, __cilkrts_worker *w);
-__cilkrts_worker *pop_readylist(__cilkrts_worker **readylist); 
-void traverse_readylist(__cilkrts_worker *w);
 inline __cilkrts_worker *find_replacement_worker(__cilkrts_worker *w);
 inline void remove_worker_from_stealing(__cilkrts_worker *w);
 void register_worker_for_stealing(__cilkrts_worker *w); 

@@ -25,7 +25,7 @@ CILK_API(void)           __cilkrts_ivar_clear(__cilkrts_ivar*);
 #define CILK_IVAR_EMPTY  0x0
 #define CILK_IVAR_FULL   0x1
 #define CILK_IVAR_PAUSED 0x2
-#define CILK_IVAR_LOCKED 0x3
+#define CILK_IVAR_LOCKED 0x4
 
 #define IVAR_EMPTY(iv)  (iv == CILK_IVAR_EMPTY)
 #define IVAR_READY(iv)  ((iv & 0xf) == CILK_IVAR_FULL)

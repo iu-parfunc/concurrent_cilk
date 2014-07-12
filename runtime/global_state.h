@@ -227,6 +227,12 @@ typedef /* COMMON_PORTABLE */ struct global_state_t {
 
     int P;         /**< USER SETTING: number of system workers + 1 (fixed) */
     int Q;         /**< Number of user threads currently bound to workers */
+
+#ifdef CILK_IVARS
+    //put the counter on its own cache line. 
+    char cache_buf_3[64];
+    volatile int workers_blocked;
+#endif
 } global_state_t;
 
 /**
