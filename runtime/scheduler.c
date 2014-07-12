@@ -261,7 +261,7 @@ void __cilkrts_worker_unlock(__cilkrts_worker *w)
 }
 
 /* try to acquire the lock of some *other* worker */
-static int worker_trylock_other(__cilkrts_worker *w,
+int worker_trylock_other(__cilkrts_worker *w,
                                 __cilkrts_worker *other)
 {
     int status = 0;
@@ -291,7 +291,7 @@ static int worker_trylock_other(__cilkrts_worker *w,
     return status;
 }
 
-static void worker_unlock_other(__cilkrts_worker *w,
+void worker_unlock_other(__cilkrts_worker *w,
                                 __cilkrts_worker *other)
 {
     __cilkrts_mutex_unlock(w, &other->l->lock);
@@ -1453,7 +1453,6 @@ NORETURN longjmp_into_runtime(__cilkrts_worker *w,
           //if there was ever a blocked worker running, this
           //means something has gone terribly wrong
           CILK_ASSERT(ready_worker != w);
-          dbgprint(CONCURRENT, "restoring ready worker %p\n", ready_worker);
           __cilkrts_resume_fiber(ready_worker);
           CILK_ASSERT(0);
         }

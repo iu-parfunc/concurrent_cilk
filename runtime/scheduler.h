@@ -329,6 +329,8 @@ void __cilkrts_dump_stats_to_stderr(global_state_t *g);
 
 #ifdef CILK_IVARS
 int can_steal_from(__cilkrts_worker *victim);
+void worker_unlock_other(__cilkrts_worker *w, __cilkrts_worker *other);
+int worker_trylock_other(__cilkrts_worker *w, __cilkrts_worker *other);
 #endif
 
 

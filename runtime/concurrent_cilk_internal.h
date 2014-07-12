@@ -97,7 +97,6 @@ typedef struct __cilkrts_worker      __cilkrts_worker;
 __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim);
 __cilkrts_worker *find_ready_fiber(__cilkrts_worker *victim);
 
-inline __cilkrts_worker *find_replacement_worker(__cilkrts_worker *w);
 inline void remove_worker_from_stealing(__cilkrts_worker *w);
 void register_worker_for_stealing(__cilkrts_worker *w); 
 

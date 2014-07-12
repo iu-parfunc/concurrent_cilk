@@ -67,7 +67,8 @@ CILK_API(void)
   CILK_ASSERT(!can_steal_from(old_w));
   CILK_ASSERT(w->self == old_w->self);
 
-  dbgprint(CONCURRENT, "restoring worker %p current worker %p depth %i sf %p\n", w, old_w, w->worker_depth, w->current_stack_frame);
+  dbgprint(CONCURRENT, "restoring worker %d/%p current worker %d/%p depth %i sf %p flags 0x%x\n",
+      w->self, w, old_w->self, old_w, w->worker_depth, w->current_stack_frame, w->current_stack_frame->flags);
   remove_worker_from_stealing(w);
   w->g->workers[w->self] = w;
   __cilkrts_set_tls_worker(w);
@@ -108,27 +109,21 @@ inline void is_last_paused_worker(__cilkrts_worker *w)
 
 }
 
-inline void remove_worker_from_stealing(__cilkrts_worker *w)
+void remove_worker_from_stealing(__cilkrts_worker *w)
 {
   int i;
+  __cilkrts_worker *tmp;
   for (i = 0; i < MAX_WORKERS_BLOCKED; i++) { 
     if (w->fibers[i] == w) {
-      dbgprint(CONCURRENT, "removed worker %d/%p from stealing at idx %i\n", w->self, w, i);
+      // we must spin until we can get at the worker to remove it from stealing. 
+      while (! worker_trylock_other(w, w->fibers[i])) { spin_pause(); } 
+      tmp = w->fibers[i];
       w->fibers[i] = NULL;
+      worker_unlock_other(w, tmp);
+      dbgprint(CONCURRENT, "removed worker %d/%p from stealing at idx %i\n", w->self, w, i);
       return;
     }
   }
-}
-
-inline __cilkrts_worker *find_replacement_worker(__cilkrts_worker *w)
-{
-  int i; 
-  for (i = 0; i < MAX_WORKERS_BLOCKED; i++) {
-    if (w->fibers[i] != NULL) {
-      return w->fibers[i];
-    }
-  } 
-  return NULL;
 }
 
 
@@ -142,18 +137,24 @@ inline __cilkrts_worker *find_replacement_worker(__cilkrts_worker *w)
 inline __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim)
 {
   int i;
+  __cilkrts_worker *other_victim = victim;
   CILK_ASSERT(victim);
 
   // there may not be any concurrent work to steal
   if (! victim->fibers) { return victim; }
 
   for (i = 0; i < MAX_WORKERS_BLOCKED; i++) {
-    if(victim->fibers[i] && can_steal_from(victim->fibers[i])) {
-      dbgprint(CONCURRENT, "found victim %d/%p for stealing at idx %i\n",
-          victim->fibers[i]->self, victim->fibers[i], i);
-      return victim->fibers[i];
+    if (victim->fibers[i] && can_steal_from(victim->fibers[i])) {
+      // if we fail the lock, no problem. random_steal will retry.
+      if (worker_trylock_other(victim, victim->fibers[i])) {
+        other_victim = victim->fibers[i];
+        dbgprint(CONCURRENT, "found victim %d/%p for stealing at idx %i\n",
+            other_victim->self, other_victim, i);
+        worker_unlock_other(victim, victim->fibers[i]);
+        break;
+      }
     }
   }
-  return victim;
+  return other_victim;
 }
 
