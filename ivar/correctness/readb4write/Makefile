@@ -143,17 +143,30 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named basic_sync.exe
+# Target rules for targets named delayed_writer.exe
 
 # Build rule for target.
-basic_sync.exe: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 basic_sync.exe
-.PHONY : basic_sync.exe
+delayed_writer.exe: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 delayed_writer.exe
+.PHONY : delayed_writer.exe
 
 # fast build rule for target.
-basic_sync.exe/fast:
-	$(MAKE) -f CMakeFiles/basic_sync.exe.dir/build.make CMakeFiles/basic_sync.exe.dir/build
-.PHONY : basic_sync.exe/fast
+delayed_writer.exe/fast:
+	$(MAKE) -f CMakeFiles/delayed_writer.exe.dir/build.make CMakeFiles/delayed_writer.exe.dir/build
+.PHONY : delayed_writer.exe/fast
+
+#=============================================================================
+# Target rules for targets named delayed_writer_reverse_write.exe
+
+# Build rule for target.
+delayed_writer_reverse_write.exe: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 delayed_writer_reverse_write.exe
+.PHONY : delayed_writer_reverse_write.exe
+
+# fast build rule for target.
+delayed_writer_reverse_write.exe/fast:
+	$(MAKE) -f CMakeFiles/delayed_writer_reverse_write.exe.dir/build.make CMakeFiles/delayed_writer_reverse_write.exe.dir/build
+.PHONY : delayed_writer_reverse_write.exe/fast
 
 #=============================================================================
 # Target rules for targets named distclean
@@ -299,6 +312,19 @@ regular_cilk.exe/fast:
 .PHONY : regular_cilk.exe/fast
 
 #=============================================================================
+# Target rules for targets named restore_out_of_order.exe
+
+# Build rule for target.
+restore_out_of_order.exe: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 restore_out_of_order.exe
+.PHONY : restore_out_of_order.exe
+
+# fast build rule for target.
+restore_out_of_order.exe/fast:
+	$(MAKE) -f CMakeFiles/restore_out_of_order.exe.dir/build.make CMakeFiles/restore_out_of_order.exe.dir/build
+.PHONY : restore_out_of_order.exe/fast
+
+#=============================================================================
 # Target rules for targets named snafoo.exe
 
 # Build rule for target.
@@ -350,29 +376,66 @@ testcppivartemplates.exe/fast:
 	$(MAKE) -f CMakeFiles/testcppivartemplates.exe.dir/build.make CMakeFiles/testcppivartemplates.exe.dir/build
 .PHONY : testcppivartemplates.exe/fast
 
-basic_sync.o: basic_sync.c.o
-.PHONY : basic_sync.o
+#=============================================================================
+# Target rules for targets named tmp.exe
+
+# Build rule for target.
+tmp.exe: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 tmp.exe
+.PHONY : tmp.exe
+
+# fast build rule for target.
+tmp.exe/fast:
+	$(MAKE) -f CMakeFiles/tmp.exe.dir/build.make CMakeFiles/tmp.exe.dir/build
+.PHONY : tmp.exe/fast
+
+delayed_writer.o: delayed_writer.c.o
+.PHONY : delayed_writer.o
 
 # target to build an object file
-basic_sync.c.o:
-	$(MAKE) -f CMakeFiles/basic_sync.exe.dir/build.make CMakeFiles/basic_sync.exe.dir/basic_sync.c.o
-.PHONY : basic_sync.c.o
+delayed_writer.c.o:
+	$(MAKE) -f CMakeFiles/delayed_writer.exe.dir/build.make CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.o
+.PHONY : delayed_writer.c.o
 
-basic_sync.i: basic_sync.c.i
-.PHONY : basic_sync.i
+delayed_writer.i: delayed_writer.c.i
+.PHONY : delayed_writer.i
 
 # target to preprocess a source file
-basic_sync.c.i:
-	$(MAKE) -f CMakeFiles/basic_sync.exe.dir/build.make CMakeFiles/basic_sync.exe.dir/basic_sync.c.i
-.PHONY : basic_sync.c.i
+delayed_writer.c.i:
+	$(MAKE) -f CMakeFiles/delayed_writer.exe.dir/build.make CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.i
+.PHONY : delayed_writer.c.i
 
-basic_sync.s: basic_sync.c.s
-.PHONY : basic_sync.s
+delayed_writer.s: delayed_writer.c.s
+.PHONY : delayed_writer.s
 
 # target to generate assembly for a file
-basic_sync.c.s:
-	$(MAKE) -f CMakeFiles/basic_sync.exe.dir/build.make CMakeFiles/basic_sync.exe.dir/basic_sync.c.s
-.PHONY : basic_sync.c.s
+delayed_writer.c.s:
+	$(MAKE) -f CMakeFiles/delayed_writer.exe.dir/build.make CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.s
+.PHONY : delayed_writer.c.s
+
+delayed_writer_reverse_write.o: delayed_writer_reverse_write.c.o
+.PHONY : delayed_writer_reverse_write.o
+
+# target to build an object file
+delayed_writer_reverse_write.c.o:
+	$(MAKE) -f CMakeFiles/delayed_writer_reverse_write.exe.dir/build.make CMakeFiles/delayed_writer_reverse_write.exe.dir/delayed_writer_reverse_write.c.o
+.PHONY : delayed_writer_reverse_write.c.o
+
+delayed_writer_reverse_write.i: delayed_writer_reverse_write.c.i
+.PHONY : delayed_writer_reverse_write.i
+
+# target to preprocess a source file
+delayed_writer_reverse_write.c.i:
+	$(MAKE) -f CMakeFiles/delayed_writer_reverse_write.exe.dir/build.make CMakeFiles/delayed_writer_reverse_write.exe.dir/delayed_writer_reverse_write.c.i
+.PHONY : delayed_writer_reverse_write.c.i
+
+delayed_writer_reverse_write.s: delayed_writer_reverse_write.c.s
+.PHONY : delayed_writer_reverse_write.s
+
+# target to generate assembly for a file
+delayed_writer_reverse_write.c.s:
+	$(MAKE) -f CMakeFiles/delayed_writer_reverse_write.exe.dir/build.make CMakeFiles/delayed_writer_reverse_write.exe.dir/delayed_writer_reverse_write.c.s
+.PHONY : delayed_writer_reverse_write.c.s
 
 doublereadslowpath.o: doublereadslowpath.c.o
 .PHONY : doublereadslowpath.o
@@ -614,6 +677,30 @@ regular_cilk.c.s:
 	$(MAKE) -f CMakeFiles/regular_cilk.exe.dir/build.make CMakeFiles/regular_cilk.exe.dir/regular_cilk.c.s
 .PHONY : regular_cilk.c.s
 
+restore_out_of_order.o: restore_out_of_order.c.o
+.PHONY : restore_out_of_order.o
+
+# target to build an object file
+restore_out_of_order.c.o:
+	$(MAKE) -f CMakeFiles/restore_out_of_order.exe.dir/build.make CMakeFiles/restore_out_of_order.exe.dir/restore_out_of_order.c.o
+.PHONY : restore_out_of_order.c.o
+
+restore_out_of_order.i: restore_out_of_order.c.i
+.PHONY : restore_out_of_order.i
+
+# target to preprocess a source file
+restore_out_of_order.c.i:
+	$(MAKE) -f CMakeFiles/restore_out_of_order.exe.dir/build.make CMakeFiles/restore_out_of_order.exe.dir/restore_out_of_order.c.i
+.PHONY : restore_out_of_order.c.i
+
+restore_out_of_order.s: restore_out_of_order.c.s
+.PHONY : restore_out_of_order.s
+
+# target to generate assembly for a file
+restore_out_of_order.c.s:
+	$(MAKE) -f CMakeFiles/restore_out_of_order.exe.dir/build.make CMakeFiles/restore_out_of_order.exe.dir/restore_out_of_order.c.s
+.PHONY : restore_out_of_order.c.s
+
 snafoo.o: snafoo.c.o
 .PHONY : snafoo.o
 
@@ -710,13 +797,38 @@ testcppivartemplates.cpp.s:
 	$(MAKE) -f CMakeFiles/testcppivartemplates.exe.dir/build.make CMakeFiles/testcppivartemplates.exe.dir/testcppivartemplates.cpp.s
 .PHONY : testcppivartemplates.cpp.s
 
+tmp.o: tmp.c.o
+.PHONY : tmp.o
+
+# target to build an object file
+tmp.c.o:
+	$(MAKE) -f CMakeFiles/tmp.exe.dir/build.make CMakeFiles/tmp.exe.dir/tmp.c.o
+.PHONY : tmp.c.o
+
+tmp.i: tmp.c.i
+.PHONY : tmp.i
+
+# target to preprocess a source file
+tmp.c.i:
+	$(MAKE) -f CMakeFiles/tmp.exe.dir/build.make CMakeFiles/tmp.exe.dir/tmp.c.i
+.PHONY : tmp.c.i
+
+tmp.s: tmp.c.s
+.PHONY : tmp.s
+
+# target to generate assembly for a file
+tmp.c.s:
+	$(MAKE) -f CMakeFiles/tmp.exe.dir/build.make CMakeFiles/tmp.exe.dir/tmp.c.s
+.PHONY : tmp.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... basic_sync.exe"
+	@echo "... delayed_writer.exe"
+	@echo "... delayed_writer_reverse_write.exe"
 	@echo "... distclean"
 	@echo "... doublereadslowpath.exe"
 	@echo "... edit_cache"
@@ -734,13 +846,18 @@ help:
 	@echo "... pfib.exe"
 	@echo "... rebuild_cache"
 	@echo "... regular_cilk.exe"
+	@echo "... restore_out_of_order.exe"
 	@echo "... snafoo.exe"
 	@echo "... spawnedrw.exe"
 	@echo "... testcppapi.exe"
 	@echo "... testcppivartemplates.exe"
-	@echo "... basic_sync.o"
-	@echo "... basic_sync.i"
-	@echo "... basic_sync.s"
+	@echo "... tmp.exe"
+	@echo "... delayed_writer.o"
+	@echo "... delayed_writer.i"
+	@echo "... delayed_writer.s"
+	@echo "... delayed_writer_reverse_write.o"
+	@echo "... delayed_writer_reverse_write.i"
+	@echo "... delayed_writer_reverse_write.s"
 	@echo "... doublereadslowpath.o"
 	@echo "... doublereadslowpath.i"
 	@echo "... doublereadslowpath.s"
@@ -771,6 +888,9 @@ help:
 	@echo "... regular_cilk.o"
 	@echo "... regular_cilk.i"
 	@echo "... regular_cilk.s"
+	@echo "... restore_out_of_order.o"
+	@echo "... restore_out_of_order.i"
+	@echo "... restore_out_of_order.s"
 	@echo "... snafoo.o"
 	@echo "... snafoo.i"
 	@echo "... snafoo.s"
@@ -783,6 +903,9 @@ help:
 	@echo "... testcppivartemplates.o"
 	@echo "... testcppivartemplates.i"
 	@echo "... testcppivartemplates.s"
+	@echo "... tmp.o"
+	@echo "... tmp.i"
+	@echo "... tmp.s"
 .PHONY : help
 
 

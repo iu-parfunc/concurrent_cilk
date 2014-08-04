@@ -56,9 +56,11 @@ void fun() {
   else 
     printf("sum wrong!! (expected 15, got %d)\n", sum);
 
+  printf("returning from fun\n");
 }
 
 int main(int argc, char **argv) {
   printf("nested deadlock test\n");
-  cilk_spawn fun();
+  fun();
+  printf("after fun\n");
 }

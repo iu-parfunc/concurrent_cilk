@@ -8,20 +8,20 @@ MATRIX_DIM	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wav
 TILE_DIM	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	9;"	d	file:
 dimension	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^    int dimension;$/;"	m	class:tile	file:	access:public
 do_tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^void do_tile(matrix *mat, int i, int j) $/;"	f	signature:(matrix *mat, int i, int j)
-init_matrix	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^void init_matrix(matrix *mat) { memset(mat, 0, MATRIX_DIM*MATRIX_DIM); } $/;"	f	signature:(matrix *mat)
+init_matrix	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^void init_matrix(matrix *mat) { $/;"	f	signature:(matrix *mat)
 init_tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^void init_tile(tile *t)       { memset(t, 1, TILE_DIM*TILE_DIM); }$/;"	f	signature:(tile *t)
 main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/test.c	/^int main() {$/;"	f
 main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^int main(int argc, char **argv) {$/;"	f	signature:(int argc, char **argv)
 main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront_par_rows.cpp	/^int main(int argc, char **argv) {$/;"	f	signature:(int argc, char **argv)
 main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront_par_rows_and_columns.cpp	/^int main(int argc, char **argv) {$/;"	f	signature:(int argc, char **argv)
 matrix	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^class matrix<T> {$/;"	c	file:
-matrix	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^typedef ivar_t *matrix[MATRIX_DIM*MATRIX_DIM];$/;"	t	file:
+matrix	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^typedef ivar_t matrix;$/;"	t	file:
 matrix_get	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^tile *matrix_get(int i, int j) {$/;"	f	signature:(int i, int j)
 matrix_put	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^void matrix_put(int i, int j, tile* val) {$/;"	f	signature:(int i, int j, tile* val)
 sum_tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^void sum_tile(tile *src, tile *dst) $/;"	f	signature:(tile *src, tile *dst)
 tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^    tile() : vec(tiledim*tiledim) {$/;"	f	class:tile	access:public	signature:()
 tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^class tile {$/;"	c	file:
-tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^typedef ivar_payload_t tile[TILE_DIM*TILE_DIM];$/;"	t	file:
+tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront.c	/^typedef ivar_payload_t tile;$/;"	t	file:
 tile::dimension	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^    int dimension;$/;"	m	class:tile	file:	access:public
 tile::tile	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^    tile() : vec(tiledim*tiledim) {$/;"	f	class:tile	access:public	signature:()
 tile::vec	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/benchmarks/wavefront/wavefront-chris.cpp	/^    vector<int> vec;$/;"	m	class:tile	file:	access:public

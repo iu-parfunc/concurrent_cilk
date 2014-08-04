@@ -36,8 +36,7 @@ void fun() {
 
 int main(int argc, char **argv) 
 {
-  cilk_spawn fun();
-  cilk_sync;
+  fun();
   printf("test complete\n");
   return 0;
 }
