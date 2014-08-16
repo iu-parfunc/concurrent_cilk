@@ -224,14 +224,19 @@ struct __cilkrts_worker {
 #endif  /* __CILKRTS_ABI_VERSION >= 1 */
 
 #ifdef CILK_IVARS
-    // hold a pointer to the jmp_buf returned by __cilkrts_pause()
+    /** Hold a pointer to the jmp_buf returned by __cilkrts_pause() */
     jmp_buf *paused_ctx;
+
+    __cilkrts_worker *team_proxy; 
+
+    struct queue_t *referencelist;
 
     // a singly linked list of fibers on this thread which are ready to be restored.
     struct queue_t *readylist;
 
     // an array of blocked worker states available for stealing. 
     __cilkrts_worker **fibers;
+
     int worker_depth;
     int *volatile ref_count;
 #endif

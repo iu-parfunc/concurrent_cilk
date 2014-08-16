@@ -99,6 +99,8 @@ __cilkrts_worker *find_ready_fiber(__cilkrts_worker *victim);
 
 inline void remove_worker_from_stealing(__cilkrts_worker *w);
 void register_worker_for_stealing(__cilkrts_worker *w); 
+void __cilkrts_push_concurrent_sync_frame(__cilkrts_worker *w, full_frame *ff);
+full_frame *pop_concurrent_sync_frame(__cilkrts_worker *w);
 
 __CILKRTS_END_EXTERN_C
 #endif

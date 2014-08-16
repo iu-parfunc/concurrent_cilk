@@ -8,6 +8,15 @@ Index:
 5. CONTRIBUTIONS
 
 #
+# 0. INSTALLING TESTS:
+#
+
+Tests are managed as a submodule defined in .gitmodules. To pull the tests run (from the repository root): 
+
+% git submodule update --init 
+
+
+#
 #  1. BUILDING:
 #
 
@@ -49,6 +58,8 @@ features.  GCC requires explicit linking of both the library and
 its dependencies (libpthread, libdl).  For example:
 
 % gcc foo.c -lcilkrts -lpthread -ldl
+% clang -fcilkplus foo.c 
+% icc -lcilkrts -lpthread -ldl
 
 #
 #  3. DOXYGEN DOCUMENTATION:

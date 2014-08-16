@@ -15,19 +15,13 @@
 CILK_API(__cilkrts_worker *)
 __cilkrts_commit_pause(__cilkrts_worker *w) 
 {
+  dbgprint(CONCURRENT, "COMMIT PAUSE blocked worker %d/%p team %s\n",
+      w->self, w, w->l->type == WORKER_SYSTEM ? "WORKER_SYSTEM" : "WORKER_USER");
   __cilkrts_worker *replacement;
   
   // initialize the new worker state and save the current worker state in the paused fiber's context.
   replacement = make_worker(w->g, w->self, __cilkrts_malloc(sizeof(__cilkrts_worker)));
 
-  // make replacement a system worker and fill in record keeping for replacement workers.
-  replacement->l->type        = WORKER_SYSTEM;
-  replacement->l->signal_node = signal_node_create();
-  signal_node_msg(replacement->l->signal_node, 1); // set status to run.
-
-  // no lock needed. Each worker only edits its own slot.
-  // "push" the replacement worker on the top of the stealing stack.
-  w->g->workers[w->self] = replacement;
 
   //lazily allocate a fibers array.
   if (! w->fibers) {
@@ -38,20 +32,41 @@ __cilkrts_commit_pause(__cilkrts_worker *w)
   //lazily allocate a slot for the readylist.
   if (! w->readylist) { w->readylist = make_stack_queue(); }
 
+  //lazily allocate a slot for the referencelist.
+  if (! w->referencelist) { w->referencelist = make_stack_queue(); }
+
   //lazily allocate a pointer for the ref_count. 
-  if (! w->ref_count) { w->ref_count = __cilkrts_malloc(sizeof(int)); *w->ref_count = 0; }
+  if (! w->ref_count) {
+    w->ref_count = __cilkrts_malloc(sizeof(int)); *w->ref_count = 0;
+    w->team_proxy = w->l->team;
+  }
+
   if (0 == *w->ref_count) {
     atomic_add(&(w->g->workers_blocked), 1);
   }
 
   //the fibers pointer is shared across all replacements on the same thread,
   //but only this thread may write to the array.
-  replacement->fibers       = w->fibers;
-  replacement->readylist    = w->readylist;
-  replacement->worker_depth = w->worker_depth+1;
-  replacement->ref_count    = w->ref_count;
+  replacement->fibers        = w->fibers;
+  replacement->readylist     = w->readylist;
+  replacement->ref_count     = w->ref_count;
+  replacement->team_proxy    = w->team_proxy;
+  replacement->l->team       = w->l->team;
+  replacement->l->type       = w->l->type;
+  replacement->worker_depth  = w->worker_depth+1;
+  replacement->referencelist = w->referencelist;
   *replacement->ref_count += 1;
 
+  if (WORKER_SYSTEM == replacement->l->type) {
+    // make replacement a system worker and fill in record keeping for replacement workers.
+    replacement->l->signal_node = signal_node_create();
+    signal_node_msg(replacement->l->signal_node, 1); // set status to run.
+  }
+
+  dbgprint(CONCURRENT, "CREATED replacement worker %d/%p\n", replacement->self, replacement);
+  // no lock needed. Each worker only edits its own slot.
+  // "push" the replacement worker on the top of the stealing stack.
+  w->g->workers[w->self] = replacement;
   return replacement;
   // make sure you call the scheduler!
 }
@@ -64,11 +79,11 @@ CILK_API(void)
   __cilkrts_worker *old_w = __cilkrts_get_tls_worker_fast();
   CILK_ASSERT(w);
   CILK_ASSERT(old_w); 
+  dbgprint(CONCURRENT, "restoring worker %d/%p/%i REAPING old worker %d/%p/%i\n",
+      w->self, w, w->worker_depth, old_w->self, old_w, old_w->worker_depth);
   CILK_ASSERT(!can_steal_from(old_w));
   CILK_ASSERT(w->self == old_w->self);
 
-  dbgprint(CONCURRENT, "restoring worker %d/%p current worker %d/%p depth %i sf %p flags 0x%x\n",
-      w->self, w, old_w->self, old_w, w->worker_depth, w->current_stack_frame, w->current_stack_frame->flags);
   remove_worker_from_stealing(w);
   w->g->workers[w->self] = w;
   __cilkrts_set_tls_worker(w);
@@ -157,4 +172,6 @@ inline __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim)
   }
   return other_victim;
 }
+
+
 

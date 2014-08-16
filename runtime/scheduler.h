@@ -331,6 +331,7 @@ void __cilkrts_dump_stats_to_stderr(global_state_t *g);
 int can_steal_from(__cilkrts_worker *victim);
 void worker_unlock_other(__cilkrts_worker *w, __cilkrts_worker *other);
 int worker_trylock_other(__cilkrts_worker *w, __cilkrts_worker *other);
+void incjoin(full_frame *ff);
 #endif
 
 

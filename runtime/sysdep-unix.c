@@ -159,7 +159,7 @@ NON_COMMON void* __cilkrts_worker_stub(void *arg)
     /* Worker startup is serialized
     status = pthread_mutex_lock(&__cilkrts_global_mutex);
     CILK_ASSERT(status == 0);*/
-    CILK_ASSERT(w->l->type == WORKER_SYSTEM);
+    //CILK_ASSERT(w->l->type == WORKER_SYSTEM);
     /*status = pthread_mutex_unlock(&__cilkrts_global_mutex);
     CILK_ASSERT(status == 0);*/
 

@@ -95,7 +95,6 @@ void enter_frame_internal(__cilkrts_stack_frame *sf, uint32_t version)
   sf->call_parent = w->current_stack_frame;
   sf->worker = w;
   w->current_stack_frame = sf;
-  dbgprint(FRAME, "ENTER_FRAME %p flags 0x%x\n", sf, sf->flags);
 }
 
 CILK_ABI_VOID __cilkrts_enter_frame(__cilkrts_stack_frame *sf)
@@ -152,6 +151,9 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
   sf->flags &= ~CILK_FRAME_DETACHED;
 #endif
 
+  dbgprint(FRAME, "UNDO DETACH: %d/%p t %p exc %p head %p depth %d\n", 
+      w->self, w, t, w->exc, w->head, w->worker_depth);
+
   return __builtin_expect(t < w->exc, 0);
 }
 
@@ -159,11 +161,6 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
 {
   __cilkrts_worker *w = sf->worker;
   dbgprint(FRAME, "LEAVE FRAME %p flags 0x%x\n", sf, sf->flags);
-
-
-//#include "concurrent_cilk_internal.h"
-//  dbgprint(1, "[leave_frame] %d/%p sf %p flags 0x%x w->sf %p w->sf->flags 0x%x\n", w->self, w, sf, sf->flags, w->current_stack_frame, w->current_stack_frame->flags);
-
 
   /*    DBGPRINTF("%d-%p __cilkrts_leave_frame - sf %p, flags: %x\n", w->self, GetWorkerFiber(w), sf, sf->flags); */
 
@@ -204,6 +201,8 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
   /* Must return normally if (1) the active function was called
      and not spawned, or (2) the parent has never been stolen. */
   if ((sf->flags & CILK_FRAME_DETACHED)) {
+
+    dbgprint(FRAME, "CILK_FRAME_DETACHED - returning parent frame %p\n", sf->call_parent);
     /*        DBGPRINTF("%d - __cilkrts_leave_frame - CILK_FRAME_DETACHED\n", w->self); */
 
 #ifndef _WIN32
@@ -239,10 +238,12 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
   sf->flags |= CILK_FRAME_EXITING;
 #endif
 
-  if (__builtin_expect(sf->flags & CILK_FRAME_LAST, 0))
+  if (__builtin_expect(sf->flags & CILK_FRAME_LAST, 0)) {
     __cilkrts_c_return_from_initial(w); /* does return */
-  else if (sf->flags & CILK_FRAME_STOLEN)
+    dbgprint(FRAME, "CILK_FRAME_STOLEN - returning\n");
+  } else if (sf->flags & CILK_FRAME_STOLEN) {
     __cilkrts_return(w); /* does return */
+  }
 
   /*    DBGPRINTF("%d-%p __cilkrts_leave_frame - returning, StackBase: %p\n", w->self, GetWorkerFiber(w)); */
 }
@@ -300,6 +301,7 @@ static __cilkrts_worker *find_free_worker(global_state_t *g)
     if (w->l->type == WORKER_FREE) {
       w->l->type = WORKER_USER;
       w->l->team = w;
+      dbgprint(CONCURRENT, "FIND FREE %d/%p\n", w->self, w);
       return w;
     }
   }
@@ -311,6 +313,7 @@ static __cilkrts_worker *find_free_worker(global_state_t *g)
   make_worker(g, -1, w);
   w->l->type = WORKER_USER;
   w->l->team = w;
+  dbgprint(CONCURRENT, "FIND FREE %d/%p\n", w->self, w);
   return w;
 }
 

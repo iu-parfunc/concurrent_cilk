@@ -76,7 +76,7 @@ typedef enum cilk_worker_type
 {
     WORKER_FREE,    ///< Unused worker - available to be bound to user threads
     WORKER_SYSTEM,  ///< Worker created by runtime - able to steal from any worker
-    WORKER_USER     ///< User thread - able to steal only from team members
+    WORKER_USER,    ///< User thread - able to steal only from team members
 } cilk_worker_type;
 
 
