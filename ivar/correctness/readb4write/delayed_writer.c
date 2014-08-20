@@ -27,19 +27,36 @@ void fun() {
   cilk_spawn __cilkrts_ivar_write(&iv2, (ivar_payload_t) 2);
   cilk_spawn __cilkrts_ivar_write(&iv3, (ivar_payload_t) 3);
 
-  cilk_sync;
-
-  if (6 == (i1+i2+i3)) {
+  if (6 == (read_iv(&iv1) + read_iv(&iv2) + read_iv(&iv3))) {
     printf("sum of ivars is correct! (6)\n");
   } else  {
     printf("sum wrong!! \n");
   }
+}
 
+void bar() {
+  __cilkrts_ivar iv1 = 0;
+  int i1 = cilk_spawn read_iv(&iv1);
+  write_iv(&iv1, 1);
+  cilk_sync;
+  printf("in bar...iv value %d (2)\n", ((int) read_iv(&iv1)) + i1);
+}
+
+
+void cux() {
+  cilk_spawn bar();
+  cilk_spawn fun();
+  cilk_sync;
 }
 
 int main(int argc, char **argv) {
   //printf("above fun sf %p\n", __cilkrts_get_tls_worker()->current_stack_frame);
-  fun();
+  //cilk_spawn cux();
+  //printf("below cux!\n");
+  //cilk_spawn fun();
   //printf("below fun sf %p\n", __cilkrts_get_tls_worker()->current_stack_frame);
+  //cilk_spawn bar();
+  //printf("<<<<<<<<<<<<<<< below bar\n");
+  fun();
   printf("<<<<<<<<<<<<<<< below fun\n");
 }
