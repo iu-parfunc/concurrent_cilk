@@ -38,10 +38,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write
+CMAKE_SOURCE_DIR = /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write
+CMAKE_BINARY_DIR = /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write
 
 # Include any dependencies generated for this target.
 include CMakeFiles/fastpathonly.exe.dir/depend.make
@@ -54,17 +54,17 @@ include CMakeFiles/fastpathonly.exe.dir/flags.make
 
 CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.o: CMakeFiles/fastpathonly.exe.dir/flags.make
 CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.o: fastpathonly.c
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building C object CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.o"
-	clang  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.o   -c /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/fastpathonly.c
+	clang  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.o   -c /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/fastpathonly.c
 
 CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.i"
-	clang  $(C_DEFINES) $(C_FLAGS) -E /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/fastpathonly.c > CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.i
+	clang  $(C_DEFINES) $(C_FLAGS) -E /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/fastpathonly.c > CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.i
 
 CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.s"
-	clang  $(C_DEFINES) $(C_FLAGS) -S /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/fastpathonly.c -o CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.s
+	clang  $(C_DEFINES) $(C_FLAGS) -S /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/fastpathonly.c -o CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.s
 
 CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.o.requires:
 .PHONY : CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.o.requires
@@ -100,6 +100,6 @@ CMakeFiles/fastpathonly.exe.dir/clean:
 .PHONY : CMakeFiles/fastpathonly.exe.dir/clean
 
 CMakeFiles/fastpathonly.exe.dir/depend:
-	cd /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/CMakeFiles/fastpathonly.exe.dir/DependInfo.cmake --color=$(COLOR)
+	cd /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/CMakeFiles/fastpathonly.exe.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/fastpathonly.exe.dir/depend
 

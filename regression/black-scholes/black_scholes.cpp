@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <cilk/cilk.h> 
-#include "../../../timer.h"
+#include "../../common/timer.h"
 #include "../../common/cycle.h"
 
 #define NUM_OPTIONS 20*1000*1000

@@ -6,7 +6,11 @@
 
 #IncludeRegexTransform: 
 
-/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/../simple/timing.h
+time.h
+-
+
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp
 unistd.h
 -
 stdio.h
@@ -16,9 +20,5 @@ cilk/cilk.h
 cilk/ivar.h
 -
 ../simple/timing.h
-/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/timing.h
-
-/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/timing.h
-time.h
--
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/../simple/timing.h
 

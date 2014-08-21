@@ -25,7 +25,6 @@ static const char *ident __attribute__((__unused__))
 */
 #include <cilk/cilk.h>
 #include <cilk/cilk_api.h>
-#include <cilk/abi.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>

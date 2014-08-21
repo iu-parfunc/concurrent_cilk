@@ -9,7 +9,7 @@
 #include "agreement.h"
 #include "common.h"
 //#include "itoa.h"
-#include "../../../../../timer.h"
+#include "../../../../../common/timer.h"
 
 #define NUM_SERVERS 19
 
@@ -101,7 +101,7 @@ int runMap(int socketID, int num){
 // Use IO lib here in order to make it not lose paralelism on the blocking calls over the network
 
 long arbLatCalls(int n, int* socketIDs, int t){
-  if(n == 0) return;
+  if(n == 0) return 1;
   long x,y;
   x = cilk_spawn runMap(socketIDs[rand() % NUM_SERVERS], rand() % t);
   y = cilk_spawn arbLatCalls(n -1, socketIDs, t);

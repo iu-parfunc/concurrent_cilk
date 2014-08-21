@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/fastpathonly.c
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/fastpathonly.c
 stdio.h
 -
 stdlib.h

@@ -1,0 +1,128 @@
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    CONCURRENT_CILK
+
+
+In file included from /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client.c:10:
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/common.h:32:6: warning: implicit declaration of function 'gethostname' is invalid in C99 [-Wimplicit-function-declaration]
+  if(gethostname(name, 256)<0){
+     ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client.c:31:29: warning: implicit declaration of function 'hstrerror' is invalid in C99 [-Wimplicit-function-declaration]
+    fprintf(stderr, "%s\n", hstrerror(h_errno));
+                            ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client.c:31:29: warning: format specifies type 'char *' but the argument has type 'int' [-Wformat]
+    fprintf(stderr, "%s\n", hstrerror(h_errno));
+                     ~~     ^~~~~~~~~~~~~~~~~~
+                     %d
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client.c:74:10: warning: address of stack memory associated with local variable 'sockIDs' returned [-Wreturn-stack-address]
+  return sockIDs;
+         ^~~~~~~
+4 warnings generated.
+In file included from /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client_ivar_nonIO.c:11:
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/common.h:32:6: warning: implicit declaration of function 'gethostname' is invalid in C99 [-Wimplicit-function-declaration]
+  if(gethostname(name, 256)<0){
+     ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client_ivar_nonIO.c:31:29: warning: implicit declaration of function 'hstrerror' is invalid in C99 [-Wimplicit-function-declaration]
+    fprintf(stderr, "%s\n", hstrerror(h_errno));
+                            ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client_ivar_nonIO.c:31:29: warning: format specifies type 'char *' but the argument has type 'int' [-Wformat]
+    fprintf(stderr, "%s\n", hstrerror(h_errno));
+                     ~~     ^~~~~~~~~~~~~~~~~~
+                     %d
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client_ivar_nonIO.c:74:10: warning: address of stack memory associated with local variable 'sockIDs' returned [-Wreturn-stack-address]
+  return sockIDs;
+         ^~~~~~~
+4 warnings generated.
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/common.c:14:6: warning: implicit declaration of function 'gethostname' is invalid in C99 [-Wimplicit-function-declaration]
+  if(gethostname(name, 256)<0){
+     ^
+1 warning generated.
+In file included from /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/event_client.c:10:
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/common.h:32:6: warning: implicit declaration of function 'gethostname' is invalid in C99 [-Wimplicit-function-declaration]
+  if(gethostname(name, 256)<0){
+     ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/event_client.c:32:29: warning: implicit declaration of function 'hstrerror' is invalid in C99 [-Wimplicit-function-declaration]
+    fprintf(stderr, "%s\n", hstrerror(h_errno));
+                            ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/event_client.c:32:29: warning: format specifies type 'char *' but the argument has type 'int' [-Wformat]
+    fprintf(stderr, "%s\n", hstrerror(h_errno));
+                     ~~     ^~~~~~~~~~~~~~~~~~
+                     %d
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/event_client.c:75:10: warning: address of stack memory associated with local variable 'sockIDs' returned [-Wreturn-stack-address]
+  return sockIDs;
+         ^~~~~~~
+4 warnings generated.
+In file included from /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/server.c:13:
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/common.h:32:6: warning: implicit declaration of function 'gethostname' is invalid in C99 [-Wimplicit-function-declaration]
+  if(gethostname(name, 256)<0){
+     ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/server.c:132:28: warning: implicit declaration of function 'hstrerror' is invalid in C99 [-Wimplicit-function-declaration]
+    fprintf(stderr,"%s\n", hstrerror(h_errno));
+                           ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/server.c:132:28: warning: format specifies type 'char *' but the argument has type 'int' [-Wformat]
+    fprintf(stderr,"%s\n", hstrerror(h_errno));
+                    ~~     ^~~~~~~~~~~~~~~~~~
+                    %d
+3 warnings generated.
+In file included from /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client.c:10:
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/common.h:32:6: warning: implicit declaration of function 'gethostname' is invalid in C99 [-Wimplicit-function-declaration]
+  if(gethostname(name, 256)<0){
+     ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client.c:31:29: warning: implicit declaration of function 'hstrerror' is invalid in C99 [-Wimplicit-function-declaration]
+    fprintf(stderr, "%s\n", hstrerror(h_errno));
+                            ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client.c:31:29: warning: format specifies type 'char *' but the argument has type 'int' [-Wformat]
+    fprintf(stderr, "%s\n", hstrerror(h_errno));
+                     ~~     ^~~~~~~~~~~~~~~~~~
+                     %d
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client.c:74:10: warning: address of stack memory associated with local variable 'sockIDs' returned [-Wreturn-stack-address]
+  return sockIDs;
+         ^~~~~~~
+4 warnings generated.
+In file included from /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client_ivar_nonIO.c:11:
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/common.h:32:6: warning: implicit declaration of function 'gethostname' is invalid in C99 [-Wimplicit-function-declaration]
+  if(gethostname(name, 256)<0){
+     ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client_ivar_nonIO.c:31:29: warning: implicit declaration of function 'hstrerror' is invalid in C99 [-Wimplicit-function-declaration]
+    fprintf(stderr, "%s\n", hstrerror(h_errno));
+                            ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client_ivar_nonIO.c:31:29: warning: format specifies type 'char *' but the argument has type 'int' [-Wformat]
+    fprintf(stderr, "%s\n", hstrerror(h_errno));
+                     ~~     ^~~~~~~~~~~~~~~~~~
+                     %d
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/client_ivar_nonIO.c:74:10: warning: address of stack memory associated with local variable 'sockIDs' returned [-Wreturn-stack-address]
+  return sockIDs;
+         ^~~~~~~
+4 warnings generated.
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/common.c:14:6: warning: implicit declaration of function 'gethostname' is invalid in C99 [-Wimplicit-function-declaration]
+  if(gethostname(name, 256)<0){
+     ^
+1 warning generated.
+In file included from /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/event_client.c:10:
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/common.h:32:6: warning: implicit declaration of function 'gethostname' is invalid in C99 [-Wimplicit-function-declaration]
+  if(gethostname(name, 256)<0){
+     ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/event_client.c:32:29: warning: implicit declaration of function 'hstrerror' is invalid in C99 [-Wimplicit-function-declaration]
+    fprintf(stderr, "%s\n", hstrerror(h_errno));
+                            ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/event_client.c:32:29: warning: format specifies type 'char *' but the argument has type 'int' [-Wformat]
+    fprintf(stderr, "%s\n", hstrerror(h_errno));
+                     ~~     ^~~~~~~~~~~~~~~~~~
+                     %d
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/event_client.c:75:10: warning: address of stack memory associated with local variable 'sockIDs' returned [-Wreturn-stack-address]
+  return sockIDs;
+         ^~~~~~~
+4 warnings generated.
+In file included from /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/server.c:13:
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/common.h:32:6: warning: implicit declaration of function 'gethostname' is invalid in C99 [-Wimplicit-function-declaration]
+  if(gethostname(name, 256)<0){
+     ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/server.c:132:28: warning: implicit declaration of function 'hstrerror' is invalid in C99 [-Wimplicit-function-declaration]
+    fprintf(stderr,"%s\n", hstrerror(h_errno));
+                           ^
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/benchmarks/server/cilk/server.c:132:28: warning: format specifies type 'char *' but the argument has type 'int' [-Wformat]
+    fprintf(stderr,"%s\n", hstrerror(h_errno));
+                    ~~     ^~~~~~~~~~~~~~~~~~
+                    %d
+3 warnings generated.

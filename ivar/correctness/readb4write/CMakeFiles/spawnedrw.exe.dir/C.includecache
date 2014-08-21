@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/spawnedrw.c
+/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/spawnedrw.c
 stdio.h
 -
 stdlib.h

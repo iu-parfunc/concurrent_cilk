@@ -38,10 +38,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write
+CMAKE_SOURCE_DIR = /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write
+CMAKE_BINARY_DIR = /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write
 
 # Utility rule file for distclean.
 
@@ -66,6 +66,6 @@ CMakeFiles/distclean.dir/clean:
 .PHONY : CMakeFiles/distclean.dir/clean
 
 CMakeFiles/distclean.dir/depend:
-	cd /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/CMakeFiles/distclean.dir/DependInfo.cmake --color=$(COLOR)
+	cd /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/CMakeFiles/distclean.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/distclean.dir/depend
 

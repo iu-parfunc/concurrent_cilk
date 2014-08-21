@@ -38,10 +38,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write
+CMAKE_SOURCE_DIR = /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write
+CMAKE_BINARY_DIR = /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write
 
 # Include any dependencies generated for this target.
 include CMakeFiles/delayed_writer.exe.dir/depend.make
@@ -54,17 +54,17 @@ include CMakeFiles/delayed_writer.exe.dir/flags.make
 
 CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.o: CMakeFiles/delayed_writer.exe.dir/flags.make
 CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.o: delayed_writer.c
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building C object CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.o"
-	clang  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.o   -c /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/delayed_writer.c
+	clang  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.o   -c /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/delayed_writer.c
 
 CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.i"
-	clang  $(C_DEFINES) $(C_FLAGS) -E /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/delayed_writer.c > CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.i
+	clang  $(C_DEFINES) $(C_FLAGS) -E /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/delayed_writer.c > CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.i
 
 CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.s"
-	clang  $(C_DEFINES) $(C_FLAGS) -S /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/delayed_writer.c -o CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.s
+	clang  $(C_DEFINES) $(C_FLAGS) -S /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/delayed_writer.c -o CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.s
 
 CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.o.requires:
 .PHONY : CMakeFiles/delayed_writer.exe.dir/delayed_writer.c.o.requires
@@ -100,6 +100,6 @@ CMakeFiles/delayed_writer.exe.dir/clean:
 .PHONY : CMakeFiles/delayed_writer.exe.dir/clean
 
 CMakeFiles/delayed_writer.exe.dir/depend:
-	cd /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/CMakeFiles/delayed_writer.exe.dir/DependInfo.cmake --color=$(COLOR)
+	cd /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write /u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/CMakeFiles/delayed_writer.exe.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/delayed_writer.exe.dir/depend
 

@@ -31,7 +31,6 @@
 
 #include <cilk/cilk.h>
 #include <cilk/cilk_api.h>
-#include <cilk/abi.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>

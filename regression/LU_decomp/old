@@ -24,7 +24,7 @@
 //$ $LastChangedBy: sukhaj $ $Rev: 517 $ $Date: 2003-10-27 10:05:37 -0500 (Mon, 27 Oct 2003) $";
 #include <cilk/cilk.h>
 #include <cilk/cilk_api.h>
-#include <cilk/abi.h>
+//#include <cilk/abi.h>
 #include <stdlib.h>
 #include <memory.h>
 #include <stdio.h>

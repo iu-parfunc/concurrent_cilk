@@ -28,7 +28,6 @@
 
 #include <cilk/cilk.h>
 #include <cilk/cilk_api.h>
-#include <cilk/abi.h>
 #include <stdlib.h>
 #include <memory.h>
 #include <stdarg.h>

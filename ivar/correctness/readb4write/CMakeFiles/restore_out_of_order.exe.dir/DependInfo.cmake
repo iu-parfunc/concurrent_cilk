@@ -4,7 +4,7 @@ SET(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 SET(CMAKE_DEPENDS_CHECK_C
-  "/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/restore_out_of_order.c" "/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/CMakeFiles/restore_out_of_order.exe.dir/restore_out_of_order.c.o"
+  "/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/restore_out_of_order.c" "/u/parfunc/opt/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/CMakeFiles/restore_out_of_order.exe.dir/restore_out_of_order.c.o"
   )
 SET(CMAKE_C_COMPILER_ID "GNU")
 
@@ -14,7 +14,7 @@ SET(CMAKE_TARGET_LINKED_INFO_FILES
 
 # The include file search paths:
 SET(CMAKE_C_TARGET_INCLUDE_PATH
-  "/home/czakian/Research/concurrent_cilk/cilk_tests/common"
+  "/u/parfunc/opt/concurrent_cilk/cilk_tests/common"
   )
 SET(CMAKE_CXX_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
 SET(CMAKE_Fortran_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})

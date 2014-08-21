@@ -1,5 +1,2 @@
-OUT=bin
-BIN=main.exe
-#OBJS=../io_cilk.o
-include ../../../Makefile.common
 
+include $(CILK_SRC)/cilk_tests/Makefile.common

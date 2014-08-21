@@ -40,7 +40,7 @@ void writer(__cilkrts_ivar* iv)
 
     printf("   spurious work finished or parent stolen (w=%d)\n", __cilkrts_get_tls_worker()->self); 
 
-    __cilkrts_usleep(delay); // microseconds   
+    __cilkrts_usleep(DELAY); // microseconds   
     __cilkrts_ivar_write(iv, (ivar_payload_t)val);
     printf("     Inside spawned writer... WRITE OF %d DONE (w=%d).\n", val, __cilkrts_get_tls_worker()->self);
 

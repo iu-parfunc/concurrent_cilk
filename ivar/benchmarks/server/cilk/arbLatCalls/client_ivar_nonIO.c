@@ -9,7 +9,7 @@
 #include <cilk/concurrent_cilk.h>
 #include "agreement.h"
 #include "common.h"
-#include "../../../../../timer.h"
+#include "../../../../../common/timer.h"
 
 #define NUM_SERVERS 19
 
@@ -102,7 +102,7 @@ void closeReduce(int* sockIDs){
 // ADD IN ON COMPUTER RUNING OF PFIB
 
 long arbLatCalls(int n, int* socketIDs, int t){
-  if(n == 0) return;
+  if(n == 0) return 1;
   long x, y;
   __cilkrts_ivar iv;
   __cilkrts_ivar_clear(&iv);
