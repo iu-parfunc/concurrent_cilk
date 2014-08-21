@@ -749,8 +749,8 @@ static void detach_for_steal(__cilkrts_worker *w,
       // 
       // This call is a shared access to
       // victim->l->last_full_frame.
-      dbgprint(CONCURRENT, ">>>>>>>> setting sync master %d/%p team %p type %s\n",
-          victim->self, victim, victim->l->team,
+      dbgprint(CONCURRENT, ">>>>>>>> setting sync master %d/%p team %p team leader %p type %s\n",
+          victim->self, victim, victim->l->team, victim->l->team->team_leader,
           w->l->type == WORKER_USER ? "WORKER_USER" : "WORKER_SYSTEM");
       //CSZ the setting of the sync master is causing a spin need to fix!!!!
       set_sync_master(victim, loot_ff);
@@ -807,7 +807,12 @@ static void random_steal(__cilkrts_worker *w)
   if (__builtin_expect(w->g->stealing_disabled, 0))
     return;
 
+#ifdef CILK_IVARS
+  CILK_ASSERT(w->l->type == WORKER_SYSTEM || w->l->team == w 
+      || w->l->team->team_leader == w->l->team->team_leader);
+#else
   CILK_ASSERT(w->l->type == WORKER_SYSTEM || w->l->team == w);
+#endif
 
   /* If there is only one processor work can still be stolen.
      There must be only one worker to prevent stealing. */
@@ -828,6 +833,9 @@ static void random_steal(__cilkrts_worker *w)
 
 #ifdef CILK_IVARS
   victim = find_concurrent_work(victim);
+  if (! can_steal_from(victim)) {
+    victim = find_concurrent_work(w);
+  }
 #endif
 
   /* Execute a quick check before engaging in the THE protocol.
@@ -841,9 +849,15 @@ static void random_steal(__cilkrts_worker *w)
   dbgprint(CONCURRENT, "victim found, worker %p/%d depth %d\n",
       victim, victim->self, victim->worker_depth);
 
+
+
   /* Attempt to steal work from the victim */
   if (worker_trylock_other(w, victim)) {
+#ifdef CILK_IVARS
+    if (w->l->type == WORKER_USER && victim->l->team->team_leader != w) {
+#else
     if (w->l->type == WORKER_USER && victim->l->team != w) {
+#endif
 
       // Fail to steal if this is a user worker and the victim is not
       // on this team.  If a user worker were allowed to steal work
@@ -856,6 +870,7 @@ static void random_steal(__cilkrts_worker *w)
       // change its team until it runs out of work to do, at which point
       // it will try to take out its own lock, and this worker already
       // holds it.
+      dbgprint(CONCURRENT, "STEAL FAILED -- WORKER USER RESTRICTED\n");
       NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_USER_WORKER);
 
     } else if (victim->l->frame_ff) {
@@ -882,13 +897,16 @@ static void random_steal(__cilkrts_worker *w)
               w->l->next_frame_ff->call_stack->call_parent);
         } STOP_INTERVAL(w, INTERVAL_STEAL_SUCCESS);
       } else {
+        dbgprint(CONCURRENT, "STEAL FAILED -- DEKKER\n");
         NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_DEKKER);
       }
     } else {
+      dbgprint(CONCURRENT, "STEAL FAILED -- EMPTYQ\n");
       NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_EMPTYQ);
     }
     worker_unlock_other(w, victim);
   } else {
+    dbgprint(CONCURRENT, "STEAL FAILED -- LOCK\n");
     NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_LOCK);
   }
 
@@ -986,24 +1004,21 @@ static int provably_good_steal(__cilkrts_worker *w, full_frame *ff)
 #ifndef CILK_IVARS
         __cilkrts_push_next_frame(w->l->team, ff);
 #else
-        if (w->referencelist) {
-          if (ff->call_stack->flags & CILK_FRAME_LAST) {
-            __cilkrts_push_next_frame(w->team_proxy, ff);
-            dbgprint(CONCURRENT, "enqueueing LAST frame on worker %d/%p on the referencelist\n",
-                w->team_proxy->self, w->team_proxy);
-            enqueue(w->referencelist, (ELEMENT_TYPE) w->team_proxy);
-          } else {
-            __cilkrts_push_next_frame(w->l->team, ff);
-            dbgprint(CONCURRENT, "enqueueing worker %d/%p on the referencelist\n",
-                w->l->team->self, w->l->team);
-            enqueue(w->referencelist, (ELEMENT_TYPE) w->l->team);
-          }
-        }
+        __cilkrts_push_next_frame(w->l->team->team_leader, ff);
+
+        dbgprint(CONCURRENT, "push full frame %p (frame last? %i) on team leader %d/%p\n",
+            ff, ff->call_stack->flags & CILK_FRAME_LAST ? 1 : 0,
+            w->l->team->team_leader->self, w->l->team->team_leader);
 #endif
 
         // If this is the team leader we're not abandoning the work
+#ifdef CILK_IVARS
+        if (w == w->l->team->team_leader)
+          abandoned = 0;
+#else
         if (w == w->l->team)
           abandoned = 0;
+#endif
       } else {
         __cilkrts_push_next_frame(w, ff);
         abandoned = 0;  // Continue working on this thread
@@ -1462,28 +1477,35 @@ static void schedule_work(__cilkrts_worker *w)
 
   ff = pop_next_frame(w);
 
-#ifdef CILK_IVARS
+  // If there is no work on the queue, try to steal some.
   if (NULL == ff) {
+
+#ifdef CILK_IVARS
     if (w->readylist && (! dequeue(w->readylist, (ELEMENT_TYPE *) &ready_worker))) {
       //if there was ever a blocked worker running, this
       //means something has gone terribly wrong
-      CILK_ASSERT(ready_worker != w);
+      //CSZ: -- actually because of the below code this is possible. Consider the case of a sync + unblock on the same worker. 
+      //CILK_ASSERT(ready_worker != w);
+      dbgprint(CONCURRENT, "found referenced worker %d/%p on the referencelist\n",
+          ready_worker->self, ready_worker);
       __cilkrts_resume_fiber(ready_worker);
       CILK_ASSERT(0);
     }
 
-    if (w->referencelist && (! dequeue(w->referencelist, (ELEMENT_TYPE *) &ready_worker))) {
-      dbgprint(CONCURRENT, "found referenced worker %d/%p on the referencelist\n",
-          ready_worker->self, ready_worker);
-      __cilkrts_set_tls_worker(ready_worker);
-      ff = pop_next_frame(ready_worker);
-      CILK_ASSERT(ff);
+    if (w->l->team && w->l->team->team_leader && (NULL != w->l->team->team_leader->l->next_frame_ff)) {
+      dbgprint(CONCURRENT, "team leader %d/%p had its next frame pushed!\n", w->l->team->team_leader->self, w->l->team->team_leader);
     }
-  }
+    //CSZ: spinning need to figure out why...
+    if (NULL != w->l->team && w->l->team->team_leader->l->next_frame_ff && (! w->l->team->team_leader->blocked)) {
+
+      //TODO: cache/free the current worker as the team leader will now take over. 
+      __cilkrts_set_tls_worker(w->l->team->team_leader);
+      w = w->l->team->team_leader;
+      __cilkrts_fence();
+      //CILK_ASSERT(w->l->next_frame_ff);
+    }
 #endif 
 
-  // If there is no work on the queue, try to steal some.
-  if (NULL == ff) {
 
 
     START_INTERVAL(w, INTERVAL_STEALING) {
@@ -1496,6 +1518,7 @@ static void schedule_work(__cilkrts_worker *w)
         __cilkrts_worker_unlock(w);
       }
 
+      dbgprint(CONCURRENT, "worker %d/%p going for random steal\n", w->self, w);
       random_steal(w);
 
     } STOP_INTERVAL(w, INTERVAL_STEALING);
@@ -2273,8 +2296,9 @@ __cilkrts_worker *make_worker(global_state_t *g,
   w->paused_ctx    = NULL;
   w->readylist     = NULL;
   w->referencelist = NULL;
-  w->team_proxy    = NULL;
+  w->team_leader   = NULL;
   w->fibers        = NULL;
+  w->blocked       = 0;
   w->ref_count     = 0;
   w->worker_depth  = 0;
 #endif

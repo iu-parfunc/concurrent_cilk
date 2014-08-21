@@ -1,4 +1,4 @@
-Intel(R) Cilk(TM) Plus runtime library
+Intel(R) Cilk(TM) Plus runtime library - Concurrent Cilk Runtime 
 
 Index:
 1. BUILDING
@@ -8,9 +8,14 @@ Index:
 5. CONTRIBUTIONS
 
 #
-# 0. INSTALLING TESTS:
+# 0. SETUP:
 #
 
+%a.
+This library requires compiler compatible with Cilk support.  
+The compiler can be found and built from the instructions located at: http://cilkplus.github.io/
+
+%b
 Tests are managed as a submodule defined in .gitmodules. To pull the tests run (from the repository root): 
 
 % git submodule update --init 

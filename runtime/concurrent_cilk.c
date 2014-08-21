@@ -38,19 +38,20 @@ __cilkrts_commit_pause(__cilkrts_worker *w)
   //lazily allocate a pointer for the ref_count. 
   if (! w->ref_count) {
     w->ref_count = __cilkrts_malloc(sizeof(int)); *w->ref_count = 0;
-    w->team_proxy = w->l->team;
   }
 
   if (0 == *w->ref_count) {
     atomic_add(&(w->g->workers_blocked), 1);
   }
 
+  w->blocked = 1;
+
   //the fibers pointer is shared across all replacements on the same thread,
   //but only this thread may write to the array.
   replacement->fibers        = w->fibers;
   replacement->readylist     = w->readylist;
   replacement->ref_count     = w->ref_count;
-  replacement->team_proxy    = w->team_proxy;
+  replacement->team_leader   = w->team_leader;
   replacement->l->team       = w->l->team;
   replacement->l->type       = w->l->type;
   replacement->worker_depth  = w->worker_depth+1;
@@ -86,6 +87,7 @@ CILK_API(void)
 
   remove_worker_from_stealing(w);
   w->g->workers[w->self] = w;
+  w->blocked = 0;
   __cilkrts_set_tls_worker(w);
   if (1 == *w->ref_count) {
     atomic_sub(&(w->g->workers_blocked), 1);
@@ -153,20 +155,24 @@ inline __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim)
 {
   int i;
   __cilkrts_worker *other_victim = victim;
+  __cilkrts_worker *volatile tmp;
   CILK_ASSERT(victim);
 
   // there may not be any concurrent work to steal
   if (! victim->fibers) { return victim; }
 
   for (i = 0; i < MAX_WORKERS_BLOCKED; i++) {
-    if (victim->fibers[i] && can_steal_from(victim->fibers[i])) {
+    tmp = (__cilkrts_worker *volatile) victim->fibers[i];
+    if (tmp && can_steal_from(tmp)) {
       // if we fail the lock, no problem. random_steal will retry.
-      if (worker_trylock_other(victim, victim->fibers[i])) {
-        other_victim = victim->fibers[i];
-        dbgprint(CONCURRENT, "found victim %d/%p for stealing at idx %i\n",
-            other_victim->self, other_victim, i);
-        worker_unlock_other(victim, victim->fibers[i]);
+      if (worker_trylock_other(victim, tmp)) {
+        other_victim = tmp;
+        dbgprint(CONCURRENT, "victim %d/%p found surrogate victim %d/%p for stealing at idx %i\n",
+            victim->self, victim, other_victim->self, other_victim, i);
+        worker_unlock_other(victim, tmp);
         break;
+      } else {
+        dbgprint(CONCURRENT, ">>>>>>>>>>>>>>>>>>>>>>>>>>> victim %d/%p  failed to obtain concurrent lock at idx %i\n", victim->self, victim, i);
       }
     }
   }

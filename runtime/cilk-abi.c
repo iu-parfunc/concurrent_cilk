@@ -301,6 +301,9 @@ static __cilkrts_worker *find_free_worker(global_state_t *g)
     if (w->l->type == WORKER_FREE) {
       w->l->type = WORKER_USER;
       w->l->team = w;
+#ifdef CILK_IVARS
+      w->team_leader = w;
+#endif
       dbgprint(CONCURRENT, "FIND FREE %d/%p\n", w->self, w);
       return w;
     }
@@ -313,6 +316,9 @@ static __cilkrts_worker *find_free_worker(global_state_t *g)
   make_worker(g, -1, w);
   w->l->type = WORKER_USER;
   w->l->team = w;
+#ifdef CILK_IVARS
+      w->team_leader = w;
+#endif
   dbgprint(CONCURRENT, "FIND FREE %d/%p\n", w->self, w);
   return w;
 }

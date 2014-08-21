@@ -227,7 +227,7 @@ struct __cilkrts_worker {
     /** Hold a pointer to the jmp_buf returned by __cilkrts_pause() */
     jmp_buf *paused_ctx;
 
-    __cilkrts_worker *team_proxy; 
+    __cilkrts_worker *team_leader; 
 
     struct queue_t *referencelist;
 
@@ -237,6 +237,7 @@ struct __cilkrts_worker {
     // an array of blocked worker states available for stealing. 
     __cilkrts_worker **fibers;
 
+    int blocked;
     int worker_depth;
     int *volatile ref_count;
 #endif

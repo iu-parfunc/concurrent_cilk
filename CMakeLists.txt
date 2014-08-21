@@ -137,7 +137,7 @@ if(${CONCURRENT_CILK})
     set(EXTRA_DEBUG_FLAGS "-ggdb -g3 -fvar-tracking-assignments")
 
     # base flags for C/C++ that are used irrespective of build type
-    set(BASE_C_FLAGS "-Wall -std=c11 -Wno-unused-value -DIVAR_DBG=0xf")
+    set(BASE_C_FLAGS "-Wall -std=c11 -Wno-unused-value -DIVAR_DBG=0x0")
     set(BASE_CXX_FLAGS "-Wall -Wno-unused-value")
 
     if(${CMAKE_C_COMPILER} MATCHES "clang")
