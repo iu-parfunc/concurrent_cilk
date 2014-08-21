@@ -1,0 +1,9 @@
+#!/bin/bash
+
+export PATH=/u/parfunc/opt/bin/bin:$PATH
+export C_INCLUDE_PATH=/u/parfunc/opt/bin/include:$C_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=/u/parfunc/opt/bin/include:$CPLUS_INCLUDE_PATH
+export LIBRARY_PATH=/u/parfunc/opt/bin/lib:$LIBRARY_PATH
+export LD_LIBRARY_PATH=/u/parfunc/opt/bin/lib:$LD_LIBRARY_PATH
+
+

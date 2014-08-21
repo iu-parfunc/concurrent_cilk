@@ -4,8 +4,8 @@
 #the install for the library will be: CILK_ROOT/lib
 #header files will be located in CILK_ROOT/include
 
-CILK_ROOT=/opt/cilkplus #<<<<< EDIT this variable to point to your desired install location
-#CILK_ROOT=$HOME/opt/cilkplus #<<<<< EDIT this variable to point to your desired install location
+#CILK_ROOT=/opt/cilkplus #<<<<< EDIT this variable to point to your desired install location
+CILK_ROOT=$HOME/opt/cilkplus #<<<<< EDIT this variable to point to your desired install location
 
 #note, this file MUST be sourced from the top level cilkplus directory. 
 #otherwise, pwd will get the wrong directory.
@@ -21,6 +21,9 @@ export CILK_ROOT
 
 #export the source directory for cilk
 export CILK_SRC
+
+#Export that we want to debug IVARS (for now, once everything works we can get rid of this)
+export CILK_DEBUG_IVARS=false
 
 #use the cilk compiled gcc
 export PATH=$BIN_PATH:$PATH
