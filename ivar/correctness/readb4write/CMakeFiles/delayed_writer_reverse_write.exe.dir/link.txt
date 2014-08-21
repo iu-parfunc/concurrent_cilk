@@ -1,0 +1,1 @@
+clang   -Wall -std=c99 -Wno-unused-variable -Wno-unused-value -Wno-uninitialized -fcilkplus    CMakeFiles/delayed_writer_reverse_write.exe.dir/delayed_writer_reverse_write.c.o  -o delayed_writer_reverse_write.exe -rdynamic -ldl -lpthread -lcilkrts 

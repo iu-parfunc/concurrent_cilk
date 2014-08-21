@@ -1,0 +1,1 @@
+clang   -Wall -std=c99 -Wno-unused-variable -Wno-unused-value -Wno-uninitialized -fcilkplus    CMakeFiles/doublereadslowpath.exe.dir/doublereadslowpath.c.o  -o doublereadslowpath.exe -rdynamic -ldl -lpthread -lcilkrts 

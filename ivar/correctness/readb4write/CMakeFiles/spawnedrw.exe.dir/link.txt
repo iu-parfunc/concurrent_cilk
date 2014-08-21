@@ -1,0 +1,1 @@
+clang   -Wall -std=c99 -Wno-unused-variable -Wno-unused-value -Wno-uninitialized -fcilkplus    CMakeFiles/spawnedrw.exe.dir/spawnedrw.c.o  -o spawnedrw.exe -rdynamic -ldl -lpthread -lcilkrts 

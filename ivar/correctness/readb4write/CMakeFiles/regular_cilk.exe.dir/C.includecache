@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/regular_cilk.c
+stdio.h
+-
+stdlib.h
+-
+cilk/cilk.h
+-
+cilk/concurrent_cilk.h
+-
+

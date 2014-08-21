@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/nested_deadlock_delay_writer.c
+stdio.h
+-
+cilk/cilk.h
+-
+cilk/concurrent_cilk.h
+-
+../simple/timing.h
+/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/timing.h
+
+/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/timing.h
+time.h
+-
+

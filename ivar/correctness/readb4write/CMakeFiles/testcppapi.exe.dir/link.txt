@@ -1,0 +1,1 @@
+clang++    -Wall -fcilkplus -Wno-unused-variable -Wno-unused-value -Wno-uninitialized    CMakeFiles/testcppapi.exe.dir/testcppapi.cpp.o  -o testcppapi.exe -rdynamic -ldl -lpthread -lcilkrts 

@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp
+unistd.h
+-
+stdio.h
+-
+cilk/cilk.h
+-
+cilk/ivar.h
+-
+../simple/timing.h
+/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/timing.h
+
+/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/timing.h
+time.h
+-
+

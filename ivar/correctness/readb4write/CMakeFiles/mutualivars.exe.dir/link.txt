@@ -1,0 +1,1 @@
+clang   -Wall -std=c99 -Wno-unused-variable -Wno-unused-value -Wno-uninitialized -fcilkplus    CMakeFiles/mutualivars.exe.dir/mutualivars.c.o  -o mutualivars.exe -rdynamic -ldl -lpthread -lcilkrts 

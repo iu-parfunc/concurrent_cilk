@@ -1,0 +1,1 @@
+clang   -Wall -std=c99 -Wno-unused-variable -Wno-unused-value -Wno-uninitialized -fcilkplus    CMakeFiles/minimal_cilk.exe.dir/minimal_cilk.c.o  -o minimal_cilk.exe -rdynamic -ldl -lpthread -lcilkrts 

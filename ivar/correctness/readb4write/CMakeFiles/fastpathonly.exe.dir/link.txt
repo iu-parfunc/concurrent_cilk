@@ -1,0 +1,1 @@
+clang   -Wall -std=c99 -Wno-unused-variable -Wno-unused-value -Wno-uninitialized -fcilkplus    CMakeFiles/fastpathonly.exe.dir/fastpathonly.c.o  -o fastpathonly.exe -rdynamic -ldl -lpthread -lcilkrts 

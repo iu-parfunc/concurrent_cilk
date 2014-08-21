@@ -1,0 +1,1 @@
+clang   -Wall -std=c99 -Wno-unused-variable -Wno-unused-value -Wno-uninitialized -fcilkplus    CMakeFiles/snafoo.exe.dir/snafoo.c.o  -o snafoo.exe -rdynamic -ldl -lpthread -lcilkrts 

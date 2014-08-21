@@ -1,0 +1,1 @@
+clang   -Wall -std=c99 -Wno-unused-variable -Wno-unused-value -Wno-uninitialized -fcilkplus    CMakeFiles/pfib.exe.dir/pfib.c.o  -o pfib.exe -rdynamic -ldl -lpthread -lcilkrts 

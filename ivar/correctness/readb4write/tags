@@ -1,0 +1,78 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+DELAY	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/delayed_writer.c	7;"	d	file:
+DELAY	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/delayed_writer_reverse_write.c	6;"	d	file:
+DELAY	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/nested_deadlock_delay_writer.c	7;"	d	file:
+PFIB_N	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/pfib.c	5;"	d	file:
+TEST_VAL	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/basic_sync.c	8;"	d	file:
+TEST_VAL	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/doublereadslowpath.c	8;"	d	file:
+TEST_VAL	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/minimal_cilk.c	6;"	d	file:
+TEST_VAL	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/mutualivars.c	6;"	d	file:
+TEST_VAL	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/regular_cilk.c	8;"	d	file:
+TEST_VAL	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/restore_out_of_order.c	9;"	d	file:
+TEST_VAL	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/spawnedrw.c	9;"	d	file:
+bar	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/delayed_writer.c	/^void bar() {$/;"	f
+bar	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/doublereadslowpath.c	/^void bar(ivar_t *iv) {$/;"	f	signature:(ivar_t *iv)
+bar	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/mutualivars.c	/^void bar(ivar_t *iv) {$/;"	f	signature:(ivar_t *iv)
+bar	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/restore_out_of_order.c	/^void bar(ivar_t *iv1, ivar_t *iv2, ivar_t *iv3) {$/;"	f	signature:(ivar_t *iv1, ivar_t *iv2, ivar_t *iv3)
+bar	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/spawnedrw.c	/^void bar(ivar_t *iv) {$/;"	f	signature:(ivar_t *iv)
+bar	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/tmp.c	/^void bar(int volatile*volatile var) {$/;"	f	signature:(int volatile*volatile var)
+bundle	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^class bundle$/;"	c	file:
+bundle::get	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    void get() $/;"	f	class:bundle	access:public	signature:()
+bundle::n	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    ivar<int>  n;$/;"	m	class:bundle	file:	access:public
+bundle::p	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    ivar<int*> p;$/;"	m	class:bundle	file:	access:public
+bundle::put	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    void put() $/;"	f	class:bundle	access:public	signature:()
+bundle::t	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    ivar<tup>  t;$/;"	m	class:bundle	file:	access:public
+cux	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/delayed_writer.c	/^void cux() {$/;"	f
+cux	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/tmp.c	/^void cux() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/basic_sync.c	/^void fun() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/delayed_writer.c	/^void fun() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/delayed_writer_reverse_write.c	/^void fun() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/doublereadslowpath.c	/^void fun() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/interleaved_read_write.c	/^void fun() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/minimal_cilk.c	/^void fun() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/nested_deadlock.c	/^void fun() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/nested_deadlock_assignment.c	/^void fun() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/nested_deadlock_delay_writer.c	/^void fun() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/regular_cilk.c	/^void fun() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/restore_out_of_order.c	/^void fun() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/spawnedrw.c	/^void fun() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^void fun() {$/;"	f	signature:()
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/tmp.c	/^void fun() {$/;"	f
+get	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    void get() $/;"	f	class:bundle	access:public	signature:()
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/basic_sync.c	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/delayed_writer.c	/^int main(int argc, char **argv) {$/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/delayed_writer_reverse_write.c	/^int main(int argc, char **argv) {$/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/doublereadslowpath.c	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/interleaved_read_write.c	/^int main(int argc, char **argv) {$/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/minimal_cilk.c	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/mutualivars.c	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/nested_deadlock.c	/^int main(int argc, char **argv) {$/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/nested_deadlock_assignment.c	/^int main(int argc, char **argv) {$/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/nested_deadlock_delay_writer.c	/^int main(int argc, char **argv) {$/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/pfib.c	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/regular_cilk.c	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/restore_out_of_order.c	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/spawnedrw.c	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/tmp.c	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+n	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    ivar<int>  n;$/;"	m	class:bundle	file:	access:public
+obfusfib	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/mutualivars.c	/^void obfusfib(ivar_t *arr, int i, int len) {$/;"	f	signature:(ivar_t *arr, int i, int len)
+p	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    ivar<int*> p;$/;"	m	class:bundle	file:	access:public
+pfib	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/pfib.c	/^long pfib(int n) {$/;"	f	signature:(int n)
+put	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    void put() $/;"	f	class:bundle	access:public	signature:()
+t	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    ivar<tup>  t;$/;"	m	class:bundle	file:	access:public
+tup	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^struct tup {$/;"	s	file:
+tup::w	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public
+tup::x	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public
+tup::y	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public
+tup::z	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public
+w	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public
+writer	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^void writer(bundle& b) $/;"	f	signature:(bundle& b)
+x	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public
+y	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public
+z	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/readb4write/testcppivartemplates.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public

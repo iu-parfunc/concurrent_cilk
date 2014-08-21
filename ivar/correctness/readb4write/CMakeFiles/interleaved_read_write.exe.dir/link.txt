@@ -1,0 +1,1 @@
+clang   -Wall -std=c99 -Wno-unused-variable -Wno-unused-value -Wno-uninitialized -fcilkplus    CMakeFiles/interleaved_read_write.exe.dir/interleaved_read_write.c.o  -o interleaved_read_write.exe -rdynamic -ldl -lpthread -lcilkrts 

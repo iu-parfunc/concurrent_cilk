@@ -1,0 +1,1 @@
+clang   -Wall -std=c99 -Wno-unused-variable -Wno-unused-value -Wno-uninitialized -fcilkplus    CMakeFiles/basic_sync.exe.dir/basic_sync.c.o  -o basic_sync.exe -rdynamic -ldl -lpthread -lcilkrts 

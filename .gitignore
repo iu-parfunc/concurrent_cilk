@@ -7,6 +7,11 @@
 *.Tpo
 *.m4
 *.in
+*.ll
+*.s
+*.cmake
+*.make
+*CmakeFiles
 libcilkrts/configure
 libcilkrts/config.status
 libcilkrts/autom4te.m4

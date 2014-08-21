@@ -1,0 +1,1 @@
+clang   -Wall -std=c99 -Wno-unused-variable -Wno-unused-value -Wno-uninitialized -fcilkplus    CMakeFiles/tmp.exe.dir/tmp.c.o  -o tmp.exe -rdynamic -ldl -lpthread -lcilkrts 

@@ -1,0 +1,15 @@
+spawning reader1
+writing 2 to iv2
+old_val 0x0 flags 0x0
+spawning reader3
+writing 4 to iv4
+old_val 0x0 flags 0x0
+spawning reader5
+writing 1 to iv1
+spawning reader2
+writing 3 to iv3
+old_val 0x7f80a801b160 flags 0x2
+spawning reader4
+writing 5 to iv5
+sum of ivars is corect! (15)
+test complete

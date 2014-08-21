@@ -1,0 +1,49 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+DELAY	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar2.c	20;"	d	file:
+DELAY	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar2B.c	18;"	d	file:
+DELAY	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar5.c	16;"	d	file:
+EXTRA_SPAWN	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar2B.c	16;"	d	file:
+FIBINP	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar5.c	17;"	d	file:
+__cilkrts_msleep	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/timing.h	/^void __cilkrts_msleep(unsigned long millis)$/;"	f	signature:(unsigned long millis)
+__cilkrts_usleep	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/timing.h	/^void __cilkrts_usleep(unsigned long micros)$/;"	f	signature:(unsigned long micros)
+bundle	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^class bundle$/;"	c	file:
+bundle::get	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    void get() $/;"	f	class:bundle	access:public	signature:()
+bundle::n	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    ivar<int>  n;$/;"	m	class:bundle	file:	access:public
+bundle::p	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    ivar<int*> p;$/;"	m	class:bundle	file:	access:public
+bundle::put	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    void put() $/;"	f	class:bundle	access:public	signature:()
+bundle::t	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    ivar<tup>  t;$/;"	m	class:bundle	file:	access:public
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar2.c	/^void fun() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar2B.c	/^void fun() {$/;"	f
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar3.cpp	/^void fun() {$/;"	f	signature:()
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^void fun() {$/;"	f	signature:()
+fun	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar5.c	/^void fun() {$/;"	f
+get	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    void get() $/;"	f	class:bundle	access:public	signature:()
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar2.c	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar2B.c	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar3.cpp	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+main	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar5.c	/^int main(int argc, char **argv) $/;"	f	signature:(int argc, char **argv)
+n	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    ivar<int>  n;$/;"	m	class:bundle	file:	access:public
+p	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    ivar<int*> p;$/;"	m	class:bundle	file:	access:public
+parfib	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar5.c	/^long long parfib(int n) $/;"	f	signature:(int n)
+put	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    void put() $/;"	f	class:bundle	access:public	signature:()
+t	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    ivar<tup>  t;$/;"	m	class:bundle	file:	access:public
+tup	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^struct tup {$/;"	s	file:
+tup::w	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public
+tup::x	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public
+tup::y	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public
+tup::z	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public
+w	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public
+writer	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar2.c	/^void writer(__cilkrts_ivar* iv) {$/;"	f	signature:(__cilkrts_ivar* iv)
+writer	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar2B.c	/^void writer(__cilkrts_ivar* iv) {$/;"	f	signature:(__cilkrts_ivar* iv)
+writer	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar3.cpp	/^void writer(ivar<int>& iv) {$/;"	f	signature:(ivar<int>& iv)
+writer	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^void writer(bundle& b) $/;"	f	signature:(bundle& b)
+writer	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar5.c	/^void writer(__cilkrts_ivar* iv) $/;"	f	signature:(__cilkrts_ivar* iv)
+x	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public
+y	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public
+z	/home/czakian/Research/concurrent_cilk/cilk_tests/ivar/correctness/simple/ivar4.cpp	/^    int x,y,z,w;$/;"	m	struct:tup	file:	access:public

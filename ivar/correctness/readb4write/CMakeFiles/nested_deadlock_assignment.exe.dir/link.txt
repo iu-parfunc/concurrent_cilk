@@ -1,0 +1,1 @@
+clang   -Wall -std=c99 -Wno-unused-variable -Wno-unused-value -Wno-uninitialized -fcilkplus    CMakeFiles/nested_deadlock_assignment.exe.dir/nested_deadlock_assignment.c.o  -o nested_deadlock_assignment.exe -rdynamic -ldl -lpthread -lcilkrts 
