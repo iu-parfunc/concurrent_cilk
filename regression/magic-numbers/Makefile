@@ -1,6 +1,2 @@
-BIN=magic.exe
-OUT=bin
-SCRIPTS="../../scripts"
-SCRIPT_PREFIX="../benchmarks/magic-numbers"
-include  ../../Makefile.common
 
+include $(CILK_SRC)/cilk_tests/Makefile.common

@@ -1,6 +1,2 @@
-BIN=lu.exe plu.exe 
-OUT=bin
-SCRIPTS="../../scripts"
-SCRIPT_PREFIX="../benchmarks/LU_decomp"
-include  ../../Makefile.common
 
+include $(CILK_SRC)/cilk_tests/Makefile.common

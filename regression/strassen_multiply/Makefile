@@ -1,5 +1,2 @@
-BIN=strassen.exe
-OUT=bin
-SCRIPTS="../../scripts"
-SCRIPT_PREFIX="../benchmarks/strassen_multiply"
-include  ../../Makefile.common
+
+include $(CILK_SRC)/cilk_tests/Makefile.common
