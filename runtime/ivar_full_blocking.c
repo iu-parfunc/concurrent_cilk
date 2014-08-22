@@ -150,7 +150,7 @@ __cilkrts_ivar_write(__cilkrts_ivar *ivar, ivar_payload_t val)
       case CILK_IVAR_EMPTY:
         dbgprint(IVAR, "filling empty ivar %p\n", ivar);
         old_val = casv(ivar, peek, new_val);
-        printf("old_val 0x%lx flags 0x%lx\n", ((uintptr_t) old_val >> IVAR_SHIFT), old_val & IVAR_MASK);
+        dbgprint(IVAR, "old_val 0x%lx flags 0x%lx\n", ((uintptr_t) old_val >> IVAR_SHIFT), old_val & IVAR_MASK);
         if ((*ivar & IVAR_MASK) == CILK_IVAR_FULL)  { exit = 1; }
         break;  
       case CILK_IVAR_LOCKED:
