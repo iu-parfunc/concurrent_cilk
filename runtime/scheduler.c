@@ -157,7 +157,8 @@ void __cilkrts_dump_stats_to_stderr(global_state_t *g)
     fputc('\n', stderr);
 }
 
-static void validate_worker(__cilkrts_worker *w)
+//static
+void validate_worker(__cilkrts_worker *w)
 {
     /* check the magic numbers, for debugging purposes */
     if (w->l->worker_magic_0 != WORKER_MAGIC_0 ||
@@ -726,7 +727,9 @@ static void detach_for_steal(__cilkrts_worker *w,
     /* obtain the victim call stack */
     sf = *h;
 
+#ifdef CILK_IVARS
     dbgprint(CONCURRENT, "STEAL Wkr %d stole from victim %d, sf = %p\n", w->self, victim->self, sf);
+#endif
 
     /* perform system-dependent normalizations */
     /*__cilkrts_normalize_call_stack_on_steal(sf);*/
@@ -749,10 +752,11 @@ static void detach_for_steal(__cilkrts_worker *w,
       // 
       // This call is a shared access to
       // victim->l->last_full_frame.
+#ifdef CILK_IVARS
       dbgprint(CONCURRENT, ">>>>>>>> setting sync master %d/%p team %p team leader %p type %s\n",
           victim->self, victim, victim->l->team, victim->l->team->team_leader,
           w->l->type == WORKER_USER ? "WORKER_USER" : "WORKER_SYSTEM");
-      //CSZ the setting of the sync master is causing a spin need to fix!!!!
+#endif
       set_sync_master(victim, loot_ff);
     }
 
@@ -846,8 +850,10 @@ static void random_steal(__cilkrts_worker *w)
     return;
   }
 
+#ifdef CILK_IVARS
   dbgprint(CONCURRENT, "victim found, worker %p/%d depth %d\n",
       victim, victim->self, victim->worker_depth);
+#endif
 
 
 
@@ -870,7 +876,9 @@ static void random_steal(__cilkrts_worker *w)
       // change its team until it runs out of work to do, at which point
       // it will try to take out its own lock, and this worker already
       // holds it.
+#ifdef CILK_IVARS
       dbgprint(CONCURRENT, "STEAL FAILED -- WORKER USER RESTRICTED\n");
+#endif
       NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_USER_WORKER);
 
     } else if (victim->l->frame_ff) {
@@ -897,16 +905,22 @@ static void random_steal(__cilkrts_worker *w)
               w->l->next_frame_ff->call_stack->call_parent);
         } STOP_INTERVAL(w, INTERVAL_STEAL_SUCCESS);
       } else {
+#ifdef CILK_IVARS
         dbgprint(CONCURRENT, "STEAL FAILED -- DEKKER\n");
+#endif
         NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_DEKKER);
       }
     } else {
+#ifdef CILK_IVARS
       dbgprint(CONCURRENT, "STEAL FAILED -- EMPTYQ\n");
+#endif
       NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_EMPTYQ);
     }
     worker_unlock_other(w, victim);
   } else {
+#ifdef CILK_IVARS
     dbgprint(CONCURRENT, "STEAL FAILED -- LOCK\n");
+#endif
     NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_LOCK);
   }
 
@@ -1496,7 +1510,7 @@ static void schedule_work(__cilkrts_worker *w)
       dbgprint(CONCURRENT, "team leader %d/%p had its next frame pushed!\n", w->l->team->team_leader->self, w->l->team->team_leader);
     }
     //CSZ: spinning need to figure out why...
-    if (NULL != w->l->team && w->l->team->team_leader->l->next_frame_ff && (! w->l->team->team_leader->blocked)) {
+    if (w->worker_depth && NULL != w->l->team && w->l->team->team_leader->l->next_frame_ff && (! w->l->team->team_leader->blocked)) {
 
       //TODO: cache/free the current worker as the team leader will now take over. 
       __cilkrts_set_tls_worker(w->l->team->team_leader);
@@ -1518,7 +1532,6 @@ static void schedule_work(__cilkrts_worker *w)
         __cilkrts_worker_unlock(w);
       }
 
-      dbgprint(CONCURRENT, "worker %d/%p going for random steal\n", w->self, w);
       random_steal(w);
 
     } STOP_INTERVAL(w, INTERVAL_STEALING);
@@ -1875,8 +1888,10 @@ void __cilkrts_c_THE_exception_check(__cilkrts_worker *w,
 #endif // defined ENABLE_NOTIFY_ZC_INTRINSIC
 
     DBGPRINTF ("%d-%p: longjmp_into_runtime from __cilkrts_c_THE_exception_check\n", w->self, GetWorkerFiber(w));
+#ifdef CILK_IVARS
     dbgprint(CONCURRENT, "%d/%p depth %d longjumping into runtime from frame detached ref_count %i\n",
         w->self, w, w->worker_depth, w->ref_count ? *(w->ref_count) : -1);
+#endif
     longjmp_into_runtime(w, do_return_from_spawn, 0);
     DBGPRINTF ("%d-%p: returned from longjmp_into_runtime from __cilkrts_c_THE_exception_check?!\n", w->self, GetWorkerFiber(w));
   }
@@ -2113,8 +2128,10 @@ void __cilkrts_c_return_from_initial(__cilkrts_worker *w)
 {
   struct cilkred_map *rm;
 
+#ifdef CILK_IVARS
   dbgprint(FRAME, "IN CILK_FRAME_LAST %d/%p type %s\n", 
       w->self, w, w->l->type == WORKER_SYSTEM ? "WORKER_SYSTEM" : "WORKER_USER");
+#endif
 
   /* This is only called on a user thread worker. */
   CILK_ASSERT(w->l->type == WORKER_USER);

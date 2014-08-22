@@ -172,7 +172,7 @@ if(${CONCURRENT_CILK})
 
     if(${CONCURRENT_CILK})
       message("-- CMake setup with Concurrent Cilk ON")
-      add_definitions(-DCONCURRENT_CILK)
+      add_definitions(-DCILK_IVARS)
     endif()
 
 

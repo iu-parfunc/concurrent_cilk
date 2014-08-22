@@ -235,7 +235,7 @@ struct __cilkrts_worker {
     struct queue_t *readylist;
 
     // an array of blocked worker states available for stealing. 
-    __cilkrts_worker **fibers;
+    __cilkrts_worker * volatile *fibers;
 
     int blocked;
     int worker_depth;

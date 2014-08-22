@@ -15,6 +15,7 @@
 CILK_API(__cilkrts_worker *)
 __cilkrts_commit_pause(__cilkrts_worker *w) 
 {
+  __cilkrts_worker * volatile* fibers = NULL;
   dbgprint(CONCURRENT, "COMMIT PAUSE blocked worker %d/%p team %s\n",
       w->self, w, w->l->type == WORKER_SYSTEM ? "WORKER_SYSTEM" : "WORKER_USER");
   __cilkrts_worker *replacement;
@@ -25,8 +26,10 @@ __cilkrts_commit_pause(__cilkrts_worker *w)
 
   //lazily allocate a fibers array.
   if (! w->fibers) {
-    w->fibers = (__cilkrts_worker **) __cilkrts_malloc(sizeof(__cilkrts_worker *) * MAX_WORKERS_BLOCKED);
-    memset(w->fibers, 0, sizeof(__cilkrts_worker *) * MAX_WORKERS_BLOCKED);
+    fibers = (__cilkrts_worker * volatile*)
+      __cilkrts_malloc(sizeof(__cilkrts_worker *) * MAX_WORKERS_BLOCKED);
+    memset((__cilkrts_worker **) fibers, 0, sizeof(__cilkrts_worker *) * MAX_WORKERS_BLOCKED);
+    w->fibers = fibers;
   }
 
   //lazily allocate a slot for the readylist.
@@ -114,29 +117,17 @@ void register_worker_for_stealing(__cilkrts_worker *w)
       dbgprint(CONCURRENT, "registered worker %d/%p for stealing at idx %i\n", w->self, w, i);
       w->fibers[i] = w;
       return;
+      }
     }
-  }
-
   if (i >= MAX_WORKERS_BLOCKED) { __cilkrts_bug("BLOCKED WORKER OVERFLOW - aborting"); }
-}
-
-inline void is_last_paused_worker(__cilkrts_worker *w)
-{
-  CILK_ASSERT(w);
-
 }
 
 void remove_worker_from_stealing(__cilkrts_worker *w)
 {
   int i;
-  __cilkrts_worker *tmp;
   for (i = 0; i < MAX_WORKERS_BLOCKED; i++) { 
     if (w->fibers[i] == w) {
-      // we must spin until we can get at the worker to remove it from stealing. 
-      while (! worker_trylock_other(w, w->fibers[i])) { spin_pause(); } 
-      tmp = w->fibers[i];
       w->fibers[i] = NULL;
-      worker_unlock_other(w, tmp);
       dbgprint(CONCURRENT, "removed worker %d/%p from stealing at idx %i\n", w->self, w, i);
       return;
     }
@@ -144,39 +135,28 @@ void remove_worker_from_stealing(__cilkrts_worker *w)
 }
 
 
-/**
- * There is actually a data race between find_concurrent_work and find_ready_fiber. 
- * find_concurrent_work is executed by another worker while searching for a stealing
- * victim. find_ready_fiber is executed by a thread on its own TLS to find a ready_fiber
- * on its own thread to restore. Only one writes, so this is ok, but it does change the
- * order on a given run which a steal might be found. 
- */
 inline __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim)
 {
   int i;
-  __cilkrts_worker *other_victim = victim;
-  __cilkrts_worker *volatile tmp;
+  __cilkrts_worker *surrogate = victim;
+  __cilkrts_worker volatile *tmp;
   CILK_ASSERT(victim);
 
   // there may not be any concurrent work to steal
   if (! victim->fibers) { return victim; }
 
   for (i = 0; i < MAX_WORKERS_BLOCKED; i++) {
-    tmp = (__cilkrts_worker *volatile) victim->fibers[i];
-    if (tmp && can_steal_from(tmp)) {
-      // if we fail the lock, no problem. random_steal will retry.
-      if (worker_trylock_other(victim, tmp)) {
-        other_victim = tmp;
+    tmp = victim->fibers[i];
+    if(tmp) {
+      if (can_steal_from((__cilkrts_worker *) tmp)) {
+        surrogate = (__cilkrts_worker *) tmp;
         dbgprint(CONCURRENT, "victim %d/%p found surrogate victim %d/%p for stealing at idx %i\n",
-            victim->self, victim, other_victim->self, other_victim, i);
-        worker_unlock_other(victim, tmp);
+            victim->self, victim, surrogate->self, surrogate, i);
         break;
-      } else {
-        dbgprint(CONCURRENT, ">>>>>>>>>>>>>>>>>>>>>>>>>>> victim %d/%p  failed to obtain concurrent lock at idx %i\n", victim->self, victim, i);
       }
     }
   }
-  return other_victim;
+  return surrogate;
 }
 
 

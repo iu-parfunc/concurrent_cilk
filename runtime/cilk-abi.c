@@ -116,7 +116,9 @@ void enter_frame_fast_internal(__cilkrts_stack_frame *sf, uint32_t version)
   sf->call_parent = w->current_stack_frame;
   sf->worker = w;
   w->current_stack_frame = sf;
+#ifdef CILK_IVARS
   dbgprint(FRAME, "ENTER_FRAME %p flags 0x%x\n", sf, sf->flags);
+#endif
 }
 
 CILK_ABI_VOID __cilkrts_enter_frame_fast(__cilkrts_stack_frame *sf)
@@ -151,8 +153,10 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
   sf->flags &= ~CILK_FRAME_DETACHED;
 #endif
 
+#ifdef CILK_IVARS
   dbgprint(FRAME, "UNDO DETACH: %d/%p t %p exc %p head %p depth %d\n", 
       w->self, w, t, w->exc, w->head, w->worker_depth);
+#endif
 
   return __builtin_expect(t < w->exc, 0);
 }
@@ -160,7 +164,9 @@ static int __cilkrts_undo_detach(__cilkrts_stack_frame *sf)
 CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
 {
   __cilkrts_worker *w = sf->worker;
+#ifdef CILK_IVARS
   dbgprint(FRAME, "LEAVE FRAME %p flags 0x%x\n", sf, sf->flags);
+#endif
 
   /*    DBGPRINTF("%d-%p __cilkrts_leave_frame - sf %p, flags: %x\n", w->self, GetWorkerFiber(w), sf, sf->flags); */
 
@@ -202,7 +208,9 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
      and not spawned, or (2) the parent has never been stolen. */
   if ((sf->flags & CILK_FRAME_DETACHED)) {
 
+#ifdef CILK_IVARS
     dbgprint(FRAME, "CILK_FRAME_DETACHED - returning parent frame %p\n", sf->call_parent);
+#endif
     /*        DBGPRINTF("%d - __cilkrts_leave_frame - CILK_FRAME_DETACHED\n", w->self); */
 
 #ifndef _WIN32
@@ -240,7 +248,9 @@ CILK_ABI_VOID __cilkrts_leave_frame(__cilkrts_stack_frame *sf)
 
   if (__builtin_expect(sf->flags & CILK_FRAME_LAST, 0)) {
     __cilkrts_c_return_from_initial(w); /* does return */
+#ifdef CILK_IVARS
     dbgprint(FRAME, "CILK_FRAME_STOLEN - returning\n");
+#endif
   } else if (sf->flags & CILK_FRAME_STOLEN) {
     __cilkrts_return(w); /* does return */
   }
@@ -304,7 +314,9 @@ static __cilkrts_worker *find_free_worker(global_state_t *g)
 #ifdef CILK_IVARS
       w->team_leader = w;
 #endif
+#ifdef CILK_IVARS
       dbgprint(CONCURRENT, "FIND FREE %d/%p\n", w->self, w);
+#endif
       return w;
     }
   }
@@ -318,8 +330,8 @@ static __cilkrts_worker *find_free_worker(global_state_t *g)
   w->l->team = w;
 #ifdef CILK_IVARS
       w->team_leader = w;
+      dbgprint(CONCURRENT, "FIND FREE %d/%p\n", w->self, w);
 #endif
-  dbgprint(CONCURRENT, "FIND FREE %d/%p\n", w->self, w);
   return w;
 }
 
