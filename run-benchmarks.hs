@@ -17,16 +17,6 @@ import GHC.Conc           (getNumProcessors)
 
 --------------------------------------------------------------------------------
 
-fixed_backoffLevels :: [Integer]
--- fixed_backoffLevels = [ 10^i | i <- [0..6] ]
-fixed_backoffLevels = [ 1, 10, 100 ]
--- fixed_backoffLevels = [1,5,10,50,100,500,1000,5000,10000,50000,100000,500000,1000000,5000000]
-
--- fixed_backoffLevels = [ round (10 ** i) | i <- [0, 0.5 .. 6.5] ]
-
--- [2014.08.07] Going bigger:
--- fixed_backoffLevels = [ 10^7, 10^8 ]
-
 benches :: [Benchmark DefaultParamMeaning]
 benches = 
   [ (mkBenchmark ("cilk_tests/parfib/Makefile") [show sz] trivialParams) 
