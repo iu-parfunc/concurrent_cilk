@@ -28,15 +28,11 @@ TOP=$(shell pwd)
 # Google API authentication
 
 #ifeq ($(MACHINECLASS),delta)
-#  $(info Using ConcurrentCilk-specific FusionTable uploader.)
-#  CID=1063386764086-36m691p8ugsni9d6d2iuuhkn1mum4vg8.apps.googleusercontent.com
-#  SEC=P3rhLK4dSzBpFQeSdihToqsM
+  $(info Using ConcurrentCilk-specific FusionTable uploader.)
+  CID=1063386764086-36m691p8ugsni9d6d2iuuhkn1mum4vg8.apps.googleusercontent.com
+  SEC=P3rhLK4dSzBpFQeSdihToqsM
 # else
 # endif
-
-# [2014.08.30] Having a problem, using dynaprof project:
-CID=925399326325-6dir7re3ik7686p6v3kkfkf1kj0ec7ck.apps.googleusercontent.com
-SEC=MQ72ZWDde_1e1ihI5YE9YlEi
 
 TABLE=ConcurrentCilk_Benchmarks
 
