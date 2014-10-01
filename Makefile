@@ -33,8 +33,9 @@ TOP=$(shell pwd)
   SEC=P3rhLK4dSzBpFQeSdihToqsM
 # else
 # endif
-
 TABLE=ConcurrentCilk_Benchmarks
+# Note, this table can be found on the web at:
+#   https://www.google.com/fusiontables/DataSource?docid=1Jtm_Y7226eb3f7tVSUYLnnYGOjcSrVdUJT688XiA
 
 .phony: all build rebuild bench
 # ----------------------------------------
