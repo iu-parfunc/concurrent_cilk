@@ -62,21 +62,31 @@ event_base* cilk_io_init() {
 /** Callback functions **/
 void on_accept(evutil_socket_t fd, short flags, void* arg) {
 
+  printf("In On accept callback..\n");
   int* client_fd = (int*) arg;
   struct sockaddr_in client_addr;
   socklen_t client_len = sizeof(client_addr);
   *client_fd = accept(fd, (struct sockaddr *)&client_addr, &client_len);
 
+   /* Set the client socket to non-blocking mode. */
+  if (evutil_make_socket_nonblocking(*client_fd) < 0) {
+    err(1, "failed to set client socket to non-blocking");
+    close(*client_fd);
+    return;
+   }
+
   // Resume worker here
   
   /** testing code **/
   char* buf = malloc(sizeof(char) * 1024);
-  cilk_read(fd, buf, 1024);
+
+  cilk_read(*client_fd, buf, 1024);
 
 }
 
 void on_read(evutil_socket_t fd, short flags, void* arg) {
 
+  printf("In On read callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
   int len = read(fd, data->buf, data->len);
 
@@ -90,6 +100,7 @@ void on_read(evutil_socket_t fd, short flags, void* arg) {
 
 void on_write(evutil_socket_t fd, short flags, void* arg) {
 
+  printf("In On write callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
   int len = write(fd, data->buf, data->len);
 
@@ -99,15 +110,19 @@ void on_write(evutil_socket_t fd, short flags, void* arg) {
   
 }
 
-
 /* Concurrent Cilk I/O public API */
 
 void* cilk_io_init(void* args) {
 
   /* initialize event loop */
   base = event_base_new();
-  event_base_loop(base, EVLOOP_NO_EXIT_ON_EMPTY);
+  unsigned char flag = EVLOOP_NONBLOCK;
 
+  printf("Entering event loop..\n");
+
+  event_base_loop(base, EVLOOP_NO_EXIT_ON_EMPTY); 
+
+  printf("Exited event loop..\n");
 }
 
 void cilk_io_teardown() {
@@ -119,22 +134,20 @@ void cilk_io_teardown() {
 
 int cilk_accept(int listen_fd) {
 
-  /*
-    if (bind(listen_fd, (struct sockaddr *)&listen_addr,
-          sizeof(listen_addr)) < 0)
-      err(1, "bind failed");
-    if (listen(listen_fd, 5) < 0)
-      err(1, "listen failed");
-      */
-
     /* Set the socket to non-blocking. */
-    if (setnonblock(listen_fd) < 0)
+    if (evutil_make_socket_nonblocking(listen_fd) < 0) {
       err(1, "failed to set server socket to non-blocking");
+      return;
+    }
 
     int* client_fd = malloc(sizeof(int)); // Make malloc non blocking???
+    
     // Need to pass a struct with worker and client fd included
-    struct event *accept_event = event_new(base, listen_fd, EV_TIMEOUT|EV_READ, on_accept, client_fd);
-    event_add(accept_event);
+    struct event *accept_event = event_new(base, listen_fd, EV_READ, on_accept, client_fd);
+
+    printf ("Adding accept event ..\n");
+    event_add(accept_event, NULL);
+    printf ("After adding accept event ..\n");
 
     // Pause now
     // free client_fd and and return *client_fd
@@ -147,8 +160,9 @@ int cilk_read(int fd, char* buf, int len) {
   struct rw_data* data = malloc(sizeof(struct rw_data));
   data->buf = buf;
   data->len = len;
-  struct event* read_event = event_new(base, fd, EV_TIMEOUT|EV_READ, on_read, data);
-  event_add(read_event);
+  struct event* read_event = event_new(base, fd, EV_READ, on_read, data);
+  printf ("Adding read event..\n");
+  event_add(read_event, NULL);
 
   // Pause now
   // free rw_data* and return data->nbytes
@@ -161,8 +175,9 @@ int cilk_write(int fd, char* buf, int len) {
   struct rw_data* data = malloc(sizeof(struct rw_data));
   data->buf = buf;
   data->len = len;
-  struct event* read_event = event_new(base, fd, EV_TIMEOUT|EV_WRITE, on_write, data);
-  event_add(read_event);
+  struct event* write_event= event_new(base, fd, EV_WRITE, on_write, data);
+  printf("Adding write event..\n");
+  event_add(write_event, NULL);
 
   // Pause now
   // free rw_data* and return data->nbytes
@@ -197,8 +212,13 @@ int main(int argc, char** argv) {
   }
 
   pthread_t event_thr;
+  pthread_attr_t attr;
+
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
   long t;
-  int rc = pthread_create(event_thr, NULL, cilk_io_init, (void *)t);
+  int rc = pthread_create(&event_thr, &attr, cilk_io_init, (void *)t);
   if (rc){
     printf("ERROR; Failed to create event loop thread with error %d\n", rc);
     exit(-1);
@@ -207,6 +227,17 @@ int main(int argc, char** argv) {
   // Sleep for while until event loop is initialized
   sleep(1);
 
+  printf("Calling cilk_accept..\n");
   cilk_accept(listen_fd);
+
+  void *status;
+  pthread_attr_destroy(&attr);
+  rc = pthread_join(event_thr, &status);
+  if (rc) {
+    printf("ERROR; return code from pthread_join() is %d\n", rc);
+    exit(-1);
+  }
+
+  printf("Exiting server..\n");
 
 }
