@@ -17,29 +17,18 @@
 #define SERVER_PORT 5555
 
 struct rw_data {
+  int fd;
   char* buf;
   int len;
   int nbytes;
+  __cilkrts_ivar iv;
+  int status;
 };
 
 int cilk_io_init_enter= 0;
 int cilk_io_init_exit = 0;
 int cilk_event_base_set = 0;
 struct event_base *base;
-
-/**
- *  Set a socket to non-blocking mode.
- * */
-int setnonblock(int fd) {
-  int flags;
-  flags = fcntl(fd, F_GETFL);
-  if (flags < 0)
-    return flags;
-  flags |= O_NONBLOCK;
-  if (fcntl(fd, F_SETFL, flags) < 0)
-    return -1;
-  return 0;
-}
 
 /*
 event_base* cilk_io_init() {
@@ -63,7 +52,7 @@ event_base* cilk_io_init() {
 void on_accept(evutil_socket_t fd, short flags, void* arg) {
 
   printf("In On accept callback..\n");
-  int* client_fd = (int*) arg;
+  struct rw_data* data= (struct rw_data*) arg;
   struct sockaddr_in client_addr;
   socklen_t client_len = sizeof(client_addr);
   *client_fd = accept(fd, (struct sockaddr *)&client_addr, &client_len);
@@ -76,11 +65,12 @@ void on_accept(evutil_socket_t fd, short flags, void* arg) {
    }
 
   // Resume worker here
+  __cilkrts_ivar_write(&(data->iv), *client_fd)
   
   /** testing code **/
-  char* buf = malloc(sizeof(char) * 1024);
+  // char* buf = malloc(sizeof(char) * 1024);
 
-  cilk_read(*client_fd, buf, 1024);
+  // cilk_read(*client_fd, buf, 1024);
 
 }
 
@@ -88,26 +78,46 @@ void on_read(evutil_socket_t fd, short flags, void* arg) {
 
   printf("In On read callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
-  int len = read(fd, data->buf, data->len);
 
-  data->nbytes = len;
+  while (data->len > 0) {
+    int len = read(fd, data->buf + data->nbytes, data->len);
 
+    if (len < 0) {
+      err(1, "Error reading from client..");
+      data->status = -1;
+      __cilkrts_ivar_write(&(data->iv), data->len);
+    }
+
+    data->nbytes += len;
+    data->len -= len;
+  } 
   // Resume worker here
-
+  __cilkrts_ivar_write(&(data->iv), data->nbytes);
   /** testing code **/
-  cilk_write(fd, data->buf, data->len);
+  // cilk_write(fd, data->buf, data->len);
 }
 
 void on_write(evutil_socket_t fd, short flags, void* arg) {
 
   printf("In On write callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
-  int len = write(fd, data->buf, data->len);
 
-  data->nbytes = len;
+  while (data->len > 0) {
+    int len = write(fd, data->buf + data->nbytes, data->len);
+
+    if (len < 0) {
+      err(1, "Error writing to client..");
+      data->status = -1;
+      __cilkrts_ivar_write(&(data->iv), data->len);
+    }
+
+    data->nbytes += len;
+    data->len -= len;
+  }
 
   // Resume worker here
-  
+  __cilkrts_ivar_write(&(data->iv), data->nbytes);
+
 }
 
 /* Concurrent Cilk I/O public API */
@@ -140,17 +150,27 @@ int cilk_accept(int listen_fd) {
       return;
     }
 
-    int* client_fd = malloc(sizeof(int)); // Make malloc non blocking???
-    
+     // Good idea to recycle these allocations
+    struct rw_data* data = malloc(sizeof(struct rw_data));
+    data->buf = buf;
+    __cilkrts_ivar_clear(&(data->iv));   
+
     // Need to pass a struct with worker and client fd included
-    struct event *accept_event = event_new(base, listen_fd, EV_READ, on_accept, client_fd);
+    struct event *accept_event = event_new(base, listen_fd, EV_READ, on_accept, data);
+
 
     printf ("Adding accept event ..\n");
     event_add(accept_event, NULL);
     printf ("After adding accept event ..\n");
 
-    // Pause now
-    // free client_fd and and return *client_fd
+    // Block here
+    __cilkrts_ivar_read(&(data->iv));
+
+    // Returns the result after resuming
+    int fd = data->fd;
+    free(data);
+
+    return fd;
 
 }
 
@@ -160,12 +180,20 @@ int cilk_read(int fd, char* buf, int len) {
   struct rw_data* data = malloc(sizeof(struct rw_data));
   data->buf = buf;
   data->len = len;
+  __cilkrts_ivar_clear(&(data->iv));   
+
   struct event* read_event = event_new(base, fd, EV_READ, on_read, data);
   printf ("Adding read event..\n");
   event_add(read_event, NULL);
 
   // Pause now
-  // free rw_data* and return data->nbytes
+  __cilkrts_ivar_read(&(data->iv));
+
+  // Returns the result after resuming
+  int len = data->nbytes;
+  free(data);
+
+  return len;
 
 }
 
@@ -175,12 +203,20 @@ int cilk_write(int fd, char* buf, int len) {
   struct rw_data* data = malloc(sizeof(struct rw_data));
   data->buf = buf;
   data->len = len;
+  __cilkrts_ivar_clear(&(data->iv));   
+
   struct event* write_event= event_new(base, fd, EV_WRITE, on_write, data);
   printf("Adding write event..\n");
   event_add(write_event, NULL);
 
   // Pause now
-  // free rw_data* and return data->nbytes
+  __cilkrts_ivar_read(&(data->iv));
+
+  // Returns the result after resuming
+  int len = data->nbytes;
+  free(data);
+
+  return len;
 
 }
 
@@ -228,7 +264,17 @@ int main(int argc, char** argv) {
   sleep(1);
 
   printf("Calling cilk_accept..\n");
-  cilk_accept(listen_fd);
+  char buf[1025];
+  char recvbuf[1025];
+
+  while (1) {
+    int fd = cilk_accept(listen_fd);
+    strcpy(buf, "Hello client!!!");
+    cilk_write(fd, sendbuff, strlen(buf)); 
+
+    int len = cilk_read(fd, recvbuf, 4);
+    cilk_write(fd, recvbuf, 4);
+  }
 
   void *status;
   pthread_attr_destroy(&attr);
