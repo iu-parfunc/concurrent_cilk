@@ -12,7 +12,7 @@ AR = ar
 RM = rm
 
 HDRS = 
-CODE = concurrent_cilk_io.c
+CODE = cc.c
 OBJ0 = $(CODE:.cpp=.o)
 OBJ  = $(OBJ0:.c=.o)
 SRC = $(HDRS) $(CODE)
