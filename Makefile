@@ -49,6 +49,9 @@ build:
 rebuild:
 	./build_scripts/clean_and_rebuild.sh
 
+debug:
+	CILK_DEBUG_IVARS=true ./build_scripts/clean_and_rebuild.sh
+
 # Run the benchmarks
 bench: run-benchmarks.exe
 	./run-benchmarks.exe --retry=3 --hostname=$(MACHINECLASS) --runid=$(RUNID) --keepgoing --trials=$(TRIALS) --name=$(TABLE) --fusion-upload --clientid=$(CID) --clientsecret=$(SEC) $(WHICHBENCH) $(BENCHARGS)
