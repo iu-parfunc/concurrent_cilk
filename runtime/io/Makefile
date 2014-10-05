@@ -24,7 +24,7 @@ CFLAGS += -I/u/budkahaw/Builds/cilk/libevent_2.1/libevent-2.1.4-alpha/bin/includ
 all: build install
 
 build:	$(OBJ)
-	$(CC) $(CFLAGS) $(LIBS) concurrent_cilk_io.o -o server.exe
+	$(CC) $(CFLAGS) $(LIBS) cc.o -o server.exe
 
 run:
 

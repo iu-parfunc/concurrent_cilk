@@ -20,6 +20,8 @@ struct rw_data {
   char* buf;
   int len;
   int nbytes;
+  struct event* read_ev;
+  struct event* write_ev;
 };
 
 int cilk_io_init_enter= 0;
@@ -78,9 +80,9 @@ void on_accept(evutil_socket_t fd, short flags, void* arg) {
   // Resume worker here
   
   /** testing code **/
-  char* buf = malloc(sizeof(char) * 1024);
+  char* buf = malloc(sizeof(char) * 10);
 
-  cilk_read(*client_fd, buf, 1024);
+  cilk_read(*client_fd, buf, 10);
 
 }
 
@@ -88,23 +90,60 @@ void on_read(evutil_socket_t fd, short flags, void* arg) {
 
   printf("In On read callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
-  int len = read(fd, data->buf, data->len);
 
-  data->nbytes = len;
+  if (data->len > 0) {
+    printf("Going an iteration..\n");
+    printf("data->buf : %p\n", data->buf);
+    printf("data->nbytes : %d\n", data->nbytes);
+    printf("data->len : %d\n", data->len);
+    int len = read(fd, data->buf+data->nbytes, data->len);
+
+    if (len < 0) {
+      err(1, "Error reading from client..");
+      return;
+    }
+
+    data->nbytes += len;
+    data->len -= len;
+
+    if (data->len > 0) {
+      event_add(data->read_ev, NULL);
+    } else {
+      data->len = data->nbytes;
+      data->nbytes = 0;
+      cilk_write(fd, data->buf, data->len);
+    }
+  } 
+
+  // int len = read(fd, data->buf, data->len);
+
+  // data->nbytes = len;
 
   // Resume worker here
 
   /** testing code **/
-  cilk_write(fd, data->buf, data->len);
 }
 
 void on_write(evutil_socket_t fd, short flags, void* arg) {
 
   printf("In On write callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
-  int len = write(fd, data->buf, data->len);
 
-  data->nbytes = len;
+  if (data->len > 0) {
+    int len = write(fd, data->buf+data->nbytes, data->len);
+
+    if (len < 0) {
+      err(1, "Error writing to client..\n");
+      return;
+    }
+
+    data->nbytes += len;
+    data->len -= len;
+
+    if (data->len > 0) {
+      event_add(data->write_ev, NULL);
+    }
+  }
 
   // Resume worker here
   
@@ -140,7 +179,7 @@ int cilk_accept(int listen_fd) {
       return;
     }
 
-    int* client_fd = malloc(sizeof(int)); // Make malloc non blocking???
+    int* client_fd = calloc(1, sizeof(int)); // Make malloc non blocking???
     
     // Need to pass a struct with worker and client fd included
     struct event *accept_event = event_new(base, listen_fd, EV_READ, on_accept, client_fd);
@@ -157,10 +196,11 @@ int cilk_accept(int listen_fd) {
 int cilk_read(int fd, char* buf, int len) {
 
   // Good idea to recycle these allocations
-  struct rw_data* data = malloc(sizeof(struct rw_data));
+  struct rw_data* data = calloc(1, sizeof(struct rw_data));
   data->buf = buf;
   data->len = len;
-  struct event* read_event = event_new(base, fd, EV_READ, on_read, data);
+  struct event* read_event = event_new(base, fd, EV_READ | EV_ET, on_read, data);
+  data->read_ev =  read_event;
   printf ("Adding read event..\n");
   event_add(read_event, NULL);
 
@@ -172,11 +212,12 @@ int cilk_read(int fd, char* buf, int len) {
 int cilk_write(int fd, char* buf, int len) {
 
   // Good idea to recycle these allocations
-  struct rw_data* data = malloc(sizeof(struct rw_data));
+  struct rw_data* data = calloc(1, sizeof(struct rw_data));
   data->buf = buf;
   data->len = len;
-  struct event* write_event= event_new(base, fd, EV_WRITE, on_write, data);
+  struct event* write_event= event_new(base, fd, EV_WRITE | EV_ET, on_write, data);
   printf("Adding write event..\n");
+  data->write_ev = write_event;
   event_add(write_event, NULL);
 
   // Pause now
