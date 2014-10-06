@@ -45,10 +45,11 @@ TABLE=ConcurrentCilk_Benchmarks
 all: build 
 
 $(DEPS): 
-        cd deps/libevent; \
-        ./configure --prefix=$(TOP); \
-        make; \
-        make install    
+	cd deps/libevent; \
+        ./autogen.sh; \
+	./configure --prefix=$(TOP); \
+	make; \
+	make install
 
 build: $(DEPS) 
 	./build_scripts/build_libcilk.sh
