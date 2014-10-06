@@ -45,10 +45,10 @@ TABLE=ConcurrentCilk_Benchmarks
 all: build 
 
 $(DEPS): 
-	cd deps/libevent-2.1.4-alpha/; \
-		./configure --prefix=$(TOP); \
-	 	make; \
-		make install	
+	cd deps/libevent; \
+	./configure --prefix=$(TOP); \
+	make; \
+	make install	
 
 build: $(DEPS) 
 	./build_scripts/build_libcilk.sh
