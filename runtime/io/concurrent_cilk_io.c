@@ -87,7 +87,7 @@ void on_read(evutil_socket_t fd, short flags, void* arg) {
   struct rw_data* data= (struct rw_data*) arg;
 
   if (data->len > 0) {
-    int len = read(fd, data->buf + data->nbytes, data->len);
+    int len = read(fd, (char*)data->buf + data->nbytes, data->len);
 
     if (len < 0) {
       err(1, "Error reading from client..");
@@ -116,7 +116,7 @@ void on_write(evutil_socket_t fd, short flags, void* arg) {
   struct rw_data* data= (struct rw_data*) arg;
 
   while (data->len > 0) {
-    int len = write(fd, data->buf + data->nbytes, data->len);
+    int len = write(fd, (char*)data->buf + data->nbytes, data->len);
 
     if (len < 0) {
       err(1, "Error writing to client..");
@@ -159,7 +159,7 @@ void cilk_io_teardown() {
 
 }
 
-int cilk_accept(int listen_fd) {
+CILK_API(int) cilk_accept(int listen_fd) {
 
     /* Set the socket to non-blocking. */
     if (evutil_make_socket_nonblocking(listen_fd) < 0) {
@@ -191,7 +191,7 @@ int cilk_accept(int listen_fd) {
 
 }
 
-int cilk_read(int fd, char* buf, int len) {
+CILK_API(int) cilk_read(int fd, void* buf, int len) {
 
   // Good idea to recycle these allocations
   struct rw_data* data = malloc(sizeof(struct rw_data));
@@ -216,7 +216,7 @@ int cilk_read(int fd, char* buf, int len) {
 
 }
 
-int cilk_write(int fd, char* buf, int len) {
+CILK_API(int) cilk_write(int fd, void* buf, int len) {
 
   // Good idea to recycle these allocations
   struct rw_data* data = malloc(sizeof(struct rw_data));

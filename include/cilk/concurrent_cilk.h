@@ -20,6 +20,11 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read (__cilkrts_ivar*);
 CILK_API(void)           __cilkrts_ivar_write(__cilkrts_ivar*, ivar_payload_t);
 CILK_API(void)           __cilkrts_ivar_clear(__cilkrts_ivar*);
 
+CILK_API(int) cilk_accept(int);
+CILK_API(int) cilk_read(int, void*, int);
+CILK_API(int) cilk_write(int, void*, int);
+void* cilk_io_init(void*);
+
 #define IVAR_SHIFT 0x4
 #define IVAR_MASK  0xf
 #define CILK_IVAR_EMPTY  0x0
