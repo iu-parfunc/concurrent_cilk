@@ -24,6 +24,7 @@ endif
 TRIALS=3
 # TRIALS=1
 TOP=$(shell pwd)
+DEPS=lib/libevent.so
 
 # Google API authentication
 
@@ -41,16 +42,19 @@ TABLE=ConcurrentCilk_Benchmarks
 # ----------------------------------------
 
 # TODO: build everything before running/benchmarking:
-all: rebuild 
+all: build 
 
-build:
+$(DEPS): 
+	cd deps/libevent-2.1.4-alpha/; \
+		./configure --prefix=$(TOP); \
+	 	make; \
+		make install	
+
+build: $(DEPS) 
 	./build_scripts/build_libcilk.sh
 
 rebuild:
 	./build_scripts/clean_and_rebuild.sh
-
-debug:
-	CILK_DEBUG_IVARS=true ./build_scripts/clean_and_rebuild.sh
 
 # Run the benchmarks
 bench: run-benchmarks.exe

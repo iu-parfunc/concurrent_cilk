@@ -241,7 +241,7 @@ CILK_API(int) cilk_write(int fd, void* buf, int len) {
 
 }
 
-
+/*
 int mainv(int argc, char** argv) {
 
   int listen_fd;
@@ -308,3 +308,5 @@ int mainv(int argc, char** argv) {
   printf("Exiting server..\n");
 
 }
+
+*/
