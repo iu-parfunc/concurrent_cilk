@@ -56,7 +56,7 @@ event_base* cilk_io_init() {
 /** Callback functions **/
 void on_accept(evutil_socket_t fd, short flags, void* arg) {
 
-  printf("In On accept callback..\n");
+  printf(" [cilkio] In On accept callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
   struct sockaddr_in client_addr;
   socklen_t client_len = sizeof(client_addr);
@@ -83,7 +83,7 @@ void on_accept(evutil_socket_t fd, short flags, void* arg) {
 
 void on_read(evutil_socket_t fd, short flags, void* arg) {
 
-  printf("In On read callback..\n");
+  printf(" [cilkio] In On read callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
 
   if (data->len > 0) {
@@ -112,7 +112,7 @@ void on_read(evutil_socket_t fd, short flags, void* arg) {
 
 void on_write(evutil_socket_t fd, short flags, void* arg) {
 
-  printf("In On write callback..\n");
+  printf(" [cilkio] In On write callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
 
   while (data->len > 0) {
@@ -150,7 +150,7 @@ int cilk_io_init() {
   /* initialize event loop */
   base = event_base_new();
 
-  printf("event_base_new complete, spawning thread for event loop..\n");
+  printf(" [cilkio] event_base_new complete, spawning thread for event loop..\n");
 
   pthread_t event_thr;
   pthread_attr_t attr;
@@ -234,7 +234,7 @@ CILK_API(int) cilk_write(int fd, void* buf, int len) {
 
   struct event* write_event= event_new(base, fd, EV_WRITE, on_write, data);
   data->write_ev = write_event;
-  printf("Adding write event..\n");
+  printf(" [cilkio] Adding write event..\n");
   event_add(write_event, NULL);
 
   // Pause now
@@ -285,14 +285,14 @@ int mainv(int argc, char** argv) {
   long t;
   int rc = pthread_create(&event_thr, &attr, cilk_io_init, (void *)t);
   if (rc){
-    printf("ERROR; Failed to create event loop thread with error %d\n", rc);
+    printf(" [cilkio] ERROR; Failed to create event loop thread with error %d\n", rc);
     exit(-1);
   }
 
   // Sleep for while until event loop is initialized
   sleep(1);
 
-  printf("Calling cilk_accept..\n");
+  printf(" [cilkio] Calling cilk_accept..\n");
   char buf[1025];
   char recvbuf[1025];
 
@@ -309,11 +309,11 @@ int mainv(int argc, char** argv) {
   pthread_attr_destroy(&attr);
   rc = pthread_join(event_thr, &status);
   if (rc) {
-    printf("ERROR; return code from pthread_join() is %d\n", rc);
+    printf(" [cilkio] ERROR; return code from pthread_join() is %d\n", rc);
     exit(-1);
   }
 
-  printf("Exiting server..\n");
+  printf(" [cilkio] Exiting server..\n");
 
 }
 
