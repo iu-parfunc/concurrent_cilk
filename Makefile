@@ -38,11 +38,11 @@ TABLE=ConcurrentCilk_Benchmarks
 # Note, this table can be found on the web at:
 #   https://www.google.com/fusiontables/DataSource?docid=1Jtm_Y7226eb3f7tVSUYLnnYGOjcSrVdUJT688XiA
 
-.phony: all build rebuild bench
+.phony: all dobuild rebuild bench
 # ----------------------------------------
 
 # TODO: build everything before running/benchmarking:
-all: build 
+all: dobuild 
 
 $(DEPS): 
 	cd deps/libevent; \
@@ -51,7 +51,7 @@ $(DEPS):
 	make; \
 	make install
 
-build: $(DEPS) 
+dobuild: $(DEPS) 
 	./build_scripts/build_libcilk.sh
 
 rebuild:

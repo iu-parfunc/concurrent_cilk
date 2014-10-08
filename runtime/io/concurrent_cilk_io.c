@@ -136,20 +136,28 @@ void on_write(evutil_socket_t fd, short flags, void* arg) {
   }
 }
 
+void* __cilkrts_io_init_helper(void* ignored) {
+  printf(" [cilkio] Now on dedicated event-loop thread, begin loop:\n");
+  event_base_loop(base, EVLOOP_NO_EXIT_ON_EMPTY); 
+  printf(" [cilkio] Exited event loop..\n");
+  return NULL;
+}
+
+
 /* Concurrent Cilk I/O public API */
 
-void* cilk_io_init(void* args) {
-
+int cilk_io_init() {
   /* initialize event loop */
   base = event_base_new();
 
-  printf("Entering event loop..\n");
+  printf("event_base_new complete, spawning thread for event loop..\n");
 
-  event_base_loop(base, EVLOOP_NO_EXIT_ON_EMPTY); 
-
-  printf("Exited event loop..\n");
-
-  return NULL;
+  pthread_t event_thr;
+  pthread_attr_t attr;
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+  int rc = pthread_create(&event_thr, &attr, __cilkrts_io_init_helper, 0);  
+  return rc;
 }
 
 void cilk_io_teardown() {
@@ -168,7 +176,7 @@ CILK_API(int) cilk_accept(int listen_fd) {
     }
 
      // Good idea to recycle these allocations
-    struct rw_data* data = malloc(sizeof(struct rw_data));
+    struct rw_data* data = calloc(sizeof(struct rw_data),1);
     __cilkrts_ivar_clear(&(data->iv));   
 
     // Need to pass a struct with worker and client fd included
@@ -194,7 +202,7 @@ CILK_API(int) cilk_accept(int listen_fd) {
 CILK_API(int) cilk_read(int fd, void* buf, int len) {
 
   // Good idea to recycle these allocations
-  struct rw_data* data = malloc(sizeof(struct rw_data));
+  struct rw_data* data = calloc(sizeof(struct rw_data), 1);
   data->buf = buf;
   data->len = len;
   __cilkrts_ivar_clear(&(data->iv));   
@@ -219,7 +227,7 @@ CILK_API(int) cilk_read(int fd, void* buf, int len) {
 CILK_API(int) cilk_write(int fd, void* buf, int len) {
 
   // Good idea to recycle these allocations
-  struct rw_data* data = malloc(sizeof(struct rw_data));
+  struct rw_data* data = calloc(sizeof(struct rw_data), 1);
   data->buf = buf;
   data->len = len;
   __cilkrts_ivar_clear(&(data->iv));   
