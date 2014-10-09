@@ -131,6 +131,9 @@ void on_write(evutil_socket_t fd, short flags, void* arg) {
       event_add(data->write_ev, NULL);
     } else {
       // Resume  worker here
+      printf(" [cilkio] ON WRITE - Writing to ivar at address %p\n", &(data->iv));
+      printf(" [cilkio] ON WRITE - Writing value %d to ivar\n", data->nbytes);
+      fflush(0);
       __cilkrts_ivar_write(&(data->iv), data->nbytes);
     }
   }
@@ -142,7 +145,6 @@ void* __cilkrts_io_init_helper(void* ignored) {
   printf(" [cilkio] Exited event loop..\n");
   return NULL;
 }
-
 
 /* Concurrent Cilk I/O public API */
 
@@ -235,10 +237,14 @@ CILK_API(int) cilk_write(int fd, void* buf, int len) {
   struct event* write_event= event_new(base, fd, EV_WRITE, on_write, data);
   data->write_ev = write_event;
   printf(" [cilkio] Adding write event..\n");
+  printf(" [cilkio] CILK_WRITE ivar address %p\n", &(data->iv));
   event_add(write_event, NULL);
 
   // Pause now
-  __cilkrts_ivar_read(&(data->iv));
+  printf(" [cilkio] CILK_WRITE Write ivar %p\n", &(data->iv));
+  // __cilkrts_ivar_write(&(data->iv), 3423);
+  unsigned long val = __cilkrts_ivar_read(&(data->iv));
+  printf(" [cilkio] CILK_WRITE Read ivar val : %lu\n", val);
 
   // Returns the result after resuming
   int nbytes = data->nbytes;
