@@ -7,6 +7,8 @@ import HSBencher.Backend.Fusion  (defaultFusionPlugin)
 import HSBencher.Backend.Dribble (defaultDribblePlugin)
 
 import Data.Monoid  (mappend)
+import GHC.Conc (getNumProcessors)
+import System.IO.Unsafe (unsafePerformIO)
 
 --------------------------------------------------------------------------------
 
@@ -28,18 +30,34 @@ benches =
 
 -- Set this so that HSBencher actually runs the tests that we are not passing any
 -- parameter to (at least currently)
-emptyParams      = Or [Set NoMeaning (CompileParam $ show 10)]
-microbenchParams = emptyParams
-wavefrontParams  = emptyParams
-scholesParams    = emptyParams
-choleskyParams   = emptyParams
-jacobiParams     = emptyParams
-kalahParams      = emptyParams
-knapsackParams   = emptyParams
-luParams         = emptyParams
-magicNumsParams  = emptyParams
-strassenParams   = emptyParams
-parfibParams     = Or [Set NoMeaning (RuntimeParam $ show sz) | sz <- [10, 15..35]]
+emptyParams      = varyCilkThreads $ Or [Set NoMeaning (CompileParam $ show 10)]
+microbenchParams = varyCilkThreads emptyParams
+wavefrontParams  = varyCilkThreads emptyParams
+scholesParams    = varyCilkThreads emptyParams
+choleskyParams   = varyCilkThreads emptyParams
+jacobiParams     = varyCilkThreads emptyParams
+kalahParams      = varyCilkThreads emptyParams
+knapsackParams   = varyCilkThreads emptyParams
+luParams         = varyCilkThreads emptyParams
+magicNumsParams  = varyCilkThreads emptyParams
+strassenParams   = varyCilkThreads emptyParams
+parfibParams     = varyCilkThreads $ Or [Set NoMeaning (RuntimeParam $ show sz) | sz <- [10, 15..35]]
+
+
+-- | GHC specific method of varying threads.
+varyCilkThreads :: BenchSpace DefaultParamMeaning -> BenchSpace DefaultParamMeaning
+varyCilkThreads conf = And [ conf, Or (map fn threadSelection) ]
+ where
+   fn n = Set (Threads n) $ RuntimeEnv "CILK_NWORKERS" (show n)
+
+-- | Default threading settings based on the number of processors on the current machine.
+threadSelection :: [Int]
+threadSelection = unsafePerformIO $ do
+  p   <- getNumProcessors
+  return$
+    if p <= 4  then [1..p] else
+    if p <= 16 then 1: [2,4 .. p]
+    else            1:2:[4,8 .. p]
 
 -- Now dow we make these parameters change based upon where we are at in the dir tree?
 --trivialParams = Or [Set NoMeaning (RuntimeParam (show 10))]
