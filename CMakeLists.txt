@@ -125,6 +125,7 @@ if(${CONCURRENT_CILK})
 
 
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/deps/libevent/include)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/runtime)
 
 

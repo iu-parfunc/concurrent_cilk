@@ -24,7 +24,7 @@ endif
 TRIALS=3
 # TRIALS=1
 TOP=$(shell pwd)
-DEPS=lib/libevent.so
+DEPS=deps/build/lib/libevent.so
 
 # Google API authentication
 
@@ -38,21 +38,24 @@ TABLE=ConcurrentCilk_Benchmarks
 # Note, this table can be found on the web at:
 #   https://www.google.com/fusiontables/DataSource?docid=1Jtm_Y7226eb3f7tVSUYLnnYGOjcSrVdUJT688XiA
 
-.phony: all dobuild rebuild bench
+.phony: all dobuild rebuild bench deps
 # ----------------------------------------
 
 # TODO: build everything before running/benchmarking:
-all: dobuild 
+all: deps dobuild 
 
-$(DEPS): 
+deps/build/lib/libevent.so: 
 	cd deps/libevent; \
         ./autogen.sh; \
-	./configure --prefix=$(TOP); \
-	make; \
+	./configure --prefix=$(TOP)/deps/build; \
+	make -j; \
 	make install
 
-dobuild: $(DEPS) 
+# Currently [2014.10.09] deps and dobuild should be able to run concurrently.
+dobuild: 
 	./build_scripts/build_libcilk.sh
+
+deps: $(DEPS)
 
 rebuild:
 	./build_scripts/clean_and_rebuild.sh
@@ -73,4 +76,4 @@ run-benchmarks.exe: run-benchmarks.cabal run-benchmarks.hs
 
 clean:
 	rm -rf ./run-benchmarks.exe ./dist
-	rm -rf build
+	rm -rf ./build ./install
