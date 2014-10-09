@@ -24,6 +24,7 @@ endif
 TRIALS=3
 # TRIALS=1
 TOP=$(shell pwd)
+DEPS=lib/libevent.so
 
 # Google API authentication
 
@@ -33,16 +34,24 @@ TOP=$(shell pwd)
   SEC=P3rhLK4dSzBpFQeSdihToqsM
 # else
 # endif
-
 TABLE=ConcurrentCilk_Benchmarks
+# Note, this table can be found on the web at:
+#   https://www.google.com/fusiontables/DataSource?docid=1Jtm_Y7226eb3f7tVSUYLnnYGOjcSrVdUJT688XiA
 
-.phony: all build rebuild bench
+.phony: all dobuild rebuild bench
 # ----------------------------------------
 
 # TODO: build everything before running/benchmarking:
-all: rebuild 
+all: dobuild 
 
-build:
+$(DEPS): 
+	cd deps/libevent; \
+        ./autogen.sh; \
+	./configure --prefix=$(TOP); \
+	make; \
+	make install
+
+dobuild: $(DEPS) 
 	./build_scripts/build_libcilk.sh
 
 rebuild:

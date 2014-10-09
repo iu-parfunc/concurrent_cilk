@@ -98,6 +98,7 @@ if(${CONCURRENT_CILK})
       runtime/concurrent_cilk.c
       runtime/ivar_full_blocking.c
       runtime/concurrent_queue.c
+      runtime/io/concurrent_cilk_io.c
       )
     endif()
 

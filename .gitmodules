@@ -4,3 +4,6 @@
 [submodule "HSBencher"]
 	path = HSBencher
   url  = https://github.com/rrnewton/HSBencher.git
+[submodule "deps/libevent"]
+	path = deps/libevent
+	url = git://git.code.sf.net/p/levent/code

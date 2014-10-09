@@ -20,6 +20,31 @@ CILK_API(ivar_payload_t) __cilkrts_ivar_read (__cilkrts_ivar*);
 CILK_API(void)           __cilkrts_ivar_write(__cilkrts_ivar*, ivar_payload_t);
 CILK_API(void)           __cilkrts_ivar_clear(__cilkrts_ivar*);
 
+/**
+ * Analogous to standard posix accept(), except only blocks the Cilk
+ * fiber rather than the OS thread.  The first argument is a `sockfd`
+ * which must already be bound via bind().
+ */
+CILK_API(int) cilk_accept(int);
+/**
+ * Equivalent to standard posix read(), except only blocks the Cilk
+ * fiber rather than the OS thread.
+ */
+CILK_API(int) cilk_read(int, void*, int);
+/**
+ * Equivalent to standard posix write(), except only blocks the Cilk
+ * fiber rather than the OS thread.
+ */
+CILK_API(int) cilk_write(int, void*, int);
+
+/**
+ * Initialize the event loop for the cilk_IO library.  This will spawn
+ * an additional thread, which will persist indefinitely.
+ * Returns zero on success.
+ */
+CILK_API(int) cilk_io_init();
+// TODO: In the future we need a shutdown(), and might need an error code.
+
 #define IVAR_SHIFT 0x4
 #define IVAR_MASK  0xf
 #define CILK_IVAR_EMPTY  0x0
