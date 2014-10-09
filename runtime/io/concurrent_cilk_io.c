@@ -17,7 +17,7 @@
 
 #include <event2/event.h>
 
-#define SERVER_PORT 5555
+// #define SERVER_PORT 5555
 
 struct rw_data {
   int fd;
@@ -30,33 +30,12 @@ struct rw_data {
   struct event* write_ev;
 };
 
-int cilk_io_init_enter= 0;
-int cilk_io_init_exit = 0;
-int cilk_event_base_set = 0;
 struct event_base *base;
-
-/*
-event_base* cilk_io_init() {
-
-  if (__sync_val_compare_and_swap(&cilk_io_init_enter, 0, 1) == 0) {
-
-    __sync_val_compare_and_swap(&cilk_io_init_exit, 0, 1)
-
-  } else {
-
-    // spin until the event base has been created
-    while (__sync_val_compare_and_swap(&cilk_io_init_exit, 1, 1) == 1) ;
-
-
-  }
-
-}
-*/
 
 /** Callback functions **/
 void on_accept(evutil_socket_t fd, short flags, void* arg) {
 
-  printf(" [cilkio] In On accept callback..\n");
+  dbgprint(CONCURRENT, " [cilkio] In On accept callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
   struct sockaddr_in client_addr;
   socklen_t client_len = sizeof(client_addr);
@@ -83,7 +62,7 @@ void on_accept(evutil_socket_t fd, short flags, void* arg) {
 
 void on_read(evutil_socket_t fd, short flags, void* arg) {
 
-  printf(" [cilkio] In On read callback..\n");
+  dbgprint(CONCURRENT, " [cilkio] In On read callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
 
   if (data->len > 0) {
@@ -112,7 +91,7 @@ void on_read(evutil_socket_t fd, short flags, void* arg) {
 
 void on_write(evutil_socket_t fd, short flags, void* arg) {
 
-  printf(" [cilkio] In On write callback..\n");
+  dbgprint(CONCURRENT, " [cilkio] In On write callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
 
   while (data->len > 0) {
@@ -131,18 +110,16 @@ void on_write(evutil_socket_t fd, short flags, void* arg) {
       event_add(data->write_ev, NULL);
     } else {
       // Resume  worker here
-      printf(" [cilkio] ON WRITE - Writing to ivar at address %p\n", &(data->iv));
-      printf(" [cilkio] ON WRITE - Writing value %d to ivar\n", data->nbytes);
-      fflush(0);
+      dbgprint(CONCURRENT, " [cilkio] ON WRITE - Writing value %d to ivar at addresss %p\n", data->nbytes, &(data->iv));
       __cilkrts_ivar_write(&(data->iv), data->nbytes);
     }
   }
 }
 
 void* __cilkrts_io_init_helper(void* ignored) {
-  printf(" [cilkio] Now on dedicated event-loop thread, begin loop:\n");
+  dbgprint(CONCURRENT, " [cilkio] Now on dedicated event-loop thread, begin loop:\n");
   event_base_loop(base, EVLOOP_NO_EXIT_ON_EMPTY); 
-  printf(" [cilkio] Exited event loop..\n");
+  dbgprint(CONCURRENT, " [cilkio] Exited event loop..\n");
   return NULL;
 }
 
@@ -152,7 +129,7 @@ int cilk_io_init() {
   /* initialize event loop */
   base = event_base_new();
 
-  printf(" [cilkio] event_base_new complete, spawning thread for event loop..\n");
+  dbgprint(CONCURRENT, " [cilkio] event_base_new complete, spawning thread for event loop..\n");
 
   pthread_t event_thr;
   pthread_attr_t attr;
@@ -185,12 +162,12 @@ CILK_API(int) cilk_accept(int listen_fd) {
     struct event *accept_event = event_new(base, listen_fd, EV_READ, on_accept, data);
 
 
-    printf ("Adding accept event ..\n");
+    dbgprint (CONCURRENT, "Adding accept event ..\n");
     event_add(accept_event, NULL);
-    printf ("After adding accept event ..\n");
 
     // Block here
-    __cilkrts_ivar_read(&(data->iv));
+    unsigned long val = __cilkrts_ivar_read(&(data->iv));
+    dbgprint(" [cilkio] CILK_READ Read ivar val %lu form ivar at %p\n", val, &(data->iv));
 
     // Returns the result after resuming
     int fd = data->fd;
@@ -211,11 +188,12 @@ CILK_API(int) cilk_read(int fd, void* buf, int len) {
 
   struct event* read_event = event_new(base, fd, EV_READ, on_read, data);
   data->read_ev= read_event;
-  printf ("Adding read event..\n");
+  dbgprint (CONCURRENT, " [cilkio] Adding read event..\n");
   event_add(read_event, NULL);
 
   // Pause now
-  __cilkrts_ivar_read(&(data->iv));
+  unsigned long val = __cilkrts_ivar_read(&(data->iv));
+  dbgprint(" [cilkio] CILK_READ Read ivar val %lu form ivar at %p\n", val, &(data->iv));
 
   // Returns the result after resuming
   int nbytes = data->nbytes;
@@ -236,15 +214,12 @@ CILK_API(int) cilk_write(int fd, void* buf, int len) {
 
   struct event* write_event= event_new(base, fd, EV_WRITE, on_write, data);
   data->write_ev = write_event;
-  printf(" [cilkio] Adding write event..\n");
-  printf(" [cilkio] CILK_WRITE ivar address %p\n", &(data->iv));
+  dbgprint(CONCURRENT, " [cilkio] Adding write event..\n");
   event_add(write_event, NULL);
 
   // Pause now
-  printf(" [cilkio] CILK_WRITE Write ivar %p\n", &(data->iv));
-  // __cilkrts_ivar_write(&(data->iv), 3423);
   unsigned long val = __cilkrts_ivar_read(&(data->iv));
-  printf(" [cilkio] CILK_WRITE Read ivar val : %lu\n", val);
+  dbgprint(" [cilkio] CILK_WRITE Read ivar val %lu form ivar at %p\n", val, &(data->iv));
 
   // Returns the result after resuming
   int nbytes = data->nbytes;
