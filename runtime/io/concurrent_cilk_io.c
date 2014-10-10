@@ -125,7 +125,7 @@ void* __cilkrts_io_init_helper(void* ignored) {
 
 /* Concurrent Cilk I/O public API */
 
-int cilk_io_init() {
+CILK_API(int) cilk_io_init(void) {
   /* initialize event loop */
   base = event_base_new();
 
@@ -139,11 +139,9 @@ int cilk_io_init() {
   return rc;
 }
 
-void cilk_io_teardown() {
-
+CILK_API(int) cilk_io_teardown(void) {
   /* exits the event loop */
-  event_base_loopbreak(base);
-
+  return event_base_loopbreak(base);
 }
 
 CILK_API(int) cilk_accept(int listen_fd) {
