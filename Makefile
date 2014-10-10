@@ -76,4 +76,4 @@ run-benchmarks.exe: run-benchmarks.cabal run-benchmarks.hs
 
 clean:
 	rm -rf ./run-benchmarks.exe ./dist
-	rm -rf ./build ./install
+	rm -rf ./build ./install ./deps/build
