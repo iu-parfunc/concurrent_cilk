@@ -32,33 +32,6 @@ struct rw_data {
 
 struct event_base *base;
 
-static inline ssize_t _xread(int fd, void *data, size_t size) {
-  ssize_t n, r;
-  n = 0;
-  while (n < size) {
-    r = read(fd, (char*)data+n, size-n);
-    if (r > 0)
-      n += r;
-    else if (r == 0 || (r < 0 && errno != EINTR))
-      break;
-  }
-  return n;
-}
-
-static inline ssize_t _xwrite(int fd, void *data, size_t size) {
-  ssize_t n, r;
-  n = 0;
-  while (n < size) {
-    r = write(fd, (char*)data+n, size-n);
-    if (r > 0)
-      n += r;
-    else if (r == 0 || (r < 0 && errno != EINTR))
-      break;
-  }
-  return n;
-}
-
-
 /** Callback functions **/
 static void on_accept(evutil_socket_t fd, short flags, void* arg) {
 
@@ -87,7 +60,7 @@ static void on_read(evutil_socket_t fd, short flags, void* arg) {
   struct rw_data* data= (struct rw_data*) arg;
 
   if (data->len > 0) {
-    int len = _xread(fd, (char*)data->buf + data->nbytes, data->len);
+    int len = read(fd, (char*)data->buf + data->nbytes, data->len);
     if (len < 0) {
       err(1, "Error reading from client..");
       data->status = -1;
@@ -112,7 +85,7 @@ static void on_write(evutil_socket_t fd, short flags, void* arg) {
   struct rw_data* data= (struct rw_data*) arg;
 
   while (data->len > 0) {
-    int len = _xwrite(fd, (char*)data->buf + data->nbytes, data->len);
+    int len = write(fd, (char*)data->buf + data->nbytes, data->len);
 
     if (len < 0) {
       err(1, "Error writing to client..");
