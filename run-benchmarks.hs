@@ -31,7 +31,13 @@ benches =
 -- Set this so that HSBencher actually runs the tests that we are not passing any
 -- parameter to (at least currently)
 emptyParams      = varyCilkThreads $ Or [Set NoMeaning (CompileParam $ show 10)]
-microbenchParams = varyCilkThreads emptyParams
+microbenchParams = Or [ varyCilkThreadsParOnly $ 
+                        And [ Or [ Set NoMeaning (RuntimeArg $ show (10 ^ sz) ++ " 1") | sz <- [ 0 .. 4 ] ]
+                            , Set (Variant "microbench_many_blocking") 
+                                  (RuntimeEnv "VARIANT" "microbench_many_blocking") ]
+                      , varyCilkThreads $ 
+                        And [ Or [ Set NoMeaning (RuntimeArg $ show (10 ^ sz)) | sz <- [ 0 .. 4 ] ]
+                            , Set (Variant "microbench") (RuntimeEnv "VARIANT" "microbench") ] ]
 wavefrontParams  = varyCilkThreads emptyParams
 scholesParams    = varyCilkThreads emptyParams
 choleskyParams   = varyCilkThreads emptyParams
@@ -56,6 +62,13 @@ varyCilkThreads :: BenchSpace DefaultParamMeaning -> BenchSpace DefaultParamMean
 varyCilkThreads conf = And [ conf, Or (map fn threadSelection) ]
  where
    fn n = Set (Threads n) $ RuntimeEnv "CILK_NWORKERS" (show n)
+
+-- | Skip the one-thread version.
+varyCilkThreadsParOnly :: BenchSpace DefaultParamMeaning -> BenchSpace DefaultParamMeaning
+varyCilkThreadsParOnly conf = And [ conf, Or (map fn (filter (>1) threadSelection)) ]
+ where
+   fn n = Set (Threads n) $ RuntimeEnv "CILK_NWORKERS" (show n)
+
 
 -- | Default threading settings based on the number of processors on the current machine.
 threadSelection :: [Int]
