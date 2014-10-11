@@ -47,7 +47,7 @@ parfibParams     = varyCilkThreads $
                        , pfibs [10, 11, 12, 13] ["fib_pthread"] ]
  where 
    pfibs szs vars = 
-     And [ Or [ Set NoMeaning (RuntimeParam $ show sz) | sz <- szs ]
+     And [ Or [ Set NoMeaning (RuntimeArg $ show sz) | sz <- szs ]
          , Or [ Set (Variant var) (RuntimeEnv "PARFIB_VARIANT" var) | var <- vars ] ]
 
 
