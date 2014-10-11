@@ -42,10 +42,14 @@ luParams         = varyCilkThreads emptyParams
 magicNumsParams  = varyCilkThreads emptyParams
 strassenParams   = varyCilkThreads emptyParams
 parfibParams     = varyCilkThreads $ 
-                    And [ Or [ Set NoMeaning (RuntimeParam $ show sz) 
-                             | sz <- [10, 15, 20, 25, 30, 35, 40, 41, 42]]
-                        , Or [ Set (Variant var) (RuntimeEnv "PARFIB_VARIANT" var)
-                             | var <- ["parfib", "ivars_parfib", "fib_pthread"] ] ]
+                    Or [ pfibs [10, 15, 20, 25, 30, 35, 40, 41, 42] ["parfib", "ivars_parfib" ]
+                       -- These are running only on MUCH smaller sizes:
+                       , pfibs [10, 11, 12, 13] ["fib_pthread"] ]
+ where 
+   pfibs szs vars = 
+     And [ Or [ Set NoMeaning (RuntimeParam $ show sz) | sz <- szs ]
+         , Or [ Set (Variant var) (RuntimeEnv "PARFIB_VARIANT" var) | var <- vars ] ]
+
 
 -- | GHC specific method of varying threads.
 varyCilkThreads :: BenchSpace DefaultParamMeaning -> BenchSpace DefaultParamMeaning
