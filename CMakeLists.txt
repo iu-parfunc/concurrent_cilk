@@ -98,6 +98,7 @@ if(${CONCURRENT_CILK})
       runtime/concurrent_cilk.c
       runtime/ivar_full_blocking.c
       runtime/concurrent_queue.c
+      runtime/io/concurrent_cilk_io.c
       )
     endif()
 
@@ -124,6 +125,7 @@ if(${CONCURRENT_CILK})
 
 
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/deps/libevent/include)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/runtime)
 
 

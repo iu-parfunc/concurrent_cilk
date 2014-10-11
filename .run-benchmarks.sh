@@ -18,7 +18,8 @@ cd $rootdir
 echo "Switched to working-copy directory: "`pwd`
 
 # (1) Build the library
-make rebuild
+make clean
+make all
 
 # (2) Then benchmark:
 make bench 
