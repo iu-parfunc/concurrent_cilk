@@ -41,8 +41,11 @@ knapsackParams   = varyCilkThreads emptyParams
 luParams         = varyCilkThreads emptyParams
 magicNumsParams  = varyCilkThreads emptyParams
 strassenParams   = varyCilkThreads emptyParams
-parfibParams     = varyCilkThreads $ Or [Set NoMeaning (RuntimeParam $ show sz) | sz <- [10, 15..35]]
-
+parfibParams     = varyCilkThreads $ 
+                    And [ Or [ Set NoMeaning (RuntimeParam $ show sz) 
+                             | sz <- [10, 15..35]]
+                        , Or [ Set (Variant var) (RuntimeEnv "PARFIB_VARIANT" var)
+                             | var <- ["parfib", "ivars_parfib", "fib_pthread"] ] ]
 
 -- | GHC specific method of varying threads.
 varyCilkThreads :: BenchSpace DefaultParamMeaning -> BenchSpace DefaultParamMeaning
@@ -71,7 +74,12 @@ main = do
         , runTimeOut = Just 100 -- Erk... need a separate compile timeout.
         , plugIns   = [ SomePlugin defaultFusionPlugin,
                         SomePlugin defaultDribblePlugin ]
-        , harvesters = customTagHarvesterDouble "CILK_NWORKERS" `mappend` 
+        , harvesters = customTagHarvesterInt "CILKPLUS_SYSTEM_WORKERS" `mappend` 
+                       customTagHarvesterInt "CILKPLUS_USER_WORKERS" `mappend` 
+                       customTagHarvesterInt "CILKPLUS_RUNTIME_MEMORY_USAGE_BYTES" `mappend` 
+                       customTagHarvesterInt "CILKPLUS_STACKSIZE" `mappend` 
+                       customTagHarvesterInt "CILKPLUS_TOTALSTACKS" `mappend` 
+                       customTagHarvesterInt "CONCURRENTCILK_WORKERS_BLOCKED" `mappend` 
                        harvesters conf
         }
 

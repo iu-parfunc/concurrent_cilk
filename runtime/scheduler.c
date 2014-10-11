@@ -143,13 +143,14 @@ void __cilkrts_dump_stats_to_stderr(global_state_t *g)
         __cilkrts_accum_stats(&g->stats, &g->workers[i]->l->stats);
     dump_stats_to_file(stderr, &g->stats);
 #endif
+    fprintf(stderr, "CILKPLUS_SYSTEM_WORKERS: %d\n", g->P);
+    fprintf(stderr, "CILKPLUS_USER_WORKERS: %d\n", g->Q);
     fprintf(stderr,
-            "CILK PLUS Thread Info: P=%d, Q=%d\n",
-            g->P,
-            g->Q);
-    fprintf(stderr,
-            "CILK PLUS RUNTIME MEMORY USAGE: %lld bytes",
+            "CILKPLUS_RUNTIME_MEMORY_USAGE_BYTES: %lld\n",
             (long long)g->frame_malloc.allocated_from_os);
+    fprintf(stderr, "CILKPLUS_STACKSIZE: %ld\n", g->stack_size);
+    fprintf(stderr, "CILKPLUS_TOTALSTACKS: %ld\n", g->stacks);
+    fprintf(stderr, "CONCURRENTCILK_WORKERS_BLOCKED: %d\n", g->workers_blocked);
 #ifdef CILK_PROFILE
     if (g->stats.stack_hwm)
         fprintf(stderr, ", %ld stacks", g->stats.stack_hwm);
