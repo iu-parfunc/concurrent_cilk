@@ -26,6 +26,7 @@
 #include <cilk/common.h>
 #include <cilk/concurrent_cilk.h>
 #include <cilk/cilk_api.h>
+#include <stdio.h>
 
 
 // RRN: First version.  A very simple "boxed" ivar approach which uses a malloc+pointer
@@ -61,11 +62,14 @@ class ivar
 
     void put(const T& val) 
     {
+      abort();
+      printf("WRITING IV %p\n", &iv);
       __cilkrts_ivar_write(&iv, (ivar_payload_t) &val);
     }
 
     const T* get() 
     {
+      printf("(try) GETTING IV %p\n", &iv);
       return (const T*) __cilkrts_ivar_read(&iv);
     }
 
