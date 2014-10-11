@@ -81,6 +81,7 @@ CILK_API(void) __cilkrts_resume_fiber(__cilkrts_worker *w);
  * which must already be bound via bind().
  */
 CILK_API(int) cilk_accept(int);
+
 /**
  * Equivalent to standard posix read(), except only blocks the Cilk
  * fiber rather than the OS thread.
@@ -104,7 +105,7 @@ CILK_API(int) cilk_io_init(void);
  * the additional thread that was spawned by the IO library.
  * Returns zero on success.
  */
-CILK_API(int) cilk_io_teardown(void);
+CILK_API(void) cilk_io_teardown(void);
 
 __CILKRTS_END_EXTERN_C
 #endif
