@@ -4,6 +4,9 @@
 #the install for the library will be: CILK_ROOT/lib
 #header files will be located in CILK_ROOT/include
 
+#CILK_ROOT=/opt/cilkplus #<<<<< EDIT this variable to point to your desired install location
+CILK_ROOT=$HOME/opt/cilkplus #<<<<< EDIT this variable to point to your desired install location
+
 #note, this file MUST be sourced from the top level cilkplus directory. 
 #otherwise, pwd will get the wrong directory.
 CILK_SRC=$(pwd)

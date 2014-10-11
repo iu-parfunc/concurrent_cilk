@@ -86,6 +86,9 @@ typedef __cilkrts_ivar ivar_t;
 // you will experience erratic behavior if this is not the case
 #define __cilkrts_pause_fiber(ctx)  (setjmp((ctx)))
 CILK_API(__cilkrts_worker *) __cilkrts_commit_pause(__cilkrts_worker *w);
+CILK_API(void) __cilkrts_rollback_pause(__cilkrts_worker *blocked_w, __cilkrts_worker *replacement_w);
+CILK_API(void) __cilkrts_register_blocked_worker_for_stealing(__cilkrts_worker *w);
+CILK_API(void) __cilkrts_run_replacement_fiber(__cilkrts_worker *w);
 CILK_API(void) __cilkrts_resume_fiber(__cilkrts_worker *w);
 //--------------------------------------
 

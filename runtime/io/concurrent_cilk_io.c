@@ -155,9 +155,17 @@ CILK_API(int) cilk_accept(int listen_fd) {
     dbgprint (CONCURRENT, "Adding accept event ..\n");
     event_add(accept_event, NULL);
 
+#if defined(__clang__) // squash a unused variable warning when debug is off. 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
     // Block here
     unsigned long val = __cilkrts_ivar_read(&(data->iv));
     dbgprint(" [cilkio] CILK_READ Read ivar val %lu form ivar at %p\n", val, &(data->iv));
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
     // Returns the result after resuming
     int fd = data->fd;
@@ -180,9 +188,16 @@ CILK_API(int) cilk_read(int fd, void* buf, int len) {
   dbgprint (CONCURRENT, " [cilkio] Adding read event..\n");
   event_add(read_event, NULL);
 
+#if defined(__clang__) // squash a unused variable warning when debug is off. 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
   // Pause now
   unsigned long val = __cilkrts_ivar_read(&(data->iv));
   dbgprint(" [cilkio] CILK_READ Read ivar val %lu form ivar at %p\n", val, &(data->iv));
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
   // Returns the result after resuming
   int nbytes = data->nbytes;
@@ -206,9 +221,16 @@ CILK_API(int) cilk_write(int fd, void* buf, int len) {
   dbgprint(CONCURRENT, " [cilkio] Adding write event..\n");
   event_add(write_event, NULL);
 
+#if defined(__clang__) // squash a unused variable warning when debug is off. 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
   // Pause now
   unsigned long val = __cilkrts_ivar_read(&(data->iv));
   dbgprint(" [cilkio] CILK_WRITE Read ivar val %lu form ivar at %p\n", val, &(data->iv));
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
   // Returns the result after resuming
   int nbytes = data->nbytes;

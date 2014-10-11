@@ -12,6 +12,12 @@
 
 
 
+/**
+ * Pauses a worker and returns a new worker ready to be used as a replacement. 
+ *
+ * @param __cilkrts_worker *w the worker to pause
+ * @return A New  __cilkrts_worker * set up to be run while the current worker is blocked. 
+ */
 CILK_API(__cilkrts_worker *)
 __cilkrts_commit_pause(__cilkrts_worker *w) 
 {
@@ -49,6 +55,8 @@ __cilkrts_commit_pause(__cilkrts_worker *w)
 
   w->blocked = 1;
 
+  CILK_ASSERT(NULL != w->l->team->team_leader);
+
   //the fibers pointer is shared across all replacements on the same thread,
   //but only this thread may write to the array.
   replacement->fibers        = w->fibers;
@@ -75,6 +83,27 @@ __cilkrts_commit_pause(__cilkrts_worker *w)
   // make sure you call the scheduler!
 }
 
+/**
+ * Rollback a pause which has been committed (via __cilkrts_commit_pause()),
+ * but the calling thread has not yet gone to the cilk scheduler to steal work. 
+ *
+ * @param blocked_w The worker which is currently blocked
+ * @param replacement_w The worker which replaced blocked_w
+ */
+CILK_API(void)
+__cilkrts_rollback_pause(__cilkrts_worker *blocked_w, __cilkrts_worker *replacement_w)
+{
+  blocked_w->blocked = 0;
+  //We must obtain the lock on the replacement worker to keep thieves away
+  BEGIN_WITH_WORKER_LOCK(replacement_w) {
+    blocked_w->g->workers[replacement_w->self] = blocked_w;
+  } END_WITH_WORKER_LOCK(replacement_w);
+  __cilkrts_fence();
+  __cilkrts_set_tls_worker(blocked_w);
+  //TODO: cache
+  __cilkrts_free(replacement_w);
+}
+
 
 CILK_API(void)
   __cilkrts_resume_fiber(__cilkrts_worker *w)
@@ -86,7 +115,9 @@ CILK_API(void)
   dbgprint(CONCURRENT, "restoring worker %d/%p/%i REAPING old worker %d/%p/%i\n",
       w->self, w, w->worker_depth, old_w->self, old_w, old_w->worker_depth);
   CILK_ASSERT(!can_steal_from(old_w));
+  CILK_ASSERT(!old_w->l->next_frame_ff);
   CILK_ASSERT(w->self == old_w->self);
+  CILK_ASSERT(old_w != w);
 
   remove_worker_from_stealing(w);
   w->g->workers[w->self] = w;
@@ -100,6 +131,13 @@ CILK_API(void)
   CILK_ASSERT(0); // no return
 }
 
+CILK_API(void) 
+  __cilkrts_run_replacement_fiber(__cilkrts_worker *replacement)
+{
+  //sets pthread TLS to replacement worker and invokes the scheduler.
+  __cilkrts_worker_stub((void *) replacement);
+}
+
 void __cilkrts_cleanup_replacement_worker(__cilkrts_worker *w)
 {
   // TODO
@@ -109,7 +147,8 @@ void __cilkrts_cleanup_replacement_worker(__cilkrts_worker *w)
   //  -- free/cache worker struct
 }
 
-void register_worker_for_stealing(__cilkrts_worker *w) 
+CILK_API(void)
+__cilkrts_register_blocked_worker_for_stealing(__cilkrts_worker *w) 
 {
   int i;
   for (i = 0; i < MAX_WORKERS_BLOCKED; i++) {
@@ -117,8 +156,8 @@ void register_worker_for_stealing(__cilkrts_worker *w)
       dbgprint(CONCURRENT, "registered worker %d/%p for stealing at idx %i\n", w->self, w, i);
       w->fibers[i] = w;
       return;
-      }
     }
+  }
   if (i >= MAX_WORKERS_BLOCKED) { __cilkrts_bug("BLOCKED WORKER OVERFLOW - aborting"); }
 }
 
@@ -133,7 +172,6 @@ void remove_worker_from_stealing(__cilkrts_worker *w)
     }
   }
 }
-
 
 inline __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim)
 {

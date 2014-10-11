@@ -98,7 +98,7 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
         case CILK_IVAR_FULL:
           dbgprint(IVAR, "ivar %p FILLED while reading\n", ivar);
           //nevermind...someone filled it. 
-          //__cilkrts_free(replacement); //TODO: cache
+          __cilkrts_rollback_pause(w, replacement);
           return UNTAG(*ivar);
           break; //go around again
         case CILK_IVAR_LOCKED:
@@ -109,10 +109,8 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
     } while (!exit);
 
     //thread local array operation, no lock needed
-    register_worker_for_stealing(w);
-
-    //sets pthread TLS to replacement worker and invokes the scheduler.
-    __cilkrts_worker_stub((void *) replacement);
+    __cilkrts_register_blocked_worker_for_stealing(w);
+    __cilkrts_run_replacement_fiber(replacement);
     CILK_ASSERT(0); //no return. heads to scheduler.
   }
 

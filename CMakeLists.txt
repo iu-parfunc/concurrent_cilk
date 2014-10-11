@@ -142,7 +142,7 @@ if(${CONCURRENT_CILK})
     set(BASE_C_FLAGS "-Wall -std=c11 -Wno-unused-value")
     set(BASE_CXX_FLAGS "-Wall -Wno-unused-value")
 
-    if($ENV{CILK_DEBUG_IVARS} MATCHES "true")
+    if(${CILK_DEBUG_IVARS})
       set(BASE_C_FLAGS "${BASE_C_FLAGS} -DIVAR_DBG=0xf")
     endif()
 

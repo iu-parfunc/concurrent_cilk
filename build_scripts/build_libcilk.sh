@@ -8,6 +8,7 @@ rm -rf build
 mkdir build 
 cd build 
 
+#  -DCILK_DEBUG_IVARS=true \
 cmake \
   -DCONCURRENT_CILK=ON \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
