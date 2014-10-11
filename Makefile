@@ -64,13 +64,19 @@ rebuild:
 bench: run-benchmarks.exe
 	./run-benchmarks.exe --retry=3 --hostname=$(MACHINECLASS) --runid=$(RUNID) --keepgoing --trials=$(TRIALS) --name=$(TABLE) --fusion-upload --clientid=$(CID) --clientsecret=$(SEC) $(WHICHBENCH) $(BENCHARGS)
 
+PKGS= ./ ./HSBencher/hgdata ./HSBencher/hsbencher ./HSBencher/hsbencher-fusion
+CBLARGS= --disable-documentation --with-ghc=ghc-$(JENKINS_GHC) --force-reinstalls
+
 run-benchmarks.exe: run-benchmarks.cabal run-benchmarks.hs
 	$(CABAL) sandbox init
 	$(CABAL) sandbox hc-pkg list
-	$(CABAL) sandbox hc-pkg unregister hsbencher-analytics || echo ok
-	$(CABAL) install ./HSBencher/hgdata ./HSBencher/hsbencher ./HSBencher/hsbencher-fusion --disable-documentation --with-ghc=ghc-$(JENKINS_GHC) -j --force-reinstalls
-	$(CABAL) install --only-dep -j --disable-documentation --with-ghc=ghc-$(JENKINS_GHC) --force-reinstalls
-	$(CABAL) install --bindir=. --disable-documentation --with-ghc=ghc-$(JENKINS_GHC) --force-reinstalls
+#	$(CABAL) sandbox hc-pkg unregister hsbencher-analytics || echo ok
+#	$(CABAL) install ./HSBencher/hgdata ./HSBencher/hsbencher ./HSBencher/hsbencher-fusion --disable-documentation --with-ghc=ghc-$(JENKINS_GHC) -j --force-reinstalls
+#	$(CABAL) install --only-dep -j --disable-documentation --with-ghc=ghc-$(JENKINS_GHC) --force-reinstalls
+#	$(CABAL) install --bindir=. --disable-documentation --with-ghc=ghc-$(JENKINS_GHC) --force-reinstalls
+
+	$(CABAL) install $(CBLARGS) --only-dep $(PKGS)
+	$(CABAL) install $(CBLARGS) --bindir=. $(PKGS)
 	./run-benchmarks.exe --help
 	./run-benchmarks.exe -l
 
