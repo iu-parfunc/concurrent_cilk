@@ -43,7 +43,7 @@ magicNumsParams  = varyCilkThreads emptyParams
 strassenParams   = varyCilkThreads emptyParams
 parfibParams     = varyCilkThreads $ 
                     And [ Or [ Set NoMeaning (RuntimeParam $ show sz) 
-                             | sz <- [10, 15..35]]
+                             | sz <- [10, 15, 20, 25, 30, 35, 40, 41, 42]]
                         , Or [ Set (Variant var) (RuntimeEnv "PARFIB_VARIANT" var)
                              | var <- ["parfib", "ivars_parfib", "fib_pthread"] ] ]
 
@@ -71,7 +71,7 @@ main = do
   defaultMainModifyConfig $ \ conf ->
     conf{ benchlist  = benches
                        -- 1 hour timeout
-        , runTimeOut = Just 100 -- Erk... need a separate compile timeout.
+        , runTimeOut = Just 120 -- Erk... need a separate compile timeout.
         , plugIns   = [ SomePlugin defaultFusionPlugin,
                         SomePlugin defaultDribblePlugin ]
         , harvesters = customTagHarvesterInt "CILKPLUS_SYSTEM_WORKERS" `mappend` 
