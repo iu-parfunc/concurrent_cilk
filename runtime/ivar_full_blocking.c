@@ -9,13 +9,21 @@
 #include "sysdep.h"
 #include "bug.h"
 
-/** 
- * Clear an IVar.
- *
- * Sets the IVar's value to 0. 
- */
 inline CILK_API(void)
 __cilkrts_ivar_clear(__cilkrts_ivar* ivar) { *ivar = 0; }
+
+inline CILK_API(void)
+__cilkrts_ivar_array_clear(__cilkrts_ivar* ptr, int size) { 
+  // bzero(ptr, sizeof(__cilkrts_ivar) * (size_t)size);
+  memset(ptr, 0, sizeof(__cilkrts_ivar) * (size_t)size);
+}
+
+inline CILK_API(__cilkrts_ivar*) 
+__cilkrts_new_ivar_array(int size) {
+  return calloc(sizeof(__cilkrts_ivar),size);
+}
+
+
 
 /**
  * Read an IVar and obtain its value. An IVar can be in any one of three states:

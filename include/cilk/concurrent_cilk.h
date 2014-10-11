@@ -15,10 +15,30 @@ typedef long ivar_payload_t;
 /**
  * IVar API
  */
+
+/** 
+ * Clear an IVar.
+ *
+ * Sets the IVar's value to empty (currently 0).
+ */
+CILK_API(void) __cilkrts_ivar_clear(__cilkrts_ivar*);
+
+/** 
+ * Clear an array of IVars.  This may be more efficient than calling __cilkrts_ivar_clear N times.
+ *
+ * Sets each IVar's value to empty (currently 0).
+ */
+CILK_API(void) __cilkrts_ivar_array_clear(__cilkrts_ivar* ptr, int size);
+
+/**
+ * Heap allocate an array of empty IVars and return a pointer to it.
+ */
+CILK_API(__cilkrts_ivar*) __cilkrts_new_ivar_array(int size);
+
 typedef struct __cilkrts_paused_stack __cilkrts_paused_stack;
 CILK_API(ivar_payload_t) __cilkrts_ivar_read (__cilkrts_ivar*);
 CILK_API(void)           __cilkrts_ivar_write(__cilkrts_ivar*, ivar_payload_t);
-CILK_API(void)           __cilkrts_ivar_clear(__cilkrts_ivar*);
+
 
 #define IVAR_SHIFT 0x4
 #define IVAR_MASK  0xf
