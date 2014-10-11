@@ -12,7 +12,7 @@ ifeq ($(CABAL),)
   CABAL=cabal
 endif
 ifeq ($(MACHINECLASS),)
-  MACHINECLASS=$(HOSTNAME)
+  MACHINECLASS=$(shell hostname -s)
 endif
 
 RUNID=$(shell hostname -s)_$(shell date "+%s")
