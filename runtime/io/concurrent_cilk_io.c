@@ -32,8 +32,35 @@ struct rw_data {
 
 struct event_base *base;
 
+static inline ssize_t _xread(int fd, void *data, size_t size) {
+  ssize_t n, r;
+  n = 0;
+  while (n < size) {
+    r = read(fd, (char*)data+n, size-n);
+    if (r > 0)
+      n += r;
+    else if (r == 0 || (r < 0 && errno != EINTR))
+      break;
+  }
+  return n;
+}
+
+static inline ssize_t _xwrite(int fd, void *data, size_t size) {
+  ssize_t n, r;
+  n = 0;
+  while (n < size) {
+    r = write(fd, (char*)data+n, size-n);
+    if (r > 0)
+      n += r;
+    else if (r == 0 || (r < 0 && errno != EINTR))
+      break;
+  }
+  return n;
+}
+
+
 /** Callback functions **/
-void on_accept(evutil_socket_t fd, short flags, void* arg) {
+static void on_accept(evutil_socket_t fd, short flags, void* arg) {
 
   dbgprint(CONCURRENT, " [cilkio] In On accept callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
@@ -52,22 +79,15 @@ void on_accept(evutil_socket_t fd, short flags, void* arg) {
   __cilkrts_ivar_write(&(data->iv), client_fd);
 
   data->fd = client_fd;
-  
-  /** testing code **/
-  // char* buf = malloc(sizeof(char) * 1024);
-
-  // cilk_read(*client_fd, buf, 1024);
-
 }
 
-void on_read(evutil_socket_t fd, short flags, void* arg) {
+static void on_read(evutil_socket_t fd, short flags, void* arg) {
 
   dbgprint(CONCURRENT, " [cilkio] In On read callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
 
   if (data->len > 0) {
-    int len = read(fd, (char*)data->buf + data->nbytes, data->len);
-
+    int len = _xread(fd, (char*)data->buf + data->nbytes, data->len);
     if (len < 0) {
       err(1, "Error reading from client..");
       data->status = -1;
@@ -84,18 +104,15 @@ void on_read(evutil_socket_t fd, short flags, void* arg) {
       __cilkrts_ivar_write(&(data->iv), data->nbytes);
     }
   } 
-  // Resume worker here
-  /** testing code **/
-  // cilk_write(fd, data->buf, data->len);
 }
 
-void on_write(evutil_socket_t fd, short flags, void* arg) {
+static void on_write(evutil_socket_t fd, short flags, void* arg) {
 
   dbgprint(CONCURRENT, " [cilkio] In On write callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
 
   while (data->len > 0) {
-    int len = write(fd, (char*)data->buf + data->nbytes, data->len);
+    int len = _xwrite(fd, (char*)data->buf + data->nbytes, data->len);
 
     if (len < 0) {
       err(1, "Error writing to client..");
@@ -139,9 +156,12 @@ CILK_API(int) cilk_io_init(void) {
   return rc;
 }
 
-CILK_API(int) cilk_io_teardown(void) {
+CILK_API(void) cilk_io_teardown(void) {
   /* exits the event loop */
-  return event_base_loopbreak(base);
+  event_base_loopbreak(base);
+  if (base)
+      event_base_free(base);
+  libevent_global_shutdown();
 }
 
 CILK_API(int) cilk_accept(int listen_fd) {
@@ -153,12 +173,11 @@ CILK_API(int) cilk_accept(int listen_fd) {
     }
 
      // Good idea to recycle these allocations
-    struct rw_data* data = calloc(sizeof(struct rw_data),1);
-    __cilkrts_ivar_clear(&(data->iv));   
+    struct rw_data* data = calloc(1, sizeof(struct rw_data));
+    __cilkrts_ivar_clear(&(data->iv));
 
     // Need to pass a struct with worker and client fd included
     struct event *accept_event = event_new(base, listen_fd, EV_READ, on_accept, data);
-
 
     dbgprint (CONCURRENT, "Adding accept event ..\n");
     event_add(accept_event, NULL);
@@ -173,13 +192,12 @@ CILK_API(int) cilk_accept(int listen_fd) {
     free(data);
 
     return fd;
-
 }
 
 CILK_API(int) cilk_read(int fd, void* buf, int len) {
 
   // Good idea to recycle these allocations
-  struct rw_data* data = calloc(sizeof(struct rw_data), 1);
+  struct rw_data* data = calloc(1, sizeof(struct rw_data));
   data->buf = buf;
   data->len = len;
   __cilkrts_ivar_clear(&(data->iv));   
@@ -199,13 +217,13 @@ CILK_API(int) cilk_read(int fd, void* buf, int len) {
   free(data);
 
   return nbytes;
-
 }
+
 
 CILK_API(int) cilk_write(int fd, void* buf, int len) {
 
   // Good idea to recycle these allocations
-  struct rw_data* data = calloc(sizeof(struct rw_data), 1);
+  struct rw_data* data = calloc(1, sizeof(struct rw_data));
   data->buf = buf;
   data->len = len;
   __cilkrts_ivar_clear(&(data->iv));   
@@ -225,7 +243,6 @@ CILK_API(int) cilk_write(int fd, void* buf, int len) {
   free(data);
 
   return nbytes;
-
 }
 
 /*
@@ -293,7 +310,6 @@ int mainv(int argc, char** argv) {
   }
 
   printf(" [cilkio] Exiting server..\n");
-
 }
 
 */
