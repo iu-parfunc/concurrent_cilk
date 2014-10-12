@@ -7,7 +7,7 @@
 # we have a convention of installing software locally inside home
 # directories of shared group accounts.
 
-function add_paths() {
+function prepend_paths() {
   if [ -d $1 ]; then
     export PATH=$1/bin:$PATH
     export C_INCLUDE_PATH=$1/include:$C_INCLUDE_PATH
@@ -17,12 +17,27 @@ function add_paths() {
   fi
 }
 
-add_paths /u/crest-team/.nix-profile/
-add_paths /u/crest-team/opt/
-add_paths /u/parfunc/opt/
+function append_paths() {
+  if [ -d $1 ]; then
+    export PATH=$PATH:$1/bin
+    export C_INCLUDE_PATH=$C_INCLUDE_PATH:$1/include
+    export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$1/include
+    export LIBRARY_PATH=$LIBRARY_PATH:$1/lib
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$1/lib
+  fi
+}
+
+if [ "$LD_LIBRARY_PATH" == "" ]; then
+  # For cutter we'd better seed this:
+  export LD_LIBRARY_PATH=/lib:/lib/x86_64-linux-gnu/:/usr/lib
+fi
+
+append_paths /u/crest-team/.nix-profile/
+prepend_paths /u/crest-team/opt/
+prepend_paths /u/parfunc/opt/
 # Hack, things were installed in the wrong place on parfunc @ IU, so
 # add this too:
-add_paths /u/parfunc/opt/bin
+prepend_paths /u/parfunc/opt/bin
 
 # Set compiler:
 # ----------------------------------------
