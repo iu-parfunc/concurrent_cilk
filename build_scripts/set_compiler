@@ -3,19 +3,29 @@
 # IU-specific setup.  This should be done elsewhere (.bashrc, Jenkins node config, etc):
 # --------------------------------------------------------------------------------
 
-if [ -d /u/parfunc/opt/ ]; then
-  SHAREDSOFT=/u/parfunc/opt/
-elif [ -d /u/crest-team/opt/ ]; then
-  SHAREDSOFT=/u/crest-team/opt/
-fi
+# On some of the machines and supercomputers where we don't have root,
+# we have a convention of installing software locally inside home
+# directories of shared group accounts.
 
-if ! [ "$SHAREDSOFT" == "" ]; then
-  export PATH=$SHAREDSOFT/bin/bin:$PATH
-  export C_INCLUDE_PATH=$SHAREDSOFT/bin/include:$C_INCLUDE_PATH
-  export CPLUS_INCLUDE_PATH=$SHAREDSOFT/bin/include:$CPLUS_INCLUDE_PATH
-  export LIBRARY_PATH=$SHAREDSOFT/bin/lib:$LIBRARY_PATH
-  export LD_LIBRARY_PATH=$SHAREDSOFT/bin/lib:$LD_LIBRARY_PATH
-fi
+function add_paths() {
+  if [ -d $1 ]; then
+    export PATH=$1/bin:$PATH
+    export C_INCLUDE_PATH=$1/include:$C_INCLUDE_PATH
+    export CPLUS_INCLUDE_PATH=$1/include:$CPLUS_INCLUDE_PATH
+    export LIBRARY_PATH=$1/lib:$LIBRARY_PATH
+    export LD_LIBRARY_PATH=$1/lib:$LD_LIBRARY_PATH
+  fi
+}
+
+add_paths /u/crest-team/.nix-profile/
+add_paths /u/crest-team/opt/
+add_paths /u/parfunc/opt/
+# Hack, things were installed in the wrong place on parfunc @ IU, so
+# add this too:
+add_paths /u/parfunc/opt/bin
+
+# Set compiler:
+# ----------------------------------------
 
 if [ "$CONCURRENTCILK_CC" == "" ]; then 
   export CONCURRENTCILK_CC=clang
