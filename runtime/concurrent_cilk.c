@@ -98,7 +98,7 @@ __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx)
 
 // The old paused worker now becomes the thread local state. 
   CILK_API(void)
-__cilkrts_roll_back_pause(__cilkrts_worker *paused_w, __cilkrts_worker *replacement_w)
+inline __cilkrts_roll_back_pause(__cilkrts_worker *paused_w, __cilkrts_worker *replacement_w)
 {
   paused_w->paused_ctx = NULL;
   paused_w->blocked    = 0;
@@ -142,14 +142,14 @@ __cilkrts_resume_fiber(__cilkrts_worker *w)
   CILK_ASSERT(0); // no return
 }
 
-  CILK_API(void) 
+inline  CILK_API(void) 
 __cilkrts_run_replacement_fiber(__cilkrts_worker *replacement)
 {
   //sets pthread TLS to replacement worker and invokes the scheduler.
   __cilkrts_worker_stub((void *) replacement);
 }
 
-  CILK_API(void)
+inline CILK_API(void)
 __cilkrts_register_paused_worker_for_stealing(__cilkrts_worker *w) 
 {
   int i;
@@ -163,7 +163,7 @@ __cilkrts_register_paused_worker_for_stealing(__cilkrts_worker *w)
   if (i >= MAX_WORKERS_BLOCKED) { __cilkrts_bug("paused WORKER OVERFLOW - aborting"); }
 }
 
-  CILK_API(void)
+inline  CILK_API(void)
 __cilkrts_remove_paused_worker_from_stealing(__cilkrts_worker *w)
 {
   int i;
