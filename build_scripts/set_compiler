@@ -3,18 +3,28 @@
 # IU-specific setup.  This should be done elsewhere (.bashrc, Jenkins node config, etc):
 # --------------------------------------------------------------------------------
 
+# On some of the machines and supercomputers where we don't have root,
+# we have a convention of installing software locally inside home
+# directories of shared group accounts:
 if [ -d /u/parfunc/opt/ ]; then
   SHAREDSOFT=/u/parfunc/opt/
 elif [ -d /u/crest-team/opt/ ]; then
   SHAREDSOFT=/u/crest-team/opt/
 fi
 
+function add_paths() {
+  export PATH=$1/bin:$PATH
+  export C_INCLUDE_PATH=$1/include:$C_INCLUDE_PATH
+  export CPLUS_INCLUDE_PATH=$1/include:$CPLUS_INCLUDE_PATH
+  export LIBRARY_PATH=$1/lib:$LIBRARY_PATH
+  export LD_LIBRARY_PATH=$1/lib:$LD_LIBRARY_PATH
+}
+
 if ! [ "$SHAREDSOFT" == "" ]; then
-  export PATH=$SHAREDSOFT/bin/bin:$PATH
-  export C_INCLUDE_PATH=$SHAREDSOFT/bin/include:$C_INCLUDE_PATH
-  export CPLUS_INCLUDE_PATH=$SHAREDSOFT/bin/include:$CPLUS_INCLUDE_PATH
-  export LIBRARY_PATH=$SHAREDSOFT/bin/lib:$LIBRARY_PATH
-  export LD_LIBRARY_PATH=$SHAREDSOFT/bin/lib:$LD_LIBRARY_PATH
+  add_paths $SHAREDSOFT
+  # Hack, things were installed in the wrong place on parfunc @ IU, so
+  # add this too:
+  add_paths $SHAREDSOFT/bin
 fi
 
 if [ "$CONCURRENTCILK_CC" == "" ]; then 
