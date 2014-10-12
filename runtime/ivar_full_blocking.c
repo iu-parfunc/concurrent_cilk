@@ -13,16 +13,16 @@ inline CILK_API(void)
 __cilkrts_ivar_clear(__cilkrts_ivar* ivar) { *ivar = 0; }
 
 inline CILK_API(void)
-__cilkrts_ivar_array_clear(__cilkrts_ivar* ptr, int size) { 
-  // bzero(ptr, sizeof(__cilkrts_ivar) * (size_t)size);
-  memset(ptr, 0, sizeof(__cilkrts_ivar) * (size_t)size);
+__cilkrts_ivar_array_clear(__cilkrts_ivar *ptr, int size)
+{ 
+  memset(ptr, 0, sizeof(__cilkrts_ivar) * (size_t) size);
 }
 
-inline CILK_API(__cilkrts_ivar*) 
-__cilkrts_new_ivar_array(int size) {
-  return calloc(sizeof(__cilkrts_ivar),size);
+inline CILK_API(__cilkrts_ivar*)
+__cilkrts_new_ivar_array(int size)
+{
+  return calloc(sizeof(__cilkrts_ivar), size);
 }
-
 
 
 /**
@@ -60,13 +60,11 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
 
   //slow path -- operation must block until a value is available.
   //----------------------------------
-  val = (uintptr_t) __cilkrts_pause_fiber((struct __jmp_buf_tag *)&ctx);
+  val = (uintptr_t) __cilkrts_pause_fiber(&ctx);
 
   if (! val) {
     w = __cilkrts_get_tls_worker_fast();
-    w->paused_ctx  = &ctx;
-    CILK_ASSERT(w->current_stack_frame);
-    replacement = __cilkrts_commit_pause(w); 
+    replacement = __cilkrts_commit_pause(w, &ctx); 
 
     do {
       peek = *ivar;
@@ -98,7 +96,7 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
         case CILK_IVAR_FULL:
           dbgprint(IVAR, "ivar %p FILLED while reading\n", ivar);
           //nevermind...someone filled it. 
-          __cilkrts_rollback_pause(w, replacement);
+          __cilkrts_roll_back_pause(w, replacement);
           return UNTAG(*ivar);
           break; //go around again
         case CILK_IVAR_LOCKED:
@@ -109,7 +107,7 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
     } while (!exit);
 
     //thread local array operation, no lock needed
-    __cilkrts_register_blocked_worker_for_stealing(w);
+    __cilkrts_register_paused_worker_for_stealing(w);
     __cilkrts_run_replacement_fiber(replacement);
     CILK_ASSERT(0); //no return. heads to scheduler.
   }

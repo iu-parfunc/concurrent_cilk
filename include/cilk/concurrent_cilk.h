@@ -80,18 +80,136 @@ typedef __cilkrts_ivar ivar_t;
 //--------------------------------------
 
 /** 
- * Concurrent Cilk API
+ * Concurrent Cilk API:
+ *
+ * The API provides functions which transitions a Cilk thread of execution into the following states:
+ *
+ * +---- From State -----+---- To State ----+---------------- Transition Functions --------------------+
+ * |                     |                  |                                                          |
+ * |     unpaused       |  pause snapshot  |                  __cilkrts_pause()                       |
+ * |---------------------|------------------|----------------------------------------------------------|
+ * |                     |                  |                                                          |
+ * |   pause snapshot    |  pause committed |               __cilkrts_commit_pause()                   |
+ * |---------------------|------------------|----------------------------------------------------------|
+ * |                     |  (paused work   |                                                          |
+ *                             exposed)     |                                                          |
+ * |   pause committed   |  pause committed |    __cilkrts_register_paused_worker_for_stealing()      |
+ * |---------------------|------------------|----------------------------------------------------------|
+ * |                     |  (paused work   |                                                          |
+ * |                     |      hidden)     |                                                          |
+ * |   pause committed   |  pause committed |    __cilkrts_remove_paused_worker_from_stealing()       |
+ * |---------------------|------------------|----------------------------------------------------------|
+ * |                     |                  |                                                          |
+ * |   unpaused         |    unpaused     |    __cilkrts_remove_paused_worker_from_stealing()       |
+ * |---------------------|------------------|----------------------------------------------------------|
+ * |                     |                  |                                                          |
+ * |   pause committed   |    unpaused     |             __cilkrts_rollback_pause()                   |
+ * |---------------------|------------------|----------------------------------------------------------|
+ * |                     |                  |                                                          |
+ * |   pause committed   |    unpaused     |          __cilkrts_run_replacement_fiber()               |
+ * |---------------------|------------------|----------------------------------------------------------|
+ * |                     |                  |                                                          |
+ * |     unpaused       |    unpaused     |               __cilkrts_resume_fiber()                   |
+ * +---------------------+------------------+----------------------------------------------------------+
+ *
+ * Example usage of a pause: 
+ *
+ *--------------------------------------------------------------------------------
+ * jmp_buf ctx; 
+ * uintptr_t val = (uintptr_t) __cilkrts_pause_fiber(&ctx); //save a return point for the paused work.
+ * if (! val) {
+ *    __cilkrts_worker *w = __cilkrts_get_tls_worker_fast(); //gets the current thread local worker.
+ *    ...
+ *    __cilkrts_worker *replacement = __cilkrts_commit_pause(w, &ctx); //pauses w and returns a replacement.
+ *    ...
+ *    __cilkrts_register_paused_worker_for_stealing(w);  //paused work dequeue can be accessed by runtime.
+ *    ...
+ *    __cilkrts_run_replacement_fiber(replacement); //invokes cilk scheduler, user code could be called here.
+ * } 
+ * //resumed paused computation picks up execution here...
+ *--------------------------------------------------------------------------------
  */
-// CSZ: it is necessary that pause be a macro because the longjump must return to a valid frame. 
-// you will experience erratic behavior if this is not the case
-#define __cilkrts_pause_fiber(ctx)  (setjmp((ctx)))
-CILK_API(__cilkrts_worker *) __cilkrts_commit_pause(__cilkrts_worker *w);
-CILK_API(void) __cilkrts_rollback_pause(__cilkrts_worker *blocked_w, __cilkrts_worker *replacement_w);
-CILK_API(void) __cilkrts_register_blocked_worker_for_stealing(__cilkrts_worker *w);
-CILK_API(void) __cilkrts_run_replacement_fiber(__cilkrts_worker *w);
-CILK_API(void) __cilkrts_resume_fiber(__cilkrts_worker *w);
-//--------------------------------------
 
+/**
+ * take a snapshot of the current state of the registers. 
+ * This function sets the resume point for a paused computation once it has been paused. 
+ *
+ * @param ctx A pointer to a jmp_buf struct which will store the execution state. 
+ * @return 0 upon pause and nonzero upon restoration. 
+ */
+CILK_API(int) __cilkrts_pause_fiber(jmp_buf *ctx);
+
+/**
+ * Commits the pause by associating the restore point (previously populated by __cilkrts_pause_fiber). 
+ * 
+ * The commit causes Cilk runtime to forget about the current worker and discover a fresh replacement
+ * worker in its place. This function preserves the current team and type of the worker. Additionally,
+ * core local state (for concurrent record keeping) is propagated to the replacement. 
+ *
+ * @param w The worker to pause
+ * @param ctx The saved context to use as the restore point for the paused computation upon restoration.
+ * @return A new  __cilkrts_worker * set up to be run while the current worker is paused. 
+ */
+CILK_API(__cilkrts_worker *) __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx);
+
+/**
+ * Roll back a pause which has been committed (via __cilkrts_commit_pause()). 
+ * The result of this function is that the paused worker is reinstated as the current TLS worker
+ * and the pointer to the replacement worker is no longer a valid reference. 
+ *
+ * This function does not return to the restore point but simply continues on with the worker
+ * that was the TLS worker before the paused was committed. 
+ *
+ * The result of calling this function after the Cilk scheduler has been invoked is undefined. 
+ *
+ * @param paused_w The worker which is currently paused
+ * @param replacement_w The worker which replaced paused_w
+ */
+CILK_API(void) __cilkrts_roll_back_pause(__cilkrts_worker *paused_w, __cilkrts_worker *replacement_w);
+
+/**
+ * Register the paused worker's work dequeue to be available for work stealing. 
+ *
+ * Upon failure of runtime to steal work from the replacement worker, this worker may be 
+ * queried and any work available for stealing will be exposed to the thief. 
+ *
+ * @param w The worker to expose to Cilk runtime for stealing. 
+ */
+CILK_API(void) __cilkrts_register_paused_worker_for_stealing(__cilkrts_worker *w);
+
+/**
+ * Removes a paused worker from being exposed for stealing by Cilk runtime if it exists. 
+ * The result is idempotent if the worker is not currently exposed or is a current TLS worker. 
+ *
+ * @param w The worker to remove from being exposed to Cilk runtime for stealing. 
+ */
+CILK_API(void) __cilkrts_remove_paused_worker_from_stealing(__cilkrts_worker *w);
+
+/**
+ * Invokes the Cilk scheduler to steal work. 
+ *
+ * @param w The replacement worker which will now become a thief and steal work. 
+ */
+CILK_API(void) __cilkrts_run_replacement_fiber(__cilkrts_worker *w);
+
+/**
+ * Resume a worker who's computation was previously paused. 
+ * The restore point as defined by __cilkrts_pause_fiber() will be restored and the
+ * worker becomes the current thread local worker. 
+ *
+ * Conditions under which a restore can be called are as follows: 
+ * 1. The calling thread's TLS worker must not have any concurrent work in it's dequeue (w->head == w->tail).
+ * 2. The calling thread's TLS worker must not have a next full frame.
+ * 3. The self value of each worker must be the equal. 
+ * 4. The worker to be restored must not be the current TLS worker. 
+ *
+ * @param w The worker which will resume execution at the restore point. 
+ * @return Does not return. The paused context of execution is restored. 
+ */
+CILK_API(void) __cilkrts_resume_fiber(__cilkrts_worker *w);
+
+
+//--------------------------------------
 
 
 /** 
