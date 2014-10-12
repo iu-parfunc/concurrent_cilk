@@ -68,6 +68,7 @@ PKGS= ./ ./HSBencher/hgdata ./HSBencher/hsbencher ./HSBencher/hsbencher-fusion
 CBLARGS= -j --ghc-option=-j3 --disable-documentation --with-ghc=ghc-$(JENKINS_GHC) --force-reinstalls
 
 run-benchmarks.exe: run-benchmarks.cabal run-benchmarks.hs
+	which -a $(CABAL)
 	$(CABAL) sandbox init
 	$(CABAL) sandbox hc-pkg list
 #	$(CABAL) sandbox hc-pkg unregister hsbencher-analytics || echo ok
