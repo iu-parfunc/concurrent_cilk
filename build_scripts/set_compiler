@@ -5,7 +5,7 @@
 
 if [ -d /u/parfunc/opt/ ]; then
   SHAREDSOFT=/u/parfunc/opt/
-if [ -d /u/crest-team/opt/ ]; then
+elif [ -d /u/crest-team/opt/ ]; then
   SHAREDSOFT=/u/crest-team/opt/
 fi
 
