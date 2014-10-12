@@ -83,9 +83,6 @@ __CILKRTS_BEGIN_EXTERN_C
 #define trylock_atomic(lock) __sync_bool_compare_and_swap(lock, 0, 1)
 #define unlock_atomic(lock)  __sync_bool_compare_and_swap(lock, 1, 0)
 
-#define MAX_WORKERS_BLOCKED 4096
-
-
 
 /*   Concurrent Cilk:  Types & API   */
 

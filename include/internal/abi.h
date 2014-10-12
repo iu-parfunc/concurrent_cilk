@@ -224,28 +224,27 @@ struct __cilkrts_worker {
 #endif  /* __CILKRTS_ABI_VERSION >= 1 */
 
 #ifdef CILK_IVARS
+#define align(n) __attribute__((aligned(n)))
+    // A singly linked list of fibers on this thread which are ready to be restored.
+    struct queue_t *readylist align(64); // 
+
+    // A queue of paused worker states available for stealing. 
+    struct queue_t *pauselist;
+
+    
     /** Hold a pointer to the jmp_buf returned by __cilkrts_pause() */
-    jmp_buf *paused_ctx;
-
-    __cilkrts_worker *team_leader; 
-
-    struct queue_t *referencelist;
-
-    // a singly linked list of fibers on this thread which are ready to be restored.
-    struct queue_t *readylist;
-
-    // an array of blocked worker states available for stealing. 
-    __cilkrts_worker * volatile *fibers;
-
+    jmp_buf *paused_ctx (align(64)); //worker local
     int blocked;
     int worker_depth;
+
+    __cilkrts_worker *team_leader (align(64)); // shared with workers on the same core
     int *volatile ref_count;
 #endif
 };
 
 
 /**
- * Every spawning function has a frame descriptor.  A spawning function
+ * Every spawning function has a frame descriptor. A spawning function
  * is a function that spawns or detaches.  Only spawning functions
  * are visible to the Cilk runtime.
  */

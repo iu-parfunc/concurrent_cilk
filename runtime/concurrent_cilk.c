@@ -47,8 +47,8 @@ __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx)
   //lazily allocate a slot for the readylist.
   if (! w->readylist) { w->readylist = make_stack_queue(); }
 
-  //lazily allocate a slot for the referencelist.
-  if (! w->referencelist) { w->referencelist = make_stack_queue(); }
+  //lazily allocate a slot for the pauselist.
+  if (! w->pauselist) { w->pauselist = make_stack_queue(); }
 
   //lazily allocate a pointer for the ref_count. 
   if (! w->ref_count) {
@@ -72,7 +72,7 @@ __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx)
   replacement->l->team       = w->l->team;
   replacement->l->type       = w->l->type;
   replacement->worker_depth  = w->worker_depth+1;
-  replacement->referencelist = w->referencelist;
+  replacement->pauselist     = w->pauselist;
   *replacement->ref_count += 1;
 
   if (WORKER_SYSTEM == replacement->l->type) {

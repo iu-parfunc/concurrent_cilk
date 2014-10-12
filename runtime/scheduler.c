@@ -1499,9 +1499,7 @@ static void schedule_work(__cilkrts_worker *w)
     if (w->readylist && (! dequeue(w->readylist, (ELEMENT_TYPE *) &ready_worker))) {
       //if there was ever a blocked worker running, this
       //means something has gone terribly wrong
-      //CSZ: -- actually because of the below code this is possible. Consider the case of a sync + unblock on the same worker. 
-      //CILK_ASSERT(ready_worker != w);
-      dbgprint(CONCURRENT, "found referenced worker %d/%p on the referencelist\n",
+      dbgprint(CONCURRENT, "found ready worker %d/%p on the readylist\n",
           ready_worker->self, ready_worker);
       __cilkrts_resume_fiber(ready_worker);
       CILK_ASSERT(0);
@@ -2313,7 +2311,7 @@ __cilkrts_worker *make_worker(global_state_t *g,
 #ifdef CILK_IVARS
   w->paused_ctx    = NULL;
   w->readylist     = NULL;
-  w->referencelist = NULL;
+  w->pauselist     = NULL;
   w->team_leader   = NULL;
   w->fibers        = NULL;
   w->blocked       = 0;
