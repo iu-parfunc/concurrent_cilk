@@ -24,7 +24,7 @@ endif
 TRIALS=3
 # TRIALS=1
 TOP=$(shell pwd)
-DEPS=deps/build/lib/libevent.so
+DEPS=deps/build/lib/libevent.so deps/build/lib/libuv.so
 
 # Google API authentication
 
@@ -46,6 +46,13 @@ all: deps dobuild
 
 deps/build/lib/libevent.so: 
 	cd deps/libevent; \
+        ./autogen.sh; \
+	./configure --prefix=$(TOP)/deps/build; \
+	make -j; \
+	make install
+
+deps/build/lib/libuv.so: 
+	cd deps/libuv; \
         ./autogen.sh; \
 	./configure --prefix=$(TOP)/deps/build; \
 	make -j; \

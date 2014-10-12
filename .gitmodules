@@ -7,3 +7,6 @@
 [submodule "deps/libevent"]
 	path = deps/libevent
 	url = git://git.code.sf.net/p/levent/code
+[submodule "deps/libuv"]
+	path = deps/libuv
+	url = https://github.com/joyent/libuv.git
