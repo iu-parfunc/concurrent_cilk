@@ -24,6 +24,9 @@ __cilkrts_new_ivar_array(int size)
   return calloc(sizeof(__cilkrts_ivar), size);
 }
 
+#ifdef IVAR_BUSYWAIT_VARIANT
+#include "ivar_busywait.c"
+#else 
 
 /**
  * Read an IVar and obtain its value. An IVar can be in any one of three states:
@@ -167,3 +170,6 @@ __cilkrts_ivar_write(__cilkrts_ivar *ivar, ivar_payload_t val)
     }
   } while(!exit);
 }
+
+#endif // if IVAR_BUSYWAIT_VARIANT
+
