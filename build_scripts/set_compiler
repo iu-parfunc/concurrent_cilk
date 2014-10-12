@@ -1,9 +1,25 @@
 #!/bin/bash
 
-export PATH=/u/parfunc/opt/bin/bin:$PATH
-export C_INCLUDE_PATH=/u/parfunc/opt/bin/include:$C_INCLUDE_PATH
-export CPLUS_INCLUDE_PATH=/u/parfunc/opt/bin/include:$CPLUS_INCLUDE_PATH
-export LIBRARY_PATH=/u/parfunc/opt/bin/lib:$LIBRARY_PATH
-export LD_LIBRARY_PATH=/u/parfunc/opt/bin/lib:$LD_LIBRARY_PATH
+# IU-specific setup.  This should be done elsewhere (.bashrc, Jenkins node config, etc):
+# --------------------------------------------------------------------------------
 
+if [ -d /u/parfunc/opt/ ]; then
+  SHAREDSOFT=/u/parfunc/opt/
+if [ -d /u/crest-team/opt/ ]; then
+  SHAREDSOFT=/u/crest-team/opt/
+fi
 
+if ! [ "$SHAREDSOFT" == "" ]; then
+  export PATH=$SHAREDSOFTbin/bin:$PATH
+  export C_INCLUDE_PATH=$SHAREDSOFTbin/include:$C_INCLUDE_PATH
+  export CPLUS_INCLUDE_PATH=$SHAREDSOFTbin/include:$CPLUS_INCLUDE_PATH
+  export LIBRARY_PATH=$SHAREDSOFTbin/lib:$LIBRARY_PATH
+  export LD_LIBRARY_PATH=$SHAREDSOFTbin/lib:$LD_LIBRARY_PATH
+fi
+
+if [ "$CONCURRENTCILK_CC" == "" ]; then 
+  export CONCURRENTCILK_CC=clang
+fi
+if [ "$CONCURRENTCILK_CXX" == "" ]; then 
+  export CONCURRENTCILK_CXX=clang++
+fi
