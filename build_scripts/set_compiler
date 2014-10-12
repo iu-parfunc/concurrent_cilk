@@ -10,11 +10,11 @@ elif [ -d /u/crest-team/opt/ ]; then
 fi
 
 if ! [ "$SHAREDSOFT" == "" ]; then
-  export PATH=$SHAREDSOFTbin/bin:$PATH
-  export C_INCLUDE_PATH=$SHAREDSOFTbin/include:$C_INCLUDE_PATH
-  export CPLUS_INCLUDE_PATH=$SHAREDSOFTbin/include:$CPLUS_INCLUDE_PATH
-  export LIBRARY_PATH=$SHAREDSOFTbin/lib:$LIBRARY_PATH
-  export LD_LIBRARY_PATH=$SHAREDSOFTbin/lib:$LD_LIBRARY_PATH
+  export PATH=$SHAREDSOFT/bin/bin:$PATH
+  export C_INCLUDE_PATH=$SHAREDSOFT/bin/include:$C_INCLUDE_PATH
+  export CPLUS_INCLUDE_PATH=$SHAREDSOFT/bin/include:$CPLUS_INCLUDE_PATH
+  export LIBRARY_PATH=$SHAREDSOFT/bin/lib:$LIBRARY_PATH
+  export LD_LIBRARY_PATH=$SHAREDSOFT/bin/lib:$LD_LIBRARY_PATH
 fi
 
 if [ "$CONCURRENTCILK_CC" == "" ]; then 
