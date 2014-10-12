@@ -36,8 +36,6 @@ static void set_nonblocking(int sock) {
 
 /** Callback functions **/
 static void on_accept(uv_poll_t* handle, int status, int events) {
-  printf("now in the accept callback....\n");
-
   dbgprint(CONCURRENT, " [cilkio] In On accept callback..\n");
   struct rw_data* data = (struct rw_data*) handle->data;
   struct sockaddr_in client_addr;
@@ -102,10 +100,8 @@ static void on_write(uv_poll_t* handle, int status, int events) {
 
 void* __cilkrts_io_init_helper(void* ignored) {
   dbgprint(CONCURRENT, " [cilkio] Now on dedicated event-loop thread, begin loop:\n");
-  printf("starting uv_run!!!!\n");
   while (1)
       uv_run(uv_default_loop(), UV_RUN_ONCE);
-  printf("uv_run RETURNED!!!!\n");
   dbgprint(CONCURRENT, " [cilkio] Exited event loop..\n");
   return NULL;
 }
