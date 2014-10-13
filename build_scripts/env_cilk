@@ -4,16 +4,13 @@
 #the install for the library will be: CILK_ROOT/lib
 #header files will be located in CILK_ROOT/include
 
-#CILK_ROOT=/opt/cilkplus #<<<<< EDIT this variable to point to your desired install location
-CILK_ROOT=$HOME/opt/cilkplus #<<<<< EDIT this variable to point to your desired install location
-
 #note, this file MUST be sourced from the top level cilkplus directory. 
 #otherwise, pwd will get the wrong directory.
 CILK_SRC=$(pwd)
 echo $CILK_SRC
 
-#CILK_ROOT=/opt/cilkplus #<<<<< EDIT this variable to point to your desired install location
 CILK_ROOT=$CILK_SRC/install #<<<<< EDIT this variable to point to your desired install location
+# Common install locations include /opt/cilkplus or ~/opt/cilkplus
 
 #do not edit below this line
 LIB_PATH=$CILK_ROOT/lib:$CILK_ROOT/lib64:$CILK_ROOT/libexec:$CILK_ROOT/share
@@ -29,13 +26,20 @@ if [ "$CONCURRENTCILK_CC" == "" ]; then
     echo "ERROR: cannot infer compiler, please set CONCURRENTCILK_CC variable manually";
   fi
 fi
-
 if [ "$CONCURRENTCILK_CXX" == "" ]; then 
-  if [ $(which clang++) ]; then
+  case "$CONCURRENTCILK_CC" in
+  clang)
     export CONCURRENTCILK_CXX=clang++
-  else
-    echo "ERROR: cannot infer compiler, please set CONCURRENTCILK_CXX variable manually";
-  fi
+    ;;
+  gcc)
+    export CONCURRENTCILK_CXX=g++
+    ;;
+  icc)
+    export CONCURRENTCILK_CXX=icpc
+    ;;
+  *)
+      echo "ERROR: cannot infer compiler, please set CONCURRENTCILK_CXX variable manually";
+  esac
 fi
 # ----------------------------------------
 
