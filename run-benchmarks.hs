@@ -5,7 +5,9 @@ module Main where
 import HSBencher
 import HSBencher.Backend.Fusion  (defaultFusionPlugin)
 import HSBencher.Backend.Dribble (defaultDribblePlugin)
+import HSBencher.Backend.Codespeed (defaultCodespeedPlugin, CodespeedConfig(..))
 
+import Data.Default (Default(def))
 import Data.Monoid  (mappend)
 import GHC.Conc (getNumProcessors)
 import System.IO.Unsafe (unsafePerformIO)
@@ -86,11 +88,12 @@ main :: IO ()
 main = do
   putStrLn "Begin Concurrent Cilk profiling benchmarks..."
   defaultMainModifyConfig $ \ conf ->
+    addPlugin defaultDribblePlugin def $ 
+    addPlugin defaultFusionPlugin def  $ 
+    addPlugin defaultCodespeedPlugin csconf $ 
     conf{ benchlist  = benches
                        -- 1 hour timeout
         , runTimeOut = Just 120 -- Erk... need a separate compile timeout.
-        , plugIns   = [ SomePlugin defaultFusionPlugin,
-                        SomePlugin defaultDribblePlugin ]
         , harvesters = customTagHarvesterInt "CILKPLUS_SYSTEM_WORKERS" `mappend` 
                        customTagHarvesterInt "CILKPLUS_USER_WORKERS" `mappend` 
                        customTagHarvesterInt "CILKPLUS_RUNTIME_MEMORY_USAGE_BYTES" `mappend` 
@@ -99,4 +102,7 @@ main = do
                        customTagHarvesterInt "CONCURRENTCILK_WORKERS_BLOCKED" `mappend` 
                        harvesters conf
         }
-
+ where
+  -- Some default settings for benchmarking:
+  csconf = def { codespeedURL = "http://codespeed.crest.iu.edu"
+               , projName     = "ConcurrentCilk" }
