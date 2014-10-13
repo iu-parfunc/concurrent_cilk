@@ -146,8 +146,8 @@ if(${CONCURRENT_CILK})
     set(BASE_C_FLAGS "-Wall -std=c11 -Wno-unused-value")
     set(BASE_CXX_FLAGS "-Wall -Wno-unused-value")
 
-    if(${CILK_DEBUG_IVARS})
-      set(BASE_C_FLAGS "${BASE_C_FLAGS} -DIVAR_DBG=0xf")
+    if($ENV{CCILK_DEBUG})
+      set(BASE_C_FLAGS "${BASE_C_FLAGS} -DCCILK_DEBUG=$ENV{CCILK_DEBUG}")
     endif()
 
     if(${CMAKE_C_COMPILER} MATCHES "clang")
