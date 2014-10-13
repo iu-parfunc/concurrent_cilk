@@ -39,12 +39,3 @@ prepend_paths /u/parfunc/opt/
 # add this too:
 prepend_paths /u/parfunc/opt/bin
 
-# Set compiler:
-# ----------------------------------------
-
-if [ "$CONCURRENTCILK_CC" == "" ]; then 
-  export CONCURRENTCILK_CC=clang
-fi
-if [ "$CONCURRENTCILK_CXX" == "" ]; then 
-  export CONCURRENTCILK_CXX=clang++
-fi

@@ -2313,10 +2313,11 @@ __cilkrts_worker *make_worker(global_state_t *g,
   w->readylist     = NULL;
   w->pauselist     = NULL;
   w->team_leader   = NULL;
-  w->fibers        = NULL;
   w->blocked       = 0;
   w->ref_count     = 0;
   w->worker_depth  = 0;
+  w->to_remove_from_stealing  = 0;
+  w->paused_event_accumulator = NULL;
 #endif
 
   return w;

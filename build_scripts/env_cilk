@@ -19,6 +19,26 @@ CILK_ROOT=$CILK_SRC/install #<<<<< EDIT this variable to point to your desired i
 LIB_PATH=$CILK_ROOT/lib:$CILK_ROOT/lib64:$CILK_ROOT/libexec:$CILK_ROOT/share
 BIN_PATH=$CILK_ROOT/bin
 
+# Set compiler. 
+# ----------------------------------------
+
+if [ "$CONCURRENTCILK_CC" == "" ]; then 
+  if [ $(which clang) ]; then
+    export CONCURRENTCILK_CC=clang;
+  else
+    echo "ERROR: cannot infer compiler, please set CONCURRENTCILK_CC variable manually";
+  fi
+fi
+
+if [ "$CONCURRENTCILK_CXX" == "" ]; then 
+  if [ $(which clang++) ]; then
+    export CONCURRENTCILK_CXX=clang++
+  else
+    echo "ERROR: cannot infer compiler, please set CONCURRENTCILK_CXX variable manually";
+  fi
+fi
+# ----------------------------------------
+
 #export the root for the cilk enabled gcc
 export CILK_ROOT
 
