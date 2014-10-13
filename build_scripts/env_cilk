@@ -18,13 +18,17 @@ BIN_PATH=$CILK_ROOT/bin
 
 # Set compiler. 
 # ----------------------------------------
-
+# INVARIANT: after this script runs CONCURRENTCILK_CC/CXX must have *some* value.
 if [ "$CONCURRENTCILK_CC" == "" ]; then 
-  if [ $(which clang) ]; then
+  if [ $(which icc) ]; then
+    export CONCURRENTCILK_CC=icc;
+  elif [ $(which clang) ]; then
     export CONCURRENTCILK_CC=clang;
   else
     echo "ERROR: cannot infer compiler, please set CONCURRENTCILK_CC variable manually";
+    exit 1 
   fi
+  echo "WARNING: CONCURRENTCILK_CC unset, defaulting to $CONCURRENTCILK_CC version `$CONCURRENTCILK_CC --version`";
 fi
 if [ "$CONCURRENTCILK_CXX" == "" ]; then 
   case "$CONCURRENTCILK_CC" in
@@ -38,7 +42,8 @@ if [ "$CONCURRENTCILK_CXX" == "" ]; then
     export CONCURRENTCILK_CXX=icpc
     ;;
   *)
-      echo "ERROR: cannot infer compiler, please set CONCURRENTCILK_CXX variable manually";
+    echo "ERROR: cannot infer compiler, please set CONCURRENTCILK_CXX variable manually";
+    exit 1
   esac
 fi
 # ----------------------------------------
