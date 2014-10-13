@@ -7,6 +7,10 @@ export CILK_IVAR_DEBUG=false
 
 echo "Using compiler, CONCURRENTCILK_CC = $CONCURRENTCILK_CC .  Version info:"
 $CONCURRENTCILK_CC --version
+$CONCURRENTCILK_CXX --version
+
+export CONCURRENTCILK_CC
+export CONCURRENTCILK_CXX
 
 # This happens in the jenkins web-based script:
 # git submodule init --update --recursive
