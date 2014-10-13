@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 
 [ -z "$CILK_ROOT" ] && echo "Need to set CILK_ROOT environment variable" && exit 1;
 [ -z "$CILK_SRC" ] && echo "Need to set CILK_SRC environment variable" && exit 1;
