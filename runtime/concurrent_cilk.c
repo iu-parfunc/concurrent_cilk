@@ -23,6 +23,7 @@ CILK_API(__cilkrts_worker *)
 __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx) 
 {
   __cilkrts_worker *replacement;
+  __cilkrts_worker * volatile* fibers = NULL;
 
   dbgprint(CONCURRENT, "COMMIT PAUSE paused worker %d/%p team %s\n",
       w->self, w, w->l->type == WORKER_SYSTEM ? "WORKER_SYSTEM" : "WORKER_USER");
@@ -33,6 +34,15 @@ __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx)
   w->paused_ctx  = ctx;
   // initialize the new worker state and save the current worker state in the paused fiber's context.
   replacement = make_worker(w->g, w->self, __cilkrts_malloc(sizeof(__cilkrts_worker)));
+
+
+  //lazily allocate a fibers array.
+  if (! w->fibers) {
+    fibers = (__cilkrts_worker * volatile*)
+      __cilkrts_malloc(sizeof(__cilkrts_worker *) * MAX_WORKERS_BLOCKED);
+    memset((__cilkrts_worker **) fibers, 0, sizeof(__cilkrts_worker *) * MAX_WORKERS_BLOCKED);
+    w->fibers = fibers;
+  }
 
   //lazily allocate a slot for the readylist.
   if (! w->readylist) { w->readylist = make_stack_queue(); }
@@ -45,11 +55,6 @@ __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx)
     w->ref_count = __cilkrts_malloc(sizeof(int)); *w->ref_count = 0;
   }
 
-  //lazily allocate a pointer for the paused_event_accumulator. 
-  if (! w->paused_event_accumulator) {
-    w->paused_event_accumulator = __cilkrts_malloc(sizeof(int)); *w->paused_event_accumulator = 0;
-  }
-
   if (0 == *w->ref_count) {
     atomic_add(&(w->g->workers_blocked), 1);
   }
@@ -58,6 +63,9 @@ __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx)
 
   CILK_ASSERT(NULL != w->l->team->team_leader);
 
+  //the fibers pointer is shared across all replacements on the same thread,
+  //but only this thread may write to the array.
+  replacement->fibers        = w->fibers;
   replacement->readylist     = w->readylist;
   replacement->ref_count     = w->ref_count;
   replacement->team_leader   = w->team_leader;
@@ -65,9 +73,7 @@ __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx)
   replacement->l->type       = w->l->type;
   replacement->worker_depth  = w->worker_depth+1;
   replacement->pauselist     = w->pauselist;
-  replacement->paused_event_accumulator = w->paused_event_accumulator;
   *replacement->ref_count += 1;
-  *replacement->paused_event_accumulator +=1;
 
   if (WORKER_SYSTEM == replacement->l->type) {
     // make replacement a system worker and fill in record keeping for replacement workers.
@@ -139,49 +145,60 @@ __cilkrts_resume_fiber(__cilkrts_worker *w)
 inline  CILK_API(void) 
 __cilkrts_run_replacement_fiber(__cilkrts_worker *replacement)
 {
-  //sets pthread TLS to replacement worker and invokes the scheduler
+  //sets pthread TLS to replacement worker and invokes the scheduler.
   __cilkrts_worker_stub((void *) replacement);
 }
 
 inline CILK_API(void)
 __cilkrts_register_paused_worker_for_stealing(__cilkrts_worker *w) 
 {
-  w->to_remove_from_stealing = 0;
-  enqueue(w->pauselist, (ELEMENT_TYPE) w);
+  int i;
+  for (i = 0; i < MAX_WORKERS_BLOCKED; i++) {
+    if (w->fibers[i] == NULL) {
+      dbgprint(CONCURRENT, "registered worker %d/%p for stealing at idx %i\n", w->self, w, i);
+      w->fibers[i] = w;
+      return;
+    }
+  }
+  if (i >= MAX_WORKERS_BLOCKED) { __cilkrts_bug("paused WORKER OVERFLOW - aborting"); }
 }
 
-  inline  CILK_API(void)
+inline  CILK_API(void)
 __cilkrts_remove_paused_worker_from_stealing(__cilkrts_worker *w)
 {
-  w->to_remove_from_stealing = 1;
+  int i;
+  for (i = 0; i < MAX_WORKERS_BLOCKED; i++) { 
+    if (w->fibers[i] == w) {
+      w->fibers[i] = NULL;
+      dbgprint(CONCURRENT, "removed worker %d/%p from stealing at idx %i\n", w->self, w, i);
+      return;
+    }
+  }
 }
 
 inline __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim)
 {
-  __cilkrts_worker *surrogate = NULL;
+  int i;
+  __cilkrts_worker *surrogate = victim;
+  __cilkrts_worker volatile *tmp;
   CILK_ASSERT(victim);
 
-  while (victim->pauselist) {
-    if ((! dequeue(victim->pauselist, (ELEMENT_TYPE *) &surrogate)) && surrogate) {
-      // Lazily remove any workers marked for deletion from the stealing queue
-      if (surrogate->to_remove_from_stealing) { 
-        surrogate->to_remove_from_stealing = 0;
-        surrogate = NULL;
-        continue;
-      }
+  // there may not be any concurrent work to steal
+  if (! victim->fibers) { return victim; }
 
-      // if we cannot steal, the worker is dequeued and not added back for
-      // consideration. By definition a blocked worker cannot expose more work. 
-      if (can_steal_from(surrogate)) {
-        // We must put the worker back. There may be more work to steal from it later.
-        enqueue(victim->pauselist, (ELEMENT_TYPE) surrogate);
+  for (i = 0; i < MAX_WORKERS_BLOCKED; i++) {
+    tmp = victim->fibers[i];
+    if(tmp) {
+      if (can_steal_from((__cilkrts_worker *) tmp)) {
+        surrogate = (__cilkrts_worker *) tmp;
+        dbgprint(CONCURRENT, "victim %d/%p found surrogate victim %d/%p for stealing at idx %i\n",
+            victim->self, victim, surrogate->self, surrogate, i);
         break;
-      } 
-    } else {
-      break;
+      }
     }
   }
-  return surrogate ? surrogate : victim;
+  return surrogate;
 }
+
 
 

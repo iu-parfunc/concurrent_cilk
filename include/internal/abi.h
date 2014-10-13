@@ -233,14 +233,12 @@ struct __cilkrts_worker {
 
     
     /** Hold a pointer to the jmp_buf returned by __cilkrts_pause() */
-    jmp_buf *paused_ctx align(64); //worker local
+    jmp_buf *paused_ctx (align(64)); //worker local
     int blocked;
     int worker_depth;
-    int to_remove_from_stealing;
 
-    __cilkrts_worker *team_leader align(64); // shared with workers on the same core
+    __cilkrts_worker *team_leader (align(64)); // shared with workers on the same core
     int *volatile ref_count;
-    unsigned long long *volatile paused_event_accumulator; // for stats only. 
 #endif
 };
 
