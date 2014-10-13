@@ -27,12 +27,18 @@ function append_paths() {
   fi
 }
 
-# if [ "$LD_LIBRARY_PATH" == "" ]; then
-#   # For cutter we'd better seed this:
-#   export LD_LIBRARY_PATH=/lib:/lib/x86_64-linux-gnu/:/usr/lib
-# fi
+if [ "$C_INCLUDE_PATH" == "" ]; then
+  # For cutter we'd better seed this:
+  export C_INCLUDE_PATH=/usr/include
+fi
+
+if [ "$LD_LIBRARY_PATH" == "" ]; then
+  # For cutter we'd better seed this:
+  export LD_LIBRARY_PATH=/lib:/lib/x86_64-linux-gnu/:/usr/lib
+fi
 
 # append_paths /u/crest-team/.nix-profile/
+# prepend_paths /u/crest-team/.nix-profile/
 prepend_paths /u/crest-team/opt/
 prepend_paths /u/parfunc/opt/
 # Hack, things were installed in the wrong place on parfunc @ IU, so
