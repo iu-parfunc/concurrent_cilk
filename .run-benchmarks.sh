@@ -5,6 +5,7 @@ set -e
 # Script used by Jenkins to run benchmarks.
 
 echo "Run benchmarks script starting, located at: $0"
+echo "Run on machine $HOSTNAME ..."
 rootdir=$1
 shift
 export BENCHARGS=$*
