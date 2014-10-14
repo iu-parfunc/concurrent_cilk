@@ -52,6 +52,9 @@ following commands to create the library:
 %c.
 %compile libcilkrts with ./build_libcilk.sh
 
+To perform a debug build, set the environment variable CCILK_DEBUG to 1:
+$ export CCILK_DEBUG=1
+$ ./build_libcilk.sh
 
 #
 #  2. USING:
@@ -65,6 +68,19 @@ its dependencies (libpthread, libdl).  For example:
 % gcc foo.c -lcilkrts -lpthread -ldl
 % clang -fcilkplus foo.c 
 % icc -lcilkrts -lpthread -ldl
+
+The debug level for the Concurrent Cilk runtime can be chosen dynamically by setting
+the appropriate level with the CCILK_DEBUG environment variable. 
+
+The available debug levels are:
+IVAR       1
+CILKIO     2
+CONCURRENT 3
+FRAME      4
+
+For instance, to run the echoserver with CILK IO library debugging on:
+$ export CCILK_DEBUG=2
+$ ./echoserver.exe
 
 #
 #  3. DOXYGEN DOCUMENTATION:

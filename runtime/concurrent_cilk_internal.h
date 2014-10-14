@@ -24,19 +24,25 @@ __CILKRTS_BEGIN_EXTERN_C
 #define if_t(test) if (__builtin_expect(test,1)) 
 #define if_f(test) if (__builtin_expect(test,0)) 
 
-#define IVAR 0x1
-#define CONCURRENT 0x2
-#define FRAME 0x4
+#define IVAR       0x1
+#define CILKIO     0x2
+#define CONCURRENT 0x3
+#define FRAME      0x4
 
 #ifdef CILK_IVARS
-#ifdef IVAR_DBG
+#ifdef CCILK_DEBUG
 
-#define dbgprint(lvl, ...) if (lvl & IVAR_DBG) {\
-  pthread_t   tid;\
-  tid = pthread_self();\
-  fprintf(stderr, "[tid:%4d] ", (int)(((int)tid)%10000)); fflush(stderr);\
-  fprintf(stderr, __VA_ARGS__); fflush(stderr); \
-}
+int _ccilk_dbg_lvl;
+
+#define dbgprint(lvl, ...) do {                  \
+  if (!_ccilk_dbg_lvl && getenv("CCILK_DEBUG"))  \
+    _ccilk_dbg_lvl = atoi(getenv("CCILK_DEBUG"));\
+  if (lvl & _ccilk_dbg_lvl) {                    \
+    pthread_t tid;                               \
+    tid            = pthread_self();             \
+    fprintf(stderr, "[tid:%4d] ", (int)(((int)tid)%10000)); fflush(stderr); \
+    fprintf(stderr, __VA_ARGS__); fflush(stderr); } \
+  } while(0)
 
 #else
 

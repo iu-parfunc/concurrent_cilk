@@ -33,11 +33,12 @@ benches =
 -- Set this so that HSBencher actually runs the tests that we are not passing any
 -- parameter to (at least currently)
 emptyParams      = varyCilkThreads $ Or [Set NoMeaning (CompileParam $ show 10)]
-microbenchParams = Or [ varyCilkThreadsParOnly $ 
-                        And [ Or [ Set NoMeaning (RuntimeArg $ show (10 ^ sz) ++ " 1") | sz <- [ 0 .. 4 ] ]
-                            , Set (Variant "microbench_many_blocking") 
-                                  (RuntimeEnv "VARIANT" "microbench_many_blocking") ]
-                      , varyCilkThreads $ 
+microbenchParams = Or [ 
+                        -- varyCilkThreadsParOnly $ 
+                        -- And [ Or [ Set NoMeaning (RuntimeArg $ show (10 ^ sz) ++ " 1") | sz <- [ 0 .. 4 ] ]
+                        --     , Set (Variant "microbench_many_blocking") 
+                        --           (RuntimeEnv "VARIANT" "microbench_many_blocking") ]
+                        varyCilkThreads $ 
                         And [ Or [ Set NoMeaning (RuntimeArg $ show (10 ^ sz)) | sz <- [ 0 .. 4 ] ]
                             , Set (Variant "microbench") (RuntimeEnv "VARIANT" "microbench") ] ]
 wavefrontParams  = varyCilkThreads emptyParams

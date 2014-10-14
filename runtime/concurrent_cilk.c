@@ -11,7 +11,6 @@
 #include "concurrent_queue.h"
 
 
-
 inline CILK_API(int) __cilkrts_pause_fiber(jmp_buf *ctx)
 {
   CILK_ASSERT(ctx);

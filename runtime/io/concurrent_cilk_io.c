@@ -33,7 +33,7 @@ struct event_base *base;
 /** Callback functions **/
 static void on_accept(evutil_socket_t fd, short flags, void* arg) {
 
-  dbgprint(CONCURRENT, " [cilkio] In On accept callback..\n");
+  dbgprint(CILKIO, " [cilkio] In On accept callback..\n");
   struct rw_data* data = (struct rw_data*) arg;
   struct sockaddr_in client_addr;
   socklen_t client_len = sizeof(client_addr);
@@ -56,7 +56,7 @@ static void on_accept(evutil_socket_t fd, short flags, void* arg) {
 
 static void on_read(evutil_socket_t fd, short flags, void* arg) {
 
-  dbgprint(CONCURRENT, " [cilkio] In On read callback..\n");
+  dbgprint(CILKIO, " [cilkio] In On read callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
 
   if (data->len > 0) {
@@ -82,7 +82,7 @@ static void on_read(evutil_socket_t fd, short flags, void* arg) {
 
 static void on_write(evutil_socket_t fd, short flags, void* arg) {
 
-  dbgprint(CONCURRENT, " [cilkio] In On write callback..\n");
+  dbgprint(CILKIO, " [cilkio] In On write callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
 
   while (data->len > 0) {
@@ -102,16 +102,16 @@ static void on_write(evutil_socket_t fd, short flags, void* arg) {
       event_add(data->event, NULL);
     } else {
       // Resume  worker here
-      dbgprint(CONCURRENT, " [cilkio] ON WRITE - Writing value %d to ivar at addresss %p\n", data->nbytes, &(data->iv));
+      dbgprint(CILKIO, " [cilkio] ON WRITE - Writing value %d to ivar at addresss %p\n", data->nbytes, &(data->iv));
       __cilkrts_ivar_write(&(data->iv), data->nbytes);
     }
   }
 }
 
 void* __cilkrts_io_init_helper(void* ignored) {
-  dbgprint(CONCURRENT, " [cilkio] Now on dedicated event-loop thread, begin loop:\n");
+  dbgprint(CILKIO, " [cilkio] Now on dedicated event-loop thread, begin loop:\n");
   event_base_loop(base, EVLOOP_NO_EXIT_ON_EMPTY); 
-  dbgprint(CONCURRENT, " [cilkio] Exited event loop..\n");
+  dbgprint(CILKIO, " [cilkio] Exited event loop..\n");
   return NULL;
 }
 
@@ -121,7 +121,7 @@ CILK_API(int) cilk_io_init(void) {
   /* initialize event loop */
   base = event_base_new();
 
-  dbgprint(CONCURRENT, " [cilkio] event_base_new complete, spawning thread for event loop..\n");
+  dbgprint(CILKIO, " [cilkio] event_base_new complete, spawning thread for event loop..\n");
 
   pthread_t event_thr;
   pthread_attr_t attr;
@@ -154,7 +154,7 @@ CILK_API(int) cilk_accept(int listen_fd) {
     // Need to pass a struct with worker and client fd included
     struct event *accept_event = event_new(base, listen_fd, EV_READ, on_accept, data);
 
-    dbgprint (CONCURRENT, "Adding accept event ..\n");
+    dbgprint (CILKIO, "Adding accept event ..\n");
     event_add(accept_event, NULL);
 
 #if defined(__clang__) // squash a unused variable warning when debug is off. 
@@ -163,7 +163,7 @@ CILK_API(int) cilk_accept(int listen_fd) {
 #endif
     // Block here
     int fd = __cilkrts_ivar_read(&(data->iv));
-    dbgprint(CONCURRENT, " [cilkio] CILK_READ Read ivar val %lu from ivar at %p\n", val, &(data->iv));
+    dbgprint(CILKIO, " [cilkio] CILK_READ Read ivar val %d from ivar at %p\n", fd, &(data->iv));
 
 #if defined(__clang__)
 #pragma clang diagnostic pop
@@ -187,7 +187,7 @@ CILK_API(int) cilk_read(int fd, void* buf, int len) {
 
   struct event* read_event = event_new(base, fd, EV_READ, on_read, data);
   data->event = read_event;
-  dbgprint (CONCURRENT, " [cilkio] Adding read event..\n");
+  dbgprint (CILKIO, " [cilkio] Adding read event..\n");
   event_add(read_event, NULL);
 
 #if defined(__clang__) // squash a unused variable warning when debug is off. 
@@ -196,7 +196,7 @@ CILK_API(int) cilk_read(int fd, void* buf, int len) {
 #endif
   // Pause now
   ssize_t nbytes = __cilkrts_ivar_read(&(data->iv));
-  dbgprint(CONCURRENT, " [cilkio] CILK_READ Read ivar val %lu from ivar at %p\n", val, &(data->iv));
+  dbgprint(CILKIO, " [cilkio] CILK_READ Read ivar val %lu from ivar at %p\n", nbytes, &(data->iv));
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
@@ -220,7 +220,7 @@ CILK_API(int) cilk_write(int fd, void* buf, int len) {
 
   struct event* write_event= event_new(base, fd, EV_WRITE, on_write, data);
   data->event = write_event;
-  dbgprint(CONCURRENT, " [cilkio] Adding write event..\n");
+  dbgprint(CILKIO, " [cilkio] Adding write event..\n");
   event_add(write_event, NULL);
 
 #if defined(__clang__) // squash a unused variable warning when debug is off. 
@@ -229,7 +229,7 @@ CILK_API(int) cilk_write(int fd, void* buf, int len) {
 #endif
   // Pause now
   ssize_t nbytes = __cilkrts_ivar_read(&(data->iv));
-  dbgprint(CONCURRENT, " [cilkio] CILK_WRITE Read ivar val %lu from ivar at %p\n", val, &(data->iv));
+  dbgprint(CILKIO, " [cilkio] CILK_WRITE Read ivar val %lu from ivar at %p\n", nbytes, &(data->iv));
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif

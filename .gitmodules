@@ -1,9 +1,11 @@
 [submodule "cilk_tests"]
 	path = cilk_tests
-	url  = https://github.com/iu-parfunc/cilk_tests.git
+#	url  = https://github.com/iu-parfunc/cilk_tests.git
+	url  = git@github.com:iu-parfunc/cilk_tests.git
 [submodule "HSBencher"]
 	path = HSBencher
-  url  = https://github.com/rrnewton/HSBencher.git
+#        url  = https://github.com/rrnewton/HSBencher.git
+        url  = git@github.com:rrnewton/HSBencher.git
 [submodule "deps/libevent"]
 	path = deps/libevent
 	url = git://git.code.sf.net/p/levent/code
