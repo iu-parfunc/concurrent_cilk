@@ -65,9 +65,10 @@ bench: run-benchmarks.exe
 	./run-benchmarks.exe --retry=10 --hostname=$(MACHINECLASS) --runid=$(RUNID) --keepgoing --trials=$(TRIALS) --name=$(TABLE) --fusion-upload --clientid=$(CID) --clientsecret=$(SEC) $(WHICHBENCH) $(BENCHARGS)
 
 PKGS= ./ ./HSBencher/hgdata ./HSBencher/hsbencher ./HSBencher/hsbencher-fusion ./HSBencher/hsbencher-codespeed
-CBLARGS= --disable-documentation --with-ghc=ghc-$(JENKINS_GHC) --force-reinstalls
+CBLARGS= --disable-documentation --with-ghc=ghc-$(JENKINS_GHC) --force-reinstalls \
+         --extra-include-dirs=$(HOME)/opt/include --extra-lib-dirs=$(HOME)/opt/lib
 # Weird, segfaults on cutter:
-# CBLARGS+="-j --ghc-option=-j3"
+# -j --ghc-option=-j3
 
 run-benchmarks.exe: run-benchmarks.cabal run-benchmarks.hs
 	which -a $(CABAL)
