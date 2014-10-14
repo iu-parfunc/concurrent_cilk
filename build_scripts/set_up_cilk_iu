@@ -26,22 +26,28 @@ function append_paths() {
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$1/lib
   fi
 }
+function bin_only() {
+    export PATH=$1/bin:$PATH
+}
 
-if [ "$C_INCLUDE_PATH" == "" ]; then
-  # For cutter we'd better seed this:
-  export C_INCLUDE_PATH=/usr/include
-fi
+# if [ "$C_INCLUDE_PATH" == "" ]; then
+#   # For cutter we'd better seed this:
+#   export C_INCLUDE_PATH=/usr/include
+# fi
 
-if [ "$LD_LIBRARY_PATH" == "" ]; then
-  # For cutter we'd better seed this:
-  export LD_LIBRARY_PATH=/lib:/lib/x86_64-linux-gnu/:/usr/lib
-fi
+# if [ "$LD_LIBRARY_PATH" == "" ]; then
+#   # For cutter we'd better seed this:
+#   export LD_LIBRARY_PATH=/lib:/lib/x86_64-linux-gnu/:/usr/lib
+# fi
 
-# append_paths /u/crest-team/.nix-profile/
-# prepend_paths /u/crest-team/.nix-profile/
-prepend_paths /u/crest-team/opt/
-prepend_paths /u/parfunc/opt/
-# Hack, things were installed in the wrong place on parfunc @ IU, so
-# add this too:
-prepend_paths /u/parfunc/opt/bin
+# # append_paths /u/crest-team/.nix-profile/
+# # prepend_paths /u/crest-team/.nix-profile/
+# prepend_paths /u/crest-team/opt/
+# prepend_paths /u/parfunc/opt/
+# # Hack, things were installed in the wrong place on parfunc @ IU, so
+# # add this too:
+# prepend_paths /u/parfunc/opt/bin
 
+bin_only /u/crest-team/opt/
+bin_only /u/parfunc/opt/
+bin_only /u/parfunc/opt/bin
