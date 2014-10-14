@@ -48,7 +48,8 @@ fi
 # # add this too:
 # prepend_paths /u/parfunc/opt/bin
 
-# bin_only /u/crest-team/opt/
+# Put the patched clang in front:
+bin_only /u/crest-team/opt/
 append_paths /u/crest-team/opt/
 bin_only /u/parfunc/opt/
 bin_only /u/parfunc/opt/bin
