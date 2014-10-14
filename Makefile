@@ -53,7 +53,7 @@ deps/build/lib/libevent.so:
 
 # Currently [2014.10.09] deps and dobuild should be able to run concurrently.
 dobuild: 
-	time ./build_scripts/build_libcilk.sh
+	time ./build_scripts/build_libcilk.sh;
 	@echo "DONE building libcilkrts."
 
 deps: $(DEPS)
