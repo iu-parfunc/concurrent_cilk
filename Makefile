@@ -66,7 +66,7 @@ bench: run-benchmarks.exe
 
 PKGS= ./ ./HSBencher/hgdata ./HSBencher/hsbencher ./HSBencher/hsbencher-fusion ./HSBencher/hsbencher-codespeed
 CBLARGS= --disable-documentation --with-ghc=ghc-$(JENKINS_GHC) --force-reinstalls \
-         --extra-include-dirs=$(HOME)/opt/include --extra-lib-dirs=$(HOME)/opt/lib
+         -j1 --extra-include-dirs=$(HOME)/opt/include --extra-lib-dirs=$(HOME)/opt/lib
 # Weird, segfaults on cutter:
 # -j --ghc-option=-j3
 
