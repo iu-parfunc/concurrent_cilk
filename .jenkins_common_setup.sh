@@ -11,6 +11,7 @@ source build_scripts/env_cilk
 export CILK_IVAR_DEBUG=false
 
 echo "Using compiler, CONCURRENTCILK_CC = $CONCURRENTCILK_CC .  Version info:"
+echo "Compiler location: "`which -a $CONCURRENTCILK_CC`
 $CONCURRENTCILK_CC --version
 $CONCURRENTCILK_CXX --version
 
