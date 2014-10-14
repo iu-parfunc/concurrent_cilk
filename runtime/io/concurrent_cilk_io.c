@@ -22,8 +22,7 @@
 struct rw_data {
   int fd;
   char* buf;
-  size_t len;
-  int nbytes;
+  ssize_t len;
   __cilkrts_ivar iv;
   struct event* event;
 };
@@ -37,21 +36,20 @@ static void on_accept(evutil_socket_t fd, short flags, void* arg) {
   struct rw_data* data = (struct rw_data*) arg;
   struct sockaddr_in client_addr;
   socklen_t client_len = sizeof(client_addr);
-  int client_fd = accept(fd, (struct sockaddr*)&client_addr, &client_len);
-  data->fd = client_fd;
-  if (client_fd > 0) {
+  data->fd = accept(fd, (struct sockaddr*)&client_addr, &client_len);
+  if (data->fd > 0) {
     /* Set the client socket to non-blocking mode. */
-    if (evutil_make_socket_nonblocking(client_fd) < 0) {
+    if (evutil_make_socket_nonblocking(data->fd) < 0) {
       err(1, "failed to set client socket to non-blocking");
-      close(client_fd);
+      close(data->fd);
     }
   } else {
     err(1, "Error accepting from client..");
-    __cilkrts_ivar_write(&(data->iv), client_fd);
+    __cilkrts_ivar_write(&(data->iv), data->fd);
   }
 
   // Resume worker here
-  __cilkrts_ivar_write(&(data->iv), client_fd);
+  __cilkrts_ivar_write(&(data->iv), data->fd);
 }
 
 static void on_read(evutil_socket_t fd, short flags, void* arg) {
@@ -59,25 +57,12 @@ static void on_read(evutil_socket_t fd, short flags, void* arg) {
   dbgprint(CILKIO, " [cilkio] In On read callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
 
-  if (data->len > 0) {
-    int len = read(fd, (char*)data->buf + data->nbytes, data->len);
-    if (len < 0) {
-      err(1, "Error reading from client..");
-      data->nbytes = -1;
-      __cilkrts_ivar_write(&(data->iv), data->nbytes);
-      return;
-    }
+  data->len = read(fd, (char*)data->buf, data->len);
+  if (data->len < 0)
+    err(1, "Error reading from client..");
 
-    data->nbytes += len;
-    data->len -= len;
-
-    if (data->len > 0) {
-      event_add(data->event, NULL);
-    } else {
-      // Resume worker 
-      __cilkrts_ivar_write(&(data->iv), data->nbytes);
-    }
-  } 
+  // Resume worker 
+  __cilkrts_ivar_write(&(data->iv), data->len);
 }
 
 static void on_write(evutil_socket_t fd, short flags, void* arg) {
@@ -85,27 +70,13 @@ static void on_write(evutil_socket_t fd, short flags, void* arg) {
   dbgprint(CILKIO, " [cilkio] In On write callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
 
-  while (data->len > 0) {
-    int len = write(fd, (char*)data->buf + data->nbytes, data->len);
+  data->len = write(fd, (char*)data->buf, data->len);
+  if (data->len < 0)
+    err(1, "Error writing to client..");
 
-    if (len < 0) {
-      err(1, "Error writing to client..");
-      data->nbytes = -1;
-      __cilkrts_ivar_write(&(data->iv), data->nbytes);
-      return;
-    }
-
-    data->nbytes += len;
-    data->len -= len;
-
-    if (data->len > 0) {
-      event_add(data->event, NULL);
-    } else {
-      // Resume  worker here
-      dbgprint(CILKIO, " [cilkio] ON WRITE - Writing value %d to ivar at addresss %p\n", data->nbytes, &(data->iv));
-      __cilkrts_ivar_write(&(data->iv), data->nbytes);
-    }
-  }
+  // Resume  worker here
+  dbgprint(CILKIO, " [cilkio] ON WRITE - Writing value %lu to ivar at addresss %p\n", data->len, &(data->iv));
+  __cilkrts_ivar_write(&(data->iv), data->len);
 }
 
 void* __cilkrts_io_init_helper(void* ignored) {
@@ -154,7 +125,7 @@ CILK_API(int) cilk_accept(int listen_fd) {
     // Need to pass a struct with worker and client fd included
     struct event *accept_event = event_new(base, listen_fd, EV_READ, on_accept, data);
 
-    dbgprint (CILKIO, "Adding accept event ..\n");
+    dbgprint (CILKIO, " [cilkio] Adding accept event ..\n");
     event_add(accept_event, NULL);
 
 #if defined(__clang__) // squash a unused variable warning when debug is off. 
