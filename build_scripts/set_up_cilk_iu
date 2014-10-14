@@ -30,10 +30,10 @@ function bin_only() {
     export PATH=$1/bin:$PATH
 }
 
-# if [ "$C_INCLUDE_PATH" == "" ]; then
-#   # For cutter we'd better seed this:
-#   export C_INCLUDE_PATH=/usr/include
-# fi
+if [ "$C_INCLUDE_PATH" == "" ]; then
+  # For cutter we'd better seed this:
+  export C_INCLUDE_PATH=/usr/include
+fi
 
 # if [ "$LD_LIBRARY_PATH" == "" ]; then
 #   # For cutter we'd better seed this:
@@ -48,6 +48,7 @@ function bin_only() {
 # # add this too:
 # prepend_paths /u/parfunc/opt/bin
 
-bin_only /u/crest-team/opt/
+# bin_only /u/crest-team/opt/
+append_paths /u/crest-team/opt/
 bin_only /u/parfunc/opt/
 bin_only /u/parfunc/opt/bin
