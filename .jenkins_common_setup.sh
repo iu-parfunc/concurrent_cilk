@@ -3,6 +3,7 @@
 set -x
 set -e
 
+if [ -d ~/.profile ]; then source ~/.profile; fi
 module add intel || echo "ok if this doesnt work"
 
 source build_scripts/set_up_cilk_iu
