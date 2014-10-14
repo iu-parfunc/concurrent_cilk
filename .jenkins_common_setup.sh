@@ -2,6 +2,9 @@
 
 set -x
 set -e
+
+module add intel || echo "ok if this doesnt work"
+
 source build_scripts/set_up_cilk_iu
 source build_scripts/env_cilk
 export CILK_IVAR_DEBUG=false
