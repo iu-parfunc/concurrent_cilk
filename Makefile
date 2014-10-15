@@ -53,7 +53,7 @@ deps/build/lib/libevent.so:
 
 # Currently [2014.10.09] deps and dobuild should be able to run concurrently.
 dobuild: 
-	time ./build_scripts/build_libcilk.sh
+	./build_scripts/build_libcilk.sh
 	@echo "DONE building libcilkrts."
 
 deps: $(DEPS)
@@ -63,7 +63,7 @@ rebuild:
 
 # Run the benchmarks
 bench: run-benchmarks.exe
-	time ./run-benchmarks.exe --retry=10 --hostname=$(MACHINECLASS) --runid=$(RUNID) --keepgoing --trials=$(TRIALS) --name=$(TABLE) --fusion-upload --clientid=$(CID) --clientsecret=$(SEC) $(WHICHBENCH) $(BENCHARGS)
+	./run-benchmarks.exe --retry=10 --hostname=$(MACHINECLASS) --runid=$(RUNID) --keepgoing --trials=$(TRIALS) --name=$(TABLE) --fusion-upload --clientid=$(CID) --clientsecret=$(SEC) $(WHICHBENCH) $(BENCHARGS)
 
 PKGS= ./ ./HSBencher/hgdata ./HSBencher/hsbencher ./HSBencher/hsbencher-fusion ./HSBencher/hsbencher-codespeed
 CBLARGS= --disable-documentation --with-ghc=ghc-$(JENKINS_GHC) --force-reinstalls \
@@ -87,8 +87,9 @@ run-benchmarks.exe: run-benchmarks.cabal run-benchmarks.hs
 
 clean:
 	rm -rf ./run-benchmarks.exe 
-	rm -rf ./build ./install ./deps/build
+	rm -rf ./build ./install 
 
-dist-clean:
+dist-clean: clean
 	rm -rf ./dist
+	rm -rf ./deps/build
 	$(CABAL) sandbox delete
