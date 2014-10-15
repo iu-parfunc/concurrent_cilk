@@ -66,13 +66,17 @@ deps: $(DEPS)
 rebuild:
 	./build_scripts/clean_and_rebuild.sh
 
+# Hack, par builds segfault on cutter:
+JFLAG=$(shell if [[ `hostname` =~ cutter ]]; then echo -j1; else echo -j; fi)
+
 # Run the benchmarks
 bench: run-benchmarks.exe
 	./run-benchmarks.exe --retry=10 --hostname=$(MACHINECLASS) --runid=$(RUNID) --keepgoing --trials=$(TRIALS) --name=$(TABLE) --fusion-upload --clientid=$(CID) --clientsecret=$(SEC) $(WHICHBENCH) $(BENCHARGS)
 
 PKGS= ./ ./HSBencher/hgdata ./HSBencher/hsbencher ./HSBencher/hsbencher-fusion ./HSBencher/hsbencher-codespeed
-CBLARGS= --disable-documentation --with-ghc=ghc-$(JENKINS_GHC) --force-reinstalls \
-         -j1 --extra-include-dirs=$(HOME)/opt/include --extra-lib-dirs=$(HOME)/opt/lib
+CBLARGS= $(JFLAG) --disable-documentation --with-ghc=ghc-$(JENKINS_GHC)  \
+          --extra-include-dirs=$(HOME)/opt/include --extra-lib-dirs=$(HOME)/opt/lib
+# --force-reinstalls
 # Weird, segfaults on cutter:
 # -j --ghc-option=-j3
 
@@ -92,8 +96,8 @@ run-benchmarks.exe: run-benchmarks.cabal run-benchmarks.hs
 
 clean:
 	rm -rf ./run-benchmarks.exe 
-	rm -rf ./build ./install 
+	rm -rf ./build ./install ./deps/build
 
-distclean:
-	rm -rf ./dist ./deps/build
+dist-clean:
+	rm -rf ./dist
 	$(CABAL) sandbox delete
