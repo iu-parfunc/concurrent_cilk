@@ -48,7 +48,7 @@ pingpongParams  = varyCilkThreads $
                    And [ Or [ Set NoMeaning (RuntimeArg $ unwords [show pairs, show iters]) 
                             | pairs <- [ 1, 2, 4, 8 ]
                             , iters <- [ 100, 500, 1000 ] ]
-                       , Set (NoMeaning) (RuntimeEnv "VARIANT" "microbench") ] 
+                       , Set (NoMeaning) (RuntimeEnv "VARIANT" "pingpong_ivars") ] 
 
 wavefrontParams  = varyCilkThreads emptyParams
 scholesParams    = varyCilkThreads emptyParams
