@@ -46,11 +46,8 @@ static void on_accept(evutil_socket_t fd, short flags, void* arg) {
     }
   } else {
     err(1, "Error accepting from client..");
-    __cilkrts_ivar_write(&(data->iv), data->fd);
-    return;
   }
 
-  event_del(data->event);
   event_free(data->event);
 
   // Resume worker here
@@ -66,7 +63,6 @@ static void on_read(evutil_socket_t fd, short flags, void* arg) {
   if (data->len < 0)
     err(1, "Error reading from client..");
 
-  event_del(data->event);
   event_free(data->event);
 
   // Resume worker 
@@ -82,7 +78,6 @@ static void on_write(evutil_socket_t fd, short flags, void* arg) {
   if (data->len < 0)
     err(1, "Error writing to client..");
 
-  event_del(data->event);
   event_free(data->event);
 
   // Resume  worker here
@@ -140,6 +135,7 @@ CILK_API(int) cilk_accept(int listen_fd) {
     struct event *accept_event = event_new(base, listen_fd, EV_READ, on_accept, data);
 
     dbgprint (CILKIO, " [cilkio] Adding accept event ..\n");
+    data->event = accept_event;
     event_add(accept_event, NULL);
 
 #if defined(__clang__) // squash a unused variable warning when debug is off. 
@@ -155,7 +151,6 @@ CILK_API(int) cilk_accept(int listen_fd) {
 #endif
 
     // Returns the result after resuming
-    // event_del(accept_event);
     // event_free(accept_event);
     free(data);
 
@@ -187,7 +182,6 @@ CILK_API(int) cilk_read(int fd, void* buf, int len) {
 #endif
 
   // Returns the result after resuming
-  // event_del(read_event);
   // event_free(read_event);
   free(data);
 
@@ -220,7 +214,6 @@ CILK_API(int) cilk_write(int fd, void* buf, int len) {
 #endif
 
   // Returns the result after resuming
-  // event_del(write_event);
   // event_free(write_event);
   free(data);
 
