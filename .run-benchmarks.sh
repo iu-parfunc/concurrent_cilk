@@ -25,12 +25,15 @@ fi
 
 cd $rootdir
 echo "Switched to working-copy directory: "`pwd`
-
 source .jenkins_common_setup.sh
 
 # (1) Build the library
+echo "Begin building at time: "`date`
 make clean
 make all
 
 # (2) Then benchmark:
+echo "Finished building libs, begin benchmarking, time: "`date`
 make bench 
+
+echo "Finished benchmarking at time: "`date`
