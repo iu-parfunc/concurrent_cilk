@@ -28,16 +28,28 @@ DEPS=deps/build/lib/libevent.so
 
 # Google API authentication
 
-#ifeq ($(MACHINECLASS),delta)
-#  $(info Using ConcurrentCilk-specific FusionTable uploader.)
-#  CID=1063386764086-36m691p8ugsni9d6d2iuuhkn1mum4vg8.apps.googleusercontent.com
-#  SEC=P3rhLK4dSzBpFQeSdihToqsM
-# else
-# 
-# Using generic uploader because we're over limit:
-CID=759282369766-ijonhc4662ot2qos4lgud0e0sltjshlj.apps.googleusercontent.com
-SEC=yI8GfZXsHPrW44udqklCHeDH
-# endif
+ifeq ($(MACHINECLASS),cutter)
+  $(info Using ConcurrentCilk-specific FusionTable uploader.)
+  CID=1063386764086-36m691p8ugsni9d6d2iuuhkn1mum4vg8.apps.googleusercontent.com
+  SEC=P3rhLK4dSzBpFQeSdihToqsM
+  # Hack, par builds segfault on cutter:
+  JFLAG= -j1
+else ifeq ($(MACHINECLASS),xmen)
+  # Using generic uploader because we're over limit:
+  # Generic 1:
+  CID=905767673358.apps.googleusercontent.com
+  SEC=2a2H57dBggubW1_rqglC7jtK
+else ifeq ($(MACHINECLASS),mine)
+  # Using generic uploader because we're over limit:
+  # Generic 2:
+  CID=546809307027-8tm2lp5gtqg5o3pn3s016gd6467cf7j3.apps.googleusercontent.com
+  SEC=148aQ08EPpgkb0DiYVLoT9X2
+else
+  # Generic 3:
+  CID=759282369766-ijonhc4662ot2qos4lgud0e0sltjshlj.apps.googleusercontent.com
+  SEC=yI8GfZXsHPrW44udqklCHeDH
+  JFLAG= -j --ghc-option=-j3
+endif
 
 TABLE=ConcurrentCilk_Benchmarks
 # Note, this table can be found on the web at:
@@ -65,9 +77,6 @@ deps: $(DEPS)
 
 rebuild:
 	./build_scripts/clean_and_rebuild.sh
-
-# Hack, par builds segfault on cutter:
-JFLAG=$(shell if [[ `hostname` =~ cutter ]]; then echo -j1; else echo -j; fi)
 
 # Run the benchmarks
 bench: run-benchmarks.exe
