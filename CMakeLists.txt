@@ -28,7 +28,12 @@ set(CMAKE_CXX_COMPILER "$ENV{CONCURRENTCILK_CXX}")
 # -----------------------------------------
 
 #turn on concurrent cilk by default. (everything for CCC conditionally included on this variable)
-option(CONCURRENT_CILK ON)
+if ($ENV{CCILK_IVARS_OFF})
+  # turn off ivars
+  set(CONCURRENT_CILK false)
+else()
+  option(CONCURRENT_CILK ON)
+endif()
 
 # If there is an extra file that needs to get compiled, add it here. 
 # -----------------------------------------
@@ -148,6 +153,10 @@ if(${CONCURRENT_CILK})
 
     if($ENV{CCILK_DEBUG})
       set(BASE_C_FLAGS "${BASE_C_FLAGS} -DCCILK_DEBUG=$ENV{CCILK_DEBUG}")
+    endif()
+
+    if ($ENV{CCILK_IVARS_BUSYWAIT})
+      set(BASE_C_FLAGS "${BASE_C_FLAGS} -DIVAR_BUSYWAIT_VARIANT")
     endif()
 
     if(${CMAKE_C_COMPILER} MATCHES "clang")

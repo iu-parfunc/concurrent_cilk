@@ -150,7 +150,9 @@ void __cilkrts_dump_stats_to_stderr(global_state_t *g)
             (long long)g->frame_malloc.allocated_from_os);
     fprintf(stderr, "CILKPLUS_STACKSIZE: %ld\n", g->stack_size);
     fprintf(stderr, "CILKPLUS_TOTALSTACKS: %ld\n", g->stacks);
+#ifdef CILK_IVARS
     fprintf(stderr, "CONCURRENTCILK_WORKERS_BLOCKED: %d\n", g->workers_blocked);
+#endif
 #ifdef CILK_PROFILE
     if (g->stats.stack_hwm)
         fprintf(stderr, ", %ld stacks", g->stats.stack_hwm);
