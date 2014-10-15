@@ -6,8 +6,6 @@ set -xe
 
 echo "Run benchmarks script starting, located at: $0"
 echo "Run on machine $HOSTNAME ... SHELL=$SHELL LANG=$LANG"
-echo "Full locale is:"
-locale || echo ok
 
 if [ "$rootdir" == "" ]; then
   echo "Error expected working dir as first arg"
@@ -16,6 +14,10 @@ else
   rootdir=$1
   shift
 fi
+
+echo "Full locale is:"
+locale || echo ok
+
 export BENCHARGS=$*
 echo "Read rootdir from first argument: $rootdir"
 
