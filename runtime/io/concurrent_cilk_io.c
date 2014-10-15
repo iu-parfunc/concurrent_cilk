@@ -16,6 +16,7 @@
 #include <arpa/inet.h>
 
 #include <event2/event.h>
+#include <event2/thread.h>
 
 // #define SERVER_PORT 5555
 
@@ -46,7 +47,11 @@ static void on_accept(evutil_socket_t fd, short flags, void* arg) {
   } else {
     err(1, "Error accepting from client..");
     __cilkrts_ivar_write(&(data->iv), data->fd);
+    return;
   }
+
+  event_del(data->event);
+  event_free(data->event);
 
   // Resume worker here
   __cilkrts_ivar_write(&(data->iv), data->fd);
@@ -61,6 +66,9 @@ static void on_read(evutil_socket_t fd, short flags, void* arg) {
   if (data->len < 0)
     err(1, "Error reading from client..");
 
+  event_del(data->event);
+  event_free(data->event);
+
   // Resume worker 
   __cilkrts_ivar_write(&(data->iv), data->len);
 }
@@ -74,6 +82,9 @@ static void on_write(evutil_socket_t fd, short flags, void* arg) {
   if (data->len < 0)
     err(1, "Error writing to client..");
 
+  event_del(data->event);
+  event_free(data->event);
+
   // Resume  worker here
   dbgprint(CILKIO, " [cilkio] ON WRITE - Writing value %lu to ivar at addresss %p\n", data->len, &(data->iv));
   __cilkrts_ivar_write(&(data->iv), data->len);
@@ -81,6 +92,9 @@ static void on_write(evutil_socket_t fd, short flags, void* arg) {
 
 void* __cilkrts_io_init_helper(void* ignored) {
   dbgprint(CILKIO, " [cilkio] Now on dedicated event-loop thread, begin loop:\n");
+
+  // initialize to use pthread based locking 
+  evthread_use_pthreads();
   event_base_loop(base, EVLOOP_NO_EXIT_ON_EMPTY); 
   dbgprint(CILKIO, " [cilkio] Exited event loop..\n");
   return NULL;
@@ -141,8 +155,8 @@ CILK_API(int) cilk_accept(int listen_fd) {
 #endif
 
     // Returns the result after resuming
-    event_del(accept_event);
-    event_free(accept_event);
+    // event_del(accept_event);
+    // event_free(accept_event);
     free(data);
 
     return fd;
@@ -173,8 +187,8 @@ CILK_API(int) cilk_read(int fd, void* buf, int len) {
 #endif
 
   // Returns the result after resuming
-  event_del(read_event);
-  event_free(read_event);
+  // event_del(read_event);
+  // event_free(read_event);
   free(data);
 
   return nbytes;
@@ -206,8 +220,8 @@ CILK_API(int) cilk_write(int fd, void* buf, int len) {
 #endif
 
   // Returns the result after resuming
-  event_del(write_event);
-  event_free(write_event);
+  // event_del(write_event);
+  // event_free(write_event);
   free(data);
 
   return nbytes;
