@@ -92,8 +92,8 @@ run-benchmarks.exe: run-benchmarks.cabal run-benchmarks.hs
 
 clean:
 	rm -rf ./run-benchmarks.exe 
-	rm -rf ./build ./install ./deps/build
+	rm -rf ./build ./install 
 
-dist-clean:
-	rm -rf ./dist
+distclean:
+	rm -rf ./dist ./deps/build
 	$(CABAL) sandbox delete
