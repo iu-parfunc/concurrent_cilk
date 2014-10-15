@@ -62,7 +62,6 @@ class ivar
 
     void put(const T& val) 
     {
-      abort();
       printf("WRITING IV %p\n", &iv);
       __cilkrts_ivar_write(&iv, (ivar_payload_t) &val);
     }
