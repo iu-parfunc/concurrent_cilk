@@ -26,7 +26,7 @@ echo "Read rootdir from first argument: $rootdir"
 if [ "$MACHINECLASS" == cutter ] && [ "$HOSTNAME" != cutter ] && [[ $rootdir =~ ^/tmp ]];  then
   echo "Running from /tmp/ on a cluster worker node, we need to rsync the working copy..."
   mkdir -p $rootdir
-  rsync --delete -vrplt cutter.crest.iu.edu:$rootdir/ $rootdir/
+  rsync --delete -rplt cutter.crest.iu.edu:$rootdir/ $rootdir/
 fi
 
 if ! [ -d "$rootdir" ]; 
