@@ -29,11 +29,16 @@ DEPS=deps/build/lib/libevent.so
 # Google API authentication
 
 #ifeq ($(MACHINECLASS),delta)
-  $(info Using ConcurrentCilk-specific FusionTable uploader.)
-  CID=1063386764086-36m691p8ugsni9d6d2iuuhkn1mum4vg8.apps.googleusercontent.com
-  SEC=P3rhLK4dSzBpFQeSdihToqsM
+#  $(info Using ConcurrentCilk-specific FusionTable uploader.)
+#  CID=1063386764086-36m691p8ugsni9d6d2iuuhkn1mum4vg8.apps.googleusercontent.com
+#  SEC=P3rhLK4dSzBpFQeSdihToqsM
 # else
+# 
+# Using generic uploader because we're over limit:
+CID=759282369766-ijonhc4662ot2qos4lgud0e0sltjshlj.apps.googleusercontent.com
+SEC=yI8GfZXsHPrW44udqklCHeDH
 # endif
+
 TABLE=ConcurrentCilk_Benchmarks
 # Note, this table can be found on the web at:
 #   https://www.google.com/fusiontables/DataSource?docid=1Jtm_Y7226eb3f7tVSUYLnnYGOjcSrVdUJT688XiA
