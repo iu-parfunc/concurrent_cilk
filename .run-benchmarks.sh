@@ -5,6 +5,7 @@ set -xe
 # Script used by Jenkins to run benchmarks.
 
 echo "Run benchmarks script starting, located at: $0"
+echo "Script called with args: $*"
 echo "Run on machine $HOSTNAME ... SHELL=$SHELL LANG=$LANG"
 
 if [ "$rootdir" == "" ]; then
