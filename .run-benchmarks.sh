@@ -10,7 +10,8 @@ echo "Full locale is:"
 locale || echo ok
 
 if [ "$rootdir" == "" ]; then
-  rootdir=`pwd`
+  echo "Error expected working dir as first arg"
+  exit 1
 else
   rootdir=$1
   shift
