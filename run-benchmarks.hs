@@ -39,7 +39,7 @@ benches =
    [ (mkBenchmark "cilk_tests/regression/knapsack/Makefile"          [ ] knapsackParams   ) { progname = Just "knapsack"}]          ++ 
    [ (mkBenchmark "cilk_tests/regression/LU_decomp/Makefile"         [ ] luParams         ) { progname = Just "LU_decomp"}]         ++ 
    [ (mkBenchmark "cilk_tests/regression/magic-numbers/Makefile"     [ ] magicNumsParams  ) { progname = Just "magic-numbers"}]     ++ 
-   [ (mkBenchmark "cilk_tests/regression/strassen_multiply/Makefile" [ ] strassenParams   ) { progname = Just "strassen-multiply"}]
+   [ (mkBenchmark "cilk_tests/regression/strassen_multiply/Makefile" [ "-n", "4096" ] strassenParams   ) { progname = Just "strassen-multiply"}]
 
 -- Set this so that HSBencher actually runs the tests that we are not passing any
 -- parameter to (at least currently)
