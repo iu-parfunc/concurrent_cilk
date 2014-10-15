@@ -20,7 +20,9 @@ benches :: [Benchmark DefaultParamMeaning]
 benches =
    [ (mkBenchmark "cilk_tests/parfib/Makefile"                        [ ] parfibParams     ) { progname = Just "parfib"}]            ++ 
    [ (mkBenchmark "cilk_tests/ivar/benchmarks/microbench/Makefile"    [ ] microbenchParams ) { progname = Just "microbench"}]        ++ 
-   --[ (mkBenchmark "cilk_tests/ivar/benchmarks/wavefront/Makefile"     [ ] wavefrontParams  ) { progname = Just "wavefront"}]         ++ 
+   --[ (mkBenchmark "cilk_tests/ivar/benchmarks/wavefront/Makefile"     [ ] wavefrontParams  ) { progname = Just "wavefront"}]         ++
+   [ (mkBenchmark "cilk_tests/ivar/benchmarks/pingpong/Makefile"      [ ] pingpongParams  )  { progname = Just "pingpong"}]          ++ 
+ 
    [ (mkBenchmark "cilk_tests/regression/black-scholes/Makefile"      [ ] scholesParams    ) { progname = Just "black-scholes"}]     ++ 
    --[ (mkBenchmark "cilk_tests/regression/cholesky/Makefile"          [ ] choleskyParams   ) { progname = Just "cholesky"}]          ++ 
    --[ (mkBenchmark "cilk_tests/regression/jacobi-heat/Makefile"       [ ] jacobiParams     ) { progname = Just "jacobi-heat"}]       ++ 
@@ -41,6 +43,13 @@ microbenchParams = Or [
                         varyCilkThreads $ 
                         And [ Or [ Set NoMeaning (RuntimeArg $ show (10 ^ sz)) | sz <- [ 0 .. 4 ] ]
                             , Set (Variant "microbench") (RuntimeEnv "VARIANT" "microbench") ] ]
+
+pingpongParams  = varyCilkThreads $ 
+                   And [ Or [ Set NoMeaning (RuntimeArg $ unwords [show pairs, show iters]) 
+                            | pairs <- [ 1, 2, 4, 8 ]
+                            , iters <- [ 100, 500, 1000 ] ]
+                       , Set (NoMeaning) (RuntimeEnv "VARIANT" "microbench") ] 
+
 wavefrontParams  = varyCilkThreads emptyParams
 scholesParams    = varyCilkThreads emptyParams
 choleskyParams   = varyCilkThreads emptyParams
