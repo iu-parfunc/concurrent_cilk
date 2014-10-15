@@ -42,7 +42,8 @@ microbenchParams = Or [
                         --           (RuntimeEnv "VARIANT" "microbench_many_blocking") ]
                         varyCilkThreads $ 
                         And [ Or [ Set NoMeaning (RuntimeArg $ show (10 ^ sz)) | sz <- [ 0 .. 4 ] ]
-                            , Set (Variant "microbench") (RuntimeEnv "VARIANT" "microbench") ] ]
+                            , Set (Variant var) (RuntimeEnv "VARIANT" var) ]
+                      | var <- ["microbench_race"] ]
 
 pingpongParams  = varyCilkThreads $ 
                    And [ Or [ Set NoMeaning (RuntimeArg $ unwords [show pairs, show iters]) 
