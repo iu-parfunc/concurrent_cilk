@@ -8,11 +8,12 @@ echo "Run benchmarks script starting, located at: $0"
 echo "Script called with args: $*"
 echo "Run on machine $HOSTNAME ... SHELL=$SHELL LANG=$LANG"
 
+rootdir=$1
+
 if [ "$rootdir" == "" ]; then
   echo "Error expected working dir as first arg"
   exit 1
 else
-  rootdir=$1
   shift
 fi
 
