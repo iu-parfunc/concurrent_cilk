@@ -51,9 +51,13 @@ else
   JFLAG= -j --ghc-option=-j3
 endif
 
-TABLE=ConcurrentCilk_Benchmarks
-# Note, this table can be found on the web at:
+
+# TABLE=ConcurrentCilk_Benchmarks
 #   https://www.google.com/fusiontables/DataSource?docid=1Jtm_Y7226eb3f7tVSUYLnnYGOjcSrVdUJT688XiA
+# Changing to a fresh one because of broken indexing:
+TABLE=ConcurrentCilk_Benchmarks2
+# Note, this table can be found on the web at:
+
 
 .phony: all dobuild rebuild bench deps
 # ----------------------------------------

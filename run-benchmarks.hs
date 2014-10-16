@@ -19,6 +19,8 @@ import System.Process (system)
 -- We'll uncomment these later
 benches :: [Benchmark DefaultParamMeaning]
 benches =
+   [ (mkBenchmark "cilk_tests/ivar/benchmarks/wavefront/Makefile"     [ ] wavefrontParams  ) { progname = Just "wavefront"}]         ++
+
    [ (mkBenchmark "cilk_tests/parfib/Makefile"                        [ ] parfibParams     ) { progname = Just "parfib"}]            ++ 
 --   [ (mkBenchmark "cilk_tests/ivar/benchmarks/microbench/Makefile"    [ ] microbenchParams ) { progname = Just "microbench"}]        ++ 
 
@@ -29,8 +31,6 @@ benches =
    [ (mkBenchmark "cilk_tests/ivar/benchmarks/microbench/Makefile"    [ ] microbench_noblockParams ) 
                                                                       { progname = Just "microbench_noblock"}]  ++ 
 
-
-   --[ (mkBenchmark "cilk_tests/ivar/benchmarks/wavefront/Makefile"     [ ] wavefrontParams  ) { progname = Just "wavefront"}]         ++
    [ (mkBenchmark "cilk_tests/ivar/benchmarks/pingpong/Makefile"      [ ] pingpongParams  )  { progname = Just "pingpong"}]          ++ 
  
    [ (mkBenchmark "cilk_tests/regression/black-scholes/Makefile"      [ ] scholesParams    ) { progname = Just "black-scholes"}]     ++ 
@@ -74,10 +74,22 @@ pingpongParams  = varyCilkThreads $
                    And [ Or [ Set NoMeaning (RuntimeArg $ unwords [show pairs, show iters]) 
                             | pairs <- [ 1, 2, 4, 8 ]     :: [Int]
 --                            , iters <- [ 100, 500, 1000 ] :: [Int] ]
+                            -- Need bigger sizes to take more time:
                             , iters <- [ 5000, 10000, 20000, 50000, 100000 ] :: [Int] ]
                        , Set (NoMeaning) (RuntimeEnv "VARIANT" "pingpong_ivars") ] 
 
-wavefrontParams  = varyCilkThreads emptyParams
+wavefrontParams  = 
+  Or [ wf "sequential"
+     , varyCilkThreads $ wf "dnc" 
+     , varyCilkThreads $ wf "ivar" ]
+ where
+   wf var = 
+       And [ Or [ Set NoMeaning (RuntimeArg $ unwords [show outerdim, show innerdim]) 
+                | outerdim <- map (2^) [ 4 .. 8 ::Int ] :: [Int]
+                , innerdim <- map (2^) [ 4 .. 9 ::Int ] :: [Int] ]
+           , Set (Variant var) (RuntimeEnv "VARIANT" var) ]
+
+
 scholesParams    = varyCilkThreads emptyParams
 choleskyParams   = varyCilkThreads emptyParams
 jacobiParams     = varyCilkThreads emptyParams
