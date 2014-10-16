@@ -80,7 +80,7 @@ rebuild:
 
 # Run the benchmarks
 bench: run-benchmarks.exe
-	./run-benchmarks.exe --retry=10 --hostname=$(MACHINECLASS) --runid=$(RUNID) --keepgoing --trials=$(TRIALS) --name=$(TABLE) --fusion-upload --clientid=$(CID) --clientsecret=$(SEC) $(WHICHBENCH) $(BENCHARGS)
+	./run-benchmarks.exe --retry=20 --hostname=$(MACHINECLASS) --runid=$(RUNID) --keepgoing --trials=$(TRIALS) --name=$(TABLE) --fusion-upload --clientid=$(CID) --clientsecret=$(SEC) $(WHICHBENCH) $(BENCHARGS)
 
 PKGS= ./ ./HSBencher/hgdata ./HSBencher/hsbencher ./HSBencher/hsbencher-fusion ./HSBencher/hsbencher-codespeed
 CBLARGS= $(JFLAG) --disable-documentation --with-ghc=ghc-$(JENKINS_GHC)  \

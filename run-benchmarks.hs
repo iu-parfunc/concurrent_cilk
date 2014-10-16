@@ -72,7 +72,8 @@ mb fbrs iters vars =
 pingpongParams  = varyCilkThreads $ 
                    And [ Or [ Set NoMeaning (RuntimeArg $ unwords [show pairs, show iters]) 
                             | pairs <- [ 1, 2, 4, 8 ]     :: [Int]
-                            , iters <- [ 100, 500, 1000 ] :: [Int] ]
+--                            , iters <- [ 100, 500, 1000 ] :: [Int] ]
+                            , iters <- [ 5000, 10000, 20000, 50000, 100000 ] :: [Int] ]
                        , Set (NoMeaning) (RuntimeEnv "VARIANT" "pingpong_ivars") ] 
 
 wavefrontParams  = varyCilkThreads emptyParams
