@@ -5,27 +5,19 @@
 #include <errno.h>
 #include <string.h>
 #include <err.h>
+#include <sys/types.h>
 #include <pthread.h>
 #include "concurrent_cilk_internal.h"
 #include <cilk/cilk.h>
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-/* For inet_ntoa. */
-#include <arpa/inet.h>
-
 #include <event2/event.h>
 #include <event2/thread.h>
 
-// #define SERVER_PORT 5555
-
 struct rw_data {
-  int fd;
-  char* buf;
-  ssize_t len;
-  __cilkrts_ivar iv;
-  struct event* event;
+  int               fd;
+  void*            buf;
+  ssize_t          len;
+  __cilkrts_ivar    iv;
 };
 
 struct event_base *base;
@@ -48,8 +40,6 @@ static void on_accept(evutil_socket_t fd, short flags, void* arg) {
     err(1, "Error accepting from client..");
   }
 
-  event_del(data->event);
-
   // Resume worker here
   __cilkrts_ivar_write(&(data->iv), data->fd);
 }
@@ -62,8 +52,6 @@ static void on_read(evutil_socket_t fd, short flags, void* arg) {
   data->len = read(fd, (char*)data->buf, data->len);
   if (data->len < 0)
     err(1, "Error reading from client..");
-
-  event_del(data->event);
 
   // Resume worker 
   __cilkrts_ivar_write(&(data->iv), data->len);
@@ -78,8 +66,6 @@ static void on_write(evutil_socket_t fd, short flags, void* arg) {
   if (data->len < 0)
     err(1, "Error writing to client..");
 
-  event_del(data->event);
-
   // Resume  worker here
   dbgprint(CILKIO, " [cilkio] ON WRITE - Writing value %lu to ivar at addresss %p\n", data->len, &(data->iv));
   __cilkrts_ivar_write(&(data->iv), data->len);
@@ -90,7 +76,8 @@ void* __cilkrts_io_init_helper(void* ignored) {
 
   // initialize to use pthread based locking 
   evthread_use_pthreads();
-  event_base_loop(base, EVLOOP_NO_EXIT_ON_EMPTY); 
+  cilk_spawn event_base_loop(base, EVLOOP_NO_EXIT_ON_EMPTY);
+  cilk_sync;
   dbgprint(CILKIO, " [cilkio] Exited event loop..\n");
   return NULL;
 }
@@ -127,62 +114,55 @@ CILK_API(int) cilk_accept(int listen_fd) {
       return -1;
     }
 
-     // Good idea to recycle these allocations
-    struct rw_data* data = calloc(1, sizeof(struct rw_data));
-    __cilkrts_ivar_clear(&(data->iv));
+    struct rw_data data;
+    __cilkrts_ivar_clear(&data.iv);
 
-    // Need to pass a struct with worker and client fd included
-    struct event *accept_event = event_new(base, listen_fd, EV_READ, on_accept, data);
-
-    dbgprint (CILKIO, " [cilkio] Adding accept event ..\n");
-    data->event = accept_event;
-    event_add(accept_event, NULL);
+    struct event *ev = event_new(base, listen_fd, EV_READ, on_accept, &data);
+    event_add(ev, NULL);
+    dbgprint (CILKIO, " [cilkio] Adding accept event..\n");
 
 #if defined(__clang__) // squash a unused variable warning when debug is off. 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
     // Block here
-    int fd = __cilkrts_ivar_read(&(data->iv));
-    dbgprint(CILKIO, " [cilkio] CILK_READ Read ivar val %d from ivar at %p\n", fd, &(data->iv));
+    int fd = __cilkrts_ivar_read(&data.iv);
+    dbgprint(CILKIO, " [cilkio] CILK_READ Read ivar val %d from ivar at %p\n", fd, &data.iv);
 
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
 
+    event_free(ev);
     // Returns the result after resuming
-    free(data);
-
     return fd;
 }
 
-CILK_API(int) cilk_read(int fd, void* buf, int len) {
+CILK_API(int) cilk_read(int fd, void *buf, int len) {
 
   // Good idea to recycle these allocations
-  struct rw_data* data = calloc(1, sizeof(struct rw_data));
-  data->buf = buf;
-  data->len = len;
-  __cilkrts_ivar_clear(&(data->iv));   
+  struct rw_data data;
+  data.buf = buf;
+  data.len = len;
+  __cilkrts_ivar_clear(&data.iv);
 
-  struct event* read_event = event_new(base, fd, EV_READ, on_read, data);
-  data->event = read_event;
+  struct event *ev = event_new(base, fd, EV_READ, on_read, &data);
   dbgprint (CILKIO, " [cilkio] Adding read event..\n");
-  event_add(read_event, NULL);
+  event_add(ev, NULL);
 
 #if defined(__clang__) // squash a unused variable warning when debug is off. 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
   // Pause now
-  ssize_t nbytes = __cilkrts_ivar_read(&(data->iv));
-  dbgprint(CILKIO, " [cilkio] CILK_READ Read ivar val %lu from ivar at %p\n", nbytes, &(data->iv));
+  ssize_t nbytes = __cilkrts_ivar_read(&data.iv);
+  dbgprint(CILKIO, " [cilkio] CILK_READ Read ivar val %lu from ivar at %p\n", nbytes, &data.iv);
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
 
+  event_free(ev);
   // Returns the result after resuming
-  free(data);
-
   return nbytes;
 }
 
@@ -190,29 +170,27 @@ CILK_API(int) cilk_read(int fd, void* buf, int len) {
 CILK_API(int) cilk_write(int fd, void* buf, int len) {
 
   // Good idea to recycle these allocations
-  struct rw_data* data = calloc(1, sizeof(struct rw_data));
-  data->buf = buf;
-  data->len = len;
-  __cilkrts_ivar_clear(&(data->iv));   
+  struct rw_data data;
+  data.buf = buf;
+  data.len = len;
+  __cilkrts_ivar_clear(&data.iv);
 
-  struct event* write_event= event_new(base, fd, EV_WRITE, on_write, data);
-  data->event = write_event;
-  dbgprint(CILKIO, " [cilkio] Adding write event..\n");
-  event_add(write_event, NULL);
+  struct event *ev = event_new(base, fd, EV_WRITE, on_write, &data);
+  dbgprint (CILKIO, " [cilkio] Adding write event..\n");
+  event_add(ev, NULL);
 
 #if defined(__clang__) // squash a unused variable warning when debug is off. 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
   // Pause now
-  ssize_t nbytes = __cilkrts_ivar_read(&(data->iv));
-  dbgprint(CILKIO, " [cilkio] CILK_WRITE Read ivar val %lu from ivar at %p\n", nbytes, &(data->iv));
+  ssize_t nbytes = __cilkrts_ivar_read(&data.iv);
+  dbgprint(CILKIO, " [cilkio] CILK_WRITE Read ivar val %lu from ivar at %p\n", nbytes, &data.iv);
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
 
+  event_free(ev);
   // Returns the result after resuming
-  free(data);
-
   return nbytes;
 }
