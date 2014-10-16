@@ -138,6 +138,9 @@ main = do
                        customTagHarvesterInt "CILKPLUS_TOTALSTACKS" `mappend` 
                        customTagHarvesterInt "CONCURRENTCILK_WORKERS_BLOCKED" `mappend` 
                        harvesters conf
+        , systemCleaner = Cleanup $ do 
+                           _ <- system "pgrep -f \"\.exe\" -l  | grep -v run-benchmark | xargs kill -9"
+                           return ()
         }
  where
   -- Some default settings for benchmarking:
