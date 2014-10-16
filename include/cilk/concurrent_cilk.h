@@ -5,6 +5,8 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <setjmp.h>
 
 __CILKRTS_BEGIN_EXTERN_C
@@ -221,7 +223,7 @@ CILK_API(void) __cilkrts_resume_fiber(__cilkrts_worker *w);
  * fiber rather than the OS thread.  The first argument is a `sockfd`
  * which must already be bound via bind().
  */
-CILK_API(int) cilk_accept(int);
+CILK_API(int) cilk_accept(int, struct sockaddr *, socklen_t *);
 
 /**
  * Equivalent to standard posix read(), except only blocks the Cilk

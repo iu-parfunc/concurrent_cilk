@@ -6,6 +6,7 @@
 #include <string.h>
 #include <err.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <pthread.h>
 #include "concurrent_cilk_internal.h"
 #include <cilk/cilk.h>
@@ -14,10 +15,12 @@
 #include <event2/thread.h>
 
 struct rw_data {
-  int               fd;
-  void*            buf;
-  ssize_t          len;
-  __cilkrts_ivar    iv;
+  int                fd;
+  struct sockaddr *addr;
+  socklen_t   *addr_len;
+  void*             buf;
+  ssize_t           len;
+  __cilkrts_ivar     iv;
 };
 
 struct event_base *base;
@@ -27,9 +30,7 @@ static void on_accept(evutil_socket_t fd, short flags, void* arg) {
 
   dbgprint(CILKIO, " [cilkio] In On accept callback..\n");
   struct rw_data* data = (struct rw_data*) arg;
-  struct sockaddr_in client_addr;
-  socklen_t client_len = sizeof(client_addr);
-  data->fd = accept(fd, (struct sockaddr*)&client_addr, &client_len);
+  data->fd = accept(fd, data->addr, data->addr_len);
   if (data->fd > 0) {
     /* Set the client socket to non-blocking mode. */
     if (evutil_make_socket_nonblocking(data->fd) < 0) {
@@ -106,7 +107,7 @@ CILK_API(void) cilk_io_teardown(void) {
   libevent_global_shutdown();
 }
 
-CILK_API(int) cilk_accept(int listen_fd) {
+CILK_API(int) cilk_accept(int listen_fd, struct sockaddr *addr, socklen_t *addr_len) {
 
     /* Set the socket to non-blocking. */
     if (evutil_make_socket_nonblocking(listen_fd) < 0) {
@@ -116,6 +117,8 @@ CILK_API(int) cilk_accept(int listen_fd) {
 
     struct rw_data data;
     __cilkrts_ivar_clear(&data.iv);
+    data.addr = addr;
+    data.addr_len = addr_len;
 
     struct event *ev = event_new(base, listen_fd, EV_READ, on_accept, &data);
     event_add(ev, NULL);
