@@ -84,8 +84,9 @@ bench: run-benchmarks.exe
 
 PKGS= ./ ./HSBencher/hgdata ./HSBencher/hsbencher ./HSBencher/hsbencher-fusion ./HSBencher/hsbencher-codespeed
 CBLARGS= $(JFLAG) --disable-documentation --with-ghc=ghc-$(JENKINS_GHC)  \
-          --extra-include-dirs=$(HOME)/opt/include --extra-lib-dirs=$(HOME)/opt/lib
-# --force-reinstalls
+          --extra-include-dirs=$(HOME)/opt/include --extra-lib-dirs=$(HOME)/opt/lib --force-reinstalls
+# force-reinstalls is for when we upgrade versions...
+
 # Weird, segfaults on cutter:
 # -j --ghc-option=-j3
 
