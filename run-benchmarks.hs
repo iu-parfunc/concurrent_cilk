@@ -11,6 +11,7 @@ import Data.Default (Default(def))
 import Data.Monoid  (mappend)
 import GHC.Conc (getNumProcessors)
 import System.IO.Unsafe (unsafePerformIO)
+import System.Process (system)
 
 --------------------------------------------------------------------------------
 
@@ -139,7 +140,7 @@ main = do
                        customTagHarvesterInt "CONCURRENTCILK_WORKERS_BLOCKED" `mappend` 
                        harvesters conf
         , systemCleaner = Cleanup $ do 
-                           _ <- system "pgrep -f \"\.exe\" -l  | grep -v run-benchmark | xargs kill -9"
+                           _ <- system "pgrep -f \"\\.exe\" -l  | grep -v run-benchmark | xargs kill -9"
                            return ()
         }
  where
