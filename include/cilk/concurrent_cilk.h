@@ -5,6 +5,8 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <setjmp.h>
 
 __CILKRTS_BEGIN_EXTERN_C
@@ -200,7 +202,7 @@ CILK_API(void) __cilkrts_run_replacement_fiber(__cilkrts_worker *w);
  * Conditions under which a restore can be called are as follows: 
  * 1. The calling thread's TLS worker must not have any concurrent work in it's dequeue (w->head == w->tail).
  * 2. The calling thread's TLS worker must not have a next full frame.
- * 3. The self value of each worker must be the equal. 
+ * 3. The w->self value must be equal to the value of the current TLS worker.
  * 4. The worker to be restored must not be the current TLS worker. 
  *
  * @param w The worker which will resume execution at the restore point. 
@@ -221,7 +223,7 @@ CILK_API(void) __cilkrts_resume_fiber(__cilkrts_worker *w);
  * fiber rather than the OS thread.  The first argument is a `sockfd`
  * which must already be bound via bind().
  */
-CILK_API(int) cilk_accept(int);
+CILK_API(int) cilk_accept(int, struct sockaddr *, socklen_t *);
 
 /**
  * Equivalent to standard posix read(), except only blocks the Cilk
@@ -247,6 +249,8 @@ CILK_API(int) cilk_io_init(void);
  * Returns zero on success.
  */
 CILK_API(void) cilk_io_teardown(void);
+
+CILK_API(void) cilk_sleep(long num_micros);
 
 __CILKRTS_END_EXTERN_C
 #endif

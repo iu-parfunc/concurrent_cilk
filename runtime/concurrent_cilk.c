@@ -55,6 +55,13 @@ inline __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim)
     return victim;
   }
 
+  // Proof of eventual progress: 
+  //  * we exit when the pause list is empty
+  //  * we round robin through the pause-list
+  //  * any that have nothing to steal are removed from the pauselist,
+  //    which gets monotonically shorter, UNLESS
+  //  * the victim thread concurrently adds to the pauselist,
+  //    which it cannot do an infinite number of times
   while (victim->pauselist) {
     if ((! dequeue(victim->pauselist, (ELEMENT_TYPE *) &surrogate)) && surrogate) {
       // Lazily remove any workers marked for deletion from the stealing queue
@@ -237,5 +244,4 @@ __cilkrts_remove_paused_worker_from_stealing(__cilkrts_worker *w)
 {
   w->to_remove_from_stealing = 1;
 }
-
 

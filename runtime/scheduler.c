@@ -150,7 +150,9 @@ void __cilkrts_dump_stats_to_stderr(global_state_t *g)
             (long long)g->frame_malloc.allocated_from_os);
     fprintf(stderr, "CILKPLUS_STACKSIZE: %ld\n", g->stack_size);
     fprintf(stderr, "CILKPLUS_TOTALSTACKS: %ld\n", g->stacks);
+#ifdef CILK_IVARS
     fprintf(stderr, "CONCURRENTCILK_WORKERS_BLOCKED: %d\n", g->workers_blocked);
+#endif
 #ifdef CILK_PROFILE
     if (g->stats.stack_hwm)
         fprintf(stderr, ", %ld stacks", g->stats.stack_hwm);
@@ -836,6 +838,14 @@ static void random_steal(__cilkrts_worker *w)
   /* do not steal from self */
   CILK_ASSERT (victim != w);
 
+  /* THREE possible targets are relevant here:=
+   *   1. The randomly chosen "top-level" victim.
+   *   2. Some paused worker on the victim.
+   *   3. Some paused worker on our own worker's pauselist.
+   * Arguments for different orders:
+   *  - 123: because active workers are actively producing work
+   *  - 321: for locality - our paused work was manufactured "here"
+   */
 #ifdef CILK_IVARS
   victim = find_concurrent_work(victim);
   if (! can_steal_from(victim)) {
@@ -1597,11 +1607,16 @@ static void __cilkrts_scheduler(__cilkrts_worker *w)
 
         case SCHEDULE_WAIT:            // go into wait-mode.
           CILK_ASSERT(WORKER_SYSTEM == w->l->type);
+#ifdef REENABLE_WORKER_IDLING
+// RRN: TEMP: WE ARE DISABLING WORKER IDLING WHILE TESTING CONCURRENT CILK:
           notify_children_wait(w);
           signal_node_wait(w->l->signal_node);
           // ...
           // Runtime is waking up.
           notify_children_run(w);
+#else
+	  printf(" * ConcurrentCilk/TempHack: WOULD sleep here...\n");
+#endif
           w->l->steal_failure_count = 0;
           break;
 
