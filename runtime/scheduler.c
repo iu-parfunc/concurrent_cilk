@@ -838,6 +838,14 @@ static void random_steal(__cilkrts_worker *w)
   /* do not steal from self */
   CILK_ASSERT (victim != w);
 
+  /* THREE possible targets are relevant here:=
+   *   1. The randomly chosen "top-level" victim.
+   *   2. Some paused worker on the victim.
+   *   3. Some paused worker on our own worker's pauselist.
+   * Arguments for different orders:
+   *  - 123: because active workers are actively producing work
+   *  - 321: for locality - our paused work was manufactured "here"
+   */
 #ifdef CILK_IVARS
   victim = find_concurrent_work(victim);
   if (! can_steal_from(victim)) {
