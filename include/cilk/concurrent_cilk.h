@@ -250,5 +250,7 @@ CILK_API(int) cilk_io_init(void);
  */
 CILK_API(void) cilk_io_teardown(void);
 
+CILK_API(void) cilk_sleep(long num_micros);
+
 __CILKRTS_END_EXTERN_C
 #endif
