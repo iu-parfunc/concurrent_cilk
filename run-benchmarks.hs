@@ -54,7 +54,9 @@ benches =
    [ (mkBenchmark "cilk_tests/perturbations/knapsack/Makefile"          [] perturbed_knapsack_params) { progname = Just "knapsack_cilk_sleep"}]          ++ 
 
    [ (mkBenchmark "cilk_tests/perturbations/strassen_multiply/Makefile" [] perturbed_strassen_params) { progname = Just "strassen_multiply_sleep"}] ++
-   [ (mkBenchmark "cilk_tests/perturbations/strassen_multiply/Makefile" [] perturbed_strassen_params) { progname = Just "strassen_multiply_cilk_sleep"}]
+   [ (mkBenchmark "cilk_tests/perturbations/strassen_multiply/Makefile" [] perturbed_strassen_params) { progname = Just "strassen_multiply_cilk_sleep"}] ++
+
+   [ (mkBenchmark "cilk_tests/cilk_io/basic_http_server/Makefile"       [] http_server_params) { progname = Just "run_http_server.sh"}]
 
 
 -- Set this so that HSBencher actually runs the tests that we are not passing any
@@ -123,6 +125,13 @@ perturbed_knapsack_params = varyThreads [16] $
                    Or [ Set NoMeaning (RuntimeArg $ unwords ["-p", show p, "-l", show l])
                             | p <- [2, 3, 5, 7, 9, 13]     :: [Int]
                             , l <- [ 4000, 5000, 10000, 20000, 50000, 100000 ] :: [Int] ]
+
+http_server_params = varyThreads [16] $
+                   Or [ Set NoMeaning (RuntimeArg $ unwords [show server, "$CILK_NWORKERS", "66008"])
+                            | server <- ["./bin/naive_server_Ccilk.exe",
+                                         "./bin/naive_server_cilk.exe",
+                                         "./bin/naive_server_pthread.exe",
+                                         "./bin/pthread_server_epoll.exe"]     :: [String] ]
 
 scholesParams    = varyCilkThreads emptyParams
 choleskyParams   = varyCilkThreads emptyParams
