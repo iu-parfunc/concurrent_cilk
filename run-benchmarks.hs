@@ -42,7 +42,17 @@ benches =
    [ (mkBenchmark "cilk_tests/regression/knapsack/Makefile"          [ ] knapsackParams   ) { progname = Just "knapsack"}]          ++ 
    [ (mkBenchmark "cilk_tests/regression/LU_decomp/Makefile"         [ ] luParams         ) { progname = Just "LU_decomp"}]         ++ 
    [ (mkBenchmark "cilk_tests/regression/magic-numbers/Makefile"     [ ] magicNumsParams  ) { progname = Just "magic-numbers"}]     ++ 
-   [ (mkBenchmark "cilk_tests/regression/strassen_multiply/Makefile" [ "-n", "4096" ] strassenParams   ) { progname = Just "strassen-multiply"}]
+   [ (mkBenchmark "cilk_tests/regression/strassen_multiply/Makefile" [ "-n", "4096" ] strassenParams   ) { progname = Just "strassen-multiply"}] ++
+
+   [ (mkBenchmark "cilk_tests/perturbations/black-scholes/Makefile"      [] perturbed_scholes_params) { progname = Just "black_scholes_sleep"}]     ++ 
+   [ (mkBenchmark "cilk_tests/perturbations/black-scholes/Makefile"      [] perturbed_scholes_params) { progname = Just "black_scholes_cilk_sleep"}]     ++ 
+
+   [ (mkBenchmark "cilk_tests/perturbations/knapsack/Makefile"          [] perturbed_knapsack_params) { progname = Just "knapsack_sleep"}]          ++ 
+   [ (mkBenchmark "cilk_tests/perturbations/knapsack/Makefile"          [] perturbed_knapsack_params) { progname = Just "knapsack_cilk_sleep"}]          ++ 
+
+   [ (mkBenchmark "cilk_tests/perturbations/strassen_multiply/Makefile" [] perturbed_strassen_params) { progname = Just "strassen_multiply_sleep"}] ++
+   [ (mkBenchmark "cilk_tests/perturbations/strassen_multiply/Makefile" [] perturbed_strassen_params) { progname = Just "strassen_multiply_cilk_sleep"}]
+
 
 -- Set this so that HSBencher actually runs the tests that we are not passing any
 -- parameter to (at least currently)
@@ -90,6 +100,20 @@ wf var =
              , innerdim <- map (2^) [ 4 .. 9 ::Int ] :: [Int] ]
         , Set (Variant var) (RuntimeEnv "VARIANT" var) ]
 
+perturbed_scholes_params = varyThreads [16] $
+                   Or [ Set NoMeaning (RuntimeArg $ unwords ["-p", show p, "-l", show l])
+                            | p <- [ 233300, 233310, 233320, 233330, 2333340 ]     :: [Int]
+                            , l <- [ 4000, 5000, 10000, 20000, 50000, 100000 ] :: [Int] ]
+
+perturbed_strassen_params = varyThreads [16] $
+                   Or [ Set NoMeaning (RuntimeArg $ unwords ["-p", show p, "-l", show l])
+                            | p <- [10, 15, 20, 25, 30]     :: [Int]
+                            , l <- [ 4000, 5000, 10000, 20000, 50000, 100000 ] :: [Int] ]
+
+perturbed_knapsack_params = varyThreads [16] $
+                   Or [ Set NoMeaning (RuntimeArg $ unwords ["-p", show p, "-l", show l])
+                            | p <- [2, 3, 5, 7, 9, 13]     :: [Int]
+                            , l <- [ 4000, 5000, 10000, 20000, 50000, 100000 ] :: [Int] ]
 
 scholesParams    = varyCilkThreads emptyParams
 choleskyParams   = varyCilkThreads emptyParams
@@ -99,7 +123,7 @@ knapsackParams   = varyCilkThreads emptyParams
 luParams         = varyCilkThreads emptyParams
 magicNumsParams  = varyCilkThreads emptyParams
 strassenParams   = varyCilkThreads emptyParams
-parfibParams     = varyCilkThreads $ 
+parfibParams     = varyCilkThreads $
                     Or [ pfibs [10, 15, 20, 25, 30, 35, 40, 41, 42] ["parfib", "ivars_parfib" ]
                        -- These are running only on MUCH smaller sizes:
                        , pfibs [10, 11, 12, 13] ["fib_pthread"] ]
