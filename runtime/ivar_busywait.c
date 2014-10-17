@@ -8,7 +8,7 @@ ivar_payload_t __cilkrts_ivar_read(__cilkrts_ivar* ivar)
 {
     dbgprint(IVAR, " [ivar-busywait] Reading IVar %p\n", ivar);
     CILK_ASSERT(ivar);
-    while !(IVAR_READY(*ivar)) { }
+    while (!(IVAR_READY(*ivar))) { }
     return UNTAG(*ivar);
 }
 

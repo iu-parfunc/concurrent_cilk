@@ -5,6 +5,7 @@
 #include "os.h"
 #include "cilk/concurrent_cilk.h"
 #include "full_frame.h"
+#include <stdlib.h>
 
 #define BEGIN_WITH_WORKER_LOCK(w) __cilkrts_worker_lock(w); do
 #define END_WITH_WORKER_LOCK(w)   while (__cilkrts_worker_unlock(w), 0)
@@ -26,8 +27,8 @@ __CILKRTS_BEGIN_EXTERN_C
 
 #define IVAR       0x1
 #define CILKIO     0x2
-#define CONCURRENT 0x3
-#define FRAME      0x4
+#define CONCURRENT 0x4
+#define FRAME      0x8
 
 #ifdef CILK_IVARS
 #ifdef CCILK_DEBUG

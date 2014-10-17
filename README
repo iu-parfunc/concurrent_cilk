@@ -75,8 +75,8 @@ the appropriate level with the CCILK_DEBUG environment variable.
 The available debug levels are:
 IVAR       1
 CILKIO     2
-CONCURRENT 3
-FRAME      4
+CONCURRENT 4
+FRAME      8
 
 For instance, to run the echoserver with CILK IO library debugging on:
 $ export CCILK_DEBUG=2

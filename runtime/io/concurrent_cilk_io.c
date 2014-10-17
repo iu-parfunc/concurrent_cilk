@@ -5,27 +5,22 @@
 #include <errno.h>
 #include <string.h>
 #include <err.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <pthread.h>
 #include "concurrent_cilk_internal.h"
 #include <cilk/cilk.h>
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-/* For inet_ntoa. */
-#include <arpa/inet.h>
-
 #include <event2/event.h>
-
-// #define SERVER_PORT 5555
+#include <event2/thread.h>
 
 struct rw_data {
-  int fd;
-  char* buf;
-  size_t len;
-  int nbytes;
-  __cilkrts_ivar iv;
-  struct event* event;
+  int                fd;
+  struct sockaddr *addr;
+  socklen_t   *addr_len;
+  void*             buf;
+  ssize_t           len;
+  __cilkrts_ivar     iv;
 };
 
 struct event_base *base;
@@ -35,23 +30,28 @@ static void on_accept(evutil_socket_t fd, short flags, void* arg) {
 
   dbgprint(CILKIO, " [cilkio] In On accept callback..\n");
   struct rw_data* data = (struct rw_data*) arg;
-  struct sockaddr_in client_addr;
-  socklen_t client_len = sizeof(client_addr);
-  int client_fd = accept(fd, (struct sockaddr*)&client_addr, &client_len);
-  data->fd = client_fd;
-  if (client_fd > 0) {
+  data->fd = accept(fd, data->addr, data->addr_len);
+  if (data->fd > 0) {
     /* Set the client socket to non-blocking mode. */
-    if (evutil_make_socket_nonblocking(client_fd) < 0) {
+    if (evutil_make_socket_nonblocking(data->fd) < 0) {
       err(1, "failed to set client socket to non-blocking");
-      close(client_fd);
+      close(data->fd);
     }
   } else {
     err(1, "Error accepting from client..");
-    __cilkrts_ivar_write(&(data->iv), client_fd);
   }
 
   // Resume worker here
-  __cilkrts_ivar_write(&(data->iv), client_fd);
+  __cilkrts_ivar_write(&(data->iv), data->fd);
+}
+
+static void on_wakeup(evutil_socket_t fd, short flags, void* arg) {
+
+  struct rw_data* data = (struct rw_data*) arg;
+  dbgprint(CILKIO, " [cilkio] In On sleep callback..\n");
+  /*printf("------ waking up!!!\n");*/
+  // Resume worker
+  __cilkrts_ivar_write(&(data->iv), data->len);
 }
 
 static void on_read(evutil_socket_t fd, short flags, void* arg) {
@@ -59,25 +59,12 @@ static void on_read(evutil_socket_t fd, short flags, void* arg) {
   dbgprint(CILKIO, " [cilkio] In On read callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
 
-  if (data->len > 0) {
-    int len = read(fd, (char*)data->buf + data->nbytes, data->len);
-    if (len < 0) {
-      err(1, "Error reading from client..");
-      data->nbytes = -1;
-      __cilkrts_ivar_write(&(data->iv), data->nbytes);
-      return;
-    }
+  data->len = read(fd, (char*)data->buf, data->len);
+  if (data->len < 0)
+    err(1, "Error reading from client..");
 
-    data->nbytes += len;
-    data->len -= len;
-
-    if (data->len > 0) {
-      event_add(data->event, NULL);
-    } else {
-      // Resume worker 
-      __cilkrts_ivar_write(&(data->iv), data->nbytes);
-    }
-  } 
+  // Resume worker 
+  __cilkrts_ivar_write(&(data->iv), data->len);
 }
 
 static void on_write(evutil_socket_t fd, short flags, void* arg) {
@@ -85,32 +72,22 @@ static void on_write(evutil_socket_t fd, short flags, void* arg) {
   dbgprint(CILKIO, " [cilkio] In On write callback..\n");
   struct rw_data* data= (struct rw_data*) arg;
 
-  while (data->len > 0) {
-    int len = write(fd, (char*)data->buf + data->nbytes, data->len);
+  data->len = write(fd, (char*)data->buf, data->len);
+  if (data->len < 0)
+    err(1, "Error writing to client..");
 
-    if (len < 0) {
-      err(1, "Error writing to client..");
-      data->nbytes = -1;
-      __cilkrts_ivar_write(&(data->iv), data->nbytes);
-      return;
-    }
-
-    data->nbytes += len;
-    data->len -= len;
-
-    if (data->len > 0) {
-      event_add(data->event, NULL);
-    } else {
-      // Resume  worker here
-      dbgprint(CILKIO, " [cilkio] ON WRITE - Writing value %d to ivar at addresss %p\n", data->nbytes, &(data->iv));
-      __cilkrts_ivar_write(&(data->iv), data->nbytes);
-    }
-  }
+  // Resume  worker here
+  dbgprint(CILKIO, " [cilkio] ON WRITE - Writing value %lu to ivar at addresss %p\n", data->len, &(data->iv));
+  __cilkrts_ivar_write(&(data->iv), data->len);
 }
 
 void* __cilkrts_io_init_helper(void* ignored) {
   dbgprint(CILKIO, " [cilkio] Now on dedicated event-loop thread, begin loop:\n");
-  event_base_loop(base, EVLOOP_NO_EXIT_ON_EMPTY); 
+
+  // initialize to use pthread based locking 
+  evthread_use_pthreads();
+  cilk_spawn event_base_loop(base, EVLOOP_NO_EXIT_ON_EMPTY);
+  cilk_sync;
   dbgprint(CILKIO, " [cilkio] Exited event loop..\n");
   return NULL;
 }
@@ -139,7 +116,7 @@ CILK_API(void) cilk_io_teardown(void) {
   libevent_global_shutdown();
 }
 
-CILK_API(int) cilk_accept(int listen_fd) {
+CILK_API(int) cilk_accept(int listen_fd, struct sockaddr *addr, socklen_t *addr_len) {
 
     /* Set the socket to non-blocking. */
     if (evutil_make_socket_nonblocking(listen_fd) < 0) {
@@ -147,65 +124,57 @@ CILK_API(int) cilk_accept(int listen_fd) {
       return -1;
     }
 
-     // Good idea to recycle these allocations
-    struct rw_data* data = calloc(1, sizeof(struct rw_data));
-    __cilkrts_ivar_clear(&(data->iv));
+    struct rw_data data;
+    __cilkrts_ivar_clear(&data.iv);
+    data.addr = addr;
+    data.addr_len = addr_len;
 
-    // Need to pass a struct with worker and client fd included
-    struct event *accept_event = event_new(base, listen_fd, EV_READ, on_accept, data);
-
-    dbgprint (CILKIO, "Adding accept event ..\n");
-    event_add(accept_event, NULL);
+    struct event *ev = event_new(base, listen_fd, EV_READ, on_accept, &data);
+    event_add(ev, NULL);
+    dbgprint (CILKIO, " [cilkio] Adding accept event..\n");
 
 #if defined(__clang__) // squash a unused variable warning when debug is off. 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
     // Block here
-    int fd = __cilkrts_ivar_read(&(data->iv));
-    dbgprint(CILKIO, " [cilkio] CILK_READ Read ivar val %d from ivar at %p\n", fd, &(data->iv));
+    int fd = __cilkrts_ivar_read(&data.iv);
+    dbgprint(CILKIO, " [cilkio] CILK_READ Read ivar val %d from ivar at %p\n", fd, &data.iv);
 
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
 
+    event_free(ev);
     // Returns the result after resuming
-    event_del(accept_event);
-    event_free(accept_event);
-    free(data);
-
     return fd;
 }
 
-CILK_API(int) cilk_read(int fd, void* buf, int len) {
+CILK_API(int) cilk_read(int fd, void *buf, int len) {
 
   // Good idea to recycle these allocations
-  struct rw_data* data = calloc(1, sizeof(struct rw_data));
-  data->buf = buf;
-  data->len = len;
-  __cilkrts_ivar_clear(&(data->iv));   
+  struct rw_data data;
+  data.buf = buf;
+  data.len = len;
+  __cilkrts_ivar_clear(&data.iv);
 
-  struct event* read_event = event_new(base, fd, EV_READ, on_read, data);
-  data->event = read_event;
+  struct event *ev = event_new(base, fd, EV_READ, on_read, &data);
   dbgprint (CILKIO, " [cilkio] Adding read event..\n");
-  event_add(read_event, NULL);
+  event_add(ev, NULL);
 
 #if defined(__clang__) // squash a unused variable warning when debug is off. 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
   // Pause now
-  ssize_t nbytes = __cilkrts_ivar_read(&(data->iv));
-  dbgprint(CILKIO, " [cilkio] CILK_READ Read ivar val %lu from ivar at %p\n", nbytes, &(data->iv));
+  ssize_t nbytes = __cilkrts_ivar_read(&data.iv);
+  dbgprint(CILKIO, " [cilkio] CILK_READ Read ivar val %lu from ivar at %p\n", nbytes, &data.iv);
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
 
+  event_free(ev);
   // Returns the result after resuming
-  event_del(read_event);
-  event_free(read_event);
-  free(data);
-
   return nbytes;
 }
 
@@ -213,31 +182,47 @@ CILK_API(int) cilk_read(int fd, void* buf, int len) {
 CILK_API(int) cilk_write(int fd, void* buf, int len) {
 
   // Good idea to recycle these allocations
-  struct rw_data* data = calloc(1, sizeof(struct rw_data));
-  data->buf = buf;
-  data->len = len;
-  __cilkrts_ivar_clear(&(data->iv));   
+  struct rw_data data;
+  data.buf = buf;
+  data.len = len;
+  __cilkrts_ivar_clear(&data.iv);
 
-  struct event* write_event= event_new(base, fd, EV_WRITE, on_write, data);
-  data->event = write_event;
-  dbgprint(CILKIO, " [cilkio] Adding write event..\n");
-  event_add(write_event, NULL);
+  struct event *ev = event_new(base, fd, EV_WRITE, on_write, &data);
+  dbgprint (CILKIO, " [cilkio] Adding write event..\n");
+  event_add(ev, NULL);
 
 #if defined(__clang__) // squash a unused variable warning when debug is off. 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
   // Pause now
-  ssize_t nbytes = __cilkrts_ivar_read(&(data->iv));
-  dbgprint(CILKIO, " [cilkio] CILK_WRITE Read ivar val %lu from ivar at %p\n", nbytes, &(data->iv));
+  ssize_t nbytes = __cilkrts_ivar_read(&data.iv);
+  dbgprint(CILKIO, " [cilkio] CILK_WRITE Read ivar val %lu from ivar at %p\n", nbytes, &data.iv);
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
 
+  event_free(ev);
   // Returns the result after resuming
-  event_del(write_event);
-  event_free(write_event);
-  free(data);
-
   return nbytes;
+}
+
+CILK_API(void) cilk_sleep(long num_microseconds) {
+  // We can get rid of this malloc later
+  struct rw_data *data = malloc(sizeof(struct rw_data));
+  struct event* timeout_ev = NULL;
+  struct timeval tv;
+
+  __cilkrts_ivar_clear(&(data->iv));
+  tv.tv_sec = 0;
+  tv.tv_usec = (time_t)num_microseconds;
+  /*tv.tv_sec = (time_t)num_microseconds;*/
+  /*tv.tv_usec = 0;*/
+  timeout_ev = evtimer_new(base, on_wakeup, data);
+
+  dbgprint (CILKIO, " [cilkio] Adding sleep event..\n");
+  /*printf (" [cilkio] Adding sleep event..\n");*/
+  evtimer_add(timeout_ev, &tv);
+  __cilkrts_ivar_read(&(data->iv));
+  event_free(timeout_ev);
 }

@@ -10,18 +10,21 @@
 #include "bug.h"
 
 inline CILK_API(void)
-__cilkrts_ivar_clear(__cilkrts_ivar* ivar) { *ivar = 0; }
+__cilkrts_ivar_clear(__cilkrts_ivar* ivar) { *ivar = 0; __sync_synchronize(); }
 
 inline CILK_API(void)
 __cilkrts_ivar_array_clear(__cilkrts_ivar *ptr, int size)
 { 
   memset(ptr, 0, sizeof(__cilkrts_ivar) * (size_t) size);
+  __sync_synchronize();
 }
 
 inline CILK_API(__cilkrts_ivar*)
 __cilkrts_new_ivar_array(int size)
 {
-  return calloc(sizeof(__cilkrts_ivar), size);
+  __cilkrts_ivar* ptr = calloc(sizeof(__cilkrts_ivar), size);
+  __sync_synchronize();
+  return ptr;
 }
 
 #ifdef IVAR_BUSYWAIT_VARIANT
