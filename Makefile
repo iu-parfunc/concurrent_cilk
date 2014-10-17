@@ -34,7 +34,7 @@ DEPS=deps/build/lib/libevent.so
   SEC=P3rhLK4dSzBpFQeSdihToqsM
 # else
 # endif
-TABLE=ConcurrentCilk_Benchmarks
+TABLE=ConcurrentCilk_Benchmarks_oldstrat2
 # Note, this table can be found on the web at:
 #   https://www.google.com/fusiontables/DataSource?docid=1Jtm_Y7226eb3f7tVSUYLnnYGOjcSrVdUJT688XiA
 
