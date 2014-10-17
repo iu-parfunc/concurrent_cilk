@@ -113,15 +113,15 @@ inline __cilkrts_roll_back_pause(__cilkrts_worker *paused_w, __cilkrts_worker *r
 __cilkrts_resume_fiber(__cilkrts_worker *w)
 {
 
-  __cilkrts_worker *old_w = __cilkrts_get_tls_worker_fast();
+  __cilkrts_worker *current_tls_w = __cilkrts_get_tls_worker_fast();
   CILK_ASSERT(w);
-  CILK_ASSERT(old_w); 
+  CILK_ASSERT(current_tls_w); 
   dbgprint(CONCURRENT, "restoring worker %d/%p/%i REAPING old worker %d/%p/%i\n",
-      w->self, w, w->worker_depth, old_w->self, old_w, old_w->worker_depth);
-  CILK_ASSERT(!can_steal_from(old_w));
-  CILK_ASSERT(!old_w->l->next_frame_ff);
-  CILK_ASSERT(w->self == old_w->self);
-  CILK_ASSERT(old_w != w);
+      w->self, w, w->worker_depth, current_tls_w->self, current_tls_w, current_tls_w->worker_depth);
+  CILK_ASSERT(!can_steal_from(current_tls_w));
+  CILK_ASSERT(!current_tls_w->l->next_frame_ff);
+  CILK_ASSERT(w->self == current_tls_w->self);
+  CILK_ASSERT(current_tls_w != w);
 
   __cilkrts_remove_paused_worker_from_stealing(w);
   w->g->workers[w->self] = w;
@@ -159,6 +159,11 @@ inline __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim)
 {
   __cilkrts_worker *surrogate = NULL;
   CILK_ASSERT(victim);
+
+  // The victim is already a valid target for stealing.
+  if (can_steal_from(victim)) {
+    return victim;
+  }
 
   while (victim->pauselist) {
     if ((! dequeue(victim->pauselist, (ELEMENT_TYPE *) &surrogate)) && surrogate) {
