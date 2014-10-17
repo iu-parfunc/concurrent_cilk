@@ -1607,11 +1607,16 @@ static void __cilkrts_scheduler(__cilkrts_worker *w)
 
         case SCHEDULE_WAIT:            // go into wait-mode.
           CILK_ASSERT(WORKER_SYSTEM == w->l->type);
+#ifdef REENABLE_WORKER_IDLING
+// RRN: TEMP: WE ARE DISABLING WORKER IDLING WHILE TESTING CONCURRENT CILK:
           notify_children_wait(w);
           signal_node_wait(w->l->signal_node);
           // ...
           // Runtime is waking up.
           notify_children_run(w);
+#else
+	  printf(" * ConcurrentCilk/TempHack: WOULD sleep here...\n");
+#endif
           w->l->steal_failure_count = 0;
           break;
 
