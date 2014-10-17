@@ -45,6 +45,15 @@ static void on_accept(evutil_socket_t fd, short flags, void* arg) {
   __cilkrts_ivar_write(&(data->iv), data->fd);
 }
 
+static void on_wakeup(evutil_socket_t fd, short flags, void* arg) {
+
+  struct rw_data* data = (struct rw_data*) arg;
+  dbgprint(CILKIO, " [cilkio] In On sleep callback..\n");
+  /*printf("------ waking up!!!\n");*/
+  // Resume worker
+  __cilkrts_ivar_write(&(data->iv), data->len);
+}
+
 static void on_read(evutil_socket_t fd, short flags, void* arg) {
 
   dbgprint(CILKIO, " [cilkio] In On read callback..\n");
@@ -196,4 +205,24 @@ CILK_API(int) cilk_write(int fd, void* buf, int len) {
   event_free(ev);
   // Returns the result after resuming
   return nbytes;
+}
+
+CILK_API(void) cilk_sleep(long num_microseconds) {
+  // We can get rid of this malloc later
+  struct rw_data *data = malloc(sizeof(struct rw_data));
+  struct event* timeout_ev = NULL;
+  struct timeval tv;
+
+  __cilkrts_ivar_clear(&(data->iv));
+  tv.tv_sec = 0;
+  tv.tv_usec = (time_t)num_microseconds;
+  /*tv.tv_sec = (time_t)num_microseconds;*/
+  /*tv.tv_usec = 0;*/
+  timeout_ev = evtimer_new(base, on_wakeup, data);
+
+  dbgprint (CILKIO, " [cilkio] Adding sleep event..\n");
+  /*printf (" [cilkio] Adding sleep event..\n");*/
+  evtimer_add(timeout_ev, &tv);
+  __cilkrts_ivar_read(&(data->iv));
+  event_free(timeout_ev);
 }
