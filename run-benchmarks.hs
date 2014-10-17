@@ -207,6 +207,8 @@ main = do
                        customTagHarvesterInt "CILKPLUS_RUNTIME_MEMORY_USAGE_BYTES" `mappend` 
                        customTagHarvesterInt "CILKPLUS_STACKSIZE" `mappend` 
                        customTagHarvesterInt "CILKPLUS_TOTALSTACKS" `mappend` 
+                       customTagHarvesterInt "CCILK_TOTAL_STACKS_ADDED" `mappend` 
+                       customTagHarvesterInt "CCILK_TOTAL_PAUSE_EVENTS" `mappend` 
                        customTagHarvesterInt "CONCURRENTCILK_WORKERS_BLOCKED" `mappend` 
                        harvesters conf
         , systemCleaner = Cleanup $ do 
