@@ -33,7 +33,10 @@ benches =
    [ (mkBenchmark "cilk_tests/ivar/benchmarks/microbench/Makefile"    [ ] microbench_noblockParams ) 
                                                                       { progname = Just "microbench_noblock"}]  ++ 
 
-   [ (mkBenchmark "cilk_tests/ivar/benchmarks/pingpong/Makefile"      [ ] pingpongParams  )  { progname = Just "pingpong"}]          ++ 
+   [ (mkBenchmark "cilk_tests/ivar/benchmarks/pingpong/Makefile"      [ ] (pingpongParams   "pingpong_ivar"))
+                                                                          { progname = Just "pingpong_ivar"}     
+   , (mkBenchmark "cilk_tests/ivar/benchmarks/pingpong/Makefile"      [ ] (pingpongParams   "pingpong_pthreads")) 
+                                                                          { progname = Just "pingpong_pthreads"} ]  ++ 
  
    [ (mkBenchmark "cilk_tests/regression/black-scholes/Makefile"      [ ] scholesParams    ) { progname = Just "black-scholes"}]     ++ 
    --[ (mkBenchmark "cilk_tests/regression/cholesky/Makefile"          [ ] choleskyParams   ) { progname = Just "cholesky"}]          ++ 
@@ -58,7 +61,7 @@ benches =
 -- parameter to (at least currently)
 
 emptyParams, microbench_allblockParams, microbench_raceParams, microbench_noblockParams,
-  pingpongParams, scholesParams, choleskyParams, jacobiParams, kalahParams, knapsackParams,
+  scholesParams, choleskyParams, jacobiParams, kalahParams, knapsackParams,
    luParams, magicNumsParams, strassenParams, parfibParams :: BenchSpace DefaultParamMeaning
 
 emptyParams      = varyCilkThreads $ Or [Set NoMeaning (CompileParam $ show (10::Int))]
@@ -81,13 +84,19 @@ mb fbrs iters vars =
      | var <- vars, fbr <- fbrs, iter <- iters ]
 ----------------------------------------
 
-pingpongParams  = varyCilkThreads $ 
-                   And [ Or [ Set NoMeaning (RuntimeArg $ unwords [show pairs, show iters]) 
-                            | pairs <- [ 1, 2, 4, 8 ]     :: [Int]
---                            , iters <- [ 100, 500, 1000 ] :: [Int] ]
-                            -- Need bigger sizes to take more time:
-                            , iters <- [ 5000, 10000, 20000, 50000, 100000 ] :: [Int] ]
-                       , Set (NoMeaning) (RuntimeEnv "VARIANT" "pingpong_ivars") ] 
+pingpongParams :: String -> BenchSpace DefaultParamMeaning
+pingpongParams var = 
+   case var of 
+     "pingpong_ivar"     -> -- varyCilkThreads spc
+                            varyThreads [2] spc
+     "pingpong_pthreads" -> spc
+  where 
+    spc =
+     And [ Or [ Set NoMeaning (RuntimeArg $ unwords [show pairs, show iters])
+              | pairs <- [ 1, 2, 4, 8 ]     :: [Int]
+              -- Need bigger sizes to take more time:
+              , iters <- [ 5000, 10000, 20000, 50000, 100000, 200000 ] :: [Int] ]
+         , Set (NoMeaning) (RuntimeEnv "VARIANT" var) ] 
 
 mkWf :: String -> BenchSpace a -> Benchmark a
 mkWf name conf = 
