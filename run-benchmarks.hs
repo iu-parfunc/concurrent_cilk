@@ -47,6 +47,16 @@ benches =
    [ (mkBenchmark "cilk_tests/regression/magic-numbers/Makefile"     [ ] magicNumsParams  ) { progname = Just "magic-numbers"}]     ++ 
    [ (mkBenchmark "cilk_tests/regression/strassen_multiply/Makefile" [ "-n", "4096" ] strassenParams   ) { progname = Just "strassen-multiply"}] ++
 
+   -- And then WITHOUT concurrent cilk:
+   [ (mkBenchmark "cilk_tests/regression/black-scholes/Makefile"      [ ] (mkTrad scholesParams)) { progname = Just "black-scholes_trad"}]     ++ 
+   [ (mkBenchmark "cilk_tests/regression/kalah/Makefile"             [ ] (mkTrad kalahParams)      ) { progname = Just "kalah_trad"}]             ++ 
+   [ (mkBenchmark "cilk_tests/regression/knapsack/Makefile"          [ ] (mkTrad knapsackParams)   ) { progname = Just "knapsack_trad"}]          ++ 
+   [ (mkBenchmark "cilk_tests/regression/LU_decomp/Makefile"         [ ] (mkTrad luParams)         ) { progname = Just "LU_decomp_trad"}]         ++ 
+   [ (mkBenchmark "cilk_tests/regression/magic-numbers/Makefile"     [ ] (mkTrad magicNumsParams)  ) { progname = Just "magic-numbers_trad"}]     ++ 
+   [ (mkBenchmark "cilk_tests/regression/strassen_multiply/Makefile" [ "-n", "4096" ] (mkTrad strassenParams)   ) 
+                                                                     { progname = Just "strassen-multiply_trad" }] ++
+
+
    [ (mkBenchmark "cilk_tests/perturbations/black-scholes/Makefile"      [] perturbed_scholes_params) { progname = Just "black_scholes_sleep"}]     ++ 
    [ (mkBenchmark "cilk_tests/perturbations/black-scholes/Makefile"      [] perturbed_scholes_params) { progname = Just "black_scholes_cilk_sleep"}]     ++ 
 
@@ -85,6 +95,11 @@ mb fbrs iters vars =
            , Set (Variant var) (RuntimeEnv "VARIANT" var) ]
      | var <- vars, fbr <- fbrs, iter <- iters ]
 ----------------------------------------
+
+-- FIXME: Need to set this up for the GLOBAL project Makefile:
+mkTrad :: BenchSpace DefaultParamMeaning -> BenchSpace DefaultParamMeaning
+-- mkTrad conf = And [ conf ]
+mkTrad conf = And [ Set (Variant "trad_cilk") (RuntimeEnv "CCILK_IVARS_OFF" "1"), conf ]
 
 pingpongParams :: String -> BenchSpace DefaultParamMeaning
 pingpongParams var = 
