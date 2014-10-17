@@ -84,8 +84,6 @@ static void on_write(evutil_socket_t fd, short flags, void* arg) {
 void* __cilkrts_io_init_helper(void* ignored) {
   dbgprint(CILKIO, " [cilkio] Now on dedicated event-loop thread, begin loop:\n");
 
-  // initialize to use pthread based locking 
-  evthread_use_pthreads();
   cilk_spawn event_base_loop(base, EVLOOP_NO_EXIT_ON_EMPTY);
   cilk_sync;
   dbgprint(CILKIO, " [cilkio] Exited event loop..\n");
@@ -95,6 +93,9 @@ void* __cilkrts_io_init_helper(void* ignored) {
 /* Concurrent Cilk I/O public API */
 
 CILK_API(int) cilk_io_init(void) {
+  // initialize to use pthread based locking 
+  evthread_use_pthreads();
+
   /* initialize event loop */
   base = event_base_new();
 
