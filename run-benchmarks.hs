@@ -19,7 +19,9 @@ import System.Process (system)
 -- We'll uncomment these later
 benches :: [Benchmark DefaultParamMeaning]
 benches =
-   [ (mkBenchmark "cilk_tests/ivar/benchmarks/wavefront/Makefile"     [ ] wavefrontParams  ) { progname = Just "wavefront"}]         ++
+   [ mkWf "wavefront_sequential" (wf "sequential")
+   , mkWf "wavefront_dnc"        (varyCilkThreads $ wf "dnc" )
+   , mkWf "wavefront_ivar"       (varyCilkThreads $ wf "ivar" ) ]   ++
 
    [ (mkBenchmark "cilk_tests/parfib/Makefile"                        [ ] parfibParams     ) { progname = Just "parfib"}]            ++ 
 --   [ (mkBenchmark "cilk_tests/ivar/benchmarks/microbench/Makefile"    [ ] microbenchParams ) { progname = Just "microbench"}]        ++ 
@@ -46,8 +48,7 @@ benches =
 -- parameter to (at least currently)
 
 emptyParams, microbench_allblockParams, microbench_raceParams, microbench_noblockParams,
-  pingpongParams, wavefrontParams, 
-  scholesParams, choleskyParams, jacobiParams, kalahParams, knapsackParams,
+  pingpongParams, scholesParams, choleskyParams, jacobiParams, kalahParams, knapsackParams,
    luParams, magicNumsParams, strassenParams, parfibParams :: BenchSpace DefaultParamMeaning
 
 emptyParams      = varyCilkThreads $ Or [Set NoMeaning (CompileParam $ show (10::Int))]
@@ -78,16 +79,16 @@ pingpongParams  = varyCilkThreads $
                             , iters <- [ 5000, 10000, 20000, 50000, 100000 ] :: [Int] ]
                        , Set (NoMeaning) (RuntimeEnv "VARIANT" "pingpong_ivars") ] 
 
-wavefrontParams  = 
-  Or [ wf "sequential"
-     , varyCilkThreads $ wf "dnc" 
-     , varyCilkThreads $ wf "ivar" ]
- where
-   wf var = 
-       And [ Or [ Set NoMeaning (RuntimeArg $ unwords [show outerdim, show innerdim]) 
-                | outerdim <- map (2^) [ 4 .. 8 ::Int ] :: [Int]
-                , innerdim <- map (2^) [ 4 .. 9 ::Int ] :: [Int] ]
-           , Set (Variant var) (RuntimeEnv "VARIANT" var) ]
+mkWf :: String -> BenchSpace a -> Benchmark a
+mkWf name conf = 
+  (mkBenchmark "cilk_tests/ivar/benchmarks/wavefront/Makefile" [ ] conf ) { progname = Just name}
+
+wf :: String -> BenchSpace DefaultParamMeaning
+wf var = 
+    And [ Or [ Set NoMeaning (RuntimeArg $ unwords [show outerdim, show innerdim]) 
+             | outerdim <- map (2^) [ 4 .. 8 ::Int ] :: [Int]
+             , innerdim <- map (2^) [ 4 .. 9 ::Int ] :: [Int] ]
+        , Set (Variant var) (RuntimeEnv "VARIANT" var) ]
 
 
 scholesParams    = varyCilkThreads emptyParams
