@@ -225,22 +225,48 @@ struct __cilkrts_worker {
 
 #ifdef CILK_IVARS
 #define align(n) __attribute__((aligned(n)))
+    //----------- lazily allocated structures (shared between workers on same core) --------------
     // A singly linked list of fibers on this thread which are ready to be restored.
     struct queue_t *readylist align(64); // 
 
     // A queue of paused worker states available for stealing. 
     struct queue_t *pauselist;
 
+    // A queue of free (unreferenced) worker states available for allocation as a replacement worker. 
+    struct queue_t *freelist;
+
+    // Holds a pointer to the worker who is the actual team leader.
+    // a replacement cannot be a team leader because their state is transient and they may not
+    // be able to run when a cilk_sync pushes the last frame onto this team's worke dequeue. 
+    // This gets around that problem by holding the original worker as the team leader. 
+    __cilkrts_worker *team_leader;
+
+    // reference count of how many paused computations are outstanding on this core. 
+    int *volatile ref_count;
+
+    // The total count of pauses over the lifetime of the process on this core.
+    // >>>> For stats only. 
+    unsigned long long *volatile paused_event_accumulator; 
+    //------------------------------------------------------
     
+    //----------- thread local transient structures and immediates --------------
     /** Hold a pointer to the jmp_buf returned by __cilkrts_pause() */
     jmp_buf *paused_ctx align(64); //worker local
-    int blocked;
-    int worker_depth;
-    int to_remove_from_stealing;
 
-    __cilkrts_worker *team_leader align(64); // shared with workers on the same core
-    int *volatile ref_count;
-    unsigned long long *volatile paused_event_accumulator; // for stats only. 
+    // 1 if the worker is paused and 0 if it is running. 
+    int blocked;
+
+    // Holds the depth of the worker relative to top level. 
+    // If there is 3 paused workers, there exists a worker with depths 0,1,2 
+    // with 2 being the deepest and 0 being top level. 
+    int worker_depth;
+    
+
+    // 1 if this worker should be removed from from concurrent stealing and 0 otherwise. 
+    // The actual removal is done lazily by find_concurrent_work() in concurrent_cilk.c.
+    int to_remove_from_stealing;
+    //------------------------------------------------------
+    
 #endif
 };
 

@@ -93,11 +93,14 @@ void* __cilkrts_io_init_helper(void* ignored) {
 /* Concurrent Cilk I/O public API */
 
 CILK_API(int) cilk_io_init(void) {
+  struct event_config *cfg = event_config_new();
+  event_config_avoid_method(cfg, "epoll");
   // initialize to use pthread based locking 
   evthread_use_pthreads();
 
   /* initialize event loop */
-  base = event_base_new();
+  base = event_base_new_with_config(cfg);
+  event_config_free(cfg);
 
   dbgprint(CILKIO, " [cilkio] event_base_new complete, spawning thread for event loop..\n");
 
