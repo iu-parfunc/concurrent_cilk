@@ -183,4 +183,28 @@ inline __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim)
   return surrogate ? surrogate : victim;
 }
 
+//------------------------------- runtime stats functions ----------------------
+
+unsigned int __cilkrts_get_thread_local_pause_count(__cilkrts_worker *w)
+ {
+   if (NULL == w->paused_event_accumulator) {
+     return 0;
+   }
+   return *w->paused_event_accumulator;
+ }
+
+unsigned int __cilkrts_get_total_pause_count() {
+  int i;
+  unsigned int count = 0;
+  __cilkrts_worker *tmp = NULL;
+  __cilkrts_worker *w = __cilkrts_get_tls_worker_fast();
+
+  for (i = 0; i < w->g->total_workers; i++) {
+     tmp = w->g->workers[i];
+     count += __cilkrts_get_thread_local_pause_count(tmp);
+  }
+  return count;
+}
+
+
 
