@@ -2327,6 +2327,7 @@ __cilkrts_worker *make_worker(global_state_t *g,
   w->paused_ctx    = NULL;
   w->readylist     = NULL;
   w->pauselist     = NULL;
+  w->freelist      = NULL;
   w->team_leader   = NULL;
   w->blocked       = 0;
   w->ref_count     = 0;
