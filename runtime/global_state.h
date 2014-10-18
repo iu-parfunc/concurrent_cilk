@@ -231,6 +231,9 @@ typedef /* COMMON_PORTABLE */ struct global_state_t {
     //put the counter on its own cache line.
     char cache_buf_3[64];
     volatile int workers_blocked;
+    // The total number of new stacks allocated as a result of pause events:
+    // >>>> For stats only. 
+    volatile unsigned long total_extra_stacks;
 #endif
 } global_state_t;
 

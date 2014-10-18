@@ -35,6 +35,9 @@ static inline void cache_worker(__cilkrts_worker *w)
   if (dequeue(w->freelist, (ELEMENT_TYPE *) &new_w)) {
     // we did NOT get a worker from the cache
     new_w = make_worker(w->g, w->self, __cilkrts_malloc(sizeof(__cilkrts_worker)));
+  } else {
+    // Increment global count for tabulating CCILK_TOTAL_STACKS_ADDED
+    atomic_add(&(w->g->total_extra_stacks), 1);
   }
 
   CILK_ASSERT(new_w);
@@ -247,7 +250,7 @@ __cilkrts_remove_paused_worker_from_stealing(__cilkrts_worker *w)
 
 //------------------------------- runtime stats functions ----------------------
 
-unsigned int __cilkrts_get_thread_local_pause_count(__cilkrts_worker *w)
+unsigned long long __cilkrts_get_thread_local_pause_count(__cilkrts_worker *w)
  {
    if (NULL == w->paused_event_accumulator) {
      return 0;
@@ -255,7 +258,7 @@ unsigned int __cilkrts_get_thread_local_pause_count(__cilkrts_worker *w)
    return *w->paused_event_accumulator;
  }
 
-unsigned long __cilkrts_get_total_pause_count() {
+unsigned long long __cilkrts_get_total_pause_count() {
   int i;
   unsigned int count = 0;
   __cilkrts_worker *tmp = NULL;
