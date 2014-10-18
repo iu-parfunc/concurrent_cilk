@@ -109,7 +109,7 @@ __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx)
   //lazily allocate a slot for the pauselist.
   if (! w->pauselist) { w->pauselist = make_stack_queue(); }
 
-  //lazily allocate a slot for the pauselist.
+  //lazily allocate a slot for the freelist.
   if (! w->freelist) { w->freelist = make_stack_queue(); }
 
   //lazily allocate a pointer for the ref_count. 
