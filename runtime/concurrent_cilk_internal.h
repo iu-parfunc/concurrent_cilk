@@ -41,7 +41,7 @@ int _ccilk_dbg_lvl;
   if (lvl & _ccilk_dbg_lvl) {                    \
     pthread_t tid;                               \
     tid            = pthread_self();             \
-    fprintf(stderr, "[tid:%4d] ", (int)(((int)tid)%10000)); fflush(stderr); \
+    fprintf(stderr, "[%d|tid:%4d] ", lvl, (int)(((int)tid)%10000)); fflush(stderr); \
     fprintf(stderr, __VA_ARGS__); fflush(stderr); } \
   } while(0)
 

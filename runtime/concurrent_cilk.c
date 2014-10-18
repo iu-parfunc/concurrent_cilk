@@ -35,6 +35,9 @@ static inline void cache_worker(__cilkrts_worker *w)
   if (dequeue(w->freelist, (ELEMENT_TYPE *) &new_w)) {
     // we did NOT get a worker from the cache
     new_w = make_worker(w->g, w->self, __cilkrts_malloc(sizeof(__cilkrts_worker)));
+    dbgprint(CONCURRENT, "ALLOC FRESH worker %d/%p\n", new_w->self, new_w);
+  } else {
+    dbgprint(CONCURRENT, "popped FREELIST worker %d/%p\n", new_w->self, new_w);
   }
 
   CILK_ASSERT(new_w);
@@ -153,7 +156,7 @@ __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx)
     signal_node_msg(replacement->l->signal_node, 1); // set status to run.
   }
 
-  dbgprint(CONCURRENT, "CREATED replacement worker %d/%p\n", replacement->self, replacement);
+  dbgprint(CONCURRENT, "COMMIT PAUSE: replacement worker %d/%p\n", replacement->self, replacement);
 
   // The replacement now becomes the thread local state. 
   __cilkrts_set_tls_worker(replacement);
