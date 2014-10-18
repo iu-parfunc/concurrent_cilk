@@ -98,7 +98,11 @@ typedef struct __cilkrts_worker      __cilkrts_worker;
 
 
 /* Scheduler functions */
+
+/** 
+ */
 __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim);
+
 __cilkrts_worker *find_ready_fiber(__cilkrts_worker *victim);
 
 inline void remove_worker_from_stealing(__cilkrts_worker *w);

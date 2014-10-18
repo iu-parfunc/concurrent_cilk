@@ -202,7 +202,7 @@ CILK_API(void) __cilkrts_run_replacement_fiber(__cilkrts_worker *w);
  * Conditions under which a restore can be called are as follows: 
  * 1. The calling thread's TLS worker must not have any concurrent work in it's dequeue (w->head == w->tail).
  * 2. The calling thread's TLS worker must not have a next full frame.
- * 3. The self value of each worker must be the equal. 
+ * 3. The w->self value must be equal to the value of the current TLS worker.
  * 4. The worker to be restored must not be the current TLS worker. 
  *
  * @param w The worker which will resume execution at the restore point. 

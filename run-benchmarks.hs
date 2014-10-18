@@ -33,7 +33,10 @@ benches =
    [ (mkBenchmark "cilk_tests/ivar/benchmarks/microbench/Makefile"    [ ] microbench_noblockParams ) 
                                                                       { progname = Just "microbench_noblock"}]  ++ 
 
-   [ (mkBenchmark "cilk_tests/ivar/benchmarks/pingpong/Makefile"      [ ] pingpongParams  )  { progname = Just "pingpong"}]          ++ 
+   [ (mkBenchmark "cilk_tests/ivar/benchmarks/pingpong/Makefile"      [ ] (pingpongParams   "pingpong_ivar"))
+                                                                          { progname = Just "pingpong_ivar"}     
+   , (mkBenchmark "cilk_tests/ivar/benchmarks/pingpong/Makefile"      [ ] (pingpongParams   "pingpong_pthreads")) 
+                                                                          { progname = Just "pingpong_pthreads"} ]  ++ 
  
    [ (mkBenchmark "cilk_tests/regression/black-scholes/Makefile"      [ ] scholesParams    ) { progname = Just "black-scholes"}]     ++ 
    --[ (mkBenchmark "cilk_tests/regression/cholesky/Makefile"          [ ] choleskyParams   ) { progname = Just "cholesky"}]          ++ 
@@ -42,13 +45,36 @@ benches =
    [ (mkBenchmark "cilk_tests/regression/knapsack/Makefile"          [ ] knapsackParams   ) { progname = Just "knapsack"}]          ++ 
    [ (mkBenchmark "cilk_tests/regression/LU_decomp/Makefile"         [ ] luParams         ) { progname = Just "LU_decomp"}]         ++ 
    [ (mkBenchmark "cilk_tests/regression/magic-numbers/Makefile"     [ ] magicNumsParams  ) { progname = Just "magic-numbers"}]     ++ 
-   [ (mkBenchmark "cilk_tests/regression/strassen_multiply/Makefile" [ "-n", "4096" ] strassenParams   ) { progname = Just "strassen-multiply"}]
+   [ (mkBenchmark "cilk_tests/regression/strassen_multiply/Makefile" [] strassenParams   ) { progname = Just "strassen-multiply"}] ++
+
+   -- And then WITHOUT concurrent cilk:
+   [ (mkBenchmark "cilk_tests/regression/black-scholes/Makefile"      [ ] (mkTrad scholesParams)) { progname = Just "black-scholes_trad"}]     ++ 
+   [ (mkBenchmark "cilk_tests/regression/knapsack/Makefile"          [ ] (mkTrad knapsackParams)   ) { progname = Just "knapsack_trad"}]          ++ 
+   [ (mkBenchmark "cilk_tests/regression/LU_decomp/Makefile"         [ ] (mkTrad luParams)         ) { progname = Just "LU_decomp_trad"}]         ++ 
+   [ (mkBenchmark "cilk_tests/regression/strassen_multiply/Makefile" [ ] trad_strassen_params   ) 
+                                                                     { progname = Just "strassen-multiply_trad" }] ++
+   -- These are tests that shouldn't be run!
+   {-[ (mkBenchmark "cilk_tests/regression/magic-numbers/Makefile"     [ ] (mkTrad magicNumsParams)  ) { progname = Just "magic-numbers_trad"}]     ++ -}
+   {-[ (mkBenchmark "cilk_tests/regression/kalah/Makefile"             [ ] (mkTrad kalahParams)      ) { progname = Just "kalah_trad"}]             ++ -}
+
+
+   [ (mkBenchmark "cilk_tests/perturbations/black-scholes/Makefile"      [] perturbed_scholes_params) { progname = Just "black_scholes_sleep"}]     ++ 
+   [ (mkBenchmark "cilk_tests/perturbations/black-scholes/Makefile"      [] perturbed_scholes_params) { progname = Just "black_scholes_cilk_sleep"}]     ++ 
+
+   [ (mkBenchmark "cilk_tests/perturbations/knapsack/Makefile"          [] perturbed_knapsack_params) { progname = Just "knapsack_sleep"}]          ++ 
+   [ (mkBenchmark "cilk_tests/perturbations/knapsack/Makefile"          [] perturbed_knapsack_params) { progname = Just "knapsack_cilk_sleep"}]          ++ 
+
+   [ (mkBenchmark "cilk_tests/perturbations/strassen_multiply/Makefile" [] perturbed_strassen_params) { progname = Just "strassen_multiply_sleep"}] ++
+   [ (mkBenchmark "cilk_tests/perturbations/strassen_multiply/Makefile" [] perturbed_strassen_params) { progname = Just "strassen_multiply_cilk_sleep"}] ++
+
+   [ (mkBenchmark "cilk_tests/cilk_io/basic_http_server/Makefile"       [] http_server_params) { progname = Just "run_http_server.sh"}]
+
 
 -- Set this so that HSBencher actually runs the tests that we are not passing any
 -- parameter to (at least currently)
 
 emptyParams, microbench_allblockParams, microbench_raceParams, microbench_noblockParams,
-  pingpongParams, scholesParams, choleskyParams, jacobiParams, kalahParams, knapsackParams,
+  scholesParams, choleskyParams, jacobiParams, kalahParams, knapsackParams,
    luParams, magicNumsParams, strassenParams, parfibParams :: BenchSpace DefaultParamMeaning
 
 emptyParams      = varyCilkThreads $ Or [Set NoMeaning (CompileParam $ show (10::Int))]
@@ -71,13 +97,24 @@ mb fbrs iters vars =
      | var <- vars, fbr <- fbrs, iter <- iters ]
 ----------------------------------------
 
-pingpongParams  = varyCilkThreads $ 
-                   And [ Or [ Set NoMeaning (RuntimeArg $ unwords [show pairs, show iters]) 
-                            | pairs <- [ 1, 2, 4, 8 ]     :: [Int]
---                            , iters <- [ 100, 500, 1000 ] :: [Int] ]
-                            -- Need bigger sizes to take more time:
-                            , iters <- [ 5000, 10000, 20000, 50000, 100000 ] :: [Int] ]
-                       , Set (NoMeaning) (RuntimeEnv "VARIANT" "pingpong_ivars") ] 
+-- FIXME: Need to set this up for the GLOBAL project Makefile:
+mkTrad :: BenchSpace DefaultParamMeaning -> BenchSpace DefaultParamMeaning
+-- mkTrad conf = And [ conf ]
+mkTrad conf = And [ Set (Variant "trad_cilk") (RuntimeEnv "CCILK_IVARS_OFF" "1"), conf ]
+
+pingpongParams :: String -> BenchSpace DefaultParamMeaning
+pingpongParams var = 
+   case var of 
+     "pingpong_ivar"     -> -- varyCilkThreads spc
+                            varyThreads [2] spc
+     "pingpong_pthreads" -> spc
+  where 
+    spc =
+     And [ Or [ Set NoMeaning (RuntimeArg $ unwords [show pairs, show iters])
+              | pairs <- [ 1, 2, 4, 8 ]     :: [Int]
+              -- Need bigger sizes to take more time:
+              , iters <- [ 5000, 10000, 20000, 50000, 100000, 200000 ] :: [Int] ]
+         , Set (NoMeaning) (RuntimeEnv "VARIANT" var) ] 
 
 mkWf :: String -> BenchSpace a -> Benchmark a
 mkWf name conf = 
@@ -90,6 +127,32 @@ wf var =
              , innerdim <- map (2^) [ 4 .. 9 ::Int ] :: [Int] ]
         , Set (Variant var) (RuntimeEnv "VARIANT" var) ]
 
+trad_strassen_params = varyCilkThreads $
+                   Or [ And [ Set NoMeaning (RuntimeArg $ unwords ["-n", show 4096]),
+                              Set (Variant "trad_cilk") (RuntimeEnv "CCILK_IVARS_OFF" "1")] ]
+
+
+perturbed_scholes_params = varyThreads [16] $
+                   Or [ Set NoMeaning (RuntimeArg $ unwords ["-p", show p, "-l", show l])
+                            | p <- [ 233300, 233310, 233320, 233330, 2333340 ]     :: [Int]
+                            , l <- [ 4000, 5000, 10000, 20000, 50000, 100000 ] :: [Int] ]
+
+perturbed_strassen_params = varyThreads [16] $
+                   Or [ Set NoMeaning (RuntimeArg $ unwords ["-p", show p, "-l", show l])
+                            | p <- [10, 15, 20, 25, 30]     :: [Int]
+                            , l <- [ 4000, 5000, 10000, 20000, 50000, 100000 ] :: [Int] ]
+
+perturbed_knapsack_params = varyThreads [16] $
+                   Or [ Set NoMeaning (RuntimeArg $ unwords ["-p", show p, "-l", show l])
+                            | p <- [2, 3, 5, 7, 9, 13]     :: [Int]
+                            , l <- [ 4000, 5000, 10000, 20000, 50000, 100000 ] :: [Int] ]
+
+http_server_params = varyCilkThreads $
+                   Or [ Set NoMeaning (RuntimeArg $ unwords ["./run_http_server.sh", server, "$(CILK_NWORKERS)", "66008"])
+                            | server <- ["./bin/naive_server_Ccilk.exe",
+                                         "./bin/naive_server_cilk.exe",
+                                         "./bin/naive_server_pthread.exe",
+                                         "./bin/pthread_server_epoll.exe"]     :: [String] ]
 
 scholesParams    = varyCilkThreads emptyParams
 choleskyParams   = varyCilkThreads emptyParams
@@ -98,8 +161,9 @@ kalahParams      = varyCilkThreads emptyParams
 knapsackParams   = varyCilkThreads emptyParams
 luParams         = varyCilkThreads emptyParams
 magicNumsParams  = varyCilkThreads emptyParams
-strassenParams   = varyCilkThreads emptyParams
-parfibParams     = varyCilkThreads $ 
+strassenParams   = varyCilkThreads $
+               Or [ Set NoMeaning (RuntimeArg $ unwords ["-n", show 4096])]
+parfibParams     = varyCilkThreads $
                     Or [ pfibs [10, 15, 20, 25, 30, 35, 40, 41, 42] ["parfib", "ivars_parfib" ]
                        -- These are running only on MUCH smaller sizes:
                        , pfibs [10, 11, 12, 13] ["fib_pthread"] ]
@@ -150,6 +214,8 @@ main = do
                        customTagHarvesterInt "CILKPLUS_RUNTIME_MEMORY_USAGE_BYTES" `mappend` 
                        customTagHarvesterInt "CILKPLUS_STACKSIZE" `mappend` 
                        customTagHarvesterInt "CILKPLUS_TOTALSTACKS" `mappend` 
+                       customTagHarvesterInt "CCILK_TOTAL_STACKS_ADDED" `mappend` 
+                       customTagHarvesterInt "CCILK_TOTAL_PAUSE_EVENTS" `mappend` 
                        customTagHarvesterInt "CONCURRENTCILK_WORKERS_BLOCKED" `mappend` 
                        harvesters conf
         , systemCleaner = Cleanup $ do 
