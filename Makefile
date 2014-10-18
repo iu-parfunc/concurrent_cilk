@@ -77,6 +77,9 @@ dobuild:
 	./build_scripts/build_libcilk.sh
 	@echo "DONE building libcilkrts."
 
+debug:
+	(export CCILK_DEBUG=1; $(MAKE) dobuild)
+
 deps: $(DEPS)
 
 rebuild:
