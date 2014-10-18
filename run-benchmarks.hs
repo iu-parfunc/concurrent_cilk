@@ -45,16 +45,17 @@ benches =
    [ (mkBenchmark "cilk_tests/regression/knapsack/Makefile"          [ ] knapsackParams   ) { progname = Just "knapsack"}]          ++ 
    [ (mkBenchmark "cilk_tests/regression/LU_decomp/Makefile"         [ ] luParams         ) { progname = Just "LU_decomp"}]         ++ 
    [ (mkBenchmark "cilk_tests/regression/magic-numbers/Makefile"     [ ] magicNumsParams  ) { progname = Just "magic-numbers"}]     ++ 
-   [ (mkBenchmark "cilk_tests/regression/strassen_multiply/Makefile" [ "-n", "4096" ] strassenParams   ) { progname = Just "strassen-multiply"}] ++
+   [ (mkBenchmark "cilk_tests/regression/strassen_multiply/Makefile" [] strassenParams   ) { progname = Just "strassen-multiply"}] ++
 
    -- And then WITHOUT concurrent cilk:
    [ (mkBenchmark "cilk_tests/regression/black-scholes/Makefile"      [ ] (mkTrad scholesParams)) { progname = Just "black-scholes_trad"}]     ++ 
-   [ (mkBenchmark "cilk_tests/regression/kalah/Makefile"             [ ] (mkTrad kalahParams)      ) { progname = Just "kalah_trad"}]             ++ 
    [ (mkBenchmark "cilk_tests/regression/knapsack/Makefile"          [ ] (mkTrad knapsackParams)   ) { progname = Just "knapsack_trad"}]          ++ 
    [ (mkBenchmark "cilk_tests/regression/LU_decomp/Makefile"         [ ] (mkTrad luParams)         ) { progname = Just "LU_decomp_trad"}]         ++ 
-   [ (mkBenchmark "cilk_tests/regression/magic-numbers/Makefile"     [ ] (mkTrad magicNumsParams)  ) { progname = Just "magic-numbers_trad"}]     ++ 
-   [ (mkBenchmark "cilk_tests/regression/strassen_multiply/Makefile" [ "-n", "4096" ] (mkTrad strassenParams)   ) 
+   [ (mkBenchmark "cilk_tests/regression/strassen_multiply/Makefile" [ ] trad_strassen_params   ) 
                                                                      { progname = Just "strassen-multiply_trad" }] ++
+   -- These are tests that shouldn't be run!
+   {-[ (mkBenchmark "cilk_tests/regression/magic-numbers/Makefile"     [ ] (mkTrad magicNumsParams)  ) { progname = Just "magic-numbers_trad"}]     ++ -}
+   {-[ (mkBenchmark "cilk_tests/regression/kalah/Makefile"             [ ] (mkTrad kalahParams)      ) { progname = Just "kalah_trad"}]             ++ -}
 
 
    [ (mkBenchmark "cilk_tests/perturbations/black-scholes/Makefile"      [] perturbed_scholes_params) { progname = Just "black_scholes_sleep"}]     ++ 
@@ -126,6 +127,11 @@ wf var =
              , innerdim <- map (2^) [ 4 .. 9 ::Int ] :: [Int] ]
         , Set (Variant var) (RuntimeEnv "VARIANT" var) ]
 
+trad_strassen_params = varyCilkThreads $
+                   Or [ And [ Set NoMeaning (RuntimeArg $ unwords ["-n", show 4096]),
+                              Set (Variant "trad_cilk") (RuntimeEnv "CCILK_IVARS_OFF" "1")] ]
+
+
 perturbed_scholes_params = varyThreads [16] $
                    Or [ Set NoMeaning (RuntimeArg $ unwords ["-p", show p, "-l", show l])
                             | p <- [ 233300, 233310, 233320, 233330, 2333340 ]     :: [Int]
@@ -155,7 +161,8 @@ kalahParams      = varyCilkThreads emptyParams
 knapsackParams   = varyCilkThreads emptyParams
 luParams         = varyCilkThreads emptyParams
 magicNumsParams  = varyCilkThreads emptyParams
-strassenParams   = varyCilkThreads emptyParams
+strassenParams   = varyCilkThreads $
+               Or [ Set NoMeaning (RuntimeArg $ unwords ["-n", show 4096])]
 parfibParams     = varyCilkThreads $
                     Or [ pfibs [10, 15, 20, 25, 30, 35, 40, 41, 42] ["parfib", "ivars_parfib" ]
                        -- These are running only on MUCH smaller sizes:
