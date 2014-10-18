@@ -89,7 +89,7 @@ rebuild:
 bench: run-benchmarks.exe
 	./run-benchmarks.exe --retry=20 --hostname=$(MACHINECLASS) --runid=$(RUNID) --keepgoing --trials=$(TRIALS) --name=$(TABLE) --fusion-upload --clientid=$(CID) --clientsecret=$(SEC) $(WHICHBENCH) $(BENCHARGS)
 
-PKGS= ./ ./HSBencher/hgdata ./HSBencher/hsbencher ./HSBencher/hsbencher-fusion ./HSBencher/hsbencher-codespeed
+PKGS= ./ ./HSBencher/hgdata ./HSBencher/hsbencher ./HSBencher/hsbencher-fusion ./HSBencher/hsbencher-tool ./HSBencher/hsbencher-codespeed
 CBLARGS= $(JFLAG) --disable-documentation --with-ghc=ghc-$(JENKINS_GHC)  \
           --extra-include-dirs=$(HOME)/opt/include --extra-lib-dirs=$(HOME)/opt/lib --force-reinstalls
 # force-reinstalls is for when we upgrade versions...
