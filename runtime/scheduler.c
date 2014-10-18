@@ -887,9 +887,6 @@ static void random_steal(__cilkrts_worker *w)
       // change its team until it runs out of work to do, at which point
       // it will try to take out its own lock, and this worker already
       // holds it.
-#ifdef CILK_IVARS
-      dbgprint(CONCURRENT, "STEAL FAILED -- WORKER USER RESTRICTED\n");
-#endif
       NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_USER_WORKER);
 
     } else if (victim->l->frame_ff) {

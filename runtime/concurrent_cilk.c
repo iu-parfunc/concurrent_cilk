@@ -9,14 +9,20 @@
 #include "signal_node.h"
 #include "local_state.h"
 #include "concurrent_queue.h"
+#include "stacks.h"
 
 //--------------------- Concurrent Cilk Internal Functions -------------------------
 
 static inline void cache_worker(__cilkrts_worker *w)
 {
+#ifndef CILK_IVARS_NO_CACHE_WORKER
+  __cilkrts_stack* stack_to_free = NULL;
   CILK_ASSERT(w);
   CILK_ASSERT(w->freelist);
-#ifndef CILK_IVARS_NO_CACHE_WORKER
+  stack_to_free = w->l->stack_to_free;
+  if (stack_to_free) {
+    __cilkrts_release_stack(w, stack_to_free);
+  }
   enqueue(w->freelist, (ELEMENT_TYPE) w);
 #else
   // -- safety: no free for now - we can't free the original top level worker!
@@ -228,8 +234,17 @@ __cilkrts_resume_fiber(__cilkrts_worker *w)
 inline  CILK_API(void) 
 __cilkrts_run_replacement_fiber(__cilkrts_worker *replacement)
 {
-  //sets pthread TLS to replacement worker and invokes the scheduler
-  __cilkrts_worker_stub((void *) replacement);
+  __cilkrts_worker *ready_worker;
+  CILK_ASSERT(replacement->readylist);
+
+  if (! dequeue(replacement->readylist, (ELEMENT_TYPE *) &ready_worker)) {
+    // Immediately run concurrent work if available - don't jump to the scheduler
+    __cilkrts_resume_fiber(ready_worker);
+  } else {
+    // Sets pthread TLS to replacement worker and invokes the scheduler
+    __cilkrts_worker_stub((void *) replacement);
+  }
+  CILK_ASSERT(0);
 }
 
 inline CILK_API(void)
