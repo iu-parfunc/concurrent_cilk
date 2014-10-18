@@ -255,7 +255,7 @@ unsigned int __cilkrts_get_thread_local_pause_count(__cilkrts_worker *w)
    return *w->paused_event_accumulator;
  }
 
-unsigned int __cilkrts_get_total_pause_count() {
+unsigned long __cilkrts_get_total_pause_count() {
   int i;
   unsigned int count = 0;
   __cilkrts_worker *tmp = NULL;
