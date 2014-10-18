@@ -501,7 +501,12 @@ CILK_API_VOID __cilkrts_dump_stats(void)
     __cilkrts_dump_stats_to_stderr(g);
   }
   else {
+#ifdef CILK_IVARS
+    // RRN: TEMP/HACK RUNNING INTO THIS ON SHORT RUNNING PROGRAMS:
+    printf("Attempting to report Cilk stats before the runtime has started\n");
+#else
     __cilkrts_bug("Attempting to report Cilk stats before the runtime has started\n");
+#endif
   }    
   global_os_mutex_unlock();
 }
