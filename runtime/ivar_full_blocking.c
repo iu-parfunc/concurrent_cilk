@@ -104,9 +104,9 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
             *ivar = (((ivar_payload_t) waitlist) << IVAR_SHIFT) | CILK_IVAR_PAUSED;
     // RRN: TEMP, Experiment [2014.10.18], putting this here until someone convinces me we don't need it:
             __sync_synchronize();
-            dbgprint(IVAR,"ivar %p PAUSED. adding worker %p to waitlist %p\n",ivar,w,waitlist);
-            break;
+            dbgprint(IVAR,"ivar %p PAUSED. added worker %p to waitlist %p\n",ivar,w,waitlist);
           } 
+          break;
         case CILK_IVAR_FULL:
           dbgprint(IVAR, "ivar %p FILLED while reading\n", ivar);
           //nevermind...someone filled it. 
