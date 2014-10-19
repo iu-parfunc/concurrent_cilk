@@ -206,9 +206,10 @@ CILK_API(void) __cilkrts_run_replacement_fiber(__cilkrts_worker *w);
  * 4. The worker to be restored must not be the current TLS worker. 
  *
  * @param w The worker which will resume execution at the restore point. 
+ * @param current_tls_w the currently running worker - now defunct
  * @return Does not return. The paused context of execution is restored. 
  */
-CILK_API(void) __cilkrts_resume_fiber(__cilkrts_worker *w);
+CILK_API(void) __cilkrts_resume_fiber(__cilkrts_worker  *w, __cilkrts_worker *current_tls_w);
 
 
 //--------------------------------------

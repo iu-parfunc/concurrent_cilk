@@ -889,9 +889,6 @@ static void random_steal(__cilkrts_worker *w)
       // change its team until it runs out of work to do, at which point
       // it will try to take out its own lock, and this worker already
       // holds it.
-#ifdef CILK_IVARS
-      dbgprint(CONCURRENT, "STEAL FAILED -- WORKER USER RESTRICTED\n");
-#endif
       NOTE_INTERVAL(w, INTERVAL_STEAL_FAIL_USER_WORKER);
 
     } else if (victim->l->frame_ff) {
@@ -1499,7 +1496,7 @@ static void schedule_work(__cilkrts_worker *w)
 {
   full_frame *ff;
 #ifdef CILK_IVARS
-  __cilkrts_worker *ready_worker;
+  __cilkrts_worker *ready_worker = NULL;
 #endif
 
   ff = pop_next_frame(w);
@@ -1508,26 +1505,24 @@ static void schedule_work(__cilkrts_worker *w)
   if (NULL == ff) {
 
 #ifdef CILK_IVARS
-    if (w->readylist && (! dequeue(w->readylist, (ELEMENT_TYPE *) &ready_worker))) {
+    if (w->readylist && (! dequeue(w->readylist, (ELEMENT_TYPE *) &ready_worker)) && ready_worker) {
       //if there was ever a blocked worker running, this
       //means something has gone terribly wrong
       dbgprint(CONCURRENT, "found ready worker %d/%p on the readylist\n",
           ready_worker->self, ready_worker);
-      __cilkrts_resume_fiber(ready_worker);
+      __cilkrts_resume_fiber(ready_worker, w);
       CILK_ASSERT(0);
     }
 
     if (w->l->team && w->l->team->team_leader && (NULL != w->l->team->team_leader->l->next_frame_ff)) {
       dbgprint(CONCURRENT, "team leader %d/%p had its next frame pushed!\n", w->l->team->team_leader->self, w->l->team->team_leader);
     }
-    //CSZ: spinning need to figure out why...
     if (w->worker_depth && NULL != w->l->team && w->l->team->team_leader->l->next_frame_ff && (! w->l->team->team_leader->blocked)) {
 
       //TODO: cache/free the current worker as the team leader will now take over. 
       __cilkrts_set_tls_worker(w->l->team->team_leader);
       w = w->l->team->team_leader;
       __cilkrts_fence();
-      //CILK_ASSERT(w->l->next_frame_ff);
     }
 #endif 
 
@@ -2329,6 +2324,7 @@ __cilkrts_worker *make_worker(global_state_t *g,
   w->paused_ctx    = NULL;
   w->readylist     = NULL;
   w->pauselist     = NULL;
+  w->freelist      = NULL;
   w->team_leader   = NULL;
   w->blocked       = 0;
   w->ref_count     = 0;

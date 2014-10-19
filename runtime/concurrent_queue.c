@@ -1,214 +1,128 @@
+
 /*
- *  B-Queue -- An efficient and practical queueing for fast core-to-core
- *             communication
  *
- *  Copyright (C) 2011 Junchang Wang <junchang.wang@gmail.com>
+ * Copyright (C) 2009-2011 , Intel Corporation
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in
+ *     the documentation and/or other materials provided with the
+ *     distribution.
+ *   * Neither the name of Intel Corporation nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+ * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
-
-
-#include <concurrent_queue.h>
+#include <cilk/concurrent_queue.h>
 #include "concurrent_cilk_internal.h"
+#include "cilk_malloc.h"
 
-#include <malloc.h>
-#include <sched.h>
+//Michael & Scott Lockfree Queues
 
-
-#if defined(FIFO_DEBUG)
-#include <assert.h>
-#endif
-
-inline uint64_t read_tsc()
+void initialize_stack_queue(queue_t *q)
 {
-        uint64_t        time;
-        uint32_t        msw   , lsw;
-        __asm__         __volatile__("rdtsc\n\t"
-                        "movl %%edx, %0\n\t"
-                        "movl %%eax, %1\n\t"
-                        :         "=r"         (msw), "=r"(lsw)
-                        :   
-                        :         "%edx"      , "%eax");
-        time = ((uint64_t) msw << 32) | lsw;
-        return time;
+  // INVARIANT: There is always at least one pair object.  Head/tail always have something to point at.
+  // Therefore, create an INVALID, CORRUPT initial element (data uninitialized):
+  __cilkrts_stack_pair* newp = (__cilkrts_stack_pair*)__cilkrts_malloc(sizeof(__cilkrts_stack_pair));
+  newp->data = (ELEMENT_TYPE) NULL;
+  newp->next = NULL;
+  q->head = newp;
+  q->tail = newp;
 }
 
-inline void wait_ticks(uint64_t ticks)
-{
-        uint64_t        current_time;
-        uint64_t        time = read_tsc();
-        time += ticks;
-        do {
-                current_time = read_tsc();
-        } while (current_time < time);
-}
-
-static ELEMENT_TYPE ELEMENT_ZERO = 0x0UL;
-
-struct queue_t *make_stack_queue()
-{
-  struct queue_t *q = (struct queue_t *) malloc(sizeof(struct queue_t));
-  queue_init(q);
+queue_t* make_stack_queue() {
+  queue_t* q = (queue_t*)__cilkrts_malloc(sizeof(queue_t));
+  initialize_stack_queue(q);
   return q;
 }
 
-void delete_stack_queue (struct queue_t *q)
+// Allocate space and add a new element.
+int enqueue(queue_t* q, ELEMENT_TYPE value) 
 {
-  free(q);
+  __cilkrts_stack_pair *tail, *next, *newp;
+  newp        = (__cilkrts_stack_pair*)__cilkrts_malloc(sizeof(__cilkrts_stack_pair)); 
+  newp->data  = value;
+  newp->next  = NULL;
+  while(1) {
+    tail = q->tail;
+    next = q->tail->next;
+
+    if (tail == q->tail) {
+      if (next == NULL) {
+        if (__sync_bool_compare_and_swap(&tail->next, next, newp)) { break; }
+      } else {
+        // Best effort bump of the tail:
+        __sync_bool_compare_and_swap( &q->tail, tail, next );
+      }
+    }
+  }
+  // If we fail to swing the tail that is ok.  Whoever came in after us deserves it.
+  __sync_bool_compare_and_swap( &q->tail, tail, newp );
+  return SUCCESS;
 }
 
-/*************************************************/
-/********** Queue Functions **********************/
-/*************************************************/
-
-void queue_init(struct queue_t *q)
+// Returns NULL if the queue appeared empty:
+int dequeue(queue_t* q, ELEMENT_TYPE * value)
 {
-	memset(q, 0, sizeof(struct queue_t));
-#if defined(CONS_BATCH)
-	q->batch_history = CONS_BATCH_SIZE;
-#endif
+  volatile __cilkrts_stack_pair *head; //this needs to be volatile, or it may have incorrect state
+  __cilkrts_stack_pair *tail, *next;
+  while(1) {
+    head = q->head;
+    tail = q->tail;
+    next = head->next;
+    if ( head == q->head ) {
+      if ( head == tail ) {
+        if ( next == NULL ) { return QUEUE_EMPTY; }
+        // Try to advance the tail, which is falling behind:
+        __sync_bool_compare_and_swap( &q->tail, tail, next );
+      } else {
+        *value = next->data; 
+        // Try to advance the head:
+        if (__sync_bool_compare_and_swap(&q->head, (__cilkrts_stack_pair *) head, next) )
+          break;
+      }
+    }
+  }
+  __cilkrts_free((queue_t *) head);
+  return SUCCESS;
 }
 
-#if defined(PROD_BATCH) || defined(CONS_BATCH)
-inline int leqthan(volatile ELEMENT_TYPE point, volatile ELEMENT_TYPE batch_point)
+void clear_stack_queue(queue_t* q)
 {
-	return (point == batch_point);
-}
-#endif
-
-#if defined(PROD_BATCH)
-int enqueue(struct queue_t * q, ELEMENT_TYPE value)
-{
-	uint32_t tmp_head;
-	if( q->head == q->batch_head ) {
-		tmp_head = q->head + PROD_BATCH_SIZE;
-		if ( tmp_head >= QUEUE_SIZE )
-			tmp_head = 0;
-
-		if ( q->data[tmp_head] ) {
-			wait_ticks(CONGESTION_PENALTY);
-			return BUFFER_FULL;
-		}
-
-		q->batch_head = tmp_head;
-	}
-	q->data[q->head] = value;
-	q->head ++;
-	if ( q->head >= QUEUE_SIZE ) {
-		q->head = 0;
-	}
-
-	return SUCCESS;
-}
-#else
-int enqueue(struct queue_t * q, ELEMENT_TYPE value)
-{
-	if ( q->data[q->head] )
-		return BUFFER_FULL;
-	q->data[q->head] = value;
-	q->head ++;
-	if ( q->head >= QUEUE_SIZE ) {
-		q->head = 0;
-	}
-
-	return SUCCESS;
-}
-#endif
-
-#if defined(CONS_BATCH)
-
-static inline int backtracking(struct queue_t * q)
-{
-	uint32_t tmp_tail;
-	tmp_tail = q->tail + CONS_BATCH_SIZE;
-	if ( tmp_tail >= QUEUE_SIZE ) {
-		tmp_tail = 0;
-#if defined(ADAPTIVE)
-		if (q->batch_history < CONS_BATCH_SIZE) {
-			q->batch_history = 
-				(CONS_BATCH_SIZE < (q->batch_history + BATCH_INCREAMENT))? 
-				CONS_BATCH_SIZE : (q->batch_history + BATCH_INCREAMENT);
-		}
-#endif
-	}
-
-#if defined(BACKTRACKING)
-
-	unsigned long batch_size = q->batch_history;
-	while (!(q->data[tmp_tail])) {
-
-		wait_ticks(CONGESTION_PENALTY);
-
-		batch_size = batch_size >> 1;
-		if( batch_size >= 0 ) {
-			tmp_tail = q->tail + batch_size;
-			if (tmp_tail >= QUEUE_SIZE)
-				tmp_tail = 0;
-		}
-		else
-			return -1;
-	}
-#if defined(ADAPTIVE)
-	q->batch_history = batch_size;
-#endif
-
-#else
-	if ( !q->data[tmp_tail] ) {
-		wait_ticks(CONGESTION_PENALTY); 
-		return -1;
-	}
-#endif  /* end BACKTRACKING */
-
-	if ( tmp_tail == q->tail ) {
-		tmp_tail = (tmp_tail + 1) >= QUEUE_SIZE ?
-			0 : tmp_tail + 1;
-	}
-	q->batch_tail = tmp_tail;
-
-	return 0;
+  // Remove any entries within the queue:
+  ELEMENT_TYPE hukarz;
+  while(dequeue(q, &hukarz)) {
+    __cilkrts_free((void *) hukarz);
+  }
 }
 
-int dequeue(struct queue_t * q, ELEMENT_TYPE * value)
+// This is shared across the three implementations below:
+void delete_stack_queue(queue_t* q) 
 {
-	if( q->tail == q->batch_tail ) {
-		if ( backtracking(q) != 0 )
-			return BUFFER_EMPTY;
-	}
-	*value = q->data[q->tail];
-	q->data[q->tail] = ELEMENT_ZERO;
-	q->tail ++;
-	if ( q->tail >= QUEUE_SIZE )
-		q->tail = 0;
-
-	return SUCCESS;
+  clear_stack_queue(q);
+  // Finally, destroy the struct itself:
+  __cilkrts_free(q);
 }
 
-#else
 
-int dequeue(struct queue_t * q, ELEMENT_TYPE * value)
-{
-	if ( !q->data[q->tail] )
-		return BUFFER_EMPTY;
-	*value = q->data[q->tail];
-	q->data[q->tail] = ELEMENT_ZERO;
-	q->tail ++;
-	if ( q->tail >= QUEUE_SIZE )
-		q->tail = 0;
 
-	return SUCCESS;
-}
-
-#endif

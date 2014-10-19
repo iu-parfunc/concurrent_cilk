@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "concurrent_cilk_internal.h"
 #include "concurrent_queue.h"
 #include "cilk_malloc.h"
@@ -8,6 +9,9 @@
 #include "scheduler.h"
 #include "sysdep.h"
 #include "bug.h"
+
+void initialize_stack_queue(queue_t *q);
+void clear_stack_queue(queue_t* q);
 
 inline CILK_API(void)
 __cilkrts_ivar_clear(__cilkrts_ivar* ivar) { *ivar = 0; __sync_synchronize(); }
@@ -53,6 +57,7 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
   jmp_buf ctx; 
   uintptr_t volatile peek;
   ivar_payload_t payload;
+  queue_t waitlist_stack_alloc;
   queue_t *waitlist = NULL;
 
   CILK_ASSERT(ivar);
@@ -76,12 +81,13 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
       peek = *ivar;
       switch (peek & IVAR_MASK) {
         case CILK_IVAR_EMPTY: 
-          waitlist = make_stack_queue();
+          waitlist = &waitlist_stack_alloc;
+          initialize_stack_queue(waitlist);
           payload  = (((ivar_payload_t) waitlist) << IVAR_SHIFT) | CILK_IVAR_PAUSED;
           enqueue(waitlist, (ELEMENT_TYPE) w);
           exit = cas(ivar, 0, payload); 
           if (! exit) { 
-            delete_stack_queue(waitlist);
+            clear_stack_queue(waitlist);
             waitlist = NULL; 
             dbgprint(IVAR, "ivar %p failed cas on EMPTY ivar - going around again\n", ivar);
           } else {
@@ -96,6 +102,8 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
             enqueue(waitlist, (ELEMENT_TYPE) w);
             //no cas needed, we hold the lock, which is now released. 
             *ivar = (((ivar_payload_t) waitlist) << IVAR_SHIFT) | CILK_IVAR_PAUSED;
+    // RRN: TEMP, Experiment [2014.10.18], putting this here until someone convinces me we don't need it:
+            __sync_synchronize();
             dbgprint(IVAR,"ivar %p PAUSED. adding worker %p to waitlist %p\n",ivar,w,waitlist);
             break;
           } 

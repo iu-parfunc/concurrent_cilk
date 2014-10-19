@@ -77,6 +77,9 @@ dobuild:
 	./build_scripts/build_libcilk.sh
 	@echo "DONE building libcilkrts."
 
+debug:
+	(export CCILK_DEBUG=1; $(MAKE) dobuild)
+
 deps: $(DEPS)
 
 rebuild:
@@ -86,7 +89,7 @@ rebuild:
 bench: run-benchmarks.exe
 	./run-benchmarks.exe --retry=20 --hostname=$(MACHINECLASS) --runid=$(RUNID) --keepgoing --trials=$(TRIALS) --name=$(TABLE) --fusion-upload --clientid=$(CID) --clientsecret=$(SEC) $(WHICHBENCH) $(BENCHARGS)
 
-PKGS= ./ ./HSBencher/hgdata ./HSBencher/hsbencher ./HSBencher/hsbencher-fusion ./HSBencher/hsbencher-codespeed
+PKGS= ./ ./HSBencher/hgdata ./HSBencher/hsbencher ./HSBencher/hsbencher-fusion ./HSBencher/hsbencher-tool ./HSBencher/hsbencher-codespeed
 CBLARGS= $(JFLAG) --disable-documentation --with-ghc=ghc-$(JENKINS_GHC)  \
           --extra-include-dirs=$(HOME)/opt/include --extra-lib-dirs=$(HOME)/opt/lib --force-reinstalls
 # force-reinstalls is for when we upgrade versions...
@@ -107,6 +110,10 @@ run-benchmarks.exe: run-benchmarks.cabal run-benchmarks.hs
 	$(CABAL) install $(CBLARGS) --bindir=. $(PKGS)
 	./run-benchmarks.exe --help
 	./run-benchmarks.exe -l
+
+profile_deps:
+	(cd ./gperftools/libunwind-0.99-beta; ./configure --prefix=/home/czakian/Research/concurrent_cilk/install; make -j; make install)
+	(cd ./gperftools/gperftools-2.1; ./configure --prefix=/home/czakian/Research/concurrent_cilk/install; make -j; make install)
 
 clean:
 	rm -rf ./run-benchmarks.exe 

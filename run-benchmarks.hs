@@ -148,7 +148,7 @@ perturbed_knapsack_params = varyThreads [16] $
                             , l <- [ 4000, 5000, 10000, 20000, 50000, 100000 ] :: [Int] ]
 
 http_server_params = varyCilkThreads $
-                   Or [ Set NoMeaning (RuntimeArg $ unwords ["./run_http_server.sh", server, "$(CILK_NWORKERS)", "66008"])
+                   Or [ Set NoMeaning (RuntimeArg $ unwords [server, "$(CILK_NWORKERS)", "66008"])
                             | server <- ["./bin/naive_server_Ccilk.exe",
                                          "./bin/naive_server_cilk.exe",
                                          "./bin/naive_server_pthread.exe",
@@ -214,7 +214,7 @@ main = do
                        customTagHarvesterInt "CILKPLUS_RUNTIME_MEMORY_USAGE_BYTES" `mappend` 
                        customTagHarvesterInt "CILKPLUS_STACKSIZE" `mappend` 
                        customTagHarvesterInt "CILKPLUS_TOTALSTACKS" `mappend` 
-                       customTagHarvesterInt "CCILK_EXTRA_STACKS_ADDED" `mappend` 
+                       customTagHarvesterInt "CCILK_TOTAL_STACKS_ADDED" `mappend` 
                        customTagHarvesterInt "CCILK_TOTAL_PAUSE_EVENTS" `mappend` 
                        customTagHarvesterInt "CONCURRENTCILK_WORKERS_BLOCKED" `mappend` 
                        harvesters conf
