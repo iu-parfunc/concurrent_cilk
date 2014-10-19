@@ -159,6 +159,10 @@ if(${CONCURRENT_CILK})
       set(BASE_C_FLAGS "${BASE_C_FLAGS} -DIVAR_BUSYWAIT_VARIANT")
     endif()
 
+    if ($ENV{CCILK_PROFILE})
+      set(BASE_C_FLAGS "${BASE_C_FLAGS}  -g -DCCILK_PROFILE")
+    endif()
+
     if(${CMAKE_C_COMPILER} MATCHES "clang")
       set(BASE_C_FLAGS "-fcilkplus ${BASE_C_FLAGS}")
       set(BASE_CXX_FLAGS "-fcilkplus ${BASE_CXX_FLAGS}")
