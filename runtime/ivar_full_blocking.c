@@ -102,6 +102,8 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
             enqueue(waitlist, (ELEMENT_TYPE) w);
             //no cas needed, we hold the lock, which is now released. 
             *ivar = (((ivar_payload_t) waitlist) << IVAR_SHIFT) | CILK_IVAR_PAUSED;
+    // RRN: TEMP, Experiment [2014.10.18], putting this here until someone convinces me we don't need it:
+            __sync_synchronize();
             dbgprint(IVAR,"ivar %p PAUSED. adding worker %p to waitlist %p\n",ivar,w,waitlist);
             break;
           } 
