@@ -9,14 +9,20 @@
 #include "signal_node.h"
 #include "local_state.h"
 #include "concurrent_queue.h"
+#include "stacks.h"
 
 //--------------------- Concurrent Cilk Internal Functions -------------------------
 
 static inline void cache_worker(__cilkrts_worker *w)
 {
+#ifndef CILK_IVARS_NO_CACHE_WORKER
+  __cilkrts_stack* stack_to_free = NULL;
   CILK_ASSERT(w);
   CILK_ASSERT(w->freelist);
-#ifndef CILK_IVARS_NO_CACHE_WORKER
+  stack_to_free = w->l->stack_to_free;
+  if (stack_to_free) {
+    __cilkrts_release_stack(w, stack_to_free);
+  }
   enqueue(w->freelist, (ELEMENT_TYPE) w);
 #else
   // -- safety: no free for now - we can't free the original top level worker!
@@ -122,7 +128,9 @@ __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx)
 
   //lazily allocate a pointer for the paused_event_accumulator. 
   if (! w->paused_event_accumulator) {
-    w->paused_event_accumulator = __cilkrts_malloc(sizeof(int)); *w->paused_event_accumulator = 0;
+    w->paused_event_accumulator  = __cilkrts_malloc(sizeof(int)); 
+    __cilkrts_fence();
+    *w->paused_event_accumulator = 0;
   }
 
   if (0 == *w->ref_count) {
@@ -191,9 +199,11 @@ inline __cilkrts_roll_back_pause(__cilkrts_worker *paused_w, __cilkrts_worker *r
 
 
   CILK_API(void)
-__cilkrts_resume_fiber(__cilkrts_worker *w)
+__cilkrts_resume_fiber(__cilkrts_worker  *w, __cilkrts_worker *current_tls_w)
 {
-  __cilkrts_worker *current_tls_w = __cilkrts_get_tls_worker_fast();
+  if_f (w->self != current_tls_w->self)  {
+    printf("restoring w %d/%p, current w %d/%p\n", w->self, w, current_tls_w->self, current_tls_w);
+  }
   // Assert conditions for restoration are met.
   CILK_ASSERT(w);
   CILK_ASSERT(current_tls_w); 
@@ -231,8 +241,18 @@ __cilkrts_resume_fiber(__cilkrts_worker *w)
 inline  CILK_API(void) 
 __cilkrts_run_replacement_fiber(__cilkrts_worker *replacement)
 {
-  //sets pthread TLS to replacement worker and invokes the scheduler
+  //__cilkrts_worker *ready_worker;
+  //CILK_ASSERT(replacement->readylist);
+
+  //if (! dequeue(replacement->readylist, (ELEMENT_TYPE *) &ready_worker)) {
+  //  // Immediately run concurrent work if available - don't jump to the scheduler
+  //  __cilkrts_resume_fiber(ready_worker, replacement);
+  //} else {
+  //  // Sets pthread TLS to replacement worker and invokes the scheduler
+  //  __cilkrts_worker_stub((void *) replacement);
+  //}
   __cilkrts_worker_stub((void *) replacement);
+  CILK_ASSERT(0);
 }
 
 inline CILK_API(void)

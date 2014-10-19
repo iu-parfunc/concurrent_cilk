@@ -9,7 +9,7 @@ __CILKRTS_BEGIN_EXTERN_C
 
 #define ELEMENT_TYPE uint64_t
 #define SUCCESS 0
-#define QUEUE_EMPTY -1
+#define QUEUE_EMPTY -2
 
 // Consists of a pair type and a list/queue type.
 struct __cilkrts_stack_pair {
@@ -20,8 +20,8 @@ struct __cilkrts_stack_pair {
 
 struct queue_t {
   struct __cilkrts_stack_pair* head;
-  struct __cilkrts_stack_pair* tail;        
-}; //maybe aligne this?
+  struct __cilkrts_stack_pair* tail __attribute__ ((aligned(64)));         
+} __attribute__ ((aligned(64))); 
 
 typedef struct queue_t queue_t;
 
