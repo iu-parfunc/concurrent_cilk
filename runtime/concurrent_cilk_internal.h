@@ -110,6 +110,8 @@ void register_worker_for_stealing(__cilkrts_worker *w);
 void __cilkrts_push_concurrent_sync_frame(__cilkrts_worker *w, full_frame *ff);
 full_frame *pop_concurrent_sync_frame(__cilkrts_worker *w);
 
+unsigned long long __cilkrts_get_total_pause_count();
+
 __CILKRTS_END_EXTERN_C
 #endif
 

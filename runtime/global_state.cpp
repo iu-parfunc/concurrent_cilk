@@ -485,6 +485,7 @@ global_state_t* cilkg_init_global_state()
     g->failure_to_allocate_stack = 0;
 #ifdef CILK_IVARS
     g->workers_blocked = 0;
+    g->total_extra_stacks = 0;
 #endif
 
     return g;

@@ -41,6 +41,8 @@ static inline void cache_worker(__cilkrts_worker *w)
   if (dequeue(w->freelist, (ELEMENT_TYPE *) &new_w)) {
     // we did NOT get a worker from the cache
     new_w = make_worker(w->g, w->self, __cilkrts_malloc(sizeof(__cilkrts_worker)));
+    // Increment global count for tabulating CCILK_TOTAL_STACKS_ADDED
+    atomic_add(&(w->g->total_extra_stacks), 1);
     dbgprint(CONCURRENT, "ALLOC FRESH worker %d/%p\n", new_w->self, new_w);
   } else {
     dbgprint(CONCURRENT, "popped FREELIST worker %d/%p\n", new_w->self, new_w);
@@ -118,7 +120,7 @@ __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx)
   //lazily allocate a slot for the pauselist.
   if (! w->pauselist) { w->pauselist = make_stack_queue(); }
 
-  //lazily allocate a slot for the pauselist.
+  //lazily allocate a slot for the freelist.
   if (! w->freelist) { w->freelist = make_stack_queue(); }
 
   //lazily allocate a pointer for the ref_count. 
@@ -268,3 +270,25 @@ __cilkrts_remove_paused_worker_from_stealing(__cilkrts_worker *w)
   w->to_remove_from_stealing = 1;
 }
 
+//------------------------------- runtime stats functions ----------------------
+
+unsigned long long __cilkrts_get_thread_local_pause_count(__cilkrts_worker *w)
+ {
+   if (NULL == w->paused_event_accumulator) {
+     return 0;
+   }
+   return *w->paused_event_accumulator;
+ }
+
+unsigned long long __cilkrts_get_total_pause_count() {
+  int i;
+  unsigned int count = 0;
+  __cilkrts_worker *tmp = NULL;
+  __cilkrts_worker *w = __cilkrts_get_tls_worker_fast();
+
+  for (i = 0; i < w->g->total_workers; i++) {
+     tmp = w->g->workers[i];
+     count += __cilkrts_get_thread_local_pause_count(tmp);
+  }
+  return count;
+}
