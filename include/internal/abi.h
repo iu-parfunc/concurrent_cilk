@@ -232,6 +232,8 @@ struct __cilkrts_worker {
     // A queue of paused worker states available for stealing. 
     struct queue_t *pauselist;
 
+    int *pauselist_size; 
+
     // A queue of free (unreferenced) worker states available for allocation as a replacement worker. 
     struct queue_t *freelist;
 
@@ -256,11 +258,15 @@ struct __cilkrts_worker {
     // 1 if the worker is paused and 0 if it is running. 
     int blocked;
 
+
     // Holds the depth of the worker relative to top level. 
     // If there is 3 paused workers, there exists a worker with depths 0,1,2 
     // with 2 being the deepest and 0 being top level. 
     int worker_depth;
     
+
+    // Set to nonzero if the worker should be removed from the pauselist and put into the readylist. 
+    uintptr_t *ready_flag;
 
     // 1 if this worker should be removed from from concurrent stealing and 0 otherwise. 
     // The actual removal is done lazily by find_concurrent_work() in concurrent_cilk.c.

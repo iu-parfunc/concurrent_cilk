@@ -2321,14 +2321,15 @@ __cilkrts_worker *make_worker(global_state_t *g,
   reset_THE_exception(w);
 
 #ifdef CILK_IVARS
-  w->paused_ctx    = NULL;
-  w->readylist     = NULL;
-  w->pauselist     = NULL;
-  w->freelist      = NULL;
-  w->team_leader   = NULL;
-  w->blocked       = 0;
-  w->ref_count     = 0;
-  w->worker_depth  = 0;
+  w->paused_ctx     = NULL;
+  w->readylist      = NULL;
+  w->pauselist      = NULL;
+  w->freelist       = NULL;
+  w->team_leader    = NULL;
+  w->pauselist_size = NULL;
+  w->blocked        = 0;
+  w->ref_count      = 0;
+  w->worker_depth   = 0;
   w->to_remove_from_stealing  = 0;
   w->paused_event_accumulator = 0;
 #endif

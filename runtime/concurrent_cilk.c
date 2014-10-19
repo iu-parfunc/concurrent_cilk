@@ -23,6 +23,9 @@ static inline void cache_worker(__cilkrts_worker *w)
   if (stack_to_free) {
     __cilkrts_release_stack(w, stack_to_free);
   }
+  w->ready_flag = NULL;
+  w->paused_ctx = NULL;
+  w->blocked = 0;
   enqueue(w->freelist, (ELEMENT_TYPE) w);
 #else
   // -- safety: no free for now - we can't free the original top level worker!
@@ -58,6 +61,7 @@ static inline void cache_worker(__cilkrts_worker *w)
 
 inline __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim)
 {
+  int count = 0;
   __cilkrts_worker *surrogate = NULL;
   CILK_ASSERT(victim);
 
@@ -74,11 +78,25 @@ inline __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim)
   //  * the victim thread concurrently adds to the pauselist,
   //    which it cannot do an infinite number of times
   while (victim->pauselist) {
+    if(count > *victim->pauselist_size) {
+      break;
+    }
+    ++count;
+
     if ((! dequeue(victim->pauselist, (ELEMENT_TYPE *) &surrogate)) && surrogate) {
+
+      if (surrogate->ready_flag && *surrogate->ready_flag) {
+        enqueue(victim->readylist, (ELEMENT_TYPE) surrogate);
+        surrogate = NULL;
+        *victim->pauselist_size -= 1;
+        break; //we have work to run right now, don't steal.
+      }
+
       // Lazily remove any workers marked for deletion from the stealing queue
       if (surrogate->to_remove_from_stealing) { 
         surrogate->to_remove_from_stealing = 0;
         surrogate = NULL;
+        *victim->pauselist_size -= 1;
         continue;
       }
 
@@ -88,13 +106,15 @@ inline __cilkrts_worker *find_concurrent_work(__cilkrts_worker *victim)
         // We must put the worker back. There may be more work to steal from it later.
         enqueue(victim->pauselist, (ELEMENT_TYPE) surrogate);
         break;
-      } 
+      }
+      enqueue(victim->pauselist, (ELEMENT_TYPE) surrogate);
     } else {
       break;
     }
   }
   return surrogate ? surrogate : victim;
 }
+
 
 //--------------------- Concurrent Cilk API Functions -------------------------
 
@@ -119,6 +139,9 @@ __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx)
 
   //lazily allocate a slot for the pauselist.
   if (! w->pauselist) { w->pauselist = make_stack_queue(); }
+
+  //lazily allocate a slot for the pauselist size.
+  if (! w->pauselist_size) { w->pauselist_size = __cilkrts_malloc(sizeof(int)); *w->pauselist_size = 0; }
 
   //lazily allocate a slot for the freelist.
   if (! w->freelist) { w->freelist = make_stack_queue(); }
@@ -148,14 +171,15 @@ __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx)
 
   CILK_ASSERT(NULL != w->l->team->team_leader);
 
-  replacement->readylist     = w->readylist;
-  replacement->freelist      = w->freelist;
-  replacement->ref_count     = w->ref_count;
-  replacement->team_leader   = w->team_leader;
-  replacement->l->team       = w->l->team;
-  replacement->l->type       = w->l->type;
-  replacement->worker_depth  = w->worker_depth+1;
-  replacement->pauselist     = w->pauselist;
+  replacement->readylist      = w->readylist;
+  replacement->freelist       = w->freelist;
+  replacement->ref_count      = w->ref_count;
+  replacement->team_leader    = w->team_leader;
+  replacement->l->team        = w->l->team;
+  replacement->l->type        = w->l->type;
+  replacement->worker_depth   = w->worker_depth+1;
+  replacement->pauselist      = w->pauselist;
+  replacement->pauselist_size = w->pauselist_size;
   replacement->paused_event_accumulator = w->paused_event_accumulator;
   *replacement->ref_count += 1;
   *replacement->paused_event_accumulator +=1;
@@ -185,6 +209,7 @@ __cilkrts_commit_pause(__cilkrts_worker *w, jmp_buf *ctx)
   CILK_API(void)
 inline __cilkrts_roll_back_pause(__cilkrts_worker *paused_w, __cilkrts_worker *replacement_w)
 {
+  paused_w->ready_flag = NULL;
   paused_w->paused_ctx = NULL;
   paused_w->blocked    = 0;
 
@@ -260,6 +285,7 @@ __cilkrts_run_replacement_fiber(__cilkrts_worker *replacement)
 inline CILK_API(void)
 __cilkrts_register_paused_worker_for_stealing(__cilkrts_worker *w) 
 {
+  *w->pauselist_size += 1;
   w->to_remove_from_stealing = 0;
   enqueue(w->pauselist, (ELEMENT_TYPE) w);
 }
