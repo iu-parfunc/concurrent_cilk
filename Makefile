@@ -112,8 +112,8 @@ run-benchmarks.exe: run-benchmarks.cabal run-benchmarks.hs
 	./run-benchmarks.exe -l
 
 profile_deps:
-	(cd ./gperftools/libunwind-0.99-beta; ./configure --prefix=/home/czakian/Research/concurrent_cilk/install; make -j; make install)
-	(cd ./gperftools/gperftools-2.1; ./configure --prefix=/home/czakian/Research/concurrent_cilk/install; make -j; make install)
+	(cd ./gperftools/libunwind-0.99-beta; ./configure --prefix=$(CILK_ROOT); make -j; make install)
+	(cd ./gperftools/gperftools-2.1; ./configure --prefix=$(CILK_ROOT); make -j; make install)
 
 clean:
 	rm -rf ./run-benchmarks.exe 
