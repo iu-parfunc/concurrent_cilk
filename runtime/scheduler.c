@@ -152,6 +152,8 @@ void __cilkrts_dump_stats_to_stderr(global_state_t *g)
     fprintf(stderr, "CILKPLUS_TOTALSTACKS: %ld\n", g->stacks);
 #ifdef CILK_IVARS
     fprintf(stderr, "CONCURRENTCILK_WORKERS_BLOCKED: %d\n", g->workers_blocked);
+    fprintf(stderr, "CCILK_TOTAL_PAUSE_EVENTS: %llu\n", __cilkrts_get_total_pause_count());
+    fprintf(stderr, "CCILK_EXTRA_STACKS_ADDED: %lu\n", g->total_extra_stacks);
 #endif
 #ifdef CILK_PROFILE
     if (g->stats.stack_hwm)
@@ -2328,7 +2330,7 @@ __cilkrts_worker *make_worker(global_state_t *g,
   w->ref_count     = 0;
   w->worker_depth  = 0;
   w->to_remove_from_stealing  = 0;
-  w->paused_event_accumulator = NULL;
+  w->paused_event_accumulator = 0;
 #endif
 
   return w;

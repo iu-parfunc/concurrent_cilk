@@ -14,16 +14,16 @@ void initialize_stack_queue(queue_t *q);
 void clear_stack_queue(queue_t* q);
 
 inline CILK_API(void)
-__cilkrts_ivar_clear(__cilkrts_ivar* ivar) { *ivar = 0; __sync_synchronize(); }
+  __cilkrts_ivar_clear(__cilkrts_ivar* ivar) { *ivar = 0; __sync_synchronize(); }
 
-inline CILK_API(void)
+  inline CILK_API(void)
 __cilkrts_ivar_array_clear(__cilkrts_ivar *ptr, int size)
 { 
   memset(ptr, 0, sizeof(__cilkrts_ivar) * (size_t) size);
   __sync_synchronize();
 }
 
-inline CILK_API(__cilkrts_ivar*)
+  inline CILK_API(__cilkrts_ivar*)
 __cilkrts_new_ivar_array(int size)
 {
   __cilkrts_ivar* ptr = calloc(sizeof(__cilkrts_ivar), size);
@@ -34,6 +34,14 @@ __cilkrts_new_ivar_array(int size)
 #ifdef IVAR_BUSYWAIT_VARIANT
 #include "ivar_busywait.c"
 #else 
+
+
+struct cons {
+  // ELEMENT_TYPE car; 
+  __cilkrts_worker * car;
+  struct cons* cdr;
+};
+typedef struct cons cons_t;
 
 /**
  * Read an IVar and obtain its value. An IVar can be in any one of three states:
@@ -48,7 +56,7 @@ __cilkrts_new_ivar_array(int size)
  *         -- pause the continuation and steal work.
  *         -- once the IVar is full, the function will return the value.
  */
-inline CILK_API(ivar_payload_t)
+  inline CILK_API(ivar_payload_t)
 __cilkrts_ivar_read(__cilkrts_ivar *ivar)
 {
   __cilkrts_worker *w, *replacement;
@@ -56,9 +64,9 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
   uintptr_t val;
   jmp_buf ctx; 
   uintptr_t volatile peek;
-  ivar_payload_t payload;
-  queue_t waitlist_stack_alloc;
-  queue_t *waitlist = NULL;
+  ivar_payload_t my_payload;
+
+  cons_t my_waitlist_cell, *cur_cell;
 
   CILK_ASSERT(ivar);
 
@@ -75,45 +83,34 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
 
   if (! val) {
     w = __cilkrts_get_tls_worker_fast();
+    my_waitlist_cell.car = w;
+    my_payload = (((ivar_payload_t) &my_waitlist_cell) << IVAR_SHIFT) | CILK_IVAR_PAUSED;
     replacement = __cilkrts_commit_pause(w, &ctx); 
 
     do {
       peek = *ivar;
       switch (peek & IVAR_MASK) {
         case CILK_IVAR_EMPTY: 
-          waitlist = &waitlist_stack_alloc;
-          initialize_stack_queue(waitlist);
-          payload  = (((ivar_payload_t) waitlist) << IVAR_SHIFT) | CILK_IVAR_PAUSED;
-          enqueue(waitlist, (ELEMENT_TYPE) w);
-          exit = cas(ivar, 0, payload); 
+          my_waitlist_cell.cdr = NULL;          
+          exit = cas(ivar, 0, my_payload);
           if (! exit) { 
-            clear_stack_queue(waitlist);
-            waitlist = NULL; 
             dbgprint(IVAR, "ivar %p failed cas on EMPTY ivar - going around again\n", ivar);
           } else {
             dbgprint(IVAR, "ivar %p EMPTY. Filled with replacement %p\n", ivar, replacement);
           }
           break;
         case CILK_IVAR_PAUSED:
-          waitlist = (queue_t *)(*ivar >> IVAR_SHIFT);
-          CILK_ASSERT(waitlist);
-          exit = cas(ivar, peek, (((ivar_payload_t) waitlist) << IVAR_SHIFT) | CILK_IVAR_LOCKED);
-          if (exit) {
-            enqueue(waitlist, (ELEMENT_TYPE) w);
-            //no cas needed, we hold the lock, which is now released. 
-            *ivar = (((ivar_payload_t) waitlist) << IVAR_SHIFT) | CILK_IVAR_PAUSED;
-    // RRN: TEMP, Experiment [2014.10.18], putting this here until someone convinces me we don't need it:
-            __sync_synchronize();
-            dbgprint(IVAR,"ivar %p PAUSED. adding worker %p to waitlist %p\n",ivar,w,waitlist);
-            break;
-          } 
+          cur_cell = (cons_t *)(peek >> IVAR_SHIFT);
+          CILK_ASSERT(cur_cell); // Never empty because it starts as a singleton
+          my_waitlist_cell.cdr = cur_cell; // If we bump them with CAS, then they are our neighor.
+          exit = cas(ivar, peek, my_payload);
+          if (exit) dbgprint(IVAR,"ivar %p PAUSED. added worker %p to waitlist %p\n",ivar,w,waitlist);
+          break;
         case CILK_IVAR_FULL:
           dbgprint(IVAR, "ivar %p FILLED while reading\n", ivar);
           //nevermind...someone filled it. 
           __cilkrts_roll_back_pause(w, replacement);
           return UNTAG(*ivar);
-          break; //go around again
-        case CILK_IVAR_LOCKED:
           break; //go around again
         default: 
           __cilkrts_bug("[read] Cilk IVar %p in corrupted state 0x%x. Aborting program.\n", ivar, *ivar&IVAR_MASK);
@@ -143,7 +140,7 @@ __cilkrts_ivar_write(__cilkrts_ivar *ivar, ivar_payload_t val)
   ivar_payload_t new_val  = (val << IVAR_SHIFT) | CILK_IVAR_FULL;
   ivar_payload_t old_val; 
   ivar_payload_t volatile peek; 
-  queue_t *waitlist = NULL; 
+  cons_t *waitlist = NULL; 
 
   CILK_ASSERT(ivar);
   do {
@@ -156,12 +153,15 @@ __cilkrts_ivar_write(__cilkrts_ivar *ivar, ivar_payload_t val)
 
 
         CILK_ASSERT(old_val == peek);
-        waitlist = (queue_t *) (old_val >> IVAR_SHIFT);
+        // We own the whole waitlist here:
+        waitlist = (cons_t *) (old_val >> IVAR_SHIFT);
         CILK_ASSERT(waitlist);
-        while (! dequeue(waitlist, (ELEMENT_TYPE *) &w)) {
+        while ( waitlist != NULL ) {
+          w = waitlist->car;
           dbgprint(IVAR, "enqueuing %p on readylist %p sf %p\n",
               w, w->readylist, w->current_stack_frame);
           enqueue(w->readylist, (ELEMENT_TYPE) w);
+          waitlist = waitlist->cdr;
         }
         exit = 1;
         break;
@@ -171,8 +171,6 @@ __cilkrts_ivar_write(__cilkrts_ivar *ivar, ivar_payload_t val)
         dbgprint(IVAR, "old_val 0x%lx flags 0x%lx\n", ((uintptr_t) old_val >> IVAR_SHIFT), old_val & IVAR_MASK);
         if ((*ivar & IVAR_MASK) == CILK_IVAR_FULL)  { exit = 1; }
         break;  
-      case CILK_IVAR_LOCKED:
-        break; //go around again
       case CILK_IVAR_FULL:
         __cilkrts_bug("Attempted multiple puts on Cilk IVar %p. Aborting program.\n", ivar);
       default:
