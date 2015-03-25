@@ -104,7 +104,8 @@ __cilkrts_ivar_read(__cilkrts_ivar *ivar)
           CILK_ASSERT(cur_cell); // Never empty because it starts as a singleton
           my_waitlist_cell.cdr = cur_cell; // If we bump them with CAS, then they are our neighor.
           exit = cas(ivar, peek, my_payload);
-          if (exit) dbgprint(IVAR,"ivar %p PAUSED. added worker %p to waitlist %p\n",ivar,w,waitlist);
+          if (exit) dbgprint(IVAR,"ivar %p PAUSED. added worker %p to waitlist %p\n",ivar,w,
+                             my_waitlist_cell.cdr);
           break;
         case CILK_IVAR_FULL:
           dbgprint(IVAR, "ivar %p FILLED while reading\n", ivar);
